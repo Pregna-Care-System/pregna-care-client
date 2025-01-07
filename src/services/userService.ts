@@ -1,9 +1,8 @@
 import * as request from '@/utils/axiosClient'
-import { LoginResponse, RegisterResponse, VerifyEmailResponse } from '@/models/authModel'
 
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
+export const login = async (email: string, password: string): Promise<MODEL.LoginResponse> => {
   try {
-    const res = await request.post<LoginResponse>(`/authentication`, {
+    const res = await request.post<MODEL.LoginResponse>(`/authentication`, {
       username: email,
       password: password
     })
@@ -19,9 +18,9 @@ export const logout = (): void => {
   localStorage.removeItem('refreshToken')
 }
 
-export const register = async (userName: string, email: string, password: string): Promise<RegisterResponse> => {
+export const register = async (userName: string, email: string, password: string): Promise<MODEL.RegisterResponse> => {
   try {
-    const res = await request.post<RegisterResponse>(`/account/signup`, {
+    const res = await request.post<MODEL.RegisterResponse>(`/account/signup`, {
       username: userName,
       email: email,
       password: password
@@ -33,9 +32,9 @@ export const register = async (userName: string, email: string, password: string
   }
 }
 
-export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
+export const verifyEmail = async (token: string): Promise<MODEL.VerifyEmailResponse> => {
   try {
-    const res = await request.get<VerifyEmailResponse>(`/account/verify`, {
+    const res = await request.get<MODEL.VerifyEmailResponse>(`/account/verify`, {
       params: { token }
     })
     return res
