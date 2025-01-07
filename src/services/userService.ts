@@ -1,5 +1,5 @@
-import * as request from '~/utils/axiosClient'
-import { LoginResponse, RegisterResponse, VerifyEmailResponse } from '~/models/authModel'
+import * as request from '@/utils/axiosClient'
+import { LoginResponse, RegisterResponse, VerifyEmailResponse } from '@/models/authModel'
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {

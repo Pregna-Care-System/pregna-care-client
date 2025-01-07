@@ -1,8 +1,8 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import backgroundAuth from '~/assets/background.png'
+import backgroundAuth from '@/assets/background.png'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
-import signup from '~/assets/signup.jpg'
+import signup from '@/assets/signup.jpg'
 
 export default function Register() {
   const register = () => {

@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { refreshToken } from '~/services/userService'
+import { refreshToken } from '@/services/userService'
 
 const request = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL
