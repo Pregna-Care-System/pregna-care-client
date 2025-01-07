@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  h1 {
+    @apply text-xl m-2;
+  }
+  p {
+    @apply m-2 text-gray-600 font-bold;
+  }
+  body {
+    @apply font-sans;
+  }
+  
+}
