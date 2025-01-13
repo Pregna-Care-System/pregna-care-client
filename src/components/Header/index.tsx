@@ -46,6 +46,9 @@ export default function Header() {
         </NavLink>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 font-bold text-xs'>
+        <Link to={ROUTES.LOGIN} className='border-red-400 border-2 bg-white text-red-400 rounded py-2 px-4'>
+          Sign Up
+        </Link>
         <Link to={ROUTES.LOGIN} className='bg-red-400 text-white rounded py-2 px-4'>
           Sign In
         </Link>
