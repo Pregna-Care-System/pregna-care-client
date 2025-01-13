@@ -1,12 +1,12 @@
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
-import MainLayout from './layouts/mainLayout'
+import MainLayout from '@layouts/MainLayout'
 import { Fragment, Suspense } from 'react'
 import { publicRoutes, privateRoutes } from './routes'
 import useAuth from './hooks/useAuth'
 
 function App() {
   const { isAuthenticated } = useAuth()
-  
+
   const publicRouterObjects: RouteObject[] = publicRoutes.map(({ path, component: Component, layout }) => {
     const Layout = layout === null ? Fragment : layout || MainLayout
 

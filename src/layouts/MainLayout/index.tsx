@@ -4,9 +4,9 @@ type Props = {
 }
 export default function MainLayout({ children }: Props) {
   return (
-    <div className='flex flex-col items-center w-full h-full'>
+    <div className=''>
       <Header />
-      <div className='flex w-full h-full'>{children}</div>
+      <div className=''>{children}</div>
     </div>
   )
 }
