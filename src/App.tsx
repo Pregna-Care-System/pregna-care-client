@@ -3,6 +3,7 @@ import MainLayout from '@layouts/MainLayout'
 import { Fragment, Suspense } from 'react'
 import { publicRoutes, privateRoutes } from './routes'
 import useAuth from './hooks/useAuth'
+import ROUTES from './utils/config/routes'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -39,7 +40,7 @@ function App() {
   const appRouter = [...publicRouterObjects, ...privateRouterObjects]
 
   appRouter.push({
-    path: '*',
+    path: ROUTES.NOT_FOUND,
     element: <h2>404 - Page Not Found</h2>
   })
 
