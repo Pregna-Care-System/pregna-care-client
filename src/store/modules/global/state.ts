@@ -1,13 +1,25 @@
 export const initialState = {
-  banner: [
+  membershipPlans: [
     {
-      picture: 'https://images.healthshots.com/healthshots/en/uploads/2022/05/12104033/pregnancy-1-1024x576.jpg'
+      id: 1,
+      title: 'Pregnancy Tracking',
+      description:
+        'Helps monitor fetal development, schedule checkups, track maternal health, provide tips, and ensure a healthy pregnancy',
+      price: 0
     },
     {
-      picture: 'https://images.healthshots.com/healthshots/en/uploads/2022/05/12104033/pregnancy-1-1024x576.jpg'
+      id: 2,
+      title: 'Schedule Management',
+      description:
+        'Organizes integrates calendars, sets reminders, tracks time, and enhances productivity through efficient planning and collaboration',
+      price: 10
     },
     {
-      picture: 'https://images.healthshots.com/healthshots/en/uploads/2022/05/12104033/pregnancy-1-1024x576.jpg'
+      id: 3,
+      title: 'Sharing and Community',
+      description:
+        'Fosters connection, collaboration, resource sharing, and support, empowering individuals and groups to achieve common goals',
+      price: 20
     }
   ]
 }
