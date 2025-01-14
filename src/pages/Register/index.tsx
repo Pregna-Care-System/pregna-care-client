@@ -1,12 +1,22 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import backgroundAuth from '@/assets/background.png'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
-import signup from '@/assets/signup.jpg'
+import signup from '@/assets/register.jpg'
+import { registerAccount } from '@/services/userService'
 
 export default function Register() {
-  const register = () => {
-    message.success('Login sc')
+  const onRegister = async (values: MODEL.RegisterFormValues) => {
+    try {
+      const response = await registerAccount(values.fullName, values.email, values.password)
+      if (response.success) {
+        message.success('Registration successful')
+      } else {
+        message.error(response.message || 'Registration failed')
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      message.error(error.message || 'An unexpected error occurred')
+    }
   }
   return (
     <div className='flex w-lvw h-lvh'>
@@ -17,29 +27,34 @@ export default function Register() {
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
-      >
-        <Typography.Title style={{ color: 'white', fontWeight: 'bold', marginTop: '50px' }}>
-          Create your account free
-        </Typography.Title>
-        <p className='text-white text-lg mt-4 animate-pulse'>
-          Join our community and unlock unlimited potential with exclusive resources, and opportunities designed just
-          for you.
-        </p>
-      </div>
-      <div className='w-1/2 bg-purple-100'>
+      ></div>
+      <div className='w-1/2 bg-red-50'>
         <Form
-          onFinish={register}
-          className='text-center bg-white bg-opacity-30 p-10'
+          onFinish={onRegister}
+          className='text-center bg-white bg-opacity-30 p-10 pt-0 pb-0'
           labelAlign='left'
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
         >
-          <Typography.Title>SIGN UP</Typography.Title>
+          <Typography.Title style={{ color: '#e57373' }}>SIGN UP</Typography.Title>
           <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' onClick={register} />
-            <FacebookFilled className='cursor-pointer text-blue-900' onClick={register} />
+            <GoogleOutlined className='cursor-pointer text-red-500' />
+            <FacebookFilled className='cursor-pointer text-blue-900' />
           </div>
           <Divider className='border-black border-solid'>OR</Divider>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: 'Please enter Fullname'
+              }
+            ]}
+            label='Fullname'
+            name={'fullName'}
+            className='mb-2 mt-0'
+          >
+            <Input prefix={<UserOutlined />} placeholder='Enter your fullname' allowClear />
+          </Form.Item>
           <Form.Item
             rules={[
               {
@@ -49,7 +64,7 @@ export default function Register() {
               }
             ]}
             label='Email Address'
-            name={'myEmail'}
+            name={'email'}
             className='mb-2'
           >
             <Input prefix={<UserOutlined />} placeholder='Enter your email' allowClear />
@@ -62,7 +77,7 @@ export default function Register() {
               }
             ]}
             label='Password'
-            name={'myPassword'}
+            name={'password'}
             className='mb-2'
           >
             <Input.Password prefix={<LockOutlined />} placeholder='Enter your password' allowClear />
@@ -71,23 +86,32 @@ export default function Register() {
             rules={[
               {
                 required: true,
-                message: 'Please enter username'
-              }
+                message: 'Please enter your confirm password'
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') == value) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('The two password do not match'))
+                }
+              })
             ]}
-            label='Username'
-            name={'myUsername'}
+            label='ConfirmPassword'
+            name={'confirmPassword'}
+            dependencies={['myPassword']}
             className='mb-6'
           >
-            <Input prefix={<UserOutlined />} placeholder='Enter your username' allowClear />
+            <Input.Password prefix={<LockOutlined />} placeholder='Enter your confirm password' allowClear />
           </Form.Item>
-          <Button type='primary' htmlType='submit' block className='bg-black'>
+          <Button type='primary' htmlType='submit' block className='bg-red-400'>
             Register
           </Button>
           <div className='text-center mt-8 flex justify-center items-center gap-2'>
             <span className='text-gray-800'>Already have an account?</span>
             <Button
               type='default'
-              className='border-black border-1 text-black px-4 py-1 hover:bg-black hover:text-white transition-all rounded-md'
+              className='border-red-400 border-1 text-black px-4 py-1 hover:bg-black hover:text-white transition-all rounded-md'
             >
               <Link to='/login'>Login</Link>
             </Button>
