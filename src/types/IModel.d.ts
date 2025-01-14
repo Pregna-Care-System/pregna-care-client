@@ -2,22 +2,21 @@ declare namespace MODEL {
   export interface LoginResponse {
     accessToken: string
     refreshToken: string
-    user: {
-      id: string
-      email: string
-      username: string
-    }
   }
 
   export interface RegisterResponse {
-    user: {
-      id: string
-      email: string
-      username: string
-    }
+    response: unknown | null
+    messageId: string
     message: string
+    success: boolean
+    detailErrorList: unknown | null
   }
-
+  export interface RegisterFormValues {
+    fullName: string
+    email: string
+    password: string
+  }
+  
   export interface VerifyEmailResponse {
     message: string
   }

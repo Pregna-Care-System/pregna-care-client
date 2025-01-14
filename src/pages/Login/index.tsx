@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Form, Input, message, Typography } from 'antd'
+import { Button, Divider, Form, Input, message, Typography } from 'antd'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'

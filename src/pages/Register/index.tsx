@@ -2,10 +2,21 @@ import { Button, Divider, Form, Input, message, Typography } from 'antd'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
+import { registerAccount } from '@/services/userService'
 
 export default function Register() {
-  const register = () => {
-    message.success('Login sc')
+  const onRegister = async (values: MODEL.RegisterFormValues) => {
+    try {
+      const response = await registerAccount(values.fullName, values.email, values.password)
+      if (response.success) {
+        message.success('Registration successful')
+      } else {
+        message.error(response.message || 'Registration failed')
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      message.error(error.message || 'An unexpected error occurred')
+    }
   }
   return (
     <div className='flex w-lvw h-lvh'>
@@ -16,20 +27,19 @@ export default function Register() {
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
-      >
-      </div>
+      ></div>
       <div className='w-1/2 bg-red-50'>
         <Form
-          onFinish={register}
+          onFinish={onRegister}
           className='text-center bg-white bg-opacity-30 p-10 pt-0 pb-0'
           labelAlign='left'
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
         >
-          <Typography.Title style={{color: '#e57373'}}>SIGN UP</Typography.Title>
+          <Typography.Title style={{ color: '#e57373' }}>SIGN UP</Typography.Title>
           <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' onClick={register} />
-            <FacebookFilled className='cursor-pointer text-blue-900' onClick={register} />
+            <GoogleOutlined className='cursor-pointer text-red-500' />
+            <FacebookFilled className='cursor-pointer text-blue-900' />
           </div>
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item
@@ -40,7 +50,7 @@ export default function Register() {
               }
             ]}
             label='Fullname'
-            name={'myFullName'}
+            name={'fullName'}
             className='mb-2 mt-0'
           >
             <Input prefix={<UserOutlined />} placeholder='Enter your fullname' allowClear />
@@ -54,7 +64,7 @@ export default function Register() {
               }
             ]}
             label='Email Address'
-            name={'myEmail'}
+            name={'email'}
             className='mb-2'
           >
             <Input prefix={<UserOutlined />} placeholder='Enter your email' allowClear />
@@ -67,7 +77,7 @@ export default function Register() {
               }
             ]}
             label='Password'
-            name={'myPassword'}
+            name={'password'}
             className='mb-2'
           >
             <Input.Password prefix={<LockOutlined />} placeholder='Enter your password' allowClear />
@@ -76,11 +86,20 @@ export default function Register() {
             rules={[
               {
                 required: true,
-                message: 'Please enter valid password'
-              }
+                message: 'Please enter your confirm password'
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') == value) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('The two password do not match'))
+                }
+              })
             ]}
             label='ConfirmPassword'
-            name={'myPassword'}
+            name={'confirmPassword'}
+            dependencies={['myPassword']}
             className='mb-6'
           >
             <Input.Password prefix={<LockOutlined />} placeholder='Enter your confirm password' allowClear />
