@@ -1,15 +1,17 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
 import { registerAccount } from '@/services/userService'
 
 export default function Register() {
+  const navigate = useNavigate()
   const onRegister = async (values: MODEL.RegisterFormValues) => {
     try {
       const response = await registerAccount(values.fullName, values.email, values.password)
       if (response.success) {
         message.success('Registration successful')
+        navigate('/confirm-email')
       } else {
         message.error(response.message || 'Registration failed')
       }

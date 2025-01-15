@@ -1,3 +1,5 @@
+import ConfirmEmail from '@/pages/Register/ConfirmPage'
+import EmailConfirmationSuccessPage from '@/pages/Register/ConfirmSuccess'
 import ROUTES from '@/utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import SideBarLayout from '@layouts/SideBarLayout'
@@ -10,7 +12,9 @@ import Register from '@pages/Register'
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
-  { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout }
+  { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
+  { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
+  { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout }
 ]
 // need to login to view
 const privateRoutes = [
