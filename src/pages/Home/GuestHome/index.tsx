@@ -3,15 +3,15 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 //--Components
-import CardService from '@/components/Card/CardService'
+import CardService from '@components/Card/CardService'
+import CardReason from '@components/Card/CardReason'
+import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
+import CardMembershipPlans from '@components/Card/CardMembershipPlans'
+import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 //--Redux
 import { selectMembershipPlans } from '@/store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import CardReason from '@/components/Card/CardReason'
-import CarouselTestimonials from '@/components/Carousel/CarouselTestimonials'
-import CollapseFAQ from '@/components/Collapse/CollapseFAQ'
-import CardMembershipPlans from '@/components/Card/CardMembershipPlans'
 
 const Background = styled.div`
   height: 930px;
