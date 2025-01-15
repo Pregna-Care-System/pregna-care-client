@@ -10,7 +10,7 @@ interface CardProps {
 }
 
 const CardContainer = styled.div<STYLES.IStyles>`
-  border: 2px solid ${style.COLORS.RED.BG_1};
+  border: 2px solid ${style.COLORS.RED.RED_1};
   border-radius: 10px 100px 10px 10px;
   padding: 30px;
   margin: 8px;

@@ -5,10 +5,10 @@ import styled from 'styled-components'
 
 const Wrapper = styled.div`
   .active {
-    color: ${style.COLORS.RED.BG_1};
+    color: ${style.COLORS.RED.RED_1};
   }
   .header_item:hover {
-    color: ${style.COLORS.RED.BG_1};
+    color: ${style.COLORS.RED.RED_1};
   }
 `
 

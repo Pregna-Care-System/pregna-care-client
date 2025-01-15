@@ -1,5 +1,9 @@
 export const COLORS = {
   RED: {
-    BG_1: '#EE7A7A'
-  }
+    RED_1: '#EE7A7A',
+    RED_2: '#FABCB9',
+    RED_3: '#D03838',
+    RED_4: '#FFE1E1'
+  },
+  WHITE: '#FFFFFF'
 }

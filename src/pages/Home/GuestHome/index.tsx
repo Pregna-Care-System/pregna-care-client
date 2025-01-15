@@ -9,6 +9,9 @@ import { selectMembershipPlans } from '@/store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import CardReason from '@/components/Card/CardReason'
+import CarouselTestimonials from '@/components/Carousel/CarouselTestimonials'
+import CollapseFAQ from '@/components/Collapse/CollapseFAQ'
+import CardMembershipPlans from '@/components/Card/CardMembershipPlans'
 
 const Background = styled.div`
   height: 930px;
@@ -36,6 +39,7 @@ export default function GuestHome() {
 
   return (
     <div className='bg-white'>
+      {/* --Background image */}
       <Background
         style={{
           backgroundImage:
@@ -56,6 +60,8 @@ export default function GuestHome() {
           </Link>
         </Content>
       </Background>
+
+      {/* --Services */}
       <div className='container mx-auto p-8'>
         <div className='flex flex-col items-center'>
           <h2 className='text-5xl font-bold'>See our services for member</h2>
@@ -66,6 +72,8 @@ export default function GuestHome() {
         </div>
         <div className='flex justify-center'>{renderMembershipPlans}</div>
       </div>
+
+      {/* --Reasons */}
       <div className='bg-red-50 rounded-2xl'>
         <div className='container mx-auto p-8'>
           <div className='flex flex-col items-center'>
@@ -90,15 +98,91 @@ export default function GuestHome() {
           </div>
         </div>
       </div>
+
+      {/* --Pricing */}
       <div className='container mx-auto p-8'>
-        <div className='flex flex-col items-center'>
+        <div className='flex flex-col items-center mb-8'>
           <h2 className='text-5xl font-bold'>
             Our <span className='text-red-400'>Pricing</span> Package
           </h2>
         </div>
-        <div>
-          
+        <div className='container mx-auto'>
+          <div className='grid grid-cols-3 gap-4 mx-20'>
+            <CardMembershipPlans />
+            <CardMembershipPlans />
+            <CardMembershipPlans />
+          </div>
         </div>
+      </div>
+
+      {/* --FAQ */}
+      <div className='container mx-auto p-8'>
+        <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
+          <div className='bg-red-300 w-16 h-1'></div>FAQs<div className='bg-red-300 w-16 h-1'></div>
+        </h1>
+        <div>
+          <CollapseFAQ />
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className='bg-red-50 p-8 rounded-xl'>
+        <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
+          <div className='bg-red-300 w-16 h-1'></div>Testimonials<div className='bg-red-300 w-16 h-1'></div>
+        </h1>
+        <CarouselTestimonials />
+      </div>
+
+      {/* --Contact */}
+      <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>
+        <div className='flex flex-col items-center'>
+          <h1 className='font-bold text-5xl my-8 flex items-center gap-4'>
+            <div className='bg-red-300 w-16 h-1'></div>Contact Us<div className='bg-red-300 w-16 h-1'></div>
+          </h1>
+          <p className='font-light'>We are honoured to receive your comments and suggestions.</p>
+          <p className='m-0 font-light'>Please feel free to contact us.</p>
+        </div>
+        <div>
+          <form action='' className='flex flex-col gap-4'>
+            <label htmlFor='fullName' className='font-bold'>
+              Name*
+            </label>
+            <input type='text' name='fullName' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
+            <label htmlFor='email' className='font-bold'>
+              Email*
+            </label>
+            <input type='text' name='email' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
+            <label htmlFor='message' className='font-bold'>
+              Message*
+            </label>
+            <textarea
+              rows={'4'}
+              cols={'15'}
+              name='message'
+              className='border border-gray-400 rounded-2xl p-1'
+            ></textarea>
+            <input
+              type='submit'
+              className='bg-gradient-to-r from-red-400 to-red-200 px-4 py-2 rounded-2xl text-white font-bold'
+            />
+          </form>
+        </div>
+      </div>
+
+      {/* --Start free trial */}
+      <div className='container mx-auto p-8 flex flex-col items-center'>
+        <h1 className='text-5xl font-semibold'>Be part of the future of</h1>
+        <h1 className='text-5xl font-semibold'>PregnaCare</h1>
+        <img
+          src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736864690/PregnaCare/iwmdaoarqzdv9fxyxmik.png'
+          alt=''
+        />
+        <Link
+          to={ROUTES.REGISTER}
+          className='bg-gradient-to-r from-red-400 to-red-200 px-4 py-2 rounded-lg text-white font-bold mt-4'
+        >
+          Start free trial
+        </Link>
       </div>
     </div>
   )

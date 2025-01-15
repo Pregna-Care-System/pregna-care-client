@@ -10,7 +10,7 @@ interface CardProps {
 }
 
 const CardContainer = styled.div<STYLES.IStyles>`
-  border: 2px solid ${style.COLORS.RED.BG_1};
+  border: 2px solid ${style.COLORS.RED.RED_1};
   border-radius: 10px;
   padding: 30px;
   margin: 8px;
@@ -18,9 +18,9 @@ const CardContainer = styled.div<STYLES.IStyles>`
   height: ${(props) => props.height || '100%'};
 
   .logo {
-    border: 2px solid ${style.COLORS.RED.BG_1};
+    border: 2px solid ${style.COLORS.RED.RED_1};
     border-radius: 50%;
-    color: ${style.COLORS.RED.BG_1};
+    color: ${style.COLORS.RED.RED_1};
     font-size: 0.5rem;
     font-weight: bold;
     padding: 4px;
