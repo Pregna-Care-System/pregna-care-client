@@ -11,6 +11,8 @@ import MainHome from '@pages/Home/MainHome'
 import LoginPage from '@pages/Login'
 import MainProfile from '@pages/Profile/MainProfile'
 import Register from '@pages/Register'
+import ConfirmEmail from '@pages/Register/ConfirmPage'
+import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -24,7 +26,9 @@ const Register = lazy(() => import('@pages/Register'))
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
-  { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout }
+  { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
+  { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
+  { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout }
 ]
 // need to login to view
 const privateRoutes = [
