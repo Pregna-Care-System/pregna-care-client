@@ -8,9 +8,11 @@ const ROUTES = {
   CONTACT: '/contact',
   BLOG: '/blog',
   SERVICES: '/services',
-  PRICING: '/pricing',
+  PRICING: '/membership-plans',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   COMMUNITY: '/community',
+  MEMBESHIP_PLANS: '/membership-plans',
+  VNPAY: '/vnpay',
   NOT_FOUND: '*'
 }
 export default ROUTES

@@ -11,35 +11,47 @@ const CardContainer = styled.div`
   padding: 2rem;
 `
 
-export default function CardMembershipPlans() {
+interface CardMembershipPlansProps {
+  title: string
+  description: string[]
+  price: number
+  isSelected: boolean
+  onSelect: () => void
+}
+
+export default function CardMembershipPlans(props: CardMembershipPlansProps) {
+  const { title, description, price, isSelected, onSelect } = props
+
+  const renderDescription = description.map((item, index) => {
+    return (
+      <p key={index}>
+        <CheckCircleOutlined className='me-2 text-red-500' />
+        {item}
+      </p>
+    )
+  })
+
   return (
-    <CardContainer>
+    <CardContainer
+      className={`cursor-pointer transition-all ${
+        isSelected ? 'border-red-600 shadow-lg scale-105' : 'hover:border-red-500 hover:shadow-md'
+      }`}
+      onClick={onSelect}
+    >
       <div>
-        <h1 className='text-red-500 text-3xl'>Free Trial (3 days)</h1>
+        <h1 className='text-red-500 text-3xl'>{title}</h1>
         <p className='text-red-500'>
-          $ <span className='text-4xl'>9.99</span>
+          $ <span className='text-4xl'>{price}</span>
         </p>
       </div>
       <Link
         to='/register'
-        className='bg-white border border-red-400 py-2 rounded my-6 w-full block text-red-400 font-bold text-center'
+        className={` border border-red-400 py-2 rounded my-6 w-full block text-red-400 font-bold text-center 
+          ${isSelected ? 'bg-red-500 text-white' : 'bg-white'}`}
       >
         Get started
       </Link>
-      <div className=''>
-        <p>
-          <CheckCircleOutlined className='me-2 text-red-500' />
-          Access to all basic features
-        </p>
-        <p>
-          <CheckCircleOutlined className='me-2 text-red-500' />
-          No credit card required
-        </p>
-        <p>
-          <CheckCircleOutlined className='me-2 text-red-500' />
-          Experience the platform risk-free
-        </p>
-      </div>
+      <div className=''>{renderDescription}</div>
     </CardContainer>
   )
 }

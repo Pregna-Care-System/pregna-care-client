@@ -9,27 +9,27 @@ export default function Footer() {
         <img
           src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
           alt='logo'
-          style={{ width: '50px', height: '50px' }}
+          style={{ width: '80px', height: '70px' }}
         />
         <div className='ms-4'>
-          <h5 className='text-red-400 font-bold text-xl'>PregnaCare</h5>
+          <h5 className='text-red-500 font-bold text-xl'>PregnaCare</h5>
           <p className='m-0 text-sm font-light'>Pregnancy tracker and woman health website</p>
         </div>
       </div>
       <div className='col-start-6 col-span-2 flex flex-col gap-2 font-bold'>
-        <Link to={ROUTES.HOME} className='hover:text-red-400'>
+        <Link to={ROUTES.HOME} className='hover:text-red-500'>
           About us
         </Link>
-        <Link to={ROUTES.CONTACT} className='hover:text-red-400'>
+        <Link to={ROUTES.CONTACT} className='hover:text-red-500'>
           Contact us
         </Link>
-        <Link to={ROUTES.SERVICES} className='hover:text-red-400'>
+        <Link to={ROUTES.SERVICES} className='hover:text-red-500'>
           Features
         </Link>
-        <Link to={ROUTES.COMMUNITY} className='hover:text-red-400'>
+        <Link to={ROUTES.COMMUNITY} className='hover:text-red-500'>
           FAQs
         </Link>
-        <Link to={ROUTES.HOME} className='hover:text-red-400'>
+        <Link to={ROUTES.HOME} className='hover:text-red-500'>
           Testimonials
         </Link>
       </div>
