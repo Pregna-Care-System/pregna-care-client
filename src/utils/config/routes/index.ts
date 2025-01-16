@@ -4,6 +4,8 @@ const ROUTES = {
   HOME: '/home',
   LOGIN: '/login',
   REGISTER: '/register',
+  CONFIRM_EMAIL: '/confirm-email',
+  SUCCESS_CONFIRM: '/email-success-confirm',
   PROFILE: '/profile',
   CONTACT: '/contact',
   BLOG: '/blog',

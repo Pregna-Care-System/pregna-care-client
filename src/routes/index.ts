@@ -29,6 +29,7 @@ const publicRoutes = [
   { path: ROUTES.MEMBESHIP_PLANS, component: PlanUpgrade },
   { path: ROUTES.VNPAY, component: VNPayPage }
 ]
+
 // need to login to view
 const privateRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile, layout: SideBarLayout },
