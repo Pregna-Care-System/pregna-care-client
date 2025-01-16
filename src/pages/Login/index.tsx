@@ -1,11 +1,27 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
+import { login } from '@/services/userService'
 
 export default function LoginPage() {
-  const login = () => {
-    message.success('Login successful')
+  const navigate = useNavigate()
+  const onLogin = async (values: MODEL.LoginFormValues) => {
+    try {
+      const response = await login(values.email, values.password)
+      if (response.success) {
+        message.success('Login successful')
+        navigate('/home')
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.redirect) {
+        message.warning(error.message)
+        navigate(error.redirect)
+      } else {
+        message.error(error.message || 'An unexpected error occurred')
+      }
+    }
   }
 
   return (
@@ -20,7 +36,7 @@ export default function LoginPage() {
       ></div>
       <div className='w-1/2 bg-red-50'>
         <Form
-          onFinish={login}
+          onFinish={onLogin}
           className='text-center bg-white w-full h-full bg-opacity-30 p-10 pt-0 pb-0'
           labelAlign='left'
           labelCol={{ span: 24 }}
@@ -28,8 +44,8 @@ export default function LoginPage() {
         >
           <Typography.Title style={{ color: '#e57373', marginBottom: '10px' }}>Welcome to PregnaCare</Typography.Title>
           <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' onClick={login} />
-            <FacebookFilled className='cursor-pointer text-blue-900' onClick={login} />
+            <GoogleOutlined className='cursor-pointer text-red-500' />
+            <FacebookFilled className='cursor-pointer text-blue-900' />
           </div>
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item

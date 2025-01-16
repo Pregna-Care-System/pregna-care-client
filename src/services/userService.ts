@@ -22,25 +22,41 @@ export const registerAccount = async (
     } else {
       throw new Error(res.message || 'Registration failed')
     }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
   }
 }
 
-// export const login = async (email: string, password: string): Promise<MODEL.LoginResponse> => {
-//   try {
-//     const res = await request.post<MODEL.LoginResponse>(`/authentication`, {
-//       username: email,
-//       password: password
-//     })
-//     return res
-//   } catch (error) {
-//     console.error('Login failed:', error)
-//     throw error
-//   }
-// }
+export const login = async (email: string, password: string) => {
+  try {
+    const apiCallerId = 'Login'
+    const res = await request.post<MODEL.LoginResponse>(`/Login`, {
+      email: email,
+      password: password,
+      apiCallerId
+    })
+
+    if (res.success) {
+      const token = res.response as MODEL.TokenResponse
+      localStorage.setItem('accessToken', token.accessToken)
+      localStorage.setItem('refreshToken', token.refreshToken)
+      return res
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const confirmEmailError = res.detailErrorList?.find((error: any) => error.messageId === 'E00003')
+      if (confirmEmailError) {
+        throw { message: 'Your email is not confirmed.', redirect: '/confirm-email' }
+      } else {
+        throw new Error('Login failed. Please check your email and password.')
+      }
+    }
+  } catch (error) {
+    console.error('Login failed:', error)
+    throw error
+  }
+}
 
 // export const logout = (): void => {
 //   localStorage.removeItem('accessToken')
