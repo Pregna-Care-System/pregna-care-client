@@ -4,6 +4,7 @@ import { Fragment, Suspense } from 'react'
 import { publicRoutes, privateRoutes } from './routes'
 import useAuth from './hooks/useAuth'
 import ROUTES from './utils/config/routes'
+import Loading from '@components/Loading'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -14,9 +15,11 @@ function App() {
     return {
       path: path,
       element: (
-        <Layout>
-          <Component />
-        </Layout>
+        <Suspense fallback={<Loading />}>
+          <Layout>
+            <Component />
+          </Layout>
+        </Suspense>
       )
     }
   })
@@ -27,9 +30,11 @@ function App() {
     return {
       path: path,
       element: isAuthenticated ? (
-        <Layout>
-          <Component />
-        </Layout>
+        <Suspense fallback={<Loading />}>
+          <Layout>
+            <Component />
+          </Layout>
+        </Suspense>
       ) : (
         <Navigate to='/login' replace />
       )
@@ -52,11 +57,7 @@ function App() {
     }
   ])
 
-  return (
-    <Suspense>
-      <RouterProvider router={router} />
-    </Suspense>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
