@@ -9,7 +9,31 @@ import 'swiper/css/pagination'
 import './style.css'
 import CardTestimonials from '@/components/Card/CardTestimonials'
 
-export default function CarouselTestimonials() {
+interface CarouselTestimonialsProps {
+  testimonials: Testimonial[]
+}
+
+interface Testimonial {
+  rating: number
+  userInfo: {
+    name: string
+    profession: string
+    location: string
+    avatar: string
+  }
+  content: string
+}
+
+export default function CarouselTestimonials(props: CarouselTestimonialsProps) {
+  const { testimonials } = props
+  const renderTestimonials = testimonials.map((item, index) => {
+    return (
+      <SwiperSlide key={index}>
+        <CardTestimonials rating={item.rating} userInfo={item.userInfo} content={item.content} />
+      </SwiperSlide>
+    )
+  })
+
   return (
     <Swiper
       slidesPerView={3}
@@ -30,24 +54,7 @@ export default function CarouselTestimonials() {
       modules={[Grid, Pagination]}
       className='mySwiper'
     >
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
-      <SwiperSlide>
-        <CardTestimonials />
-      </SwiperSlide>
+      {renderTestimonials}
     </Swiper>
   )
 }

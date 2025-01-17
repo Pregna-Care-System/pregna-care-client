@@ -51,7 +51,7 @@ const CollapseFAQ: React.FC = () => {
     marginBottom: 24,
     background: style.COLORS.WHITE,
     borderRadius: token.borderRadiusLG,
-    border: `4px solid ${style.COLORS.RED.RED_2}`
+    border: `4px solid ${style.COLORS.RED.RED_1}`
   }
 
   return (

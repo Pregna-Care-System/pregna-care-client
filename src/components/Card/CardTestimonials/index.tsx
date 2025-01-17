@@ -1,37 +1,80 @@
+import { animated, useSpring } from '@react-spring/web'
 import { Rate } from 'antd'
-import React from 'react'
 import styled from 'styled-components'
 
-const CardContainer = styled.div`
+const CardContainer = styled(animated.div)`
+  // Convert to animated div
   background-color: white;
   width: 100%;
-  height: 100%;
+  height: 16rem;
   border-radius: 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: 2rem;
   margin: 1rem;
 `
 
-export default function CardTestimonials() {
+interface CardTestimonialsProps {
+  rating: number
+  userInfo: {
+    name: string
+    profession: string
+    location: string
+    avatar: string
+  }
+  content: string
+}
+
+export default function CardTestimonials(props: CardTestimonialsProps) {
+  const { rating, userInfo, content } = props
+
+  // Fade in animation
+  const fadeIn = useSpring({
+    from: { opacity: 1, transform: 'translateY(20px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    config: { tension: 280, friction: 20 }
+  })
+
+  // Hover animation
+  const [hover, api] = useSpring(() => ({
+    scale: 1,
+    shadow: '0px 5px 15px rgba(0,0,0,0.1)',
+    config: { tension: 300, friction: 20 }
+  }))
+
   return (
-    <CardContainer>
+    <CardContainer
+      style={{
+        ...fadeIn,
+        transform: hover.scale.to((s) => `scale(${s})`),
+        boxShadow: hover.shadow
+      }}
+      onMouseEnter={() => {
+        api.start({ scale: 1.02, shadow: '0px 10px 25px rgba(0,0,0,0.15)' })
+      }}
+      onMouseLeave={() => {
+        api.start({ scale: 1, shadow: '0px 5px 15px rgba(0,0,0,0.1)' })
+      }}
+    >
       <div className='mb-8'>
-        <Rate disabled defaultValue={4} className='mb-4' />
-        <p className='m-0'>
-          "Absolutely love this app! It's been my daily pregnancy companion, offering personalized tips and updates.
-          Can't wait for the official release! ”
-        </p>
+        <Rate disabled defaultValue={rating} className='mb-4' />
+        <animated.p className='m-0'>{content}</animated.p>
       </div>
       <div className='flex justify-between'>
         <div className='text-xs'>
-          <p className='m-0'>Jessica Thompson</p>
-          <p className='m-0 font-light'>Nurse</p>
-          <p className='m-0 font-light'>NY, USA</p>
+          <p className='m-0'>{userInfo.name}</p>
+          <p className='m-0 font-light'>{userInfo.profession}</p>
+          <p className='m-0 font-light'>{userInfo.location}</p>
         </div>
-        <img
-          style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-          src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
+        <animated.img
+          style={{
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            transform: hover.scale.to((s) => `scale(${s})`)
+          }}
+          src={userInfo.avatar}
           alt='avatar'
         />
       </div>

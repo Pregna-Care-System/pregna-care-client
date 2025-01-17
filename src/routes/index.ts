@@ -6,13 +6,10 @@ import ROUTES from '@utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import SideBarLayout from '@layouts/SideBarLayout'
 //--Pages
-import GuestHome from '@pages/Home/GuestHome'
-import MainHome from '@pages/Home/MainHome'
-import LoginPage from '@pages/Login'
-import MainProfile from '@pages/Profile/MainProfile'
-import Register from '@pages/Register'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
+import PlanUpgrade from '@pages/MembershipPlans'
+import VNPayPage from '@/pages/VNPay'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -28,8 +25,11 @@ const publicRoutes = [
   { path: ROUTES.GUEST_HOME, component: GuestHome },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
-  { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout }
+  { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
+  { path: ROUTES.MEMBESHIP_PLANS, component: PlanUpgrade },
+  { path: ROUTES.VNPAY, component: VNPayPage }
 ]
+
 // need to login to view
 const privateRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile, layout: SideBarLayout },
