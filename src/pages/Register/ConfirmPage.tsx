@@ -20,7 +20,7 @@ const ConfirmEmail = () => {
   }
 
   return (
-    <div className='flex justify-center min-h-screen bg-gray-50'>
+    <div className='flex justify-center w-lvw h-lvh bg-gradient-to-br from-blue-50 to-purple-50 p-4'>
       <main className='flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12'>
         <div className='max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg border border-gray-300'>
           <div className='text-center'>
