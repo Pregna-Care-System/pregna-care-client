@@ -1,11 +1,14 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
+import { jwtDecode } from 'jwt-decode'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
 import { login } from '@/services/userService'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+
   const onLogin = async (values: MODEL.LoginFormValues) => {
     try {
       const response = await login(values.email, values.password)
@@ -24,8 +27,22 @@ export default function LoginPage() {
     }
   }
 
+  const handleGoogleSuccess = (response: CredentialResponse) => {
+    if (response.credential) {
+      const decodedToken = jwtDecode(response.credential)
+      console.log('Decoded Token:', decodedToken)
+      message.success('Google login successful')
+    } else {
+      message.error('Google login failed. No credentials received.')
+    }
+  }
+
+  const handleGoogleError = () => {
+    message.error('Google login failed. Please try again.')
+  }
+
   return (
-    <div className='flex w-lvw h-lvh'>
+    <div className='flex w-lvw h-lvh '>
       <div
         className='w-1/2 h-lvh'
         style={{
@@ -37,15 +54,14 @@ export default function LoginPage() {
       <div className='w-1/2 bg-red-50'>
         <Form
           onFinish={onLogin}
-          className='text-center bg-white w-full h-full bg-opacity-30 p-10 pt-0 pb-0'
+          className='text-center bg-white w-full h-full bg-opacity-30 p-10 pt-0 pb-0 '
           labelAlign='left'
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
         >
-          <Typography.Title style={{ color: '#e57373', marginBottom: '10px' }}>Welcome to PregnaCare</Typography.Title>
+          <Typography.Title style={{ color: '#e57373', marginBottom: '40px' }}>Welcome to PregnaCare</Typography.Title>
           <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' />
-            <FacebookFilled className='cursor-pointer text-blue-900' />
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
           </div>
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item
