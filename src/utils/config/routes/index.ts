@@ -15,6 +15,7 @@ const ROUTES = {
   COMMUNITY: '/community',
   MEMBESHIP_PLANS: '/membership-plans',
   VNPAY: '/vnpay',
-  NOT_FOUND: '*'
+  NOT_FOUND: '*',
+  ADMIN_DASHBOARD: '/admin/dashboard',
 }
 export default ROUTES
