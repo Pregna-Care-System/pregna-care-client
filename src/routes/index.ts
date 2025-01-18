@@ -4,12 +4,13 @@ import { lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 //--Layouts
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
-import SideBarLayout from '@layouts/SideBarLayout'
 //--Pages
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
 import PlanUpgrade from '@pages/MembershipPlans'
 import VNPayPage from '@/pages/VNPay'
+import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
+import AdminDashboard from '@pages/Admin'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -32,7 +33,8 @@ const publicRoutes = [
 
 // need to login to view
 const privateRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile, layout: SideBarLayout },
-  { path: ROUTES.HOME, component: MainHome }
+  { path: ROUTES.PROFILE, component: MainProfile, layout: AdminSidebar },
+  { path: ROUTES.HOME, component: MainHome },
+  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
 ]
 export { publicRoutes, privateRoutes }

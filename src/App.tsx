@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
 import MainLayout from '@layouts/MainLayout'
 import { Fragment, Suspense } from 'react'
-import { publicRoutes, privateRoutes } from './routes'
+import { privateRoutes, publicRoutes } from './routes'
 import useAuth from './hooks/useAuth'
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
