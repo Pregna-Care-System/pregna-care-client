@@ -14,8 +14,9 @@ const ROUTES = {
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   COMMUNITY: '/community',
   MEMBESHIP_PLANS: '/membership-plans',
+  CHECKOUT: '/checkout',
   VNPAY: '/vnpay',
   NOT_FOUND: '*',
-  ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_DASHBOARD: '/admin/dashboard'
 }
 export default ROUTES

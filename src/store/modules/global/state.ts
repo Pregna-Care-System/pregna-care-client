@@ -57,21 +57,24 @@ export const initialState = {
   membershipPlans: [
     {
       id: 1,
-      title: 'Free Trial (3 Days)',
-      description: ['Access to all basic features', 'No credit card required', 'Experience the platform risk-free'],
-      price: 0
+      name: 'Free Trial (3 Days)',
+      features: ['Access to all basic features', 'No credit card required', 'Experience the platform risk-free'],
+      price: 0,
+      recommended: false
     },
     {
       id: 2,
-      title: 'Each Month',
-      description: ['Full access to all features', 'Priority customer support', 'Cancel anytime with no extra charges'],
-      price: 9.99
+      name: 'Each Month',
+      features: ['Full access to all features', 'Priority customer support', 'Cancel anytime with no extra charges'],
+      price: 9.99,
+      recommended: false
     },
     {
       id: 3,
-      title: 'Lifetime Package',
-      description: ['All features unlocked permanently', 'Exclusive lifetime member perks', 'No recurring payments'],
-      price: 20.99
+      name: 'Lifetime Package',
+      features: ['All features unlocked permanently', 'Exclusive lifetime member perks', 'No recurring payments'],
+      price: 20.99,
+      recommended: true
     }
   ],
   testimonials: [

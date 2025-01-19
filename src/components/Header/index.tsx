@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 
 export default function Header() {
   return (
-    <Wrapper className='grid grid-cols-12 w-full p-4 bg-opacity-5 fixed'>
+    <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
       <div className='col-span-2 flex gap-2 items-center'>
         <img
           src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'

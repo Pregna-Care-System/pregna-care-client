@@ -24,7 +24,7 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
       title={
         <div className='flex justify-between items-center'>
           <span className='text-lg font-bold'>{plan.name}</span>
-          {plan.recommended && <Tag color='blue'>Recommended</Tag>}
+          {plan.recommended && <Tag color='red'>Recommended</Tag>}
         </div>
       }
     >

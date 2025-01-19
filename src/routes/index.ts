@@ -4,13 +4,14 @@ import { lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 //--Layouts
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
+import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 //--Pages
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
 import PlanUpgrade from '@pages/MembershipPlans'
-import VNPayPage from '@/pages/VNPay'
-import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
+import VNPayPage from '@pages/VNPay'
 import AdminDashboard from '@pages/Admin'
+import CheckoutPage from '@pages/Checkout'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -28,6 +29,7 @@ const publicRoutes = [
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
   { path: ROUTES.MEMBESHIP_PLANS, component: PlanUpgrade },
+  { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.VNPAY, component: VNPayPage }
 ]
 
