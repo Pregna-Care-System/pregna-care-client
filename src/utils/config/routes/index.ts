@@ -16,7 +16,7 @@ const ROUTES = {
   DETAIL_PLAN: '/detail-plan',
   CHECKOUT: '/checkout',
   VNPAY: '/vnpay',
+  ADMIN_DASHBOARD: '/admin/dashboard',
   NOT_FOUND: '*',
-  ADMIN_DASHBOARD: '/admin/dashboard'
 }
 export default ROUTES

@@ -5,12 +5,12 @@ import { PlanCard } from './components/PlanCard'
 import { useSelector } from 'react-redux'
 import { selectMembershipPlans } from '@/store/modules/global/selector'
 
-export default function PlanUpgrade() {
+export default function MemberShipPlanPage() {
   const plans = useSelector(selectMembershipPlans)
   const [selectedPlan, setSelectedPlan] = useState(plans[0])
   const location = useLocation()
   const navigate = useNavigate()
-
+  
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const status = searchParams.get('status')

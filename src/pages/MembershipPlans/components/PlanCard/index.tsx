@@ -17,7 +17,6 @@ interface PlanCardProps {
 
 export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
   const navigate = useNavigate()
-
   const handleMoreClick = () => {
     navigate(`/detail-plan/${plan.name}`)
   }
