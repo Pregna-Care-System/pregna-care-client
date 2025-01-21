@@ -6,5 +6,6 @@ export const COLORS = {
     RED_4: '#FFE1E1',
     RED_5: '#ef4444'
   },
-  WHITE: '#FFFFFF'
+  WHITE: '#FFFFFF',
+  BLACK: '#000000'
 }
