@@ -56,22 +56,30 @@ export const initialState = {
   ],
   membershipPlans: [
     {
-      id: 1,
-      title: 'Free Trial (3 Days)',
-      description: ['Access to all basic features', 'No credit card required', 'Experience the platform risk-free'],
-      price: 0
+      name: 'Free Trial',
+      price: 0,
+      image: 'https://vnmanpower.com/images/blog/2024/08/01/original/1702703460phpkdvijb_1722525919.jpeg',
+      duration: '3 Days',
+      features: ['Access to all basic', 'No credit card required', 'Experience the platform'],
+      recommended: false
     },
     {
-      id: 2,
-      title: 'Each Month',
-      description: ['Full access to all features', 'Priority customer support', 'Cancel anytime with no extra charges'],
-      price: 9.99
+      name: 'Each Month',
+      price: 19,
+      image:
+        'https://static.vecteezy.com/system/resources/previews/011/426/917/non_2x/profitable-pricing-strategy-price-formation-promo-action-clearance-shopping-idea-design-element-cheap-products-advertisement-customers-attraction-vector.jpg',
+      duration: '/month',
+      features: ['Full access to all', 'Priority customer support', 'Cancel anytime with no extra charges'],
+      recommended: true
     },
     {
-      id: 3,
-      title: 'Lifetime Package',
-      description: ['All features unlocked permanently', 'Exclusive lifetime member perks', 'No recurring payments'],
-      price: 20.99
+      name: 'Lifetime Package',
+      price: 199,
+      image:
+        'https://cdn.prod.website-files.com/62137861fa1d2b19482bbe20/661f4d3ebe29f59f7a1ca27d_660ee5e0cde21d6398a37cfc_Dynamic%2520Pricing%2520vs%2520Surge%2520Pricing.webp',
+      duration: '/year',
+      features: ['All features unlocked', 'Exclusive lifetime', 'No recurring payments'],
+      recommended: false
     }
   ],
   testimonials: [

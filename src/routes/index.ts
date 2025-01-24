@@ -4,14 +4,18 @@ import { lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 //--Layouts
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
+import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 //--Pages
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
-import VNPayPage from '@/pages/VNPay'
+import PlanUpgrade from '@pages/MembershipPlans'
+import VNPayPage from '@pages/VNPay'
+import AdminDashboard from '@pages/Admin'
+import CheckoutPage from '@pages/Checkout'
+import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
 import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 import AdminDashboard from '@pages/Admin'
-import MemberShipPlanPage from '@/pages/MembershipPlans'
-import PlanDetail from '@/pages/MembershipPlans/components/PlanDetail'
+import MemberShipPlanPage from '@/pages/MembershipPlans
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -28,6 +32,7 @@ const publicRoutes = [
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
+  { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: ROUTES.DETAIL_PLAN + '/:planName', component: PlanDetail },
   { path: ROUTES.VNPAY, component: VNPayPage }

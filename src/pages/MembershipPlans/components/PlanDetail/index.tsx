@@ -2,6 +2,12 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
+import { useSelector } from 'react-redux'
+import { selectMembershipPlans } from '@/store/modules/global/selector'
+
+export default function PlanDetail() {
+  const { planName } = useParams()
+  const plans = useSelector(selectMembershipPlans
 
 // Kế hoạch giả lập (có thể lấy từ API nếu cần)
 const plans = [
@@ -43,14 +49,14 @@ export default function PlanDetail() {
 
   return (
     <div
-      className='container flex justify-center mx-auto px-4 py-8'
+      className=' flex justify-center px-4 py-8'
       style={{
         background: 'linear-gradient(to bottom, #f6e3e1, #f0f8ff)',
         minHeight: '100vh'
       }}
     >
       <div
-        className='border border-solid rounded-3xl w-10/12 shadow-md mt-20 mb-20 flex flex-col md:flex-row items-center'
+        className='container mx-auto border border-solid rounded-3xl w-10/12 shadow-md mt-20 mb-20 flex flex-col md:flex-row items-center'
         style={{
           background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)',
           minHeight: '70vh'

@@ -60,8 +60,8 @@ export default function GuestHome() {
     return (
       <CardMembershipPlans
         key={index}
-        title={item.title}
-        description={item.description}
+        title={item.name}
+        description={item.features}
         price={item.price}
         isSelected={item.id === selectedPlan.id}
         onSelect={() => setSelectedPlan(item)}

@@ -25,9 +25,9 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
     <Card
       hoverable
       className={`cursor-pointer transition-all ${
-        isSelected ? 'border-blue-500 shadow-lg scale-105' : 'hover:border-blue-500 hover:shadow-md'
+        isSelected ? 'border-red-400 shadow-lg scale-105' : 'hover:border-red-400 hover:shadow-md'
       }`}
-      style={{ width: '300px' }}
+      style={{ width: 300 }}
       onClick={onSelect}
       title={
         <div className='flex justify-between items-center'>
@@ -48,7 +48,7 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
           </li>
         ))}
       </ul>
-      <Button type='primary' onClick={handleMoreClick} className='mt-4'>
+      <Button type='primary' className='mt-4' onClick={handleMoreClick} danger>
         More
       </Button>
     </Card>
