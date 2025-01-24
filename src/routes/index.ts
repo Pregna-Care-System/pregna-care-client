@@ -8,14 +8,11 @@ import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 //--Pages
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
-import PlanUpgrade from '@pages/MembershipPlans'
 import VNPayPage from '@pages/VNPay'
 import AdminDashboard from '@pages/Admin'
 import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
-import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
-import AdminDashboard from '@pages/Admin'
-import MemberShipPlanPage from '@/pages/MembershipPlans
+import MemberShipPlanPage from '@/pages/MembershipPlans'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
