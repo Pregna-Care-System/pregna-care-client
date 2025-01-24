@@ -37,7 +37,7 @@ const publicRoutes = [
 
 // need to login to view
 const privateRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile, layout: AdminSidebar },
+  { path: ROUTES.PROFILE, component: MainProfile },
   { path: ROUTES.HOME, component: MainHome },
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
 ]

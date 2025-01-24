@@ -58,10 +58,11 @@ export const login = async (email: string, password: string) => {
   }
 }
 
-// export const logout = (): void => {
-//   localStorage.removeItem('accessToken')
-//   localStorage.removeItem('refreshToken')
-// }
+export const logout = (): void => {
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  window.location.reload()
+}
 
 // export const verifyEmail = async (token: string): Promise<MODEL.VerifyEmailResponse> => {
 //   try {
