@@ -13,7 +13,7 @@ const generateMockToken = () => {
     name: 'Tina',
     email: 'tina.pham@example.com',
     image:
-      'https://scontent.fvkg1-1.fna.fbcdn.net/v/t39.30808-6/473590033_1279370156615184_2203213174144053067_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GSZTiwR5TToQ7kNvgFWSX2S&_nc_oc=AdjwJIRPcydRPUd9E_3Br943ZE-OZh4zehpOGYDQcj4QpK3i1V5piiZgV6lIbIPU8jY&_nc_zt=23&_nc_ht=scontent.fvkg1-1.fna&_nc_gid=AUBVArrrCkyV0Ob9buoRFfb&oh=00_AYC4ml1XI_lP0B5rlWtsz4GrmKxNLI-YUwYiR41jO0wvyA&oe=6798F34F',
+      'https://scontent.fvkg1-1.fna.fbcdn.net/v/t39.30808-6/467151759_1244544130097787_8961454884272120956_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_Jrl1gieZrAQ7kNvgHlMchA&_nc_oc=AdjXLl13YBigc7w7b_QlbRjawLaE35WmubjNz1tF94GolidiGlcOV0xxg6Xm8b0yLaQ&_nc_zt=23&_nc_ht=scontent.fvkg1-1.fna&_nc_gid=ACD9Uv-sKfzgjzVOFADCQaS&oh=00_AYDJaHfkVWrcRk4BfvURrjv0tjsbq7G0dwJAr7CI8qMWow&oe=67998E06',
     exp: Math.floor(Date.now() / 1000) + 60 * 60
   }
   return (
@@ -98,6 +98,19 @@ export default function Header() {
   const user = token ? jwtDecode(token) : null
 
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
+
+  const handleMouseLeave = () => {
+    const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
+    setTimer(newTimer)
+  }
+
+  const hadleMouseEnter = () => {
+    if (timer) {
+      clearTimeout(timer)
+      setTimer(null)
+    }
+  }
 
   const toggleDropDown = () => {
     setIsDropDownOpen((prev) => !prev)
@@ -158,7 +171,7 @@ export default function Header() {
               <BellOutlined className='cursor-pointer text-xl' />
             </div>
             Welcome,{user.name}
-            <div onClick={toggleDropDown} className='header_item_profile'>
+            <div onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='header_item_profile'>
               {userImage ? (
                 <img src={userImage} alt='User Avatar' />
               ) : (
@@ -166,7 +179,7 @@ export default function Header() {
               )}
             </div>
             {isDropDownOpen && (
-              <div className='dropdown'>
+              <div className='dropdown' onMouseLeave={handleMouseLeave}>
                 <Link to={ROUTES.PROFILE}>
                   <UserOutlined /> My Profile
                 </Link>
