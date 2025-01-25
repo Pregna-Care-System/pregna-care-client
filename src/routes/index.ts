@@ -4,7 +4,6 @@ import { lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 //--Layouts
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
-import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 //--Pages
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
@@ -20,6 +19,7 @@ const MainHome = lazy(() => import('@pages/Home/MainHome'))
 const LoginPage = lazy(() => import('@pages/Login'))
 const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
+const SchedulePage = lazy(() => import('@/pages/Schedule'))
 
 //--Routes
 //no need to login
@@ -32,7 +32,8 @@ const publicRoutes = [
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: ROUTES.DETAIL_PLAN + '/:planName', component: PlanDetail },
-  { path: ROUTES.VNPAY, component: VNPayPage }
+  { path: ROUTES.VNPAY, component: VNPayPage },
+  { path: ROUTES.SCHEDULE, component: SchedulePage },
 ]
 
 // need to login to view

@@ -1,3 +1,5 @@
+@import '@schedule-x/theme-default/dist/calendar.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,3 +19,4 @@
   }
   
 }
+

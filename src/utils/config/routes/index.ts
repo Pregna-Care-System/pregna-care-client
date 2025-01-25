@@ -13,6 +13,7 @@ const ROUTES = {
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   COMMUNITY: '/community',
   MEMBESHIP_PLANS: '/membership-plans',
+  SCHEDULE: '/schedule',
   DETAIL_PLAN: '/detail-plan',
   CHECKOUT: '/checkout',
   VNPAY: '/vnpay',
