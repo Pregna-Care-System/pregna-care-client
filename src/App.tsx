@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, Outlet, type RouteObject, RouterProvider } from 'react-router-dom'
 import MainLayout from '@layouts/MainLayout'
 import { Fragment, Suspense } from 'react'
 import { privateRoutes, publicRoutes } from './routes'
@@ -9,39 +9,33 @@ import Loading from '@components/Loading'
 function App() {
   const { isAuthenticated } = useAuth()
 
-  const publicRouterObjects: RouteObject[] = publicRoutes.map(({ path, component: Component, layout }) => {
-    const Layout = layout === null ? Fragment : layout || MainLayout
+  const createRouteObject = (route: any, isPrivate: boolean): RouteObject => {
+    const Layout = route.layout === null ? Fragment : route.layout || MainLayout
+    const Component = route.component
 
-    return {
-      path: path,
-      element: (
-        <Suspense fallback={<Loading />}>
-          <Layout>
-            <Component />
-          </Layout>
-        </Suspense>
+    const element = (
+      <Suspense fallback={<Loading />}>
+        <Layout>{isPrivate && !isAuthenticated ? <Navigate to={ROUTES.LOGIN} replace /> : <Component />}</Layout>
+      </Suspense>
+    )
+
+    const routeObject: RouteObject = {
+      path: route.path,
+      element: element
+    }
+
+    if (route.children) {
+      routeObject.children = route.children.map((childRoute: any) =>
+        createRouteObject({ ...childRoute, layout: route.layout }, isPrivate)
       )
     }
-  })
 
-  const privateRouterObjects: RouteObject[] = privateRoutes.map(({ path, component: Component, layout }) => {
-    const Layout = layout === null ? Fragment : layout || MainLayout
+    return routeObject
+  }
 
-    return {
-      path: path,
-      element: isAuthenticated ? (
-        <Suspense fallback={<Loading />}>
-          <Layout>
-            <Component />
-          </Layout>
-        </Suspense>
-      ) : (
-        <Navigate to='/login' replace />
-      )
-    }
-  })
+  const publicRouterObjects: RouteObject[] = publicRoutes.map((route) => createRouteObject(route, false))
+  const privateRouterObjects: RouteObject[] = privateRoutes.map((route) => createRouteObject(route, true))
 
-  // Gộp public và private routes
   const appRouter = [...publicRouterObjects, ...privateRouterObjects]
 
   appRouter.push({
@@ -49,7 +43,6 @@ function App() {
     element: <h2>404 - Page Not Found</h2>
   })
 
-  // Tạo router
   const router = createBrowserRouter([
     {
       element: <Outlet />,

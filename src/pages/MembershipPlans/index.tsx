@@ -10,7 +10,7 @@ export default function MemberShipPlanPage() {
   const [selectedPlan, setSelectedPlan] = useState(plans[0])
   const location = useLocation()
   const navigate = useNavigate()
-  
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const status = searchParams.get('status')
@@ -33,16 +33,16 @@ export default function MemberShipPlanPage() {
       style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}
     >
       <div
-        className='border border-solid rounded-3xl w-10/12 shadow-md py-8'
+        className='border border-solid rounded-3xl w-11/12 lg:w-10/12 shadow-md py-6'
         style={{
           background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)'
         }}
       >
-        <h1 className='text-3xl font-bold mb-4 text-center'>Features and Pricing</h1>
-        <h4 className='text-gray-500 mb-16 px-8 text-center'>
+        <h1 className='text-2xl lg:text-3xl font-bold mb-3 text-center'>Features and Pricing</h1>
+        <h4 className='text-gray-500 mb-8 lg:mb-16 px-4 lg:px-8 text-center text-sm lg:text-base'>
           Whether your time-saving automation needs are large or small, we’re here to help you scale.
         </h4>
-        <div className='grid md:grid-cols-6 justify-center mb-8'>
+        <div className='grid grid-cols-1 md:grid-cols-6 justify-center mb-6 lg:mb-8'>
           <div className='flex justify-center col-start-2 col-span-4 gap-8 w-full'>
             {plans.map((plan) => (
               <PlanCard

@@ -149,5 +149,106 @@ export const initialState = {
       },
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
+  ],
+  motherInfo: [
+    {
+      key: '1',
+      week: '1',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '2',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '3',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '4',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '5',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '6',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '7',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '8',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    },
+    {
+      key: '9',
+      week: '2',
+      heartRate: 'Mike',
+      weight: 32,
+      bloodPressure: '10 Downing Street',
+      healthStatus: '10 Downing Street',
+      notes: '10 Downing Street',
+      createdAt: '10 Downing Street',
+      updatedAt: '10 Downing Street'
+    }
   ]
 }
