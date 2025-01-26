@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Card, Steps, Button, Form, Input, Radio, Space, message } from 'antd'
-import { WalletOutlined, CreditCardOutlined, BankOutlined } from '@ant-design/icons'
 import { QRCodeSVG } from 'qrcode.react'
 import { StyledRadioGroup, StyledSteps } from './Checkout.styled'
 
@@ -117,33 +116,35 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className='container mx-auto px-4 py-32 max-w-2xl'>
-      <h1 className='text-3xl font-bold mb-8 text-center'>Checkout</h1>
-      <Card className='mb-6'>
-        <p className='text-lg mb-2'>
-          Selected Plan: <strong className='text-red-500'>{planName}</strong>
-        </p>
-        <p className='text-lg'>
-          Price: <strong className='text-red-500'>{parseInt(planPrice).toLocaleString('vi-VN')} ₫/month</strong>
-        </p>
-      </Card>
-      <StyledSteps current={currentStep} className='mb-8'>
-        <Step title='User Info' />
-        <Step title='Payment Method' />
-        <Step title='Confirm Payment' />
-      </StyledSteps>
-      <div className='mb-8'>{renderStepContent()}</div>
-      <div className='flex justify-between'>
-        {currentStep > 0 && (
-          <Button onClick={handlePrev} danger variant='outlined'>
-            Previous
-          </Button>
-        )}
-        {currentStep < 2 && (
-          <Button type='primary' danger onClick={handleNext}>
-            {currentStep === 1 ? 'Proceed to Payment' : 'Next'}
-          </Button>
-        )}
+    <div className='flex justify-center' style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}>
+      <div className='container mx-auto px-4 py-32 max-w-2xl'>
+        <h1 className='text-3xl font-bold mb-8 text-center'>Checkout</h1>
+        <Card className='mb-6'>
+          <p className='text-lg mb-2'>
+            Selected Plan: <strong className='text-red-500'>{planName}</strong>
+          </p>
+          <p className='text-lg'>
+            Price: <strong className='text-red-500'>{parseInt(planPrice).toLocaleString('vi-VN')} ₫/month</strong>
+          </p>
+        </Card>
+        <StyledSteps current={currentStep} className='mb-8'>
+          <Step title='User Info' />
+          <Step title='Payment Method' />
+          <Step title='Confirm Payment' />
+        </StyledSteps>
+        <div className='mb-8'>{renderStepContent()}</div>
+        <div className='flex justify-between'>
+          {currentStep > 0 && (
+            <Button onClick={handlePrev} danger variant='outlined'>
+              Previous
+            </Button>
+          )}
+          {currentStep < 2 && (
+            <Button type='primary' danger onClick={handleNext}>
+              {currentStep === 1 ? 'Proceed to Payment' : 'Next'}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

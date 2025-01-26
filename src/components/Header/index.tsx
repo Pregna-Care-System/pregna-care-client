@@ -51,6 +51,8 @@ const Wrapper = styled.div`
       transition: transform 0.4s ease;
       border-radius: 50%;
       object-fit: cover;
+      width: 40px;
+      height: 40px;
     }
   }
   .dropdown {

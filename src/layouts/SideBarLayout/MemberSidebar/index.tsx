@@ -58,7 +58,7 @@ export default function MemberSidebar() {
               />
               <div>
                 <span className='inline-block text-red-400 text-2xl font-bold'>PregnaCare</span>
-                <span className='inline-block text-xs text-gray-400 mt-1 pl-0'>Modern Admin Dashboard</span>
+                <span className='inline-block text-xs text-gray-400 mt-1 pl-0'>Modern Member Dashboard</span>
               </div>
             </div>
           </div>
