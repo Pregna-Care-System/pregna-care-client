@@ -1,3 +1,4 @@
+import { CreateModal } from '@/components/Modal'
 import { selectMotherInfo } from '@/store/modules/global/selector'
 import { Avatar, Button, Select, Space, Table } from 'antd'
 import React from 'react'
@@ -6,6 +7,7 @@ import { TbEdit } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
 
 export default function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
   const dataSource = useSelector(selectMotherInfo)
   const columns = [
     {
@@ -68,6 +70,10 @@ export default function Dashboard() {
     console.log(`selected ${value}`)
   }
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
   return (
     <div className='flex-1 p-8'>
       <div className='flex justify-end items-center mb-10'>
@@ -80,6 +86,11 @@ export default function Dashboard() {
             src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
           />
         </div>
+      </div>
+      <div className='flex justify-end w-full'>
+        <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
+          Create
+        </Button>
       </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <h4 className='text-xl font-bold mb-5'>Mother Information</h4>
@@ -97,6 +108,7 @@ export default function Dashboard() {
         </div>
         <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
+      <CreateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   )
 }
