@@ -1,5 +1,5 @@
 import { UserOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal } from 'antd'
+import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal, message } from 'antd'
 import { RcFile, UploadChangeParam } from 'antd/es/upload'
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
@@ -82,7 +82,7 @@ const Wrapper = styled.div`
 export default function MainProfile() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  const userImage = user?.image || null
+  const [userImage, setUserImage] = useState<string | null>(user?.image || null)
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -91,7 +91,6 @@ export default function MainProfile() {
   ]
 
   const [isModalOpen, setModalOpen] = useState(false)
-  const [avatarPreview, setAvatarPreview] = useState(null)
 
   const showModal = () => {
     setModalOpen(true)
@@ -101,8 +100,26 @@ export default function MainProfile() {
     setModalOpen(false)
   }
 
-  const handleChange = ({ file }: UploadChangeParam) => {
-    
+  const handleChange = (info: UploadChangeParam) => {
+    if (info.file.status === 'uploading') {
+      return
+    }
+    if (info.file.status === 'done') {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setUserImage(reader.result as string)
+      }
+      reader.readAsDataURL(info.file.originFileObj as RcFile)
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`)
+    }
+  }
+
+  const uploadProps = {
+    name: 'file',
+    action: 'https://httpbin.org/post',
+    showUploadList: false,
+    onChange: handleChange
   }
 
   return (
@@ -134,7 +151,7 @@ export default function MainProfile() {
               <Row gutter={[20, 20]}>
                 <Col span={12}>
                   <Form.Item label='Full Name'>
-                    <Input className='bg-gray-200' placeholder='Your full name' value={user.name}/>
+                    <Input className='bg-gray-200' placeholder='Your full name' value={user.name} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -162,21 +179,35 @@ export default function MainProfile() {
           </div>
         </div>
       </div>
-      <Modal title='Edit Avatar' visible={isModalOpen} onCancel={handleCancel}>
-        <div className='avatar_modal'>
-          {avatarPreview ? (
-            <img src={avatarPreview} alt='Selected Avatar' />
-          ) : userImage ? (
-            <img src={userImage} alt='User Avatar' />
+      <Modal title='Edit Avatar' open={isModalOpen} onCancel={handleCancel} footer={null}>
+        <div className='flex flex-col justify-center items-center w-full'>
+          {userImage ? (
+            <img className='w-2/3 h-2/3 border border-solid rounded-full' src={userImage} alt='User Avatar' />
           ) : (
-            <UserOutlined className='text-5xl' />
+            <UserOutlined className='text-5xl border border-solid rounded-full' />
           )}
         </div>
-        <Upload accept='image/*' showUploadList={false} onChange={handleChange}>
-          <div className='edit_button'>
-            <Button type='primary'> Upload Avatar </Button>
+        <div className='mt-10 flex'>
+          <div>
+            <Upload {...uploadProps}>
+              <Button style={{ background: 'black', color: 'white' }}>Upload Avatar</Button>
+            </Upload>
           </div>
-        </Upload>
+          <div className='ml-52'>
+            <Button
+              type='primary'
+              onClick={() => {
+                message.success('Avatar updated successfully')
+                handleCancel()
+              }}
+            >
+              Edit
+            </Button>
+            <Button type='default' onClick={handleCancel} style={{ marginLeft: '10px' }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       </Modal>
     </Wrapper>
   )

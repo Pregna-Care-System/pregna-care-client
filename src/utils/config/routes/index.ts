@@ -18,6 +18,7 @@ const ROUTES = {
   VNPAY: '/vnpay',
   ADMIN_DASHBOARD: '/admin/dashboard',
   MEMBER_DASHBOARD: '/member',
+  SCHEDULE: '/schedule',
   NOT_FOUND: '*'
 }
 export default ROUTES
