@@ -18,6 +18,7 @@ const ROUTES = {
   VNPAY: '/vnpay',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_TRANSACTION: '/admin/transaction',
+  ADMIN_MEMBER: '/admin/member',
   MEMBER_DASHBOARD: '/member',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'

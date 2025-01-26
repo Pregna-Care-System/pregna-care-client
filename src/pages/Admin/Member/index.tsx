@@ -1,13 +1,14 @@
 import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
-import { selectTransactionInfo } from '@/store/modules/global/selector'
-import { Avatar, Input, Select, Table } from 'antd'
+import { selectMemberAdminInfo } from '@/store/modules/global/selector'
+import { Avatar, Button, Select, Space, Table } from 'antd'
+import { Input } from 'antd'
 import { useState } from 'react'
-import { FiDownload } from 'react-icons/fi'
+import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { useSelector } from 'react-redux'
 
-export default function TransactionPage() {
+export default function MemberPage() {
   const [isHovered, setIsHovered] = useState(false)
-  const dataSource = useSelector(selectTransactionInfo)
+  const dataSource = useSelector(selectMemberAdminInfo)
   const columns = [
     {
       title: 'Full Name',
@@ -20,35 +21,57 @@ export default function TransactionPage() {
       key: 'email'
     },
     {
-      title: 'Type Membership plans',
-      dataIndex: 'type',
-      key: 'type'
+      title: 'Phone Number',
+      dataIndex: 'phone',
+      key: 'phone'
     },
     {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price'
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address'
     },
     {
-      title: 'Date make transactions',
-      dataIndex: 'date',
-      key: 'date'
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (status: any) => (
+        <Button
+          style={{
+            backgroundColor: status ? '#84e3b7' : 'white',
+            color: status ? 'white' : 'red',
+            border: status ? '1px solid green' : '1px solid red'
+          }}
+        >
+          {status ? 'Active' : 'Inactive'}
+        </Button>
+      )
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size='middle'>
+          <Button danger variant='outlined'>
+            <FiTrash2 />
+          </Button>
+        </Space>
+      )
     }
   ]
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (value: any) => {
     console.log(`selected ${value}`)
   }
   return (
     <div className='flex min-h-screen bg-gray-100'>
-      <div className='w-64 bg-gray-800 text-white p-6'>
+      <div className='w-64 bg-gray-800 text-white p-6 '>
         <AdminSidebar />
       </div>
       <div className='flex-1 p-8'>
         <div className='flex justify-end items-center mb-10'>
           <h4 className='px-2 border-s-2 border-gray-300'>
-            Hello, <strong>Username</strong>
+            Hello, <strong>UserName</strong>
           </h4>
           <div>
             <Avatar
@@ -58,7 +81,7 @@ export default function TransactionPage() {
           </div>
         </div>
         <div className='flex justify-between mb-5'>
-          <h1 className='text-3xl font-bold text-gray-800 mb-5'>Transaction</h1>
+          <h1 className='text-3xl font-bold text-gray-800 mb-5'>Member</h1>
           <button
             className={`flex items-center bg-white px-4 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
             onMouseEnter={() => setIsHovered(true)}

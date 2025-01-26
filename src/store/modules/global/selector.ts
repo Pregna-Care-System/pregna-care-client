@@ -6,4 +6,6 @@ export const selectMembershipPlans = (state: RootState) => state.global.membersh
 export const selectTestimonials = (state: RootState) => state.global.testimonials
 export const selectMotherInfo = (state: RootState) => state.global.motherInfo
 export const selectTransactionInfo = (state: RootState) => state.global.transactionInfo
+export const selectMemberAdminInfo = (state: RootState) => state.global.memberAdminInfo
+
 

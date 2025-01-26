@@ -7,6 +7,7 @@ import {
   // FiHelpCircle,
   FiHome,
   FiMenu,
+  FiUsers,
   // FiPackage,
   // FiUsers,
   FiX
@@ -29,8 +30,13 @@ const AdminSidebar = () => {
       icon: <FiDollarSign size={20} />,
       path: ROUTES.ADMIN_TRANSACTION,
       action: () => console.log('Transactions clicked')
+    },
+    {
+      title: 'Member Management',
+      icon: <FiUsers size={20} />,
+      path: ROUTES.ADMIN_MEMBER,
+      action: () => console.log('Members clicked')
     }
-    // { title: 'Member Management', icon: <FiUsers size={20} />, action: () => console.log('Members clicked') },
     // {
     //   title: 'Fetal Growth Standard',
     //   icon: <FiBarChart2 size={20} />,
