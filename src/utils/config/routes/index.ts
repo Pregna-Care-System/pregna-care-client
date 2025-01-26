@@ -17,6 +17,7 @@ const ROUTES = {
   CHECKOUT: '/checkout',
   VNPAY: '/vnpay',
   ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_TRANSACTION: '/admin/transaction',
   MEMBER_DASHBOARD: '/member',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'

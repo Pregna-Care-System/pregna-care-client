@@ -4,12 +4,13 @@ import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
 import VNPayPage from '@pages/VNPay'
-import AdminDashboard from '@pages/Admin'
+import AdminDashboard from '@/pages/Admin/Dashboard'
 import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
 import MemberShipPlanPage from '@/pages/MembershipPlans'
 import Dashboard from '@/pages/Member/Dashboard'
 import Member from '@/pages/Member'
+import TransactionPage from '@/pages/Admin/Transaction'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -40,13 +41,17 @@ const publicRoutes = [
       // Add more nested routes for the member dashboard here
     ]
   },
-  { path: ROUTES.SCHEDULE, component: SchedulePage }
+  { path: ROUTES.SCHEDULE, component: SchedulePage },
+  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
+  { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout }
+
+
 ]
 
 const privateRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
   { path: ROUTES.HOME, component: MainHome },
-  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
+  // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
   // {
   //   path: ROUTES.MEMBER_DASHBOARD,
   //   component: Member,
