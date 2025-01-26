@@ -250,5 +250,42 @@ export const initialState = {
       createdAt: '10 Downing Street',
       updatedAt: '10 Downing Street'
     }
+  ],
+  transactionInfo: [
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    }
   ]
 }
