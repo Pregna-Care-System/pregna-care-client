@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
-import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
 import VNPayPage from '@pages/VNPay'
@@ -19,6 +18,7 @@ const MainHome = lazy(() => import('@pages/Home/MainHome'))
 const LoginPage = lazy(() => import('@pages/Login'))
 const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
+const SchedulePage = lazy(() => import('@/pages/Schedule'))
 
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
@@ -39,7 +39,8 @@ const publicRoutes = [
       // { path: "profile", component: Profile },
       // Add more nested routes for the member dashboard here
     ]
-  }
+  },
+  { path: ROUTES.SCHEDULE, component: SchedulePage }
 ]
 
 const privateRoutes = [

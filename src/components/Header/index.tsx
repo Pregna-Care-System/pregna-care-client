@@ -1,7 +1,7 @@
 import { logout } from '@/services/userService'
 import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
-import { BellOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons'
+import { BellOutlined, CalendarOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons'
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
@@ -185,6 +185,9 @@ export default function Header() {
                 </Link>
                 <Link to={ROUTES.PROFILE}>
                   <SettingOutlined /> Setting
+                </Link>
+                <Link to={ROUTES.SCHEDULE}>
+                  <CalendarOutlined /> My Schedule
                 </Link>
                 <div className='dropdown_item cursor-pointer border-t border-t-gray-300' onClick={handleLogout}>
                   <LogoutOutlined /> Logout

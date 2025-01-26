@@ -46,4 +46,13 @@ declare namespace MODEL {
     createdAt?: string
     updatedAt?: string
   }
+
+  interface Event {
+    title: string
+    date: dayjs.Dayjs | null
+    timeStart: dayjs.Dayjs | null
+    timeEnd: dayjs.Dayjs | null
+    description: string
+  }
+  
 }
