@@ -12,6 +12,8 @@ import AdminSidebar from '@layouts/SideBarLayout/AdminSidebar'
 import AdminDashboard from '@pages/Admin'
 import MemberShipPlanPage from '@/pages/MembershipPlans'
 import PlanDetail from '@/pages/MembershipPlans/components/PlanDetail'
+import BlogPage from '@/pages/Blog'
+import BlogDetailsPage from '@/pages/Blog/BlogDetails'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -25,6 +27,8 @@ const Register = lazy(() => import('@pages/Register'))
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
+  { path: ROUTES.BLOG, component: BlogPage },
+  { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
