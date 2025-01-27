@@ -8,3 +8,5 @@ export const selectMotherInfo = (state: RootState) => state.global.motherInfo
 export const selectTransactionInfo = (state: RootState) => state.global.transactionInfo
 export const selectMemberAdminInfo = (state: RootState) => state.global.memberAdminInfo
 export const selectMembershipPlansAdminInfo = (state: RootState) => state.global.membershipPlansAdminInfo
+export const selectFeatureInfoInfo = (state: RootState) => state.global.featureInfo
+
