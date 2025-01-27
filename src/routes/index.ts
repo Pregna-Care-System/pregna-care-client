@@ -12,6 +12,7 @@ import Dashboard from '@/pages/Member/Dashboard'
 import Member from '@/pages/Member'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
+import MemberShipPlanAdminPage from '@/pages/Admin/MembershipPlan'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -45,7 +46,8 @@ const publicRoutes = [
   { path: ROUTES.SCHEDULE, component: SchedulePage },
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: NoHeaderLayout }
+  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: NoHeaderLayout },
+  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout }
 
 ]
 

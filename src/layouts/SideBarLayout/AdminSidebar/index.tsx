@@ -7,6 +7,7 @@ import {
   // FiHelpCircle,
   FiHome,
   FiMenu,
+  FiPackage,
   FiUsers,
   // FiPackage,
   // FiUsers,
@@ -36,13 +37,18 @@ const AdminSidebar = () => {
       icon: <FiUsers size={20} />,
       path: ROUTES.ADMIN_MEMBER,
       action: () => console.log('Members clicked')
-    }
+    },
     // {
     //   title: 'Fetal Growth Standard',
     //   icon: <FiBarChart2 size={20} />,
     //   action: () => console.log('Fetal Growth clicked')
     // },
-    // { title: 'Membership Plans', icon: <FiPackage size={20} />, action: () => console.log('Plans clicked') },
+    {
+      title: 'Membership Plans',
+      icon: <FiPackage size={20} />,
+      path: ROUTES.ADMIN_MEMBERSHIP_PLAN,
+      action: () => console.log('Plans clicked')
+    }
     // { title: 'Notifications', icon: <FiBell size={20} />, action: () => console.log('Notifications clicked') },
     // { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
   ]

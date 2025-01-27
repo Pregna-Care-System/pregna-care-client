@@ -288,41 +288,61 @@ export const initialState = {
       date: '2025-01-26'
     }
   ],
-  memberAdminInfo:[
-      {
-        fullName: 'Tina Pham',
-        email: 'tina@gmail.com',
-        phone: '0812654342',
-        address: 'KTX Khu B',
-        status: true
-      },
-      {
-        fullName: 'Tina Pham',
-        email: 'tina@gmail.com',
-        phone: '0812654342',
-        address: 'KTX Khu B',
-        status: false
-      },
-      {
-        fullName: 'Tina Pham',
-        email: 'tina@gmail.com',
-        phone: '0812654342',
-        address: 'KTX Khu B',
-        status: true
-      },
-      {
-        fullName: 'Tina Pham',
-        email: 'tina@gmail.com',
-        phone: '0812654342',
-        address: 'KTX Khu B',
-        status: true
-      },
-      {
-        fullName: 'Tina Pham',
-        email: 'tina@gmail.com',
-        phone: '0812654342',
-        address: 'KTX Khu B',
-        status: true
-      }
+  memberAdminInfo: [
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: false
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    }
+  ],
+  membershipPlansAdminInfo: [
+    {
+      packageName: 'Free trial',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$0.00',
+      createdAt: '2025-01-26'
+    },
+    {
+      packageName: 'Vip',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$99.00',
+      createdAt: '2025-01-26'
+    },
+    {
+      packageName: 'Free trial',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$0.00',
+      createdAt: '2025-01-26'
+    }
   ]
 }

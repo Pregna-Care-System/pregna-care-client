@@ -19,6 +19,7 @@ const ROUTES = {
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_TRANSACTION: '/admin/transaction',
   ADMIN_MEMBER: '/admin/member',
+  ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
   MEMBER_DASHBOARD: '/member',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'
