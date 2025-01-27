@@ -344,5 +344,6 @@ export const initialState = {
       price: '$0.00',
       createdAt: '2025-01-26'
     }
-  ]
+  ],
+  featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4']
 }
