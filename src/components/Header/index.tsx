@@ -7,25 +7,6 @@ import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-const generateMockToken = () => {
-  const payload = {
-    sub: 'test',
-    name: 'Tina',
-    email: 'tina.pham@example.com',
-    image:
-      'https://scontent.fvkg1-1.fna.fbcdn.net/v/t39.30808-6/467151759_1244544130097787_8961454884272120956_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_Jrl1gieZrAQ7kNvgHlMchA&_nc_oc=AdjXLl13YBigc7w7b_QlbRjawLaE35WmubjNz1tF94GolidiGlcOV0xxg6Xm8b0yLaQ&_nc_zt=23&_nc_ht=scontent.fvkg1-1.fna&_nc_gid=ACD9Uv-sKfzgjzVOFADCQaS&oh=00_AYDJaHfkVWrcRk4BfvURrjv0tjsbq7G0dwJAr7CI8qMWow&oe=67998E06',
-    exp: Math.floor(Date.now() / 1000) + 60 * 60
-  }
-  return (
-    btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })) + '.' + btoa(JSON.stringify(payload)) + '.' + btoa('signature')
-  )
-}
-
-// Store mock token in localStorage for testing
-if (!localStorage.getItem('accessToken')) {
-  const mockToken = generateMockToken()
-  localStorage.setItem('accessToken', mockToken)
-}
 const Wrapper = styled.div`
   .active {
     color: ${style.COLORS.RED.RED_5};
@@ -95,10 +76,10 @@ const Wrapper = styled.div`
 `
 
 export default function Header() {
-  // localStorage.removeItem('accessToken')
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-
+  console.log('Token', token)
+  console.log('User infor',user)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
 

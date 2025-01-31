@@ -4,7 +4,7 @@ declare namespace MODEL {
     refreshToken: string
   }
   export interface LoginResponse {
-    response: unknown | null
+    response: TokenResponse | null
     messageId: string
     message: string
     success: boolean
