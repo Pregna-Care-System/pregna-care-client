@@ -47,13 +47,13 @@ const publicRoutes = [
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout }
-
+  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout },
 ]
 
 const privateRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
-  { path: ROUTES.HOME, component: MainHome },
+  { path: ROUTES.HOME, component: MainHome }
+
   // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
   // {
   //   path: ROUTES.MEMBER_DASHBOARD,

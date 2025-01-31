@@ -1,7 +1,7 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal, message } from 'antd'
 import { RcFile, UploadChangeParam } from 'antd/es/upload'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 import { useState } from 'react'
 import styled from 'styled-components'
 
@@ -80,6 +80,7 @@ const Wrapper = styled.div`
 `
 
 export default function MainProfile() {
+
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
   const [userImage, setUserImage] = useState<string | null>(user?.image || null)
@@ -151,7 +152,7 @@ export default function MainProfile() {
               <Row gutter={[20, 20]}>
                 <Col span={12}>
                   <Form.Item label='Full Name'>
-                    <Input className='bg-gray-200' placeholder='Your full name' value={user.name} />
+                    <Input className='bg-gray-200' placeholder='Your full name' value={user?.name} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>

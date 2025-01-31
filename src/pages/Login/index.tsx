@@ -5,16 +5,25 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
 import { login } from '@/services/userService'
+import ROUTES from '@/utils/config/routes'
+import useAuth from '@/hooks/useAuth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { isAuthenticated, setIsAuthenticated } = useAuth()
 
   const onLogin = async (values: MODEL.LoginFormValues) => {
     try {
       const response = await login(values.email, values.password)
-      if (response.success) {
+      console.log('Login Response:', response) 
+      if (response.success && response.response !== null) {
+        const token = response.response as MODEL.TokenResponse
+        console.log('Token:', token)
         message.success('Login successful')
-        navigate('/home')
+        localStorage.setItem('accessToken', token.accessToken)
+        localStorage.setItem('refreshToken', token.refreshToken)
+        setIsAuthenticated(true)
+        navigate(ROUTES.HOME)
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -32,6 +41,9 @@ export default function LoginPage() {
       const decodedToken = jwtDecode(response.credential)
       console.log('Decoded Token:', decodedToken)
       message.success('Google login successful')
+      localStorage.setItem('accessToken', response.credential)
+      setIsAuthenticated(true)
+      navigate(ROUTES.HOME)
     } else {
       message.error('Google login failed. No credentials received.')
     }

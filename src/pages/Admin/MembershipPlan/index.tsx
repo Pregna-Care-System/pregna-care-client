@@ -70,14 +70,6 @@ export default function MemberShipPlanAdminPage() {
   }
   const handleModalSubmit = () => {
     form.validateFields().then((values) => {
-
-    const newPlan = {
-      ...values,
-      createdAt: new Date().toLocaleString()
-    }
-    setDataSource((prev)=> [...prev, newPlan])
-    console.log("Form Values:", values)
-    console.log('NEW', newPlan)
       setIsModalOpen(false)
       form.resetFields()
     })
