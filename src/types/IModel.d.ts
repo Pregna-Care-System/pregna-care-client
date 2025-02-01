@@ -57,14 +57,30 @@ declare namespace MODEL {
     description: string
   }
   
-  export interface Plan {
-    id: string 
-    planName: string
-    price: float 
-    duration: int 
-    description: string
-  }
   export interface PlanResponse {
+    response: [
+      {
+        planName: string
+        price: number
+        duration: number
+        description: string
+        createdAt: string
+        features: { featureName: string }[]
+      }
+    ]
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
+  }
+  export interface PlanValues {
+    planName: string
+    price: number
+    duration: number
+    description: string
+    features: string[]
+  }
+  export interface FeatureResponse {
     response: unknown | null
     messageId: string
     message: string

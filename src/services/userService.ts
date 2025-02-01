@@ -1,3 +1,4 @@
+import { MODEL } from '@/types/IModel'
 import * as request from '@/utils/axiosClient'
 
 export const registerAccount = async (
