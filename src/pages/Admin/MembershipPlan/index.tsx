@@ -1,8 +1,10 @@
 import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
-import { selectFeatureInfoInfo, selectMembershipPlansAdminInfo } from '@/store/modules/global/selector'
+import { getAllPlan } from '@/services/planService'
+import { selectFeatureInfoInfo } from '@/store/modules/global/selector'
+import { MODEL } from '@/types/IModel'
 import { FileAddFilled } from '@ant-design/icons'
 import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
@@ -11,25 +13,33 @@ export default function MemberShipPlanAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [form] = Form.useForm()
-  const dataSource = useSelector(selectMembershipPlansAdminInfo)
   const featureList = useSelector(selectFeatureInfoInfo) || []
+  const [plans, setPlans] = useState<MODEL.Plan[]>([])
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const response = await getAllPlan()
+      if (response) {
+        setPlans(response)
+      } else {
+        setPlans([])
+      }
+    }
+    fetchPlans()
+  }, [])
 
   const columns = [
     {
-      title: 'Package Name',
-      dataIndex: 'packageName',
-      key: 'packageName'
+      title: 'Plan Name',
+      dataIndex: 'planName',
+      key: 'planName'
     },
     {
-      title: 'Features',
-      dataIndex: 'feature',
-      key: 'feature',
-      render: (features) => (
-        <ul className='list-disc pl-4'>
-          {features.map((feature, index) => (
-            <li key={index}>{feature}</li>
-          ))}
-        </ul>
+      title: 'Feature',
+      dataIndex: 'features',
+      key: 'features',
+      render: (_, record) => (
+        <ul className='list-disc pl-4'>{record.features?.map((feature, index) => <li key={index}> {feature.featureName} </li>)}</ul>
       )
     },
     {
@@ -38,9 +48,20 @@ export default function MemberShipPlanAdminPage() {
       key: 'price'
     },
     {
-      title: 'Date create',
+      title: 'Duration',
+      dataIndex: 'duration',
+      key: 'duration'
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description'
+    },
+    {
+      title: 'Create Date',
       dataIndex: 'createdAt',
-      key: 'createdAt'
+      key: 'createdAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -125,7 +146,7 @@ export default function MemberShipPlanAdminPage() {
               ]}
             />
           </div>
-          <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+          <Table dataSource={plans} columns={columns} pagination={{ pageSize: 8 }} />
         </div>
       </div>
       <Modal title='Create Membership Plan' open={isModalOpen} onCancel={handleCancel} onOk={handleModalSubmit}>
