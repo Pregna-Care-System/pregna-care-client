@@ -1,3 +1,5 @@
+import { StringifyOptions } from "querystring"
+
 declare namespace MODEL {
   export interface TokenResponse {
     accessToken: string
@@ -47,7 +49,7 @@ declare namespace MODEL {
     updatedAt?: string
   }
 
-  interface Event {
+  export interface Event {
     title: string
     date: dayjs.Dayjs | null
     timeStart: dayjs.Dayjs | null
@@ -55,4 +57,18 @@ declare namespace MODEL {
     description: string
   }
   
+  export interface Plan {
+    id: string 
+    planName: string
+    price: float 
+    duration: int 
+    description: string
+  }
+  export interface PlanResponse {
+    response: unknown | null
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
+  }
 }
