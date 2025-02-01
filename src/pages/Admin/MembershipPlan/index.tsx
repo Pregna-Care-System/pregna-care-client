@@ -1,32 +1,35 @@
 import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
-import { getAllPlan } from '@/services/planService'
-import { selectFeatureInfoInfo } from '@/store/modules/global/selector'
+import { getAllFeature } from '@/services/featureService'
+import { createPlan, getAllPlan } from '@/services/planService'
 import { MODEL } from '@/types/IModel'
 import { FileAddFilled } from '@ant-design/icons'
-import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { Avatar, Button, Form, Input, message, Modal, Select, Space, Table } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
 
 export default function MemberShipPlanAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [form] = Form.useForm()
-  const featureList = useSelector(selectFeatureInfoInfo) || []
-  const [plans, setPlans] = useState<MODEL.Plan[]>([])
+  const [featureList, setFeatureList] = useState([])
+  const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      const response = await getAllPlan()
-      if (response) {
-        setPlans(response)
-      } else {
-        setPlans([])
+    const fetchData = async () => {
+      try {
+        const plansResponse = await getAllPlan()
+        const featuresResponse = await getAllFeature()
+        
+        setPlans(plansResponse || [])
+        setFeatureList(featuresResponse || [])
+      } catch (error) {
+        message.error('Failed to load data.')
+    fetchData()
       }
     }
-    fetchPlans()
   }, [])
+
 
   const columns = [
     {
@@ -39,7 +42,9 @@ export default function MemberShipPlanAdminPage() {
       dataIndex: 'features',
       key: 'features',
       render: (_, record) => (
-        <ul className='list-disc pl-4'>{record.features?.map((feature, index) => <li key={index}> {feature.featureName} </li>)}</ul>
+        <ul className='list-disc pl-4'>
+          {record.features?.map((feature, index) => <li key={index}> {feature.featureName} </li>)}
+        </ul>
       )
     },
     {
@@ -78,10 +83,7 @@ export default function MemberShipPlanAdminPage() {
       )
     }
   ]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleChange = (value: any) => {
-    console.log(`selected ${value}`)
-  }
+
   const handleModalClick = () => {
     setIsModalOpen(true)
   }
@@ -89,19 +91,39 @@ export default function MemberShipPlanAdminPage() {
     setIsModalOpen(false)
     form.resetFields()
   }
-  const handleModalSubmit = () => {
-    form.validateFields().then((values) => {
+  const onCreatePlan = async (values: MODEL.PlanValues) => {
+    const response = await createPlan(
+      values.planName,
+      values.price,
+      values.duration,
+      values.description,
+      values.features.map((id) => String(id))
+    )
 
-    const newPlan = {
-      ...values,
-      createdAt: new Date().toLocaleString()
-    }
-    setDataSource((prev)=> [...prev, newPlan])
-    console.log("Form Values:", values)
-    console.log('NEW', newPlan)
+    if (response) {
+      message.success('Plan created successfully')
+
+      const newPlan = {
+        planName: values.planName,
+        price: values.price,
+        duration: values.duration,
+        description: values.description,
+        features: values.features.map((id) => {
+          const feature = featureList.find((f) => f.id === id)
+          return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
+        }),
+        createdAt: new Date().toLocaleString()
+      }
+
+      setPlans((prevPlans) => [newPlan, ...prevPlans])
       setIsModalOpen(false)
       form.resetFields()
-    })
+    } else {
+      message.error('Failed to create plan')
+    }
+  }
+  const handleModalSubmit = () => {
+    form.validateFields().then(onCreatePlan)
   }
   return (
     <div className='flex min-h-screen bg-gray-100'>
@@ -146,7 +168,6 @@ export default function MemberShipPlanAdminPage() {
             <Select
               defaultValue='newest'
               style={{ width: 120 }}
-              onChange={handleChange}
               options={[
                 { value: 'jack', label: 'Jack' },
                 { value: 'newest', label: 'Newest' },
@@ -160,14 +181,28 @@ export default function MemberShipPlanAdminPage() {
       <Modal title='Create Membership Plan' open={isModalOpen} onCancel={handleCancel} onOk={handleModalSubmit}>
         <Form form={form} layout='vertical'>
           <Form.Item
-            label='Package Name'
-            name='packageName'
-            rules={[{ required: true, message: 'Please input the package name' }]}
+            label='Plan Name'
+            name='planName'
+            rules={[{ required: true, message: 'Please input the plan name' }]}
           >
-            <Input placeholder='Enter package name' />
+            <Input placeholder='Enter plan name' />
           </Form.Item>
           <Form.Item label='Price' name='price' rules={[{ required: true, message: 'Please input the price!' }]}>
             <Input placeholder='Enter price (e.g., $10.00)' />
+          </Form.Item>
+          <Form.Item
+            label='Duration'
+            name='duration'
+            rules={[{ required: true, message: 'Please input the duration!' }]}
+          >
+            <Input placeholder='Enter duration' />
+          </Form.Item>
+          <Form.Item
+            label='Description'
+            name='description'
+            rules={[{ required: true, message: 'Please input the description!' }]}
+          >
+            <Input placeholder='Enter description' />
           </Form.Item>
           <Form.Item
             label='Features'
@@ -177,7 +212,7 @@ export default function MemberShipPlanAdminPage() {
             <Select
               mode='multiple'
               placeholder='Select features'
-              options={featureList.map((feature) => ({ label: feature, value: feature }))}
+              options={featureList.map((feature) => ({ label: feature.featureName, value: feature.id }))}
             />
           </Form.Item>
         </Form>
