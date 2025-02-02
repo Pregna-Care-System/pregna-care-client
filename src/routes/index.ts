@@ -31,7 +31,7 @@ const publicRoutes = [
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
-  { path: ROUTES.DETAIL_PLAN + '/:planName', component: PlanDetail },
+  { path: ROUTES.DETAIL_PLAN, component: PlanDetail },
   { path: ROUTES.VNPAY, component: VNPayPage },
   {
     path: ROUTES.MEMBER_DASHBOARD,

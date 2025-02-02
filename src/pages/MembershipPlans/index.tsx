@@ -2,14 +2,23 @@ import React, { useEffect, useState } from 'react'
 import { Button, message } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PlanCard } from './components/PlanCard'
-import { useSelector } from 'react-redux'
-import { selectMembershipPlans } from '@/store/modules/global/selector'
+import { getAllPlan } from '@/services/planService'
+import { MODEL } from '@/types/IModel'
 
 export default function MemberShipPlanPage() {
-  const plans = useSelector(selectMembershipPlans)
-  const [selectedPlan, setSelectedPlan] = useState(plans[0])
+  const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
+  const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const data = await getAllPlan()
+      setPlans(data)
+      if (data.length > 0) setSelectedPlan(data[0])
+    }
+    fetchPlans()
+  }, [])
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
@@ -23,7 +32,7 @@ export default function MemberShipPlanPage() {
 
   const handleUpgrade = () => {
     navigate(
-      `/checkout?planName=${encodeURIComponent(selectedPlan.name)}&planPrice=${encodeURIComponent(selectedPlan.price.toString())}`
+      `/checkout?planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price.toString())}`
     )
   }
 
@@ -42,21 +51,23 @@ export default function MemberShipPlanPage() {
         <h4 className='text-gray-500 mb-8 lg:mb-16 px-4 lg:px-8 text-center text-sm lg:text-base'>
           Whether your time-saving automation needs are large or small, we’re here to help you scale.
         </h4>
+
         <div className='grid grid-cols-1 md:grid-cols-6 justify-center mb-6 lg:mb-8'>
           <div className='flex justify-center col-start-2 col-span-4 gap-8 w-full'>
             {plans.map((plan) => (
-              <PlanCard
-                key={plan.name}
-                plan={plan}
-                isSelected={plan.name === selectedPlan.name}
-                onSelect={() => setSelectedPlan(plan)}
-              />
+              <div key={plan.planName} className='px-2'>
+                <PlanCard
+                  plan={plan}
+                  isSelected={plan.planName === selectedPlan?.planName}
+                  onSelect={() => setSelectedPlan(plan)}
+                />
+              </div>
             ))}
           </div>
         </div>
         <div className='text-center mb-4'>
           <Button type='primary' size='large' onClick={handleUpgrade} danger>
-            Upgrade to {selectedPlan.name}
+            Upgrade to {selectedPlan ? selectedPlan.planName : 'a plan'}
           </Button>
         </div>
       </div>

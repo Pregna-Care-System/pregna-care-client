@@ -15,6 +15,16 @@ export const getAllPlan = async () => {
     return []
   }
 }
+export const getPlanByName = async () => {
+  try {
+    const res = await request.get<MODEL.PlanResponse>('/MembershipPlan/GetPlanByName')
+    if (res.data.success) {
+      return res.data.response
+    }
+  } catch (error) {
+    console.error('Get plan by name failed', error)
+  }
+}
 
 export const createPlan = async (
   planName: string,

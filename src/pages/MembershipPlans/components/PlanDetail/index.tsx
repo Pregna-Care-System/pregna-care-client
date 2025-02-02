@@ -1,16 +1,23 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
-import { useSelector } from 'react-redux'
-import { selectMembershipPlans } from '@/store/modules/global/selector'
+import { getPlanByName } from '@/services/planService'
+import { MODEL } from '@/types/IModel'
 
 export default function PlanDetail() {
   const { planName } = useParams()
-  const plans = useSelector(selectMembershipPlans)
-  const plan = plans.find((p) => p.name === planName)
+  const [planDetail, setPlanDetail] = useState<MODEL.PlanResponse | null>(null)
+  useEffect(() => {
+    const fetchPlans = async () => {
+      if (!planName) return
+      const data = await getPlanByName(planName)
+      setPlanDetail(data)
+    }
+    fetchPlans()
+  }, [planName])
 
-  if (!plan) {
+  if (!planName) {
     return <div>Plan not found</div>
   }
 
@@ -30,15 +37,15 @@ export default function PlanDetail() {
         }}
       >
         <div className='w-full md:w-1/2 p-6 text-left'>
-          <h1 className='font-bold text-4xl mb-5'>{plan.name}</h1>
+          <h1 className='font-bold text-4xl mb-5'>{planDetail.planName}</h1>
           <p className='text-3xl font-bold mb-4'>
-            {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'> {plan.duration}</span>
+            {planDetail.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'> {planDetail.duration}</span>
           </p>
           <ul className='space-y-2 mb-6'>
-            {plan.features.map((feature, index) => (
+            {planDetail.features.map((feature, index) => (
               <li key={index} className='flex items-center'>
                 <CheckOutlined className='mr-2 text-green-500' />
-                {feature}
+                {feature.featureName}
               </li>
             ))}
           </ul>
@@ -53,15 +60,15 @@ export default function PlanDetail() {
                 borderWidth: '1px'
               }}
             >
-              Upgrade to {plan.name}
+              Upgrade to {planDetail.planName}
             </Button>
           </div>
         </div>
 
         <div className='w-full md:w-1/2 p-6'>
           <img
-            src={plan.image}
-            alt={plan.name}
+            src={planDetail.image}
+            alt={planDetail.planName}
             className='w-full h-60 object-cover rounded-md'
             style={{ maxHeight: '300px', borderRadius: '12px' }}
           />
