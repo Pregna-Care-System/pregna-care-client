@@ -25,7 +25,18 @@ export const getPlanByName = async () => {
     console.error('Get plan by name failed', error)
   }
 }
-
+export const deletePlan = async (planId: string) => {
+  try {
+    const res = await request.delete<MODEL.PlanResponse>(`/MembershipPlan/Delete?id=${planId}`)
+    if (res.data.success) {
+      return res.data.response
+    }
+    console.log('TEST', res.data.response)
+    console.log('Deleting plan with ID:', planId)
+  } catch (error) {
+    console.error('Get plan by name failed', error)
+  }
+}
 export const createPlan = async (
   planName: string,
   price: number,

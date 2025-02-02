@@ -1,6 +1,6 @@
 import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
 import { getAllFeature } from '@/services/featureService'
-import { createPlan, getAllPlan } from '@/services/planService'
+import { createPlan, deletePlan, getAllPlan } from '@/services/planService'
 import { MODEL } from '@/types/IModel'
 import { FileAddFilled } from '@ant-design/icons'
 import { Avatar, Button, Form, Input, Modal, Select, Space, Table, message } from 'antd'
@@ -27,8 +27,8 @@ export default function MemberShipPlanAdminPage() {
         message.error('Failed to load data.')
       }
     }
-    
-    fetchData() 
+
+    fetchData()
   }, [])
 
   const columns = [
@@ -76,14 +76,19 @@ export default function MemberShipPlanAdminPage() {
           <Button type='primary'>
             <TbEdit />
           </Button>
-          <Button danger variant='outlined'>
+          <Button
+            danger
+            variant='outlined'
+            onClick={() => {
+              handleDelete(record.membershipPlanId)
+            }}
+          >
             <FiTrash2 />
           </Button>
         </Space>
       )
     }
   ]
-
   const handleModalClick = () => {
     setIsModalOpen(true)
   }
@@ -128,6 +133,24 @@ export default function MemberShipPlanAdminPage() {
     form.validateFields().then(onCreatePlan)
   }
 
+  const handleDelete = async (planId: string) => {
+    Modal.confirm({
+      title: 'Are you sure?',
+      content: 'This plan will be delete forever',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          const response = await deletePlan(planId)
+          console.log('Delete response:', response)
+          message.success('Plan delete successfully')
+          const updatedPlans = await getAllPlan()
+          setPlans(updatedPlans)
+        } catch (error) {
+          message.error('Failed to delete plan')
+        }
+      }
+    })
+  }
   return (
     <div className='flex min-h-screen bg-gray-100'>
       <div className='w-64 bg-gray-800 text-white p-6'>
