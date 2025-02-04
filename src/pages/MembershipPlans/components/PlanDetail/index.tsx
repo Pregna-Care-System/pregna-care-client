@@ -8,15 +8,20 @@ import { MODEL } from '@/types/IModel'
 export default function PlanDetail() {
   const { planName } = useParams()
   const [planDetail, setPlanDetail] = useState<MODEL.PlanResponse | null>(null)
+  console.log('Plan Name:', planName)
   useEffect(() => {
     const fetchPlans = async () => {
       if (!planName) return
       const data = await getPlanByName(planName)
+      console.log(data)
       setPlanDetail(data)
     }
     fetchPlans()
   }, [planName])
 
+  if (!planDetail) {
+    return <div>Loading...</div>
+  }
   if (!planName) {
     return <div>Plan not found</div>
   }
@@ -39,7 +44,7 @@ export default function PlanDetail() {
         <div className='w-full md:w-1/2 p-6 text-left'>
           <h1 className='font-bold text-4xl mb-5'>{planDetail.planName}</h1>
           <p className='text-3xl font-bold mb-4'>
-            {planDetail.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'> {planDetail.duration}</span>
+            {planDetail.price.toLocaleString('vi-VN')}
           </p>
           <ul className='space-y-2 mb-6'>
             {planDetail.features.map((feature, index) => (

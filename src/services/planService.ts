@@ -15,14 +15,24 @@ export const getAllPlan = async () => {
     return []
   }
 }
-export const getPlanByName = async () => {
+export const getPlanByName = async (planName:string) => {
   try {
-    const res = await request.get<MODEL.PlanResponse>('/MembershipPlan/GetPlanByName')
+    const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/GetPlanByName?name=${planName}`)
     if (res.data.success) {
       return res.data.response
     }
   } catch (error) {
     console.error('Get plan by name failed', error)
+  }
+}
+export const getPlanById = async (planId: string) => {
+  try {
+    const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/GetById?id=${planId}`)
+    if (res.data.success) {
+      return res.data.response
+    }
+  } catch (error) {
+    console.error('Get plan by id failed', error)
   }
 }
 export const deletePlan = async (planId: string) => {
@@ -31,10 +41,46 @@ export const deletePlan = async (planId: string) => {
     if (res.data.success) {
       return res.data.response
     }
-    console.log('TEST', res.data.response)
-    console.log('Deleting plan with ID:', planId)
   } catch (error) {
-    console.error('Get plan by name failed', error)
+    console.error('Delete plan by id failed', error)
+  }
+}
+export const updatePlan = async (
+  planId: string,
+  planName: string,
+  price: number,
+  duration: number,
+  description: string,
+  featuredIds: string[]
+) => {
+  try {
+    const apiCallerId = 'updatePlan'
+    console.log('Send request', {
+      planId,
+      planName,
+      price,
+      duration,
+      description,
+      featuredIds
+    })
+    const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
+      apiCallerId,
+      planName,
+      price,
+      duration,
+      description,
+      featuredId: featuredIds
+    })
+    console.log('API Response', res.data)
+    if (res.data.success) {
+      return res
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
   }
 }
 export const createPlan = async (

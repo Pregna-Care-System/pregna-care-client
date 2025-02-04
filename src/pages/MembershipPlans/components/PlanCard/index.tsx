@@ -39,7 +39,7 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
     >
       <img src={plan.image} alt={plan.planName} className='w-full h-40 object-cover rounded-md mb-4' />
       <p className='text-3xl font-bold mb-4'>
-        {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'>/month</span>
+        {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'></span>
       </p>
       <ul className='space-y-2'>
         {plan.features.map((feature, index) => (

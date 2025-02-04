@@ -1,6 +1,6 @@
 import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
 import { getAllFeature } from '@/services/featureService'
-import { createPlan, deletePlan, getAllPlan } from '@/services/planService'
+import { createPlan, deletePlan, getAllPlan, getPlanById, updatePlan } from '@/services/planService'
 import { MODEL } from '@/types/IModel'
 import { FileAddFilled } from '@ant-design/icons'
 import { Avatar, Button, Form, Input, Modal, Select, Space, Table, message } from 'antd'
@@ -14,6 +14,8 @@ export default function MemberShipPlanAdminPage() {
   const [form] = Form.useForm()
   const [featureList, setFeatureList] = useState([])
   const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
+  const [isUpdateMode, setIsUpdateMode] = useState(false)
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,16 +75,10 @@ export default function MemberShipPlanAdminPage() {
       key: 'action',
       render: (_, record) => (
         <Space size='middle'>
-          <Button type='primary'>
+          <Button type='primary' onClick={() => handleUpdate(record.membershipPlanId)}>
             <TbEdit />
           </Button>
-          <Button
-            danger
-            variant='outlined'
-            onClick={() => {
-              handleDelete(record.membershipPlanId)
-            }}
-          >
+          <Button danger variant='outlined' onClick={() => handleDelete(record.membershipPlanId)}>
             <FiTrash2 />
           </Button>
         </Space>
@@ -90,12 +86,15 @@ export default function MemberShipPlanAdminPage() {
     }
   ]
   const handleModalClick = () => {
+    setIsUpdateMode(false)
     setIsModalOpen(true)
   }
 
   const handleCancel = () => {
     setIsModalOpen(false)
     form.resetFields()
+    setIsUpdateMode(false)
+    setSelectedPlanId(null)
   }
 
   const onCreatePlan = async (values: MODEL.PlanValues) => {
@@ -129,20 +128,62 @@ export default function MemberShipPlanAdminPage() {
     }
   }
 
+  const onUpdatePlan = async (values: MODEL.PlanValues) => {
+    if (!selectedPlanId) return
+    const response = await updatePlan(
+      selectedPlanId,
+      values.planName,
+      values.price,
+      values.duration,
+      values.description,
+      values.features.map((id) => String(id))
+    )
+    if (response) {
+      message.success('Plan updated successfully')
+
+      const updatedPlans = plans.map((plan) =>
+        plan.membershipPlanId === selectedPlanId
+          ? {
+              ...plan,
+              planName: values.planName,
+              price: values.price,
+              duration: values.duration,
+              description: values.description,
+              features: values.features.map((id) => {
+                const feature = featureList.find((f) => f.id === id)
+                return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
+              })
+            }
+          : plan
+      )
+      setPlans(updatedPlans)
+      setIsModalOpen(false)
+      form.resetFields()
+      setSelectedPlanId(null)
+    } else {
+      message.error('Failed to update plan')
+    }
+  }
+
   const handleModalSubmit = () => {
-    form.validateFields().then(onCreatePlan)
+    form.validateFields().then((values) => {
+      if (isUpdateMode) {
+        onUpdatePlan(values)
+      } else {
+        onCreatePlan(values)
+      }
+    })
   }
 
   const handleDelete = async (planId: string) => {
     Modal.confirm({
       title: 'Are you sure?',
-      content: 'This plan will be delete forever',
+      content: 'This plan will be deleted forever',
       cancelText: 'Cancel',
       onOk: async () => {
         try {
           const response = await deletePlan(planId)
-          console.log('Delete response:', response)
-          message.success('Plan delete successfully')
+          message.success('Plan deleted successfully')
           const updatedPlans = await getAllPlan()
           setPlans(updatedPlans)
         } catch (error) {
@@ -151,6 +192,31 @@ export default function MemberShipPlanAdminPage() {
       }
     })
   }
+
+  const handleUpdate = async (planId: string) => {
+    if (!planId) {
+      message.error('Plan ID is not defined')
+      return
+    }
+    try {
+      const planResponse = await getPlanById(planId)
+      form.setFieldsValue({
+        planName: planResponse.planName,
+        price: planResponse.price,
+        duration: planResponse.duration,
+        description: planResponse.description,
+        features: planResponse.features.map((feature) => feature.featureName)
+      })
+
+      setIsModalOpen(true)
+      setIsUpdateMode(true)
+      setSelectedPlanId(planId)
+    } catch (error) {
+      console.error('Error while fetching plan:', error)
+      message.error('Failed to fetch plan details for update')
+    }
+  }
+
   return (
     <div className='flex min-h-screen bg-gray-100'>
       <div className='w-64 bg-gray-800 text-white p-6'>
@@ -204,7 +270,13 @@ export default function MemberShipPlanAdminPage() {
           <Table dataSource={plans} columns={columns} pagination={{ pageSize: 8 }} />
         </div>
       </div>
-      <Modal title='Create Membership Plan' open={isModalOpen} onCancel={handleCancel} onOk={handleModalSubmit}>
+
+      <Modal
+        title={isUpdateMode ? 'Update Membership Plan' : 'Create Membership Plan'}
+        open={isModalOpen}
+        onCancel={handleCancel}
+        onOk={handleModalSubmit}
+      >
         <Form form={form} layout='vertical'>
           <Form.Item
             label='Plan Name'
