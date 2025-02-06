@@ -1,4 +1,3 @@
-import { StringifyOptions } from "querystring"
 
 declare namespace MODEL {
   export interface TokenResponse {
@@ -7,6 +6,13 @@ declare namespace MODEL {
   }
   export interface LoginResponse {
     response: TokenResponse | null
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: DetailError[] | null | null
+  }
+  export interface ForgotPasswordResponse {
+    response: unknown | null
     messageId: string
     message: string
     success: boolean

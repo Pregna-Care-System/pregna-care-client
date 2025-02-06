@@ -5,6 +5,8 @@ const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   CONFIRM_EMAIL: '/confirm-email',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
   PROFILE: '/profile',
   CONTACT: '/contact',

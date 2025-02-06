@@ -14,6 +14,8 @@ import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
 import MemberShipPlanAdminPage from '@/pages/Admin/MembershipPlan'
 import Tracking from '@/pages/Member/Tracking'
+import ResendPassword from '@/pages/Login/ForgotPassword/ResendPassword'
+import ForgotPassword from '@/pages/Login/ForgotPassword'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -29,6 +31,8 @@ const publicRoutes = [
   { path: ROUTES.GUEST_HOME, component: GuestHome },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
+  { path: ROUTES.RESEND_PASSWORD, component: ResendPassword, layout: NoHeaderLayout },
+  { path: ROUTES.FORGOT_PASSWORD, component: ForgotPassword, layout: NoHeaderLayout },
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
