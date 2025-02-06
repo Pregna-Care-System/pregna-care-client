@@ -34,31 +34,31 @@ export default function Footer() {
         </Link>
       </div>
       <div className='col-start-11 col-span-1'>
-        <Link to={ROUTES.HOME} className='bg-red-300 text-white rounded-lg py-2 px-5 flex items-center gap-1'>
-          <span className='text-sm font-semibold'>Get the app</span>
+        <Link to={ROUTES.HOME} className='bg-red-300 text-white rounded-lg py-2 px-2 flex items-center gap-1'>
+          <span className='text-xs font-semibold w-full inline-block'>Get the app</span>
           <img
             src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736862738/PregnaCare/dzlhyj9iyxr8xvuxkztl.png'
             alt='QR'
           />
         </Link>
-        <Link to={ROUTES.HOME} className='bg-black flex rounded-lg py-1 px-3 mt-2 items-center gap-1'>
+        <Link to={ROUTES.HOME} className='bg-black flex rounded-lg py-2 px-1 mt-2 items-center gap-1'>
           <img
             src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736862861/PregnaCare/osy55ewyfe7p6q8xhauo.png'
             alt='App store'
           />
           <div className='ms-2'>
-            <p className='font-light text-xs text-white m-0'>Download on the</p>
-            <p className='text-white m-0'>App Store</p>
+            <p className='font-light text-[10px] text-white m-0'>Download on the</p>
+            <p className='text-white text-xs m-0'>App Store</p>
           </div>
         </Link>
-        <Link to={ROUTES.HOME} className='bg-black flex rounded-lg py-1 px-2 mt-2 items-center gap-1'>
+        <Link to={ROUTES.HOME} className='bg-black flex rounded-lg py-2 px-1 mt-2 items-center gap-1'>
           <img
             src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736862909/PregnaCare/fkxnuevdhjtzpj0zxyki.png'
             alt='App store'
           />
           <div className='ms-2'>
-            <p className='font-light text-xs text-white m-0'>Get it on</p>
-            <p className='text-white m-0'>Google Play</p>
+            <p className='font-light text-[10px] text-white m-0'>Get it on</p>
+            <p className='text-white text-xs m-0'>Google Play</p>
           </div>
         </Link>
       </div>

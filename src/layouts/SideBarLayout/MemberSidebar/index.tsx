@@ -1,3 +1,4 @@
+import ROUTES from '@/utils/config/routes'
 import React, { useState } from 'react'
 import { FiBarChart2, FiBell, FiDollarSign, FiMenu, FiUsers, FiX } from 'react-icons/fi'
 import { GoPerson } from 'react-icons/go'
@@ -8,19 +9,36 @@ export default function MemberSidebar() {
   const [activeMenu, setActiveMenu] = useState('Mother Information')
 
   const menuItems = [
-    { title: 'Mother Information', icon: <GoPerson size={20} />, action: () => console.log('Dashboard clicked') },
+    {
+      title: 'Mother Information',
+      icon: <GoPerson size={20} />,
+      path: ROUTES.MEMBER_DASHBOARD,
+      action: () => console.log('Dashboard clicked')
+    },
     {
       title: 'Tracking',
       icon: <FiDollarSign size={20} />,
+      path: ROUTES.MEMBER_FETALGROWTHCHART,
       action: () => console.log('Transactions clicked')
     },
-    { title: 'Fetal growth chart', icon: <FiUsers size={20} />, action: () => console.log('Members clicked') },
+    {
+      title: 'Fetal growth chart',
+      icon: <FiUsers size={20} />,
+      path: ROUTES.MEMBER_FETALGROWTHCHART,
+      action: () => console.log('Members clicked')
+    },
     {
       title: 'Mother status',
       icon: <FiBarChart2 size={20} />,
+      path: ROUTES.MEMBER_FETALGROWTHCHART,
       action: () => console.log('Fetal Growth clicked')
     },
-    { title: 'Notifications', icon: <FiBell size={20} />, action: () => console.log('Notifications clicked') }
+    {
+      title: 'Notifications',
+      icon: <FiBell size={20} />,
+      path: ROUTES.MEMBER_FETALGROWTHCHART,
+      action: () => console.log('Notifications clicked')
+    }
   ]
 
   const navigate = useNavigate()
@@ -29,8 +47,9 @@ export default function MemberSidebar() {
     navigate('/')
   }
 
-  const handleMenuItemClick = (title: string) => {
+  const handleMenuItemClick = (title: string, path: string) => {
     setActiveMenu(title)
+    navigate(path)
   }
 
   return (
@@ -67,7 +86,7 @@ export default function MemberSidebar() {
               {menuItems.map((item, index) => (
                 <li key={index}>
                   <button
-                    onClick={() => handleMenuItemClick(item.title)}
+                    onClick={() => handleMenuItemClick(item.title, item.path)}
                     className={`w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
                       activeMenu === item.title ? 'bg-blue-100 text-blue-600' : ''
                     }`}

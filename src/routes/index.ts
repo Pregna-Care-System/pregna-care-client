@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { Children, lazy } from 'react'
 import ROUTES from '@utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
@@ -13,6 +13,7 @@ import Member from '@/pages/Member'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
 import MemberShipPlanAdminPage from '@/pages/Admin/MembershipPlan'
+import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -38,16 +39,15 @@ const publicRoutes = [
     component: Member,
     layout: NoHeaderLayout,
     children: [
-      { path: '', component: Dashboard }
-      // { path: "profile", component: Profile },
-      // Add more nested routes for the member dashboard here
+      { path: '', component: Dashboard },
+      { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart }
     ]
   },
   { path: ROUTES.SCHEDULE, component: SchedulePage },
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout },
+  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout }
 ]
 
 const privateRoutes = [
