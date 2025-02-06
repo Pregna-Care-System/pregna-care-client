@@ -20,37 +20,30 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
     <Modal title={`Mother Information`} open={isOpen} onCancel={onClose} footer={null}>
       <Form form={form} onFinish={handleSubmit} layout='vertical'>
         <Form.Item
-          name='week'
-          label='Week'
-          rules={[{ required: true, type: 'number', message: 'Please enter a valid week' }]}
+          name='motherName'
+          label='Mother Name'
+          rules={[{ required: true, message: 'Please enter your mother name' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          name='heartRate'
-          label='Heart rate'
-          rules={[{ required: true, message: 'Please enter your heart rate' }]}
+          name='dateOfBirth'
+          label='Date Of Birth'
+          rules={[{ required: true, message: 'Please enter your date of birth' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          name='weight'
-          label='Weight'
-          rules={[{ required: true, type: 'number', message: 'Please enter a valid weight' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name='bloodPressure'
-          label='Blood Pressure'
-          rules={[{ required: true, message: 'Please enter your blood pressure' }]}
+          name='bloodType'
+          label='Blood Type'
+          rules={[{ required: true, type: 'number', message: 'Please enter your blood type' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name='healthStatus'
           label='Health Status'
-          rules={[{ required: true, type: 'string', message: 'Please enter a valid health status' }]}
+          rules={[{ required: true, message: 'Please enter your health status' }]}
         >
           <Input />
         </Form.Item>

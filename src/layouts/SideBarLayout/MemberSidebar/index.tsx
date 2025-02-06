@@ -18,7 +18,7 @@ export default function MemberSidebar() {
     {
       title: 'Tracking',
       icon: <FiDollarSign size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
+      path: ROUTES.MEMBER_TRACKING,
       action: () => console.log('Transactions clicked')
     },
     {
@@ -30,13 +30,13 @@ export default function MemberSidebar() {
     {
       title: 'Mother status',
       icon: <FiBarChart2 size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
+      path: ROUTES.MEMBER_DASHBOARD,
       action: () => console.log('Fetal Growth clicked')
     },
     {
       title: 'Notifications',
       icon: <FiBell size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
+      path: ROUTES.MEMBER_DASHBOARD,
       action: () => console.log('Notifications clicked')
     }
   ]

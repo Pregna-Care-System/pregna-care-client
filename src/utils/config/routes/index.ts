@@ -22,6 +22,7 @@ const ROUTES = {
   ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
   MEMBER_DASHBOARD: '/member',
   MEMBER_FETALGROWTHCHART: 'fetal-growth-chart',
+  MEMBER_TRACKING: '/member/tracking',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'
 }
