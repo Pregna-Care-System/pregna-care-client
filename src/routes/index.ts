@@ -13,6 +13,7 @@ import Member from '@/pages/Member'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
 import MemberShipPlanAdminPage from '@/pages/Admin/MembershipPlan'
+import Tracking from '@/pages/Member/Tracking'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -38,7 +39,8 @@ const publicRoutes = [
     component: Member,
     layout: NoHeaderLayout,
     children: [
-      { path: '', component: Dashboard }
+      { path: '', component: Dashboard },
+      { path: ROUTES.MEMBER_TRACKING, component: Tracking }
       // { path: "profile", component: Profile },
       // Add more nested routes for the member dashboard here
     ]

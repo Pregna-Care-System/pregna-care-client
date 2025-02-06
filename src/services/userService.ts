@@ -25,6 +25,13 @@ export const registerAccount = async (
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    if (error.response?.data?.detailErrorList?.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const passwordError = error.response.data.detailErrorList.find((detail: any) => detail.fieldName === 'Password')
+      if (passwordError) {
+        throw new Error(passwordError.message)
+      }
+    }
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
   }

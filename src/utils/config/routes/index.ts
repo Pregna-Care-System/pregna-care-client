@@ -21,6 +21,7 @@ const ROUTES = {
   ADMIN_MEMBER: '/admin/member',
   ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
   MEMBER_DASHBOARD: '/member',
+  MEMBER_TRACKING: '/member/tracking',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'
 }

@@ -150,105 +150,48 @@ export const initialState = {
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
   ],
-  motherInfo: [
+  babyInfo: [ 
     {
       key: '1',
-      week: '1',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
+      babyName: 'Mike',
+      pregnancyStartDate: '2025-01-26',
+      expectedDueDate: '2025-01-26',
+      babyGender: 'Female',
+      imageUrl: '',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
     },
     {
       key: '2',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
+      babyName: 'Mike',
+      pregnancyStartDate: '2025-01-26',
+      expectedDueDate: '2025-01-26',
+      babyGender: 'Female',
+      imageUrl: '',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
+    },
+  ],
+  motherInfo: [
+    {
+      key: '1',
+      motherName: 'Mike',
+      dateOfBirth: '2025-01-26',
+      bloodType: 'O Blood',
+      healthStatus: 'Good',
       notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
     },
     {
-      key: '3',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
+      key: '2',
+      motherName: 'Mike',
+      dateOfBirth: '2025-01-26',
+      bloodType: 'O Blood',
+      healthStatus: 'Good',
       notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '4',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '5',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '6',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '7',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '8',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
-    },
-    {
-      key: '9',
-      week: '2',
-      heartRate: 'Mike',
-      weight: 32,
-      bloodPressure: '10 Downing Street',
-      healthStatus: '10 Downing Street',
-      notes: '10 Downing Street',
-      createdAt: '10 Downing Street',
-      updatedAt: '10 Downing Street'
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
     }
   ],
   transactionInfo: [
