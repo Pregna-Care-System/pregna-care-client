@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { MailOutlined } from '@ant-design/icons'
 
-const ConfirmEmail = () => {
+const ResendPassword = () => {
   const [showSuccess, setShowSuccess] = useState(false)
+
   return (
     <div className='flex justify-center w-lvw h-lvh bg-gradient-to-br from-blue-50 to-purple-50 p-4'>
       <main className='flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12'>
@@ -11,7 +12,7 @@ const ConfirmEmail = () => {
             <div className='mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center'>
               <MailOutlined className='text-3xl text-blue-600' />
             </div>
-            <h1 className='mt-6 text-3xl font-extrabold text-gray-900'>Email Confirmation</h1>
+            <h1 className='mt-6 text-3xl font-extrabold text-gray-900'>Resend Password Confirmation</h1>
             <p className='mt-4 text-lg text-gray-600'>
               We have sent a confirmation email to your inbox. Please click the link in the email to verify your
               account.
@@ -32,7 +33,7 @@ const ConfirmEmail = () => {
           <div className='mt-6'>
             {showSuccess && (
               <p className='mt-2 text-sm text-green-600 text-center'>
-                Confirmation email has been resent successfully!
+               Resend password email has been resent successfully!
               </p>
             )}
           </div>
@@ -42,4 +43,4 @@ const ConfirmEmail = () => {
   )
 }
 
-export default ConfirmEmail
+export default ResendPassword

@@ -5,6 +5,8 @@ const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   CONFIRM_EMAIL: '/confirm-email',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
   PROFILE: '/profile',
   CONTACT: '/contact',
@@ -21,6 +23,7 @@ const ROUTES = {
   ADMIN_MEMBER: '/admin/member',
   ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
   MEMBER_DASHBOARD: '/member',
+  MEMBER_TRACKING: '/member/tracking',
   MEMBER_FETALGROWTHCHART: '/member/fetal-growth-chart',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'

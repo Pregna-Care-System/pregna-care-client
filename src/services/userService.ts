@@ -1,4 +1,3 @@
-import { MODEL } from '@/types/IModel'
 import * as request from '@/utils/axiosClient'
 
 export const registerAccount = async (
@@ -25,6 +24,13 @@ export const registerAccount = async (
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    if (error.response?.data?.detailErrorList?.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const passwordError = error.response.data.detailErrorList.find((detail: any) => detail.fieldName === 'Password')
+      if (passwordError) {
+        throw new Error(passwordError.message)
+      }
+    }
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
   }
@@ -65,17 +71,24 @@ export const logout = (): void => {
   window.location.reload()
 }
 
-// export const verifyEmail = async (token: string): Promise<MODEL.VerifyEmailResponse> => {
-//   try {
-//     const res = await request.get<MODEL.VerifyEmailResponse>(`/register`, {
-//       params: { token }
-//     })
-//     return res
-//   } catch (error) {
-//     console.error('Email verification failed:', error)
-//     throw error
-//   }
-// }
+export const forgotPassword = async (email: string) => {
+  try {
+    const res = await request.post<MODEL.ForgotPasswordResponse>(`/Password/ForgotPassword`, {
+      email
+    })
+    if (res.success) {
+      return res
+    } else {
+      throw new Error(res.message || 'Resend password failed')
+    }
+  } catch (error) {
+    if(error.response){
+      console.error('Response Error:', error.response.status, error.response.data)
+    }else{
+      console.error('Request Error:', error.message)
+    }
+  }
+}
 
 // export const refreshToken = async (): Promise<string> => {
 //   try {
