@@ -1,5 +1,5 @@
 export const initialState = {
-  isAuthenticated: false,
+  isAuthenticated: localStorage.getItem('accessToken') !== null,
   services: [
     {
       id: 1,
@@ -151,7 +151,7 @@ export const initialState = {
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
   ],
-  babyInfo: [ 
+  babyInfo: [
     {
       key: '1',
       babyName: 'Mike',
@@ -171,7 +171,7 @@ export const initialState = {
       imageUrl: '',
       createdAt: '2025-01-26',
       updatedAt: '2025-01-26'
-    },
+    }
   ],
   motherInfo: [
     {

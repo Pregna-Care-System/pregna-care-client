@@ -218,10 +218,7 @@ export default function MemberShipPlanAdminPage() {
   }
 
   return (
-    <div className='flex min-h-screen bg-gray-100'>
-      <div className='w-64 bg-gray-800 text-white p-6'>
-        <AdminSidebar />
-      </div>
+    <>
       <div className='flex-1 p-8'>
         <div className='flex justify-end items-center mb-10'>
           <h4 className='px-2 border-s-2 border-gray-300'>
@@ -315,6 +312,6 @@ export default function MemberShipPlanAdminPage() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   )
 }
