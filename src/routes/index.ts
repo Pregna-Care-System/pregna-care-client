@@ -17,6 +17,7 @@ import ResendPassword from '@/pages/Login/ForgotPassword/ResendPassword'
 import ForgotPassword from '@/pages/Login/ForgotPassword'
 import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
+import AdminLayout from '@/layouts/AdminLayout'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -38,19 +39,24 @@ const publicRoutes = [
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetail },
+  { path: ROUTES.SCHEDULE, component: SchedulePage },
   { path: ROUTES.VNPAY, component: VNPayPage },
+  //--- Member routes
   { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
   { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.SCHEDULE, component: SchedulePage },
-  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: NoHeaderLayout },
-  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: NoHeaderLayout }
+  { path: ROUTES.MEMBER_TRACKING, component: Tracking, layout: MemberLayout },
+  //--- Admin routes
+  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: AdminLayout },
+  { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout }
 ]
 
-const privateRoutes = [
+const adminRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile }
   // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
 ]
 
-export { publicRoutes, privateRoutes }
+const memberRoutes = [{ path: ROUTES.PROFILE, component: MainProfile }]
+
+export { publicRoutes, adminRoutes, memberRoutes }
