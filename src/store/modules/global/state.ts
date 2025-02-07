@@ -1,4 +1,5 @@
 export const initialState = {
+  isAuthenticated: false,
   services: [
     {
       id: 1,

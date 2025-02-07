@@ -9,11 +9,11 @@ import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
 import MemberShipPlanPage from '@/pages/MembershipPlans'
 import Dashboard from '@/pages/Member/Dashboard'
-import Member from '@/pages/Member'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
 import MemberShipPlanAdminPage from '@/pages/Admin/MembershipPlan'
 import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
+import MemberLayout from '@/layouts/MemberLayout'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -34,15 +34,8 @@ const publicRoutes = [
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetail },
   { path: ROUTES.VNPAY, component: VNPayPage },
-  {
-    path: ROUTES.MEMBER_DASHBOARD,
-    component: Member,
-    layout: NoHeaderLayout,
-    children: [
-      { path: '', component: Dashboard },
-      { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart }
-    ]
-  },
+  { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
   { path: ROUTES.SCHEDULE, component: SchedulePage },
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout },
   { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: NoHeaderLayout },
@@ -51,20 +44,8 @@ const publicRoutes = [
 ]
 
 const privateRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile },
-  { path: ROUTES.HOME, component: MainHome }
-
+  { path: ROUTES.PROFILE, component: MainProfile }
   // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
-  // {
-  //   path: ROUTES.MEMBER_DASHBOARD,
-  //   component: Member,
-  //   layout: NoHeaderLayout,
-  //   children: [
-  //     { path: '', component: Dashboard }
-  //     // { path: "profile", component: Profile },
-  //     // Add more nested routes for the member dashboard here
-  //   ]
-  // }
 ]
 
 export { publicRoutes, privateRoutes }

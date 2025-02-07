@@ -1,4 +1,4 @@
-import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
+import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { selectMemberAdminInfo } from '@/store/modules/global/selector'
 import { Avatar, Button, Select, Space, Table } from 'antd'
 import { Input } from 'antd'

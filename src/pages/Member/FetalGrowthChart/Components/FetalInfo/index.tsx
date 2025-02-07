@@ -25,8 +25,6 @@ const FetusInfo: React.FC<FetusInfoProps> = ({ data }) => {
   const acStatus = getStatus(data.abdominalCircumference, 22, 25)
   const flStatus = getStatus(data.femurLength, 4.8, 5.5)
 
-  console.log(weightStatus, hcStatus, acStatus, flStatus)
-
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
       <Card title='General Information' className='shadow-md'>

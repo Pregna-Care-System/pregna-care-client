@@ -1,5 +1,3 @@
-import { StringifyOptions } from "querystring"
-
 declare namespace MODEL {
   export interface TokenResponse {
     accessToken: string
@@ -34,7 +32,7 @@ declare namespace MODEL {
     email: string
     password: string
   }
-  
+
   export interface VerifyEmailResponse {
     message: string
   }
@@ -56,7 +54,7 @@ declare namespace MODEL {
     timeEnd: dayjs.Dayjs | null
     description: string
   }
-  
+
   export interface PlanResponse {
     response: [
       {

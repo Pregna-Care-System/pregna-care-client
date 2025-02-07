@@ -1,4 +1,4 @@
-import AdminSidebar from '@/layouts/SideBarLayout/AdminSidebar'
+import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { getAllFeature } from '@/services/featureService'
 import { createPlan, deletePlan, getAllPlan, getPlanById, updatePlan } from '@/services/planService'
 import { MODEL } from '@/types/IModel'

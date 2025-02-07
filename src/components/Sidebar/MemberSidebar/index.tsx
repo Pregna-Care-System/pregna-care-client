@@ -7,41 +7,35 @@ import { useNavigate } from 'react-router-dom'
 export default function MemberSidebar() {
   const [isOpen, setIsOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState('Mother Information')
+  const navigate = useNavigate()
 
   const menuItems = [
     {
       title: 'Mother Information',
       icon: <GoPerson size={20} />,
-      path: ROUTES.MEMBER_DASHBOARD,
-      action: () => console.log('Dashboard clicked')
+      path: ROUTES.MEMBER_DASHBOARD
     },
     {
       title: 'Tracking',
       icon: <FiDollarSign size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
-      action: () => console.log('Transactions clicked')
+      path: ROUTES.MEMBER_FETALGROWTHCHART
     },
     {
       title: 'Fetal growth chart',
       icon: <FiUsers size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
-      action: () => console.log('Members clicked')
+      path: ROUTES.MEMBER_FETALGROWTHCHART
     },
     {
       title: 'Mother status',
       icon: <FiBarChart2 size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
-      action: () => console.log('Fetal Growth clicked')
+      path: ROUTES.MEMBER_FETALGROWTHCHART
     },
     {
       title: 'Notifications',
       icon: <FiBell size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART,
-      action: () => console.log('Notifications clicked')
+      path: ROUTES.MEMBER_FETALGROWTHCHART
     }
   ]
-
-  const navigate = useNavigate()
 
   const handleLogoClick = () => {
     navigate('/')
@@ -97,7 +91,6 @@ export default function MemberSidebar() {
                   </button>
                 </li>
               ))}
-              !
             </ul>
           </nav>
         </div>
