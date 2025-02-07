@@ -1,7 +1,7 @@
 // define the Route
 const ROUTES = {
   GUEST_HOME: '/',
-  HOME: '/home',
+  HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
   CONFIRM_EMAIL: '/confirm-email',
@@ -24,6 +24,7 @@ const ROUTES = {
   ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
   MEMBER_DASHBOARD: '/member',
   MEMBER_TRACKING: '/member/tracking',
+  MEMBER_FETALGROWTHCHART: '/member/fetal-growth-chart',
   SCHEDULE: '/schedule',
   NOT_FOUND: '*'
 }

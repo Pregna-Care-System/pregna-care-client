@@ -78,8 +78,6 @@ const Wrapper = styled.div`
 export default function Header() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  console.log('Token', token)
-  console.log('User infor',user)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
 

@@ -20,14 +20,14 @@ import {
 import ROUTES from '@/utils/config/routes'
 
 const Background = styled.div`
-  height: 930px;
+  height: 765px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 `
 
 const Content = styled.div`
-  transform: translate(35%, 100%);
+  transform: translate(25%, 100%);
   max-width: 50rem;
   a {
     text-align: center;
