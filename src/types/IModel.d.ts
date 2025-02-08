@@ -1,9 +1,17 @@
+
 declare namespace MODEL {
   export interface TokenResponse {
     accessToken: string
     refreshToken: string
   }
   export interface LoginResponse {
+    response: TokenResponse | null
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: DetailError[] | null | null
+  }
+  export interface ForgotPasswordResponse {
     response: unknown | null
     messageId: string
     message: string
@@ -32,7 +40,7 @@ declare namespace MODEL {
     email: string
     password: string
   }
-  
+
   export interface VerifyEmailResponse {
     message: string
   }
@@ -45,5 +53,44 @@ declare namespace MODEL {
     roles?: string[]
     createdAt?: string
     updatedAt?: string
+  }
+
+  export interface Event {
+    title: string
+    date: dayjs.Dayjs | null
+    timeStart: dayjs.Dayjs | null
+    timeEnd: dayjs.Dayjs | null
+    description: string
+  }
+
+  export interface PlanResponse {
+    response: [
+      {
+        planName: string
+        price: number
+        duration: number
+        description: string
+        createdAt: string
+        features: { featureName: string }[]
+      }
+    ]
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
+  }
+  export interface PlanValues {
+    planName: string
+    price: number
+    duration: number
+    description: string
+    features: string[]
+  }
+  export interface FeatureResponse {
+    response: unknown | null
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
   }
 }

@@ -20,14 +20,14 @@ import {
 import ROUTES from '@/utils/config/routes'
 
 const Background = styled.div`
-  height: 930px;
+  height: 765px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 `
 
 const Content = styled.div`
-  transform: translate(35%, 100%);
+  transform: translate(25%, 100%);
   max-width: 50rem;
   a {
     text-align: center;
@@ -60,8 +60,8 @@ export default function GuestHome() {
     return (
       <CardMembershipPlans
         key={index}
-        title={item.title}
-        description={item.description}
+        title={item.name}
+        description={item.features}
         price={item.price}
         isSelected={item.id === selectedPlan.id}
         onSelect={() => setSelectedPlan(item)}

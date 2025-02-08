@@ -4,9 +4,13 @@ import { initialState } from './state'
 const editorSlice = createSlice({
   name: 'global',
   initialState,
-  reducers: {}
+  reducers: {
+    setLoginStatus(state, action: PayloadAction<boolean>) {
+      state.isAuthenticated = action.payload
+    }
+  }
 })
 
-export const {} = editorSlice.actions
+export const { setLoginStatus } = editorSlice.actions
 
 export default editorSlice.reducer

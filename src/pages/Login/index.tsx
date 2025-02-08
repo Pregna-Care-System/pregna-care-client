@@ -4,27 +4,20 @@ import { jwtDecode } from 'jwt-decode'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
-import { login } from '@/services/userService'
+import ROUTES from '@/utils/config/routes'
+import useAuth from '@/hooks/useAuth'
+import { useDispatch } from 'react-redux'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { setIsAuthenticated } = useAuth()
 
   const onLogin = async (values: MODEL.LoginFormValues) => {
-    try {
-      const response = await login(values.email, values.password)
-      if (response.success) {
-        message.success('Login successful')
-        navigate('/home')
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.redirect) {
-        message.warning(error.message)
-        navigate(error.redirect)
-      } else {
-        message.error(error.message || 'An unexpected error occurred')
-      }
-    }
+    dispatch({
+      type: 'USER_LOGIN',
+      payload: { email: values.email, password: values.password, route: ROUTES.GUEST_HOME, navigate }
+    })
   }
 
   const handleGoogleSuccess = (response: CredentialResponse) => {
@@ -32,6 +25,9 @@ export default function LoginPage() {
       const decodedToken = jwtDecode(response.credential)
       console.log('Decoded Token:', decodedToken)
       message.success('Google login successful')
+      localStorage.setItem('accessToken', response.credential)
+      setIsAuthenticated(true)
+      navigate(ROUTES.HOME)
     } else {
       message.error('Google login failed. No credentials received.')
     }
@@ -96,7 +92,7 @@ export default function LoginPage() {
           </Button>
           <Form.Item className='w-full flex items-center justify-between mt-4'>
             <Button type='link' className='text-gray-600'>
-              <Link to='/forgot-password' className='hover:text-red-300'>
+              <Link to= {ROUTES.FORGOT_PASSWORD} className='hover:text-red-300'>
                 Forgot password?
               </Link>
             </Button>

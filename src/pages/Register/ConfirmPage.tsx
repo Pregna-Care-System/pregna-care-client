@@ -2,23 +2,7 @@ import { useState } from 'react'
 import { MailOutlined } from '@ant-design/icons'
 
 const ConfirmEmail = () => {
-  const [isResending, setIsResending] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-
-  const handleResendEmail = () => {
-    setIsResending(true)
-    setShowSuccess(false)
-
-    setTimeout(() => {
-      setIsResending(false)
-      setShowSuccess(true)
-
-      setTimeout(() => {
-        setShowSuccess(false)
-      }, 3000)
-    }, 1500)
-  }
-
   return (
     <div className='flex justify-center w-lvw h-lvh bg-gradient-to-br from-blue-50 to-purple-50 p-4'>
       <main className='flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12'>
@@ -46,17 +30,6 @@ const ConfirmEmail = () => {
           </div>
 
           <div className='mt-6'>
-            <button
-              onClick={handleResendEmail}
-              disabled={isResending}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                isResending
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#E76A6A] hover:bg-[#d65c5c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#E76A6A]'
-              }`}
-            >
-              {isResending ? 'Sending...' : 'Resend Confirmation Email'}
-            </button>
             {showSuccess && (
               <p className='mt-2 text-sm text-green-600 text-center'>
                 Confirmation email has been resent successfully!
