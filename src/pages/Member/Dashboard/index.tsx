@@ -1,11 +1,13 @@
 import { selectMotherInfo } from '@/store/modules/global/selector'
-import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { Avatar, Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { jwtDecode } from 'jwt-decode'
 import React from 'react'
 import { FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function Dashboard() {
+  const dispatch = useDispatch()
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const dataSource = useSelector(selectMotherInfo)
   const [form] = Form.useForm()
@@ -65,12 +67,25 @@ export default function Dashboard() {
   const handleOpenModal = () => {
     setIsModalOpen(true)
   }
+
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values)
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    const payload = {
+      ...values,
+      dateOfBirth: values.dateOfBirth.format('DD/MM/YYYY'),
+      pregnancyStartDate: values.pregnancyStartDate.format('DD/MM/YYYY'),
+      expectedDueDate: values.expectedDueDate.format('DD/MM/YYYY'),
+      userId: user?.id
+    }
+    // dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    setIsModalOpen(false)
   }
+
   const onClose = () => {
     setIsModalOpen(false)
   }
+
   return (
     <div className='flex-1 p-8'>
       <div className='flex justify-end items-center mb-10'>
@@ -121,12 +136,12 @@ export default function Dashboard() {
                 label='Date Of Birth'
                 rules={[{ required: true, message: 'Please enter your date of birth' }]}
               >
-                <Input />
+                <DatePicker value={'DD/MM/YYYY'} picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='bloodType'
                 label='Blood Type'
-                rules={[{ required: true, type: 'number', message: 'Please enter your blood type' }]}
+                rules={[{ required: true, message: 'Please enter your blood type' }]}
               >
                 <Input />
               </Form.Item>
@@ -155,21 +170,27 @@ export default function Dashboard() {
                 label='Pregnancy Start Date'
                 rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
               >
-                <Input />
+                <DatePicker picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='expectedDueDate'
                 label='Expected Due Date'
                 rules={[{ required: true, message: 'Please enter your expected due date' }]}
               >
-                <Input />
+                <DatePicker picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='babyGender'
                 label='Baby Gender'
                 rules={[{ required: true, message: 'Please enter your baby gender' }]}
               >
-                <Input />
+                <Select
+                  defaultValue={'male'}
+                  options={[
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
+                  ]}
+                />
               </Form.Item>
             </div>
           </div>

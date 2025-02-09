@@ -2,22 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { Button, message } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PlanCard } from './components/PlanCard'
-import { getAllPlan } from '@/services/planService'
-import { MODEL } from '@/types/IModel'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectMembershipPlans } from '@/store/modules/global/selector'
 
 export default function MemberShipPlanPage() {
-  const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
-  const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const plans = useSelector(selectMembershipPlans)
+  const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(plans[0])
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      const data = await getAllPlan()
-      setPlans(data)
-      if (data.length > 0) setSelectedPlan(data[0])
-    }
-    fetchPlans()
+    dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
   }, [])
 
   useEffect(() => {
@@ -32,7 +28,7 @@ export default function MemberShipPlanPage() {
 
   const handleUpgrade = () => {
     navigate(
-      `/checkout?planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price.toString())}`
+      `/checkout?planId=${selectedPlan.membershipPlanId}&planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price)}`
     )
   }
 
@@ -54,8 +50,8 @@ export default function MemberShipPlanPage() {
 
         <div className='grid grid-cols-1 md:grid-cols-6 justify-center mb-6 lg:mb-8'>
           <div className='flex justify-center col-start-2 col-span-4 gap-8 w-full'>
-            {plans.map((plan) => (
-              <div key={plan.planName} className='px-2'>
+            {plans.map((plan, index) => (
+              <div key={index} className='px-2'>
                 <PlanCard
                   plan={plan}
                   isSelected={plan.planName === selectedPlan?.planName}

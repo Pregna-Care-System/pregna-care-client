@@ -60,7 +60,7 @@ function App() {
   })
 
   // Gộp public và private routes
-  const appRouter = [...publicRouterObjects, ...adminRouterObjects, ...memberRouterObjects ]
+  const appRouter = [...publicRouterObjects, ...adminRouterObjects, ...memberRouterObjects]
 
   appRouter.push({
     path: ROUTES.NOT_FOUND,

@@ -1,21 +1,9 @@
-import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllPlan = async () => {
-  try {
-    const res = await request.get<MODEL.PlanResponse>('/MembershipPlan/GetAllPlanWithFeature')
-
-    if (res.data.success && Array.isArray(res.data.response)) {
-      return res.data.response
-    } else {
-      return []
-    }
-  } catch (error) {
-    console.error('Get All plan failed', error)
-    return []
-  }
+  return await request.get<MODEL.PlanResponse>('/MembershipPlan/GetAllPlanWithFeature')
 }
-export const getPlanByName = async (planName:string) => {
+export const getPlanByName = async (planName: string) => {
   try {
     const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/GetPlanByName?name=${planName}`)
     if (res.data.success) {
@@ -75,7 +63,7 @@ export const updatePlan = async (
     if (res.data.success) {
       return res
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error.response) {
       console.error('Response Error:', error.response.status, error.response.data)
     } else {

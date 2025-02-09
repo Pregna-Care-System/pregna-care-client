@@ -1,5 +1,11 @@
-
 declare namespace MODEL {
+  export interface IResponseBase<P = any> {
+    response: P
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: DetailError[]
+  }
   export interface TokenResponse {
     accessToken: string
     refreshToken: string

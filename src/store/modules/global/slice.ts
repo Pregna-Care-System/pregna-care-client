@@ -7,10 +7,13 @@ const editorSlice = createSlice({
   reducers: {
     setLoginStatus(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload
+    },
+    setMembershipPlans(state, action: PayloadAction<any>) {
+      state.membershipPlans = action.payload
     }
   }
 })
 
-export const { setLoginStatus } = editorSlice.actions
+export const { setLoginStatus, setMembershipPlans } = editorSlice.actions
 
 export default editorSlice.reducer
