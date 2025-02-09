@@ -18,7 +18,6 @@ export const post = async <T>(path: string, data: unknown, options: AxiosRequest
   return response.data
 }
 
-
 // // Request interceptor to attach the access token
 // request.interceptors.request.use(
 //   (config: InternalAxiosRequestConfig) => {

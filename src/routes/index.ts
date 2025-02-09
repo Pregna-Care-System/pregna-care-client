@@ -3,7 +3,7 @@ import ROUTES from '@utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
-import VNPayPage from '@pages/VNPay'
+import PaymentStatus from '@/pages/PaymentStatus'
 import AdminDashboard from '@/pages/Admin/Dashboard'
 import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
@@ -40,23 +40,22 @@ const publicRoutes = [
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetail },
   { path: ROUTES.SCHEDULE, component: SchedulePage },
-  { path: ROUTES.VNPAY, component: VNPayPage },
-  //--- Member routes
-  { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER_TRACKING, component: Tracking, layout: MemberLayout },
-  //--- Admin routes
+  { path: ROUTES.VNPAY, component: PaymentStatus }
+]
+
+const adminRoutes = [
+  { path: ROUTES.PROFILE, component: MainProfile },
   { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: AdminLayout },
   { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: AdminLayout },
   { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: AdminLayout },
   { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout }
 ]
 
-const adminRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile }
-  // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
+const memberRoutes = [
+  { path: ROUTES.PROFILE, component: MainProfile },
+  { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER_TRACKING, component: Tracking, layout: MemberLayout }
 ]
-
-const memberRoutes = [{ path: ROUTES.PROFILE, component: MainProfile }]
 
 export { publicRoutes, adminRoutes, memberRoutes }

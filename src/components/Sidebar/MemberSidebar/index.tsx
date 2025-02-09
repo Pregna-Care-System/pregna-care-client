@@ -18,7 +18,7 @@ export default function MemberSidebar() {
     {
       title: 'Tracking',
       icon: <FiDollarSign size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART
+      path: ROUTES.MEMBER_TRACKING
     },
     {
       title: 'Fetal growth chart',

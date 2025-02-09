@@ -17,7 +17,7 @@ const ROUTES = {
   MEMBESHIP_PLANS: '/membership-plans',
   DETAIL_PLAN: '/detail-plan',
   CHECKOUT: '/checkout',
-  VNPAY: '/vnpay',
+  VNPAY: '/checkout/result',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_TRANSACTION: '/admin/transaction',
   ADMIN_MEMBER: '/admin/member',
