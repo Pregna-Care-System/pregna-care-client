@@ -83,36 +83,34 @@ const FetalGrowthChart = () => {
   }
 
   return (
-    <div className='flex min-h-screen bg-gray-100'>
-      <div className='flex-1 p-8'>
-        <div className='max-w-7xl mx-auto'>
-          <div className='flex justify-between items-center mb-6'>
-            <h1 className='text-2xl font-bold text-gray-800'>Fetal growth</h1>
-            <button
-              className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
-              <span className='text-[#EE7A7A] font-semibold'>Report</span>
-            </button>
+    <>
+      <div className='max-w-7xl mx-auto'>
+        <div className='flex justify-between items-center mb-6'>
+          <h1 className='text-2xl font-bold text-gray-800'>Fetal growth</h1>
+          <button
+            className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
+            <span className='text-[#EE7A7A] font-semibold'>Report</span>
+          </button>
+        </div>
+
+        <FetusInfo data={mockData} />
+
+        <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='bg-white rounded-lg shadow-lg p-6'>
+            <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Weight Growth</h2>
+            <ApexCharts options={fetalWeightData.options} series={fetalWeightData.series} type='line' />
           </div>
-
-          <FetusInfo data={mockData} />
-
-          <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='bg-white rounded-lg shadow-lg p-6'>
-              <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Weight Growth</h2>
-              <ApexCharts options={fetalWeightData.options} series={fetalWeightData.series} type='line' />
-            </div>
-            <div className='bg-white rounded-lg shadow-lg p-6'>
-              <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Measurements</h2>
-              <ApexCharts options={fetalMeasurementsData.options} series={fetalMeasurementsData.series} type='line' />
-            </div>
+          <div className='bg-white rounded-lg shadow-lg p-6'>
+            <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Measurements</h2>
+            <ApexCharts options={fetalMeasurementsData.options} series={fetalMeasurementsData.series} type='line' />
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

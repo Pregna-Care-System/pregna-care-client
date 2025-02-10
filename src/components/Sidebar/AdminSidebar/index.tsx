@@ -23,30 +23,31 @@ const AdminSidebar = () => {
     {
       title: 'Dashboard',
       icon: <FiHome size={20} />,
-      path: ROUTES.ADMIN_DASHBOARD,
+      path: ROUTES.ADMIN.DASHBOARD,
       action: () => console.log('Dashboard clicked')
     },
     {
       title: 'Transaction',
       icon: <FiDollarSign size={20} />,
-      path: ROUTES.ADMIN_TRANSACTION,
+      path: ROUTES.ADMIN.TRANSACTION,
       action: () => console.log('Transactions clicked')
     },
     {
       title: 'Member Management',
       icon: <FiUsers size={20} />,
-      path: ROUTES.ADMIN_MEMBER,
+      path: ROUTES.ADMIN.MEMBER,
       action: () => console.log('Members clicked')
     },
-    // {
-    //   title: 'Fetal Growth Standard',
-    //   icon: <FiBarChart2 size={20} />,
-    //   action: () => console.log('Fetal Growth clicked')
-    // },
     {
       title: 'Membership Plans',
       icon: <FiPackage size={20} />,
-      path: ROUTES.ADMIN_MEMBERSHIP_PLAN,
+      path: ROUTES.ADMIN.MEMBERSHIP_PLAN,
+      action: () => console.log('Plans clicked')
+    },
+    {
+      title: 'Growth Metrics',
+      icon: <FiPackage size={20} />,
+      path: ROUTES.ADMIN.GROWTHMETRICS,
       action: () => console.log('Plans clicked')
     }
     // { title: 'Notifications', icon: <FiBell size={20} />, action: () => console.log('Notifications clicked') },

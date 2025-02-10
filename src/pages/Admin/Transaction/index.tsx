@@ -41,18 +41,7 @@ export default function TransactionPage() {
     console.log(`selected ${value}`)
   }
   return (
-    <div className='flex-1 p-8'>
-      <div className='flex justify-end items-center mb-10'>
-        <h4 className='px-2 border-s-2 border-gray-300'>
-          Hello, <strong>Username</strong>
-        </h4>
-        <div>
-          <Avatar
-            size={50}
-            src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
-          />
-        </div>
-      </div>
+    <>
       <div className='flex justify-between mb-5'>
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Transaction</h1>
         <button
@@ -80,6 +69,6 @@ export default function TransactionPage() {
         </div>
         <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
-    </div>
+    </>
   )
 }
