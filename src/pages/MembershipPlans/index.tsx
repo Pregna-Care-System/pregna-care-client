@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectMembershipPlans } from '@/store/modules/global/selector'
 
 export default function MemberShipPlanPage() {
+  const plans = useSelector(selectMembershipPlans)
   const location = useLocation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const plans = useSelector(selectMembershipPlans)
   const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(plans[0])
 
   useEffect(() => {

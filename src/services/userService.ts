@@ -92,9 +92,13 @@ export const createPregnancyRecord = async (data: any) => {
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, { ...data, apiCallerId })
 }
 
-export const paymentVNPAY = async (data: any) => {
+export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
   const apiCallerId = 'Payment'
-  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, { ...data, apiCallerId })
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
+    userId: userId,
+    membershipPlanId: membershipPlanId,
+    apiCallerId
+  })
 }
 
 export const userMembershipPlan = async (data: any) => {

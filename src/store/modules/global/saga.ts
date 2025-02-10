@@ -3,9 +3,10 @@ import { setLoginStatus, setMembershipPlans } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
-import { login } from '@/services/userService'
+import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { getAllPlan } from '@/services/planService'
 
+//-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
     const response = yield call(login, action.payload.email, action.payload.password)
@@ -23,6 +24,35 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
     } else {
       message.error(error.message || 'An unexpected error occurred')
     }
+  }
+}
+
+//----------Payment-----------
+export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, void, any> {
+  const { userId, membershipPlanId } = action.payload
+  try {
+    const res = yield call(paymentVNPAY, userId, membershipPlanId)
+    if (res.success) {
+      localStorage.setItem('membershipPlanId', membershipPlanId)
+      window.location.href = res.url
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
+export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(userMembershipPlan, action.payload)
+    if (response.success) {
+      message.success('Membership plan created successfully')
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
   }
 }
 
@@ -58,4 +88,6 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('CREATE_PREGNANCY_RECORD', createPregnancyRecord)
   yield takeLatest('GET_ALL_MEMBERSHIP_PLANS', getAllMembershipPlans)
+  yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
+  yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
 }
