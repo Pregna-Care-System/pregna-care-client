@@ -18,6 +18,7 @@ import ForgotPassword from '@/pages/Login/ForgotPassword'
 import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
 import AdminLayout from '@/layouts/AdminLayout'
+import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
 // import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
@@ -45,17 +46,18 @@ const publicRoutes = [
 
 const adminRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
-  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: AdminLayout },
-  { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout }
+  { path: ROUTES.ADMIN.DASHBOARD, component: AdminDashboard, layout: AdminLayout },
+  { path: ROUTES.ADMIN.TRANSACTION, component: TransactionPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout }
 ]
 
 const memberRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
-  { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER_TRACKING, component: Tracking, layout: MemberLayout }
+  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout }
 ]
 
 export { publicRoutes, adminRoutes, memberRoutes }

@@ -3,7 +3,6 @@ import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant
 import { Link, useNavigate } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
 import { registerAccount } from '@/services/userService'
-import { MODEL } from '@/types/IModel'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -16,7 +15,7 @@ export default function Register() {
       } else {
         message.error(response.message || 'Registration failed')
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       message.error(error.message || 'An unexpected error occurred')
     }

@@ -1,4 +1,3 @@
-import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllFeature = async () => {
