@@ -1,17 +1,34 @@
-import { selectMotherInfo } from '@/store/modules/global/selector'
+import { selectPregnancyRecord } from '@/store/modules/global/selector'
 import { Avatar, Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
-import React from 'react'
-import { FiTrash2 } from 'react-icons/fi'
+import React, { useEffect } from 'react'
 import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
 
 export default function Dashboard() {
   const dispatch = useDispatch()
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const dataSource = useSelector(selectMotherInfo)
+  const [pregnancyInfor, setPregnancyInfor] = React.useState([])
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+
+  const pregnancyRecord = useSelector(selectPregnancyRecord)
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    console.log('User:', user)
+    if (user?.id) {
+      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (pregnancyRecord) {
+      setPregnancyInfor(pregnancyRecord)
+    }
+  }, [pregnancyRecord])
+
   const columns = [
     {
       title: 'Mother Name',
@@ -20,8 +37,8 @@ export default function Dashboard() {
     },
     {
       title: 'Date Of Birth',
-      dataIndex: 'dateOfBirth',
-      key: 'dateOfBirth'
+      dataIndex: 'motherDateOfBirth',
+      key: 'motherDateOfBirth'
     },
     {
       title: 'Blood Type',
@@ -30,8 +47,8 @@ export default function Dashboard() {
     },
     {
       title: 'Health Status',
-      dataIndex: 'healthStatus',
-      key: 'healthStatus'
+      dataIndex: 'healhStatus',
+      key: 'healhStatus'
     },
     {
       title: 'Notes',
@@ -41,12 +58,14 @@ export default function Dashboard() {
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      key: 'createdAt'
+      key: 'createdAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
-      key: 'updatedAt'
+      key: 'updatedAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -55,9 +74,6 @@ export default function Dashboard() {
         <Space size='middle'>
           <Button type='primary'>
             <TbEdit />
-          </Button>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
           </Button>
         </Space>
       )
@@ -69,6 +85,7 @@ export default function Dashboard() {
   }
 
   const handleSubmit = (values: any) => {
+    setLoading(true)
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
     const payload = {
@@ -78,8 +95,10 @@ export default function Dashboard() {
       expectedDueDate: values.expectedDueDate.format('DD/MM/YYYY'),
       userId: user?.id
     }
-    // dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    setLoading(false)
     setIsModalOpen(false)
+    form.resetFields()
   }
 
   const onClose = () => {
@@ -116,7 +135,7 @@ export default function Dashboard() {
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={pregnancyInfor} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal width={800} height={600} open={isModalOpen} onCancel={onClose} footer={null}>
@@ -191,6 +210,9 @@ export default function Dashboard() {
                     { value: 'female', label: 'Female' }
                   ]}
                 />
+              </Form.Item>
+              <Form.Item name='imageUrl' label='Image Url'>
+                <Input placeholder='Enter your imageUrl'/>
               </Form.Item>
             </div>
           </div>

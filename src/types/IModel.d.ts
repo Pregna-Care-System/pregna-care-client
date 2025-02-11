@@ -93,7 +93,49 @@ declare namespace MODEL {
     features: string[]
   }
   export interface FeatureResponse {
-    response: unknown | null
+    response: [
+      {
+        name: string
+        description: string
+      }
+    ]
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
+  }
+  export interface PregnancyRecordResponse {
+    response: [
+      {
+        motherName: string
+        motherDateOfBirth: Date
+        bloodType: string
+        healhStatus: string
+        notes: string
+        babyName: string
+        pregnancyStartDate: Date
+        expectedDueDate: Date
+        babyGender: string
+        imageUrl: string
+      }
+    ]
+    messageId: string
+    message: string
+    success: boolean
+    detailErrorList: unknown | null
+  }
+  export interface MotherInformationResponse {
+    response: [
+      {
+        motherName: string
+        motherDateOfBirth: Date
+        bloodType: string
+        healhStatus: string
+        notes: string
+        createdAt: Date
+        updatedAt: Date
+      }
+    ]
     messageId: string
     message: string
     success: boolean

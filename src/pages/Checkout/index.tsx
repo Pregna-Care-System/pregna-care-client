@@ -47,7 +47,7 @@ export default function CheckoutPage() {
         // Generate QR code for VNPAY
         const res = await paymentVNPAY({
           userId: user?.id,
-          membershipPlanId: '9971b9c5-31af-4f11-960f-92fc3c193d51'
+          membershipPlanId: planId,
         })
         if (res.success) {
           localStorage.setItem('membershipPlanId', planId || '')

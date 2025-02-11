@@ -27,7 +27,7 @@ export const deletePlan = async (planId: string) => {
   try {
     const res = await request.delete<MODEL.PlanResponse>(`/MembershipPlan/Delete?id=${planId}`)
     if (res.data.success) {
-      return res.data.response
+      return res.data
     }
   } catch (error) {
     console.error('Delete plan by id failed', error)
