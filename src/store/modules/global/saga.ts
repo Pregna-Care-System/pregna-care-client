@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects'
-import { setLoginStatus, setMembershipPlans, setFeatures, setPregnancyRecord } from './slice'
+import { setLoginStatus, setMembershipPlans, setFeatures, setPregnancyRecord, setFetalGrowthRecord } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
@@ -8,7 +8,7 @@ import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { createGrowthMetric } from '@/services/adminService'
-
+import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
@@ -58,8 +58,6 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
     throw error
   }
 }
-
-
 
 //----------Membership plan-----------
 export function* getAllMembershipPlans(): Generator<any, void, any> {
@@ -156,7 +154,7 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
       action.payload.motherName,
       action.payload.motherDateOfBirth,
       action.payload.bloodType,
-      action.payload.healthStatus,
+      action.payload.healhStatus,
       action.payload.notes,
       action.payload.babyName,
       action.payload.pregnancyStartDate,
@@ -164,16 +162,17 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
       action.payload.babyGender,
       action.payload.imageUrl
     )
-    if (response.data.success) {
+    if (response) {
       message.success('Create pregnancyRecord successfully')
-      yield put(setPregnancyRecord(response.data.response))
-  }
+      yield put(setPregnancyRecord(response))
+      yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
+    }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
     throw error
   }
-}    
+}
 
 //----------Pregnancy Record information-----------
 export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }>): Generator<any, void, any> {
@@ -186,6 +185,32 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
     throw error
   }
 }
+
+//----------Create fetal growth record-----------
+export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(
+      createFetalGrowth,
+      action.payload.userId,
+      action.payload.pregnancyRecordId,
+      action.payload.name,
+      action.payload.unit,
+      action.payload.description,
+      action.payload.week,
+      action.payload.value,
+      action.payload.note
+    )
+    if (response) {
+      message.success('Create fetal growth record successfully')
+      yield put(setFetalGrowthRecord(response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 
 //-----GrowthMetric-----
 export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
@@ -210,6 +235,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
   yield takeLatest('UPDATE_MEMBERSHIP_PLANS', updateMembershipPlan)
   yield takeLatest('DELETE_MEMBERSHIP_PLANS', deleteMembershipPlan)
+  yield takeLatest('CREATE_FETAL_GROWTH_RECORD', createFetalGrowthRecord)
   yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)

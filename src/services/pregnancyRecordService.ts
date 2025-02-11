@@ -5,7 +5,7 @@ export const createPregnancyRecord = async (
   motherName: string,
   motherDateOfBirth: Date,
   bloodType: string,
-  healthStatus: string,
+  healhStatus: string,
   notes: string,
   babyName: string,
   pregnancyStartDate: Date,
@@ -14,14 +14,14 @@ export const createPregnancyRecord = async (
   imageUrl: string
 ) => {
   try {
-    const apiCallerId = 'createPregnancyRecord'
+    const apiCallerId = 'createPregnancy'
     const res = await request.post<MODEL.PregnancyRecordResponse>('/PregnancyRecord', {
       apiCallerId,
       userId,
       motherName,
       motherDateOfBirth,
       bloodType,
-      healthStatus,
+      healhStatus,
       notes,
       babyName,
       pregnancyStartDate,
@@ -41,6 +41,5 @@ export const createPregnancyRecord = async (
 }
 export const getAllPregnancyRecord = async (userId: string) => {
   const rest = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord`)
-  console.log('Test call get all pregnancy record', rest.data)
   return rest.data
 }

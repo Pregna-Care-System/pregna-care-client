@@ -58,6 +58,7 @@ export const initialState = {
   ],
   membershipPlans: [],
   pregnancyRecord: [],
+  fetalGrowthRecord: [],
   testimonials: [
     {
       id: 1,

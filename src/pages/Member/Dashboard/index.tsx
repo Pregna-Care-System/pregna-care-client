@@ -1,14 +1,14 @@
 import { selectPregnancyRecord } from '@/store/modules/global/selector'
-import {  Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
 
 export default function Dashboard() {
   const dispatch = useDispatch()
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const [pregnancyInfor, setPregnancyInfor] = React.useState([])
+  const [pregnancyInfor, setPregnancyInfor] = useState<MODEL.PregnancyRecordResponse[]>([])
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
 
@@ -17,7 +17,6 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
-    console.log('User:', user)
     if (user?.id) {
       dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
     }
@@ -88,14 +87,22 @@ export default function Dashboard() {
     setLoading(true)
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
-    const payload = {
-      ...values,
-      dateOfBirth: values.dateOfBirth.format('DD/MM/YYYY'),
-      pregnancyStartDate: values.pregnancyStartDate.format('DD/MM/YYYY'),
-      expectedDueDate: values.expectedDueDate.format('DD/MM/YYYY'),
-      userId: user?.id
-    }
-    dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    dispatch({
+      type: 'CREATE_PREGNANCY_RECORD',
+      payload: {
+        userId: user?.id,
+        motherName: values.motherName,
+        bloodType: values.bloodType,
+        healhStatus: values.healhStatus,
+        notes: values.notes,
+        babyName: values.babyName,
+        babyGender: values.babyGender,
+        imageUrl: values.imageUrl,
+        motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD'),
+        pregnancyStartDate: values.pregnancyStartDate.format('YYYY-MM-DD'),
+        expectedDueDate: values.expectedDueDate.format('YYYY-MM-DD')
+      }
+    })
     setLoading(false)
     setIsModalOpen(false)
     form.resetFields()
@@ -124,11 +131,26 @@ export default function Dashboard() {
             ]}
           />
         </div>
-        <Table dataSource={pregnancyInfor} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table
+          dataSource={Array.isArray(pregnancyInfor) ? pregnancyInfor : []}
+          columns={columns}
+          pagination={{ pageSize: 8 }}
+        />
       </div>
 
       <Modal width={800} height={600} open={isModalOpen} onCancel={onClose} footer={null}>
-        <Form form={form} onFinish={handleSubmit} layout='horizontal'>
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          layout='horizontal'
+          initialValues={{
+            BabyName: '',
+            BloodType: '',
+            HealhStatus: '',
+            MotherName: '',
+            Notes: ''
+          }}
+        >
           <div className='grid grid-cols-2 gap-5'>
             <div>
               <h4 className='text-xl font-bold mb-5'>Mother Information</h4>
@@ -140,7 +162,7 @@ export default function Dashboard() {
                 <Input />
               </Form.Item>
               <Form.Item
-                name='dateOfBirth'
+                name='motherDateOfBirth'
                 label='Date Of Birth'
                 rules={[{ required: true, message: 'Please enter your date of birth' }]}
               >
@@ -149,16 +171,29 @@ export default function Dashboard() {
               <Form.Item
                 name='bloodType'
                 label='Blood Type'
-                rules={[{ required: true, message: 'Please enter your blood type' }]}
+                rules={[{ required: true, message: 'The BloodType field is required.' }]}
               >
-                <Input />
+                <Select
+                  options={[
+                    { value: 'A', label: 'A' },
+                    { value: 'B', label: 'B' },
+                    { value: 'O', label: 'O' },
+                    { value: 'AB', label: 'AB' }
+                  ]}
+                />
               </Form.Item>
               <Form.Item
-                name='healthStatus'
+                name='healhStatus'
                 label='Health Status'
-                rules={[{ required: true, message: 'Please enter your health status' }]}
+                rules={[{ required: true, message: 'Please select your health status' }]}
               >
-                <Input />
+                <Select
+                  options={[
+                    { value: 'good', label: 'Good' },
+                    { value: 'normal', label: 'Normal' },
+                    { value: 'underlying_condition', label: 'Underlying_condition' }
+                  ]}
+                />
               </Form.Item>
               <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
                 <Input />
@@ -193,7 +228,7 @@ export default function Dashboard() {
                 rules={[{ required: true, message: 'Please enter your baby gender' }]}
               >
                 <Select
-                  defaultValue={'male'}
+                  defaultValue={'Selet Gender'}
                   options={[
                     { value: 'male', label: 'Male' },
                     { value: 'female', label: 'Female' }
@@ -201,7 +236,7 @@ export default function Dashboard() {
                 />
               </Form.Item>
               <Form.Item name='imageUrl' label='Image Url'>
-                <Input placeholder='Enter your imageUrl'/>
+                <Input placeholder='Enter your imageUrl' />
               </Form.Item>
             </div>
           </div>

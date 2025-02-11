@@ -1,9 +1,8 @@
 import { selectPregnancyRecord } from '@/store/modules/global/selector'
 import { FileAddFilled } from '@ant-design/icons'
-import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { Button, Form, Input, message, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
 import React, { useEffect } from 'react'
-import { FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -12,6 +11,7 @@ export default function Tracking() {
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
   const [pregnancyInfor, setPregnancyInfor] = React.useState([])
+  const [selectedPregnancyId, setSelectedPregnancyId] = React.useState<string | null>(null)
   const dispatch = useDispatch()
   const pregnancyResponse = useSelector(selectPregnancyRecord)
 
@@ -58,7 +58,7 @@ export default function Tracking() {
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      key: 'createdAt', 
+      key: 'createdAt',
       render: (text) => new Date(text).toLocaleString()
     },
     {
@@ -70,45 +70,56 @@ export default function Tracking() {
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => (
-        <Space size='middle'>
-          <Button type='primary'>
-            <TbEdit />
-          </Button>
-        </Space>
-      )
+      render: (_, record) => {
+        return (
+          <Space size='middle'>
+            <Button type='primary'>
+              <TbEdit />
+            </Button>
+            <Button type='default' onClick={() => handleOpenModal(record.id)}>
+              <FileAddFilled />
+            </Button>
+          </Space>
+        )
+      }
     }
   ]
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (pregnancyId: string) => {
+    setSelectedPregnancyId(pregnancyId)
     setIsModalOpen(true)
   }
   const handleSubmit = (values: any) => {
+    if (!selectedPregnancyId) {
+      message.error('No pregnancy record selected!')
+      return
+    }
     setLoading(true)
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
-    const payload = {
-      ...values,
-      dateOfBirth: values.dateOfBirth.format('DD/MM/YYYY'),
-      pregnancyStartDate: values.pregnancyStartDate.format('DD/MM/YYYY'),
-      expectedDueDate: values.expectedDueDate.format('DD/MM/YYYY'),
-      userId: user?.id
-    }
-    dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    dispatch({
+      type: 'CREATE_FETAL_GROWTH_RECORD',
+      payload: {
+        userId: user?.id,
+        pregnancyRecordId: selectedPregnancyId,
+        name: values.name,
+        unit: values.unit,
+        description: values.description,
+        week: values.week,
+        value: values.value,
+        note: values.note
+      }
+    })
     setLoading(false)
     setIsModalOpen(false)
     form.resetFields()
   }
+
   const onClose = () => {
     setIsModalOpen(false)
   }
   return (
     <>
-      <div className='flex justify-end w-full'>
-        <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
-          <FileAddFilled /> Tracking
-        </Button>
-      </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
           <Select

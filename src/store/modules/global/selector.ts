@@ -13,4 +13,5 @@ export const selectFeatureInfoInfo = (state: RootState) => state.global.featureI
 export const selectBabyInfo = (state: RootState) => state.global.babyInfo
 export const selectGrowthMetrics = (state: RootState) => state.global.growthMetrics
 export const selectPregnancyRecord = (state: RootState) => state.global.pregnancyRecord
+export const selectFetalGrowthRecord = (state: RootState) => state.global.fetalGrowthRecord
 
