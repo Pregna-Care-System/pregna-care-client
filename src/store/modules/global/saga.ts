@@ -5,6 +5,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { getAllPlan } from '@/services/planService'
+import { createGrowthMetric } from '@/services/adminService'
 
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -84,10 +85,25 @@ export function* getAllMembershipPlans(): Generator<any, void, any> {
   }
 }
 
+//-----GrowthMetric-----
+export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createGrowthMetric, action.payload)
+    if (response.success) {
+      message.success('Growth metric created successfully')
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('CREATE_PREGNANCY_RECORD', createPregnancyRecord)
   yield takeLatest('GET_ALL_MEMBERSHIP_PLANS', getAllMembershipPlans)
   yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
+  yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
 }
