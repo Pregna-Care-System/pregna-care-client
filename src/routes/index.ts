@@ -8,6 +8,9 @@ import AdminDashboard from '@/pages/Admin/Dashboard'
 import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
 import MemberShipPlanPage from '@/pages/MembershipPlans'
+import PlanDetail from '@/pages/MembershipPlans/components/PlanDetail'
+import BlogPage from '@/pages/Blog'
+import BlogDetailsPage from '@/pages/Blog/BlogDetails'
 import Dashboard from '@/pages/Member/Dashboard'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
@@ -19,7 +22,6 @@ import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
-// import Profile from "@/pages/Member/Profile"
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -32,6 +34,8 @@ const SchedulePage = lazy(() => import('@/pages/Schedule'))
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
+  { path: ROUTES.BLOG, component: BlogPage },
+  { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.RESEND_PASSWORD, component: ResendPassword, layout: NoHeaderLayout },
