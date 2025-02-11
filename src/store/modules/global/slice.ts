@@ -17,13 +17,22 @@ const editorSlice = createSlice({
     setPregnancyRecord(state, action: PayloadAction<any>) {
       state.pregnancyRecord = action.payload
     },
-    setFetalGrowthRecord(state, action: PayloadAction<any>){
+    setFetalGrowthRecord(state, action: PayloadAction<any>) {
       state.fetalGrowthRecord = action.payload
+    },
+    setUserInfo(state, action: PayloadAction<any>) {
+      state.userInfo = action.payload
     }
-    }
+  }
 })
 
-export const { setLoginStatus, setMembershipPlans, setFeatures, setPregnancyRecord, setFetalGrowthRecord } =
-  editorSlice.actions
+export const {
+  setLoginStatus,
+  setMembershipPlans,
+  setFeatures,
+  setPregnancyRecord,
+  setFetalGrowthRecord,
+  setUserInfo
+} = editorSlice.actions
 
 export default editorSlice.reducer

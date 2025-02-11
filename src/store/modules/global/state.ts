@@ -1,6 +1,6 @@
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
-  userInfo: {},
+  userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
   services: [
     {
       id: 1,
