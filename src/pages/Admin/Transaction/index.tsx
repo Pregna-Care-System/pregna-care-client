@@ -1,4 +1,3 @@
-import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { selectTransactionInfo } from '@/store/modules/global/selector'
 import { Avatar, Input, Select, Table } from 'antd'
 import { useState } from 'react'

@@ -1,13 +1,13 @@
 //--Library
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 //--Components
 import CardService from '@components/Card/CardService'
 import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
-import CardMembershipPlans from '@components/Card/CardMembershipPlans'
+import PlanCard from '@components/Card/CardMembershipPlans'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 //--Redux
 import {
@@ -37,6 +37,12 @@ const Content = styled.div`
 `
 
 export default function GuestHome() {
+  const dispatch = useDispatch()
+  //--Render
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
+  }, [])
+
   //--State redux
   const services = useSelector(selectServices)
   const reasons = useSelector(selectReasons)
@@ -58,12 +64,10 @@ export default function GuestHome() {
 
   const renderMembershipPlans = membershipPlans.map((item, index) => {
     return (
-      <CardMembershipPlans
+      <PlanCard
         key={index}
-        title={item.name}
-        description={item.features}
-        price={item.price}
-        isSelected={item.id === selectedPlan.id}
+        plan={item}
+        isSelected={item.membershipPlanId === selectedPlan?.membershipPlanId}
         onSelect={() => setSelectedPlan(item)}
       />
     )
