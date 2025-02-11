@@ -87,10 +87,6 @@ export const forgotPassword = async (email: string) => {
   }
 }
 
-export const createPregnancyRecord = async (data: any) => {
-  const apiCallerId = 'PregnancyRecord'
-  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, { ...data, apiCallerId })
-}
 
 export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
   const apiCallerId = 'Payment'

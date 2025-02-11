@@ -1,3 +1,5 @@
+import { deletePlan, getAllPlan, getPlanById } from '@/services/planService'
+import { selectFeatureInfoInfo, selectMembershipPlans } from '@/store/modules/global/selector'
 import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { getAllFeature } from '@/services/featureService'
 import { createPlan, deletePlan, getAllPlan, getPlanById, updatePlan } from '@/services/planService'
@@ -6,6 +8,7 @@ import { Avatar, Button, Form, Input, Modal, Select, Space, Table, message } fro
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function MemberShipPlanAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
@@ -16,21 +19,23 @@ export default function MemberShipPlanAdminPage() {
   const [isUpdateMode, setIsUpdateMode] = useState(false)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
 
+  const plansResponse = useSelector(selectMembershipPlans)
+  const featuresResponse = useSelector(selectFeatureInfoInfo)
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const plansResponse = await getAllPlan()
-        const featuresResponse = await getAllFeature()
+    dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
+    dispatch({ type: 'GET_ALL_FEATURES' })
+  }, [dispatch])
 
-        setPlans(plansResponse || [])
-        setFeatureList(featuresResponse || [])
-      } catch (error) {
-        message.error('Failed to load data.')
-      }
+  useEffect(() => {
+    if (plansResponse !== null && plansResponse.length > 0) {
+      setPlans(plansResponse)
     }
-
-    fetchData()
-  }, [])
+    if (featuresResponse !== null && featuresResponse.length > 0) {
+      setFeatureList(featuresResponse)
+    }
+  }, [plansResponse, featuresResponse])
 
   const columns = [
     {
@@ -84,6 +89,7 @@ export default function MemberShipPlanAdminPage() {
       )
     }
   ]
+
   const handleModalClick = () => {
     setIsUpdateMode(false)
     setIsModalOpen(true)
@@ -97,16 +103,17 @@ export default function MemberShipPlanAdminPage() {
   }
 
   const onCreatePlan = async (values: MODEL.PlanValues) => {
-    const response = await createPlan(
-      values.planName,
-      values.price,
-      values.duration,
-      values.description,
-      values.features.map((id) => String(id))
-    )
-    if (response) {
-      message.success('Plan created successfully')
-
+    try {
+      dispatch({
+        type: 'CREATE_MEMBERSHIP_PLANS',
+        payload: {
+          planName: values.planName,
+          price: values.price,
+          duration: values.duration,
+          description: values.description,
+          featuredIds: values.features.map((id) => String(id))
+        }
+      })
       const newPlan = {
         planName: values.planName,
         price: values.price,
@@ -118,28 +125,28 @@ export default function MemberShipPlanAdminPage() {
         }),
         createdAt: new Date().toLocaleString()
       }
-
       setPlans((prevPlans) => [newPlan, ...prevPlans])
       setIsModalOpen(false)
       form.resetFields()
-    } else {
+    } catch (error) {
       message.error('Failed to create plan')
     }
   }
 
   const onUpdatePlan = async (values: MODEL.PlanValues) => {
     if (!selectedPlanId) return
-    const response = await updatePlan(
-      selectedPlanId,
-      values.planName,
-      values.price,
-      values.duration,
-      values.description,
-      values.features.map((id) => String(id))
-    )
-    if (response) {
-      message.success('Plan updated successfully')
-
+    try {
+      dispatch({
+        type: 'UPDATE_MEMBERSHIP_PLANS',
+        payload: {
+          planId: selectedPlanId,
+          planName: values.planName,
+          price: values.price,
+          duration: values.duration,
+          description: values.description,
+          featuredIds: values.features.map((id) => String(id))
+        }
+      })
       const updatedPlans = plans.map((plan) =>
         plan.membershipPlanId === selectedPlanId
           ? {
@@ -159,7 +166,7 @@ export default function MemberShipPlanAdminPage() {
       setIsModalOpen(false)
       form.resetFields()
       setSelectedPlanId(null)
-    } else {
+    } catch (error) {
       message.error('Failed to update plan')
     }
   }
@@ -181,10 +188,11 @@ export default function MemberShipPlanAdminPage() {
       cancelText: 'Cancel',
       onOk: async () => {
         try {
-          const response = await deletePlan(planId)
-          message.success('Plan deleted successfully')
-          const updatedPlans = await getAllPlan()
-          setPlans(updatedPlans)
+          dispatch({
+            type: 'DELETE_MEMBERSHIP_PLANS',
+            payload: {
+              planId
+            }})
         } catch (error) {
           message.error('Failed to delete plan')
         }
@@ -193,6 +201,7 @@ export default function MemberShipPlanAdminPage() {
   }
 
   const handleUpdate = async (planId: string) => {
+    console.log('planId:', planId)
     if (!planId) {
       message.error('Plan ID is not defined')
       return

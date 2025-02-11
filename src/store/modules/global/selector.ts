@@ -12,3 +12,5 @@ export const selectMembershipPlansAdminInfo = (state: RootState) => state.global
 export const selectFeatureInfoInfo = (state: RootState) => state.global.featureInfo
 export const selectBabyInfo = (state: RootState) => state.global.babyInfo
 export const selectGrowthMetrics = (state: RootState) => state.global.growthMetrics
+export const selectPregnancyRecord = (state: RootState) => state.global.pregnancyRecord
+
