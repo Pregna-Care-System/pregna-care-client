@@ -16,9 +16,9 @@ export function CreateModal({ isOpen, title, formItem, onClose, handleSubmit }: 
   const navigate = useNavigate()
 
   const renderForm = () => {
-    return formItem.map((item: any) => {
+    return formItem.map((item: any, index: number) => {
       return (
-        <Form.Item name={item.name} label={item.label} rules={[{ required: true, message: item.message }]}>
+        <Form.Item name={item.name} label={item.label} rules={[{ required: true, message: item.message }]} key={index}>
           <Input />
         </Form.Item>
       )

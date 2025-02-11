@@ -19,6 +19,7 @@ import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
 import ROUTES from '@/utils/config/routes'
+
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
@@ -244,9 +245,9 @@ export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any
 
 export function* getDataGrowthMetric(): Generator<any, void, any> {
   try {
-    const response = yield call(getAllGrowthMetrics)
-    if (response.success) {
-      yield put(setDataGrowthMetric(response.response))
+    const res = yield call(getAllGrowthMetrics)
+    if (res.data.success) {
+      yield put(setDataGrowthMetric(res.data.response))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
