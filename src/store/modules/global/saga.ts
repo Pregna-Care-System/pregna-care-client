@@ -5,7 +5,8 @@ import {
   setFeatures,
   setPregnancyRecord,
   setFetalGrowthRecord,
-  setUserInfo
+  setUserInfo,
+  setDataGrowthMetric
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -14,9 +15,10 @@ import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planS
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
-import { createGrowthMetric } from '@/services/adminService'
+import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService'
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
+import ROUTES from '@/utils/config/routes'
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
@@ -30,7 +32,11 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       localStorage.setItem('userInfo', JSON.stringify(decodedToken))
       yield put(setLoginStatus(true))
       yield put(setUserInfo(decodedToken))
-      action.payload.navigate(action.payload.route)
+      if (decodedToken.role === 'Admin') {
+        action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
+      } else {
+        action.payload.navigate(action.payload.route)
+      }
     }
   } catch (error: any) {
     if (error.redirect) {
@@ -236,6 +242,19 @@ export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any
   }
 }
 
+export function* getDataGrowthMetric(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllGrowthMetrics)
+    if (response.success) {
+      yield put(setDataGrowthMetric(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
@@ -249,4 +268,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
+  yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
 }

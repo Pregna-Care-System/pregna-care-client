@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, message, Select, Space, Table } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,6 +10,10 @@ export default function GrowthMetrics() {
   const [isOpen, setIsOpen] = useState(false)
   const dataSource = useSelector(selectGrowthMetrics)
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_GROWTH_METRICS' })
+  }, [])
 
   const columns = [
     {

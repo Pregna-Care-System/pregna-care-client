@@ -38,10 +38,8 @@ function App() {
               <Component />
             </Layout>
           </Suspense>
-        ) : !isAuthenticated ? (
-          <Navigate to={ROUTES.LOGIN} replace />
         ) : (
-          <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />
+          <Navigate to={ROUTES.LOGIN} replace />
         )
     }
   })
