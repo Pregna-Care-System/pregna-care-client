@@ -1,5 +1,12 @@
 import { call, put, takeLatest } from 'redux-saga/effects'
-import { setLoginStatus, setMembershipPlans, setFeatures, setPregnancyRecord, setFetalGrowthRecord } from './slice'
+import {
+  setLoginStatus,
+  setMembershipPlans,
+  setFeatures,
+  setPregnancyRecord,
+  setFetalGrowthRecord,
+  setUserInfo
+} from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
@@ -9,6 +16,7 @@ import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnan
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { createGrowthMetric } from '@/services/adminService'
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
+import { jwtDecode } from 'jwt-decode'
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
@@ -18,7 +26,10 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       message.success('Login successful')
       localStorage.setItem('accessToken', token.accessToken)
       localStorage.setItem('refreshToken', token.refreshToken)
+      const decodedToken = jwtDecode(token.accessToken)
+      localStorage.setItem('userInfo', JSON.stringify(decodedToken))
       yield put(setLoginStatus(true))
+      yield put(setUserInfo(decodedToken))
       action.payload.navigate(action.payload.route)
     }
   } catch (error: any) {
@@ -210,7 +221,6 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
     throw error
   }
 }
-
 
 //-----GrowthMetric-----
 export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
