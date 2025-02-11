@@ -7,7 +7,6 @@ import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planS
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
-import { getAllPlan } from '@/services/planService'
 import { createGrowthMetric } from '@/services/adminService'
 
 //-----User-----
@@ -60,19 +59,7 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
   }
 }
 
-//----------Pregnancy record-----------
-export function* createPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
-  try {
-    const response = yield call(createPregnancyRecord, action.payload.data)
-    if (response.success) {
-      message.success('Pregnancy record created successfully')
-    }
-  } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
-    console.error('Fetch error:', error)
-    throw error
-  }
-}
+
 
 //----------Membership plan-----------
 export function* getAllMembershipPlans(): Generator<any, void, any> {
@@ -98,9 +85,9 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
       action.payload.description,
       action.payload.featuredIds
     )
-    if (response.data.success) {
+    if (response.data) {
       message.success('Create plan created successfully')
-      yield put(setMembershipPlans(response.data.response))
+      yield put(setMembershipPlans(response.data))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -187,19 +174,7 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
     throw error
   }
 }    
-//-----GrowthMetric-----
-export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
-  try {
-    const response = yield call(createGrowthMetric, action.payload)
-    if (response.success) {
-      message.success('Growth metric created successfully')
-    }
-  } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
-    console.error('Fetch error:', error)
-    throw error
-  }
-}
+
 //----------Pregnancy Record information-----------
 export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }>): Generator<any, void, any> {
   try {

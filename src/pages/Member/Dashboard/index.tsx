@@ -1,5 +1,5 @@
 import { selectPregnancyRecord } from '@/store/modules/global/selector'
-import { Avatar, Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
+import {  Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
 import React, { useEffect } from 'react'
 import { TbEdit } from 'react-icons/tb'

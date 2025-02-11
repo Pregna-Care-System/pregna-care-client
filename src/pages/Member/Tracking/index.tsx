@@ -1,16 +1,34 @@
-import { selectBabyInfo, selectMotherInfo } from '@/store/modules/global/selector'
+import { selectPregnancyRecord } from '@/store/modules/global/selector'
 import { FileAddFilled } from '@ant-design/icons'
 import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
-import React from 'react'
+import { jwtDecode } from 'jwt-decode'
+import React, { useEffect } from 'react'
 import { FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function Tracking() {
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const dataSource = useSelector(selectBabyInfo)
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const [pregnancyInfor, setPregnancyInfor] = React.useState([])
+  const dispatch = useDispatch()
+  const pregnancyResponse = useSelector(selectPregnancyRecord)
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    if (user?.id) {
+      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (pregnancyResponse) {
+      setPregnancyInfor(pregnancyResponse)
+    }
+  }, [pregnancyResponse])
+
   const columns = [
     {
       title: 'Baby Name',
@@ -40,12 +58,14 @@ export default function Tracking() {
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      key: 'createdAt'
+      key: 'createdAt', 
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
-      key: 'updatedAt'
+      key: 'updatedAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -54,9 +74,6 @@ export default function Tracking() {
         <Space size='middle'>
           <Button type='primary'>
             <TbEdit />
-          </Button>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
           </Button>
         </Space>
       )
@@ -67,7 +84,20 @@ export default function Tracking() {
     setIsModalOpen(true)
   }
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values)
+    setLoading(true)
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    const payload = {
+      ...values,
+      dateOfBirth: values.dateOfBirth.format('DD/MM/YYYY'),
+      pregnancyStartDate: values.pregnancyStartDate.format('DD/MM/YYYY'),
+      expectedDueDate: values.expectedDueDate.format('DD/MM/YYYY'),
+      userId: user?.id
+    }
+    dispatch({ type: 'CREATE_PREGNANCY_RECORD', payload: { data: payload } })
+    setLoading(false)
+    setIsModalOpen(false)
+    form.resetFields()
   }
   const onClose = () => {
     setIsModalOpen(false)
@@ -91,7 +121,7 @@ export default function Tracking() {
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={pregnancyInfor} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal title={`Tracking Information`} open={isModalOpen} onCancel={onClose} footer={null}>
