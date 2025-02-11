@@ -106,18 +106,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className='flex-1 p-8'>
-      <div className='flex justify-end items-center mb-10'>
-        <h4 className='px-2 border-s-2 border-gray-300'>
-          Hello, <strong>Username</strong>
-        </h4>
-        <div>
-          <Avatar
-            size={50}
-            src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
-          />
-        </div>
-      </div>
+    <>
       <div className='flex justify-end w-full'>
         <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
           Create
@@ -223,6 +212,6 @@ export default function Dashboard() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   )
 }

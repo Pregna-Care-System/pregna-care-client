@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Card, Steps, Button, Form, Input, Radio, Space, message } from 'antd'
 import { StyledRadioGroup, StyledSteps } from './Checkout.styled'
-import { paymentVNPAY } from '@/services/userService'
 import { jwtDecode } from 'jwt-decode'
+import { useDispatch } from 'react-redux'
 
 const { Step } = Steps
 
@@ -26,7 +26,6 @@ const paymentMethods = [
 ]
 
 export default function CheckoutPage() {
-  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
   const [form] = Form.useForm()
   const [selectedMethod, setSelectedMethod] = useState('vnpay')
@@ -35,6 +34,7 @@ export default function CheckoutPage() {
   const planId = searchParams.get('planId')
   const planName = searchParams.get('planName')
   const planPrice = searchParams.get('planPrice')
+  const dispatch = useDispatch()
 
   const user = jwtDecode(localStorage.getItem('accessToken') || '')
 
@@ -44,15 +44,7 @@ export default function CheckoutPage() {
         await form.validateFields()
       }
       if (currentStep === 1 && selectedMethod === 'vnpay') {
-        // Generate QR code for VNPAY
-        const res = await paymentVNPAY({
-          userId: user?.id,
-          membershipPlanId: planId,
-        })
-        if (res.success) {
-          localStorage.setItem('membershipPlanId', planId || '')
-          window.location.href = res.url
-        }
+        dispatch({ type: 'PAYMENT_VNPAY', payload: { userId: user.id, membershipPlanId: planId } })
       } else if (currentStep === 1) {
         // Handle other payment methods (not implemented in this demo)
         message.info(`${selectedMethod} payment is not implemented in this demo.`)

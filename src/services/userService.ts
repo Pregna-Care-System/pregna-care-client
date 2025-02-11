@@ -87,9 +87,14 @@ export const forgotPassword = async (email: string) => {
   }
 }
 
+
 export const paymentVNPAY = async (data: any) => {
   const apiCallerId = 'Payment'
-  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, { ...data, apiCallerId })
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
+    userId: userId,
+    membershipPlanId: membershipPlanId,
+    apiCallerId
+  })
 }
 
 export const userMembershipPlan = async (data: any) => {

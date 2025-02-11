@@ -18,14 +18,19 @@ const ROUTES = {
   DETAIL_PLAN: '/detail-plan',
   CHECKOUT: '/checkout',
   VNPAY: '/checkout/result',
-  ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_TRANSACTION: '/admin/transaction',
-  ADMIN_MEMBER: '/admin/member',
-  ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
-  MEMBER_DASHBOARD: '/member',
-  MEMBER_TRACKING: '/member/tracking',
-  MEMBER_FETALGROWTHCHART: '/member/fetal-growth-chart',
   SCHEDULE: '/schedule',
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    TRANSACTION: '/admin/transaction',
+    MEMBER: '/admin/member',
+    MEMBERSHIP_PLAN: '/admin/membership-plans',
+    GROWTHMETRICS: '/admin/growth-metrics'
+  },
+  MEMBER: {
+    DASHBOARD: '/member',
+    TRACKING: '/member/tracking',
+    FETALGROWTHCHART: '/member/fetal-growth-chart'
+  },
   NOT_FOUND: '*'
 }
 export default ROUTES

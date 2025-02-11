@@ -3,12 +3,14 @@ import { setLoginStatus, setMembershipPlans, setFeatures, setPregnancyRecord } f
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
-import { login } from '@/services/userService'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { a } from '@react-spring/web'
+import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
+import { getAllPlan } from '@/services/planService'
+import { createGrowthMetric } from '@/services/adminService'
 
+//-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
     const response = yield call(login, action.payload.email, action.payload.password)
@@ -28,6 +30,50 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
     }
   }
 }
+
+//----------Payment-----------
+export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, void, any> {
+  const { userId, membershipPlanId } = action.payload
+  try {
+    const res = yield call(paymentVNPAY, userId, membershipPlanId)
+    if (res.success) {
+      localStorage.setItem('membershipPlanId', membershipPlanId)
+      window.location.href = res.url
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
+export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(userMembershipPlan, action.payload)
+    if (response.success) {
+      message.success('Membership plan created successfully')
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
+//----------Pregnancy record-----------
+export function* createPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createPregnancyRecord, action.payload.data)
+    if (response.success) {
+      message.success('Pregnancy record created successfully')
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 //----------Membership plan-----------
 export function* getAllMembershipPlans(): Generator<any, void, any> {
   try {
@@ -134,6 +180,19 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
     if (response.data.success) {
       message.success('Create pregnancyRecord successfully')
       yield put(setPregnancyRecord(response.data.response))
+  }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}    
+//-----GrowthMetric-----
+export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createGrowthMetric, action.payload)
+    if (response.success) {
+      message.success('Growth metric created successfully')
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -152,6 +211,7 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
     throw error
   }
 }
+
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
@@ -161,4 +221,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
   yield takeLatest('UPDATE_MEMBERSHIP_PLANS', updateMembershipPlan)
   yield takeLatest('DELETE_MEMBERSHIP_PLANS', deleteMembershipPlan)
+  yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
+  yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
+  yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
 }

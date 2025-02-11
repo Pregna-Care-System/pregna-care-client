@@ -3,11 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Result, Spin } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { jwtDecode } from 'jwt-decode'
-import { userMembershipPlan } from '@/services/userService'
+import { useDispatch } from 'react-redux'
 
 export default function PaymentStatus() {
   const navigate = useNavigate()
   const location = useLocation()
+  const dispatch = useDispatch()
   const searchParams = new URLSearchParams(location.search)
   const [paymentStatus, setPaymentStatus] = useState<'processing' | 'success' | 'failure'>('processing')
   const planName = searchParams.get('planName')
@@ -24,11 +25,14 @@ export default function PaymentStatus() {
       const isSuccess = searchParams.get('vnp_ResponseCode') === '00' ? true : false
       setPaymentStatus(isSuccess ? 'success' : 'failure')
       if (isSuccess) {
-        await userMembershipPlan({
-          userId: user.id,
-          membershipPlanId: localStorage.getItem('membershipPlanId') || '',
-          startDate: new Date().toISOString(),
-          endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
+        dispatch({
+          type: 'USER_MEMBERSHIP_PLAN',
+          payload: {
+            userId: user.id,
+            membershipPlanId: localStorage.getItem('membershipPlanId'),
+            startDate: new Date().toISOString(),
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
+          }
         })
       }
       localStorage.removeItem('membershipPlanId')
