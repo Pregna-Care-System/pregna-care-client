@@ -15,7 +15,7 @@ export default function Register() {
       } else {
         message.error(response.message || 'Registration failed')
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       message.error(error.message || 'An unexpected error occurred')
     }

@@ -1,13 +1,16 @@
+import ROUTES from '@/utils/config/routes'
 import { useState } from 'react'
 import {
-  FiBarChart2,
-  FiBell,
+  // FiBarChart2,
+  // FiBell,
   FiDollarSign,
-  FiHelpCircle,
+  // FiHelpCircle,
   FiHome,
   FiMenu,
   FiPackage,
   FiUsers,
+  // FiPackage,
+  // FiUsers,
   FiX
 } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
@@ -17,21 +20,38 @@ const AdminSidebar = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboard')
 
   const menuItems = [
-    { title: 'Dashboard', icon: <FiHome size={20} />, action: () => console.log('Dashboard clicked') },
+    {
+      title: 'Dashboard',
+      icon: <FiHome size={20} />,
+      path: ROUTES.ADMIN.DASHBOARD,
+      action: () => console.log('Dashboard clicked')
+    },
     {
       title: 'Transaction',
       icon: <FiDollarSign size={20} />,
+      path: ROUTES.ADMIN.TRANSACTION,
       action: () => console.log('Transactions clicked')
     },
-    { title: 'Member Management', icon: <FiUsers size={20} />, action: () => console.log('Members clicked') },
     {
-      title: 'Fetal Growth Standard',
-      icon: <FiBarChart2 size={20} />,
-      action: () => console.log('Fetal Growth clicked')
+      title: 'Member Management',
+      icon: <FiUsers size={20} />,
+      path: ROUTES.ADMIN.MEMBER,
+      action: () => console.log('Members clicked')
     },
-    { title: 'Membership Plans', icon: <FiPackage size={20} />, action: () => console.log('Plans clicked') },
-    { title: 'Notifications', icon: <FiBell size={20} />, action: () => console.log('Notifications clicked') },
-    { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
+    {
+      title: 'Membership Plans',
+      icon: <FiPackage size={20} />,
+      path: ROUTES.ADMIN.MEMBERSHIP_PLAN,
+      action: () => console.log('Plans clicked')
+    },
+    {
+      title: 'Growth Metrics',
+      icon: <FiPackage size={20} />,
+      path: ROUTES.ADMIN.GROWTHMETRICS,
+      action: () => console.log('Plans clicked')
+    }
+    // { title: 'Notifications', icon: <FiBell size={20} />, action: () => console.log('Notifications clicked') },
+    // { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
   ]
 
   const navigate = useNavigate()
@@ -40,8 +60,9 @@ const AdminSidebar = () => {
     navigate('/')
   }
 
-  const handleMenuItemClick = (title: string) => {
+  const handleMenuItemClick = (title: string, path: string) => {
     setActiveMenu(title)
+    navigate(path)
   }
 
   return (
@@ -78,7 +99,7 @@ const AdminSidebar = () => {
               {menuItems.map((item, index) => (
                 <li key={index}>
                   <button
-                    onClick={() => handleMenuItemClick(item.title)}
+                    onClick={() => handleMenuItemClick(item.title, item.path)}
                     className={`w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
                       activeMenu === item.title ? 'bg-blue-100 text-blue-600' : ''
                     }`}

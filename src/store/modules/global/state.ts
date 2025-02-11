@@ -1,4 +1,6 @@
 export const initialState = {
+  isAuthenticated: localStorage.getItem('accessToken') !== null,
+  userInfo: {},
   services: [
     {
       id: 1,
@@ -54,26 +56,9 @@ export const initialState = {
       image: 'https://res.cloudinary.com/drcj6f81i/image/upload/v1737046142/PregnaCare/wutvenrgacglazpmntwp.png'
     }
   ],
-  membershipPlans: [
-    {
-      id: 1,
-      title: 'Free Trial (3 Days)',
-      description: ['Access to all basic features', 'No credit card required', 'Experience the platform risk-free'],
-      price: 0
-    },
-    {
-      id: 2,
-      title: 'Each Month',
-      description: ['Full access to all features', 'Priority customer support', 'Cancel anytime with no extra charges'],
-      price: 9.99
-    },
-    {
-      id: 3,
-      title: 'Lifetime Package',
-      description: ['All features unlocked permanently', 'Exclusive lifetime member perks', 'No recurring payments'],
-      price: 20.99
-    }
-  ],
+  membershipPlans: [],
+  pregnancyRecord: [],
+  fetalGrowthRecord: [],
   testimonials: [
     {
       id: 1,
@@ -141,5 +126,145 @@ export const initialState = {
       },
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
-  ]
+  ],
+  babyInfo: [
+    {
+      key: '1',
+      babyName: 'Mike',
+      pregnancyStartDate: '2025-01-26',
+      expectedDueDate: '2025-01-26',
+      babyGender: 'Female',
+      imageUrl: '',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
+    },
+    {
+      key: '2',
+      babyName: 'Mike',
+      pregnancyStartDate: '2025-01-26',
+      expectedDueDate: '2025-01-26',
+      babyGender: 'Female',
+      imageUrl: '',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
+    }
+  ],
+  motherInfo: [
+    {
+      key: '1',
+      motherName: 'Mike',
+      dateOfBirth: '2025-01-26',
+      bloodType: 'O Blood',
+      healthStatus: 'Good',
+      notes: '10 Downing Street',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
+    },
+    {
+      key: '2',
+      motherName: 'Mike',
+      dateOfBirth: '2025-01-26',
+      bloodType: 'O Blood',
+      healthStatus: 'Good',
+      notes: '10 Downing Street',
+      createdAt: '2025-01-26',
+      updatedAt: '2025-01-26'
+    }
+  ],
+  transactionInfo: [
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      type: 'Free trial',
+      price: '$0.00',
+      date: '2025-01-26'
+    }
+  ],
+  memberAdminInfo: [
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: false
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    },
+    {
+      fullName: 'Tina Pham',
+      email: 'tina@gmail.com',
+      phone: '0812654342',
+      address: 'KTX Khu B',
+      status: true
+    }
+  ],
+  membershipPlansAdminInfo: [
+    {
+      packageName: 'Free trial',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$0.00',
+      createdAt: '2025-01-26'
+    },
+    {
+      packageName: 'Vip',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$99.00',
+      createdAt: '2025-01-26'
+    },
+    {
+      packageName: 'Free trial',
+      feature: ['hehe', 'huhu', 'haha'],
+      price: '$0.00',
+      createdAt: '2025-01-26'
+    }
+  ],
+  featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
+  growthMetrics: []
 }

@@ -4,12 +4,12 @@ export const registerAccount = async (
   fullName: string,
   email: string,
   password: string
-): Promise<MODEL.RegisterResponse> => {
+): Promise<MODEL.IResponseBase> => {
   try {
     const roleName = 'Guest'
     const apiCallerId = 'Register'
 
-    const res = await request.post<MODEL.RegisterResponse>('/Register', {
+    const res = await request.post<MODEL.IResponseBase>('/Register', {
       apiCallerId,
       fullName,
       email,
@@ -22,8 +22,13 @@ export const registerAccount = async (
     } else {
       throw new Error(res.message || 'Registration failed')
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    if (error.response?.data?.detailErrorList?.length > 0) {
+      const passwordError = error.response.data.detailErrorList.find((detail: any) => detail.fieldName === 'Password')
+      if (passwordError) {
+        throw new Error(passwordError.message)
+      }
+    }
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
   }
@@ -32,7 +37,7 @@ export const registerAccount = async (
 export const login = async (email: string, password: string) => {
   try {
     const apiCallerId = 'Login'
-    const res = await request.post<MODEL.LoginResponse>(`/Login`, {
+    const res = await request.post<MODEL.IResponseBase>(`/Login`, {
       email: email,
       password: password,
       apiCallerId
@@ -44,7 +49,6 @@ export const login = async (email: string, password: string) => {
       localStorage.setItem('refreshToken', token.refreshToken)
       return res
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const confirmEmailError = res.detailErrorList?.find((error: any) => error.messageId === 'E00003')
       if (confirmEmailError) {
         throw { message: 'Your email is not confirmed.', redirect: '/confirm-email' }
@@ -58,22 +62,45 @@ export const login = async (email: string, password: string) => {
   }
 }
 
-// export const logout = (): void => {
-//   localStorage.removeItem('accessToken')
-//   localStorage.removeItem('refreshToken')
-// }
+export const logout = (): void => {
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  window.location.reload()
+}
 
-// export const verifyEmail = async (token: string): Promise<MODEL.VerifyEmailResponse> => {
-//   try {
-//     const res = await request.get<MODEL.VerifyEmailResponse>(`/register`, {
-//       params: { token }
-//     })
-//     return res
-//   } catch (error) {
-//     console.error('Email verification failed:', error)
-//     throw error
-//   }
-// }
+export const forgotPassword = async (email: string) => {
+  try {
+    const res = await request.post<MODEL.ForgotPasswordResponse>(`/Password/ForgotPassword`, {
+      email
+    })
+    if (res.success) {
+      return res
+    } else {
+      throw new Error(res.message || 'Resend password failed')
+    }
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
+  }
+}
+
+
+export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
+  const apiCallerId = 'Payment'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
+    userId: userId,
+    membershipPlanId: membershipPlanId,
+    apiCallerId
+  })
+}
+
+export const userMembershipPlan = async (data: any) => {
+  const apiCallerId = 'UserMembershipPlan'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
+}
 
 // export const refreshToken = async (): Promise<string> => {
 //   try {

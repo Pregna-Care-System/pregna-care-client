@@ -1,10 +1,10 @@
-type Props = {
+type NoHeaderLayoutProps = {
   children: React.ReactNode
 }
-export default function NoHeaderLayout({ children }: Props) {
+export default function NoHeaderLayout({ children }: NoHeaderLayoutProps) {
   return (
-    <div className='flex flex-col items-center w-full h-full'>
-      <div className='flex w-full h-full'>{children}</div>
+    <div className='min-h-screen flex flex-col'>
+      <main className='flex-grow'>{children}</main>
     </div>
   )
 }
