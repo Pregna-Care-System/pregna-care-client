@@ -212,6 +212,20 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
   }
 }
 
+//-----GrowthMetric-----
+export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createGrowthMetric, action.payload)
+    if (response.success) {
+      message.success('Growth metric created successfully')
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)

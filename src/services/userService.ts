@@ -88,7 +88,7 @@ export const forgotPassword = async (email: string) => {
 }
 
 
-export const paymentVNPAY = async (data: any) => {
+export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
   const apiCallerId = 'Payment'
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
     userId: userId,
