@@ -77,6 +77,7 @@ declare namespace MODEL {
         duration: number
         description: string
         createdAt: string
+        imageUrl: string
         features: { featureName: string }[]
       }
     ]
@@ -90,6 +91,7 @@ declare namespace MODEL {
     price: number
     duration: number
     description: string
+    imageUrl: string
     features: string[]
   }
   export interface FeatureResponse {
