@@ -1,7 +1,8 @@
 import { getPlanById } from '@/services/planService'
 import { selectFeatureInfoInfo, selectMembershipPlans } from '@/store/modules/global/selector'
+import request from '@/utils/axiosClient'
 import { FileAddFilled } from '@ant-design/icons'
-import { Button, Form, Input, Modal, Select, Space, Table, message } from 'antd'
+import { Button, Col, Form, Input, Modal, Row, Select, Space, Table, Upload, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
@@ -15,7 +16,8 @@ export default function MemberShipPlanAdminPage() {
   const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
   const [isUpdateMode, setIsUpdateMode] = useState(false)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
-
+  const [imageUrl, setImageUrl] = useState([])
+  const [file, setFile] = useState()
   const plansResponse = useSelector(selectMembershipPlans)
   const featuresResponse = useSelector(selectFeatureInfoInfo)
   const dispatch = useDispatch()
@@ -35,6 +37,12 @@ export default function MemberShipPlanAdminPage() {
   }, [plansResponse, featuresResponse])
 
   const columns = [
+    {
+      title: 'Image',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      render: (imageUrl) => <img src={imageUrl} alt='Plan Image' className='w-14 h-14 object-cover rounded-full' />
+    },
     {
       title: 'Plan Name',
       dataIndex: 'planName',
@@ -101,6 +109,7 @@ export default function MemberShipPlanAdminPage() {
 
   const onCreatePlan = async (values: MODEL.PlanValues) => {
     try {
+      console.log('Value:', values)
       dispatch({
         type: 'CREATE_MEMBERSHIP_PLANS',
         payload: {
@@ -108,6 +117,7 @@ export default function MemberShipPlanAdminPage() {
           price: values.price,
           duration: values.duration,
           description: values.description,
+          imageUrl: values.imageUrl,
           featuredIds: values.features.map((id) => String(id))
         }
       })
@@ -116,6 +126,7 @@ export default function MemberShipPlanAdminPage() {
         price: values.price,
         duration: values.duration,
         description: values.description,
+        imageUrl: values.imageUrl,
         features: values.features.map((id) => {
           const feature = featureList.find((f) => f.id === id)
           return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
@@ -141,6 +152,7 @@ export default function MemberShipPlanAdminPage() {
           price: values.price,
           duration: values.duration,
           description: values.description,
+          imageUrl: values.imageUrl,
           featuredIds: values.features.map((id) => String(id))
         }
       })
@@ -152,6 +164,7 @@ export default function MemberShipPlanAdminPage() {
               price: values.price,
               duration: values.duration,
               description: values.description,
+              imageUrl: values.imageUrl,
               features: values.features.map((id) => {
                 const feature = featureList.find((f) => f.id === id)
                 return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
@@ -189,7 +202,8 @@ export default function MemberShipPlanAdminPage() {
             type: 'DELETE_MEMBERSHIP_PLANS',
             payload: {
               planId
-            }})
+            }
+          })
         } catch (error) {
           message.error('Failed to delete plan')
         }
@@ -210,6 +224,7 @@ export default function MemberShipPlanAdminPage() {
         price: planResponse.price,
         duration: planResponse.duration,
         description: planResponse.description,
+        imageUrl: planResponse.imageUrl,
         features: planResponse.features.map((feature) => feature.featureName)
       })
 
@@ -219,6 +234,25 @@ export default function MemberShipPlanAdminPage() {
     } catch (error) {
       console.error('Error while fetching plan:', error)
       message.error('Failed to fetch plan details for update')
+    }
+  }
+  const handleUpload = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'PregnaCare')
+    formData.append('cloud_name', 'dgzn2ix8w')
+    try {
+      const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      console.log('Upload response:', response.data)
+      setImageUrl(response.data.secure_url)
+
+      form.setFieldsValue({ imageUrl: response.data.secure_url })
+      message.success('Image uploaded successfully')
+    } catch (error) {
+      message.error('Failed to upload image')
+      console.error('Upload error details', error?.response.data || error.message)
     }
   }
 
@@ -265,43 +299,105 @@ export default function MemberShipPlanAdminPage() {
         open={isModalOpen}
         onCancel={handleCancel}
         onOk={handleModalSubmit}
+        width={800}
       >
-        <Form form={form} layout='vertical'>
-          <Form.Item
-            label='Plan Name'
-            name='planName'
-            rules={[{ required: true, message: 'Please input the plan name' }]}
-          >
-            <Input placeholder='Enter plan name' />
-          </Form.Item>
-          <Form.Item label='Price' name='price' rules={[{ required: true, message: 'Please input the price!' }]}>
-            <Input placeholder='Enter price (e.g., $10.00)' />
-          </Form.Item>
-          <Form.Item
-            label='Duration'
-            name='duration'
-            rules={[{ required: true, message: 'Please input the duration!' }]}
-          >
-            <Input placeholder='Enter duration' />
-          </Form.Item>
-          <Form.Item
-            label='Description'
-            name='description'
-            rules={[{ required: true, message: 'Please input the description!' }]}
-          >
-            <Input placeholder='Enter description' />
-          </Form.Item>
-          <Form.Item
-            label='Features'
-            name='features'
-            rules={[{ required: true, message: 'Please select at least one feature!' }]}
-          >
-            <Select
-              mode='multiple'
-              placeholder='Select features'
-              options={featureList.map((feature) => ({ label: feature.featureName, value: feature.id }))}
-            />
-          </Form.Item>
+        <Form form={form} layout='horizontal'>
+          <Row gutter={24}>
+            <Col span={14}>
+              <Form.Item
+                label='Plan Name'
+                name='planName'
+                rules={[{ required: true, message: 'Please input the plan name' }]}
+              >
+                <Input placeholder='Enter plan name' />
+              </Form.Item>
+
+              <Form.Item label='Price' name='price' rules={[{ required: true, message: 'Please input the price!' }]}>
+                <Input placeholder='Enter price (e.g., $10.00)' />
+              </Form.Item>
+              <Form.Item
+                label='Duration'
+                name='duration'
+                rules={[{ required: true, message: 'Please input the duration!' }]}
+              >
+                <Input placeholder='Enter duration' />
+              </Form.Item>
+              <Form.Item
+                label='Description'
+                name='description'
+                rules={[{ required: true, message: 'Please input the description!' }]}
+              >
+                <Input placeholder='Enter description' />
+              </Form.Item>
+              <Form.Item
+                label='Features'
+                name='features'
+                rules={[{ required: true, message: 'Please select at least one feature!' }]}
+              >
+                <Select
+                  mode='multiple'
+                  placeholder='Select features'
+                  options={featureList.map((feature) => ({ label: feature.featureName, value: feature.id }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={10}>
+              <Form.Item
+                label='Image Upload'
+                name='imageUrl'
+                valuePropName='file'
+                getValueFromEvent={(event) => event?.file}
+                rules={[
+                  {
+                    validator(_, file) {
+                      return new Promise((resolve, reject) => {
+                        if (file && file.size > 900000) {
+                          reject('File size exceeded')
+                        } else {
+                          resolve('Success')
+                        }
+                      })
+                    }
+                  }
+                ]}
+              >
+                <div>
+                  <Upload
+                    maxCount={1}
+                    beforeUpload={(file) => {
+                      return new Promise((resolve, reject) => {
+                        if (file.size > 900000) {
+                          reject('File size exceeded')
+                          message.error('File size exceeded')
+                        } else {
+                          resolve('Success')
+                        }
+                      })
+                    }}
+                    customRequest={({ file, onSuccess, onError }) => {
+                      handleUpload(file)
+                        .then(() => onSuccess('ok'))
+                        .catch(onError)
+                    }}
+                    showUploadList={false}
+                  >
+                    <Button>Upload image</Button>
+                  </Upload>
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt='plan Image'
+                      className='w-40 h-40 object-cover mt-10 border border-gray-300 rounded-lg'
+                    />
+                  ) : (
+                    <div className='w-40 h-40 mt-10 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 rounded-lg'>
+                      No Image
+                    </div>
+                  )}
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </>

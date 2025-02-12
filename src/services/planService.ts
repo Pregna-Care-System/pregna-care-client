@@ -39,6 +39,7 @@ export const updatePlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -49,6 +50,7 @@ export const updatePlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredIds
     })
     const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
@@ -76,6 +78,7 @@ export const createPlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -86,6 +89,7 @@ export const createPlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredId: featuredIds
     })
     return res
