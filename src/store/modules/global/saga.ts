@@ -197,8 +197,10 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
 //----------Pregnancy Record information-----------
 export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }>): Generator<any, void, any> {
   try {
-    const response = yield call(getAllPregnancyRecord, action.payload.userId)
-    yield put(setPregnancyRecord(response))
+    const res = yield call(getAllPregnancyRecord, action.payload.userId)
+    if (res.success) {
+      yield put(setPregnancyRecord(res.response))
+    }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)

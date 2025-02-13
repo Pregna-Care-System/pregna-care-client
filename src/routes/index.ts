@@ -21,6 +21,7 @@ import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
+import FetalGrowthChartDetail from '@/pages/Member/FetalGrowthChartDetail'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -60,6 +61,7 @@ const memberRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
   { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
   { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout }
 ]
 
