@@ -99,6 +99,7 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
       action.payload.price,
       action.payload.duration,
       action.payload.description,
+      action.payload.imageUrl,
       action.payload.featuredIds
     )
     if (response.data) {
@@ -121,6 +122,7 @@ export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any
       action.payload.price,
       action.payload.duration,
       action.payload.description,
+      action.payload.imageUrl,
       action.payload.featuredIds
     )
     if (response.data.success) {

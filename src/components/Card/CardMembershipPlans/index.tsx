@@ -157,6 +157,7 @@ export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) 
             More
           </Button>
         </div>
+
       </StyledCard>
     </>
   )

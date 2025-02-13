@@ -39,6 +39,7 @@ export const updatePlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -49,6 +50,7 @@ export const updatePlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredIds
     })
     const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
@@ -57,6 +59,7 @@ export const updatePlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredId: featuredIds
     })
     console.log('API Response', res.data)
@@ -76,6 +79,7 @@ export const createPlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -86,9 +90,13 @@ export const createPlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredId: featuredIds
     })
-    return res
+    console.log('API Response', res.data)
+    if (res.data.success) {
+      return res
+    }
   } catch (error) {
     console.log('Create failed', error)
     throw error

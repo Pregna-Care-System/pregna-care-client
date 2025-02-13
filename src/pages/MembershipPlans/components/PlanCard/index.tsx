@@ -7,7 +7,7 @@ interface PlanCardProps {
   plan: {
     planName: string
     price: number
-    image: string
+    imageUrl: string
     features: string[]
     recommended: boolean
   }
@@ -37,7 +37,7 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
         </div>
       }
     >
-      <img src={plan.image} alt={plan.planName} className='w-full h-40 object-cover rounded-md mb-4' />
+      <img src={plan.imageUrl} alt={plan.planName} className='w-full h-40 object-cover rounded-md mb-4' />
       <p className='text-3xl font-bold mb-4'>
         {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'></span>
       </p>
