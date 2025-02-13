@@ -18,6 +18,7 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 const Background = styled.div`
   height: 765px;
@@ -51,7 +52,6 @@ export default function GuestHome() {
 
   //--State
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   //--Services
   const renderServices = services.map((item, index) => (
@@ -60,17 +60,6 @@ export default function GuestHome() {
 
   const renderReasons = reasons.map((item, index) => {
     return <CardReason key={index} title={item.title} description={item.description} image={item} />
-  })
-
-  const renderMembershipPlans = membershipPlans.map((item, index) => {
-    return (
-      <PlanCard
-        key={index}
-        plan={item}
-        isSelected={item.membershipPlanId === selectedPlan?.membershipPlanId}
-        onSelect={() => setSelectedPlan(item)}
-      />
-    )
   })
 
   return (
@@ -131,7 +120,15 @@ export default function GuestHome() {
           </h2>
         </div>
         <div className='container mx-auto'>
-          <div className='grid grid-cols-3 gap-4 mx-20'>{renderMembershipPlans}</div>
+          <div className='grid grid-cols-12'>
+            <div className='col-span-10 col-start-2'>
+              <CarouselMembershipPlans
+                membershipPlans={membershipPlans}
+                selectedPlan={selectedPlan}
+                onSelectPlan={setSelectedPlan}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
