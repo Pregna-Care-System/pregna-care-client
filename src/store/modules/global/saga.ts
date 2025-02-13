@@ -6,7 +6,8 @@ import {
   setPregnancyRecord,
   setFetalGrowthRecord,
   setUserInfo,
-  setDataGrowthMetric
+  setDataGrowthMetric,
+  setMemberInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -14,7 +15,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
+import { getAllMember, login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService'
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
@@ -257,7 +258,20 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
     throw error
   }
 }
-
+//----------Member information-----------
+export function* getAllMemberAdmin(): Generator<any, void, any>{
+  try {
+    const response = yield call(getAllMember)
+    console.log('Response', response.response)
+    if (response.response) {
+      yield put(setMemberInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
@@ -272,4 +286,6 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
+  yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
+
 }
