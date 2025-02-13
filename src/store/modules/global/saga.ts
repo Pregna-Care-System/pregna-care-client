@@ -7,7 +7,8 @@ import {
   setFetalGrowthRecord,
   setUserInfo,
   setDataGrowthMetric,
-  setMemberInfo
+  setMemberInfo,
+  setTransactionInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -15,8 +16,13 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { getAllMember, login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
-import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService'
+import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
+import {
+  createGrowthMetric,
+  getAllGrowthMetrics,
+  getAllMember,
+  getAllUserMembershipPlan
+} from '@/services/adminService'
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
 import ROUTES from '@/utils/config/routes'
@@ -262,9 +268,23 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
 export function* getAllMemberAdmin(): Generator<any, void, any>{
   try {
     const response = yield call(getAllMember)
-    console.log('Response', response.response)
-    if (response.response) {
-      yield put(setMemberInfo(response.response))
+    console.log('Response', response.data.response)
+    if (response.data.response) {
+      yield put(setMemberInfo(response.data.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+//----------User Transaction information-----------
+export function* getAllUserTransactionAdmin(): Generator<any, void, any>{
+  try {
+    const response = yield call(getAllUserMembershipPlan)
+    console.log('Response', response.data.response)
+    if (response.data.response) {
+      yield put(setTransactionInfo(response.data.response))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -287,5 +307,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
+  yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
+
 
 }

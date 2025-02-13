@@ -29,6 +29,9 @@ const editorSlice = createSlice({
     setMemberInfo(state, action: PayloadAction<any>) {
       state.memberInfo = action.payload
     },
+    setTransactionInfo(state, action: PayloadAction<any>) {
+      state.transactionInfo = action.payload
+    },
   }
 })
 
@@ -40,7 +43,8 @@ export const {
   setFetalGrowthRecord,
   setUserInfo,
   setDataGrowthMetric,
-  setMemberInfo
+  setMemberInfo,
+  setTransactionInfo
 } = editorSlice.actions
 
 export default editorSlice.reducer
