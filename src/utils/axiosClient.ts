@@ -17,6 +17,10 @@ export const post = async <T>(path: string, data: unknown, options: AxiosRequest
   const response: AxiosResponse<T> = await request.post<T>(path, data, options)
   return response.data
 }
+export const put = async <T>(path: string, data: unknown, options: AxiosRequestConfig = {}): Promise<T> => {
+  const response: AxiosResponse<T> = await request.put<T>(path, data, options)
+  return response.data
+}
 
 // // Request interceptor to attach the access token
 // request.interceptors.request.use(

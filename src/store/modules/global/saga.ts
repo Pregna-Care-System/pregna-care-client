@@ -16,7 +16,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
+import { login, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
 import {
   createGrowthMetric,
   getAllGrowthMetrics,
@@ -54,7 +54,30 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
     }
   }
 }
-
+//----------Update User information-----------
+export function* updateUserInformation(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(
+      updateAccount,
+      action.payload.userId,
+      action.payload.fullName,
+      action.payload.phoneNumber,
+      action.payload.address,
+      action.payload.gender,
+      action.payload.dateOfBirth,
+      action.payload.imageUrl
+    )
+    console.log('Response:', response)
+    if (response.success) {
+      message.success('Account updated successfully')
+    } else {
+      message.error('Failed to update the account')
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the account.')
+    console.error('Error in updateAccount saga:', error)
+  }
+}
 //----------Payment-----------
 export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, void, any> {
   const { userId, membershipPlanId } = action.payload
@@ -308,6 +331,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
+  yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
 
 
 }
