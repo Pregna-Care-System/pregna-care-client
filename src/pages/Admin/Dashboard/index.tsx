@@ -2,7 +2,6 @@ import { useState } from 'react'
 import ApexCharts from 'react-apexcharts'
 import { FiArrowDown, FiArrowUp, FiDollarSign, FiDownload, FiPieChart, FiUserCheck, FiUsers } from 'react-icons/fi'
 import { ApexOptions } from 'apexcharts'
-import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 
 const membershipPlans = [
   { name: 'Basic', users: 3000, color: 'bg-[#EE7A7A]/100' },

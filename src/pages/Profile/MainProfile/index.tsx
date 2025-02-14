@@ -1,7 +1,7 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal, message } from 'antd'
 import { RcFile, UploadChangeParam } from 'antd/es/upload'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
 import styled from 'styled-components'
 

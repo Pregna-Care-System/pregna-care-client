@@ -52,17 +52,6 @@ export default function MemberPage() {
         </Button>
       )
     },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size='middle'>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
-          </Button>
-        </Space>
-      )
-    }
   ]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (value: any) => {
