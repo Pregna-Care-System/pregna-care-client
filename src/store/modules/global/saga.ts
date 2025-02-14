@@ -16,7 +16,7 @@ import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
 import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService'
-import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
+import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
 import ROUTES from '@/utils/config/routes'
 
@@ -90,7 +90,7 @@ export function* getAllMembershipPlans(): Generator<any, void, any> {
     throw error
   }
 }
-//----------Create Membership Plan-----------
+
 export function* createMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -112,7 +112,7 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
     throw error
   }
 }
-//----------Update Membership Plan-----------
+
 export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -136,7 +136,7 @@ export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any
     console.error('Error in updateMembershipPlan saga:', error)
   }
 }
-//-------------------Delete Membership Plan-------------------
+
 export function* deleteMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(deletePlan, action.payload.planId)
@@ -151,6 +151,7 @@ export function* deleteMembershipPlan(action: PayloadAction<any>): Generator<any
     console.error('Error in deleteMembershipPlan saga:', error)
   }
 }
+
 //------------Feature-----------
 export function* getFeatures(): Generator<any, void, any> {
   try {
@@ -165,7 +166,7 @@ export function* getFeatures(): Generator<any, void, any> {
   }
 }
 
-//----------Create PregnancyRecord-----------
+//----------Pregnancy Record information-----------
 export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -194,7 +195,6 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
   }
 }
 
-//----------Pregnancy Record information-----------
 export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }>): Generator<any, void, any> {
   try {
     const res = yield call(getAllPregnancyRecord, action.payload.userId)
@@ -233,12 +233,26 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
   }
 }
 
+export function* getFetalGrowthRecordsSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const res = yield call(getFetalGrowthRecords, action.payload)
+    if (res.success) {
+      yield put(setFetalGrowthRecord(res.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 //-----GrowthMetric-----
 export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(createGrowthMetric, action.payload)
     if (response.success) {
       message.success('Growth metric created successfully')
+      yield getAllGrowthMetrics()
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -274,4 +288,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
+  yield takeLatest('GET_FETAL_GROWTH_RECORDS', getFetalGrowthRecordsSaga)
 }

@@ -19,7 +19,7 @@ const FetalGrowthChart = () => {
 
   return (
     <Layout className='min-h-screen bg-gray-100'>
-      <Content className='max-w-6xl mx-auto p-4 sm:p-6 lg:p-8'>
+      <Content className='max-w-6xl p-4 sm:p-6 lg:p-8'>
         <Title level={1} className='text-center mb-8'>
           Pregnancy Records
         </Title>

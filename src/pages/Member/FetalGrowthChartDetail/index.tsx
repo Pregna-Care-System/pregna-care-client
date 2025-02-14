@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ApexCharts from 'react-apexcharts'
 import { FiDownload } from 'react-icons/fi'
 import FetusInfo from './Components/FetalInfo'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectBabyInfo } from '@/store/modules/global/selector'
+import { useLocation, useParams } from 'react-router-dom'
 
 const FetalGrowthChartDetail = () => {
   const [isHovered, setIsHovered] = useState(false)
+  const dispatch = useDispatch()
+  const param = useParams()
+
+  useEffect(() => {
+    dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: param.pregnancyRecordId })
+  }, [param.pregnancyRecordId])
 
   const fetalWeightData = {
     series: [
