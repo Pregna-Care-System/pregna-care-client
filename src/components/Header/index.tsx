@@ -101,7 +101,7 @@ export default function Header() {
     logout()
   }
 
-  const userImage = user?.image || null
+  const userImage = user?.picture || null
 
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
 import { selectUserInfo } from '@/store/modules/global/selector'
+import request from '@/utils/axiosClient'
 const Wrapper = styled.div`
   .avatar_profile {
     transition:
@@ -85,7 +86,7 @@ const Wrapper = styled.div`
 export default function MainProfile() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  const [userImage, setUserImage] = useState<string | null>(user?.image || null)
+  const [userImage, setUserImage] = useState<string | null>(user?.picture || null)
   const [form] = Form.useForm()
   const dispatch = useDispatch()
 
@@ -105,27 +106,6 @@ export default function MainProfile() {
     setModalOpen(false)
   }
 
-  const handleChange = (info: UploadChangeParam) => {
-    if (info.file.status === 'uploading') {
-      return
-    }
-    if (info.file.status === 'done') {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setUserImage(reader.result as string)
-      }
-      reader.readAsDataURL(info.file.originFileObj as RcFile)
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`)
-    }
-  }
-
-  const uploadProps = {
-    name: 'file',
-    action: 'https://httpbin.org/post',
-    showUploadList: false,
-    onChange: handleChange
-  }
   const handleSubmit = async (values: any) => {
     const userInfo = {
       userId: user?.id,
@@ -141,6 +121,25 @@ export default function MainProfile() {
       type: 'UPDATE_USER_INFORMATION',
       payload: userInfo
     })
+  }
+  const handleUpload = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'PregnaCare')
+    formData.append('cloud_name', 'dgzn2ix8w')
+    try {
+      const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      console.log('Upload response:', response.data)
+      setUserImage(response.data.secure_url)
+
+      form.setFieldsValue({ imageUrl: response.data.secure_url })
+      message.success('Image uploaded successfully')
+    } catch (error) {
+      message.error('Failed to upload image')
+      console.error('Upload error details', error?.response.data || error.message)
+    }
   }
   return (
     <Wrapper
@@ -210,22 +209,58 @@ export default function MainProfile() {
       <Modal title='Edit Avatar' open={isModalOpen} onCancel={handleCancel} footer={null}>
         <div className='flex flex-col justify-center items-center w-full'>
           {userImage ? (
-            <img className='w-2/3 h-2/3 border border-solid rounded-full' src={userImage} alt='User Avatar' />
+            <img
+              className='w-60 h-60 border border-solid object-cover'
+              src={userImage}
+              alt='User Avatar'
+              style={{ borderRadius: '50%' }}
+            />
           ) : (
             <UserOutlined className='text-5xl border border-solid rounded-full' />
           )}
         </div>
         <div className='mt-10 flex'>
           <div>
-            <Upload {...uploadProps}>
-              <Button style={{ background: 'black', color: 'white' }}>Upload Avatar</Button>
+            <Upload
+              maxCount={1}
+              beforeUpload={(file) => {
+                return new Promise((resolve, reject) => {
+                  if (file.size > 900000) {
+                    reject('File size exceeded')
+                    message.error('File size exceeded')
+                  } else {
+                    resolve('Success')
+                  }
+                })
+              }}
+              customRequest={({ file, onSuccess, onError }) => {
+                handleUpload(file)
+                  .then(() => onSuccess('ok'))
+                  .catch(onError)
+              }}
+              showUploadList={false}
+            >
+              <Button>Upload image</Button>
             </Upload>
           </div>
           <div className='ml-52'>
             <Button
               type='primary'
               onClick={() => {
-                message.success('Avatar updated successfully')
+                dispatch({
+                  type: 'UPDATE_USER_INFORMATION',
+                  payload: {
+                    userId: user?.id,
+                    fullName: form.getFieldValue('fullName') || user?.name || '',
+                    phoneNumber: form.getFieldValue('phoneNumber') || user?.phone || '',
+                    address: form.getFieldValue('address') || user?.address || '',
+                    gender: form.getFieldValue('gender') || user?.gender || '',
+                    dateOfBirth: form.getFieldValue('dateOfBirth')
+                      ? dayjs(form.getFieldValue('dateOfBirth')).format('YYYY-MM-DD')
+                      : user?.dateOfBirth || null,
+                    imageUrl: userImage || user?.image || ''
+                  }
+                })
                 handleCancel()
               }}
             >
