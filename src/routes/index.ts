@@ -14,6 +14,7 @@ import MemberShipPlanPage from '@/pages/MembershipPlans'
 import PlanDetail from '@/pages/MembershipPlans/components/PlanDetail'
 import BlogPage from '@/pages/Blog'
 import BlogDetailsPage from '@/pages/Blog/BlogDetails'
+import CommunityDetailsPage from '@/pages/Community/Details'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -21,6 +22,7 @@ const MainHome = lazy(() => import('@pages/Home/MainHome'))
 const LoginPage = lazy(() => import('@pages/Login'))
 const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
+const CommunityPage = lazy(() => import('@pages/Community/index'))
 
 //--Routes
 //no need to login
@@ -29,6 +31,8 @@ const publicRoutes = [
   { path: ROUTES.GUEST_HOME, component: GuestHome },
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
+  { path: ROUTES.COMMUNITY, component: CommunityPage },
+  { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.SUCCESS_CONFIRM, component: EmailConfirmationSuccessPage, layout: NoHeaderLayout },
