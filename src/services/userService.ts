@@ -1,15 +1,16 @@
+import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
 
 export const registerAccount = async (
   fullName: string,
   email: string,
   password: string
-): Promise<MODEL.RegisterResponse> => {
+): Promise<MODEL.IResponseBase> => {
   try {
     const roleName = 'Guest'
     const apiCallerId = 'Register'
 
-    const res = await request.post<MODEL.RegisterResponse>('/Register', {
+    const res = await request.post<MODEL.IResponseBase>('/Register', {
       apiCallerId,
       fullName,
       email,
@@ -22,10 +23,8 @@ export const registerAccount = async (
     } else {
       throw new Error(res.message || 'Registration failed')
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response?.data?.detailErrorList?.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const passwordError = error.response.data.detailErrorList.find((detail: any) => detail.fieldName === 'Password')
       if (passwordError) {
         throw new Error(passwordError.message)
@@ -39,7 +38,7 @@ export const registerAccount = async (
 export const login = async (email: string, password: string) => {
   try {
     const apiCallerId = 'Login'
-    const res = await request.post<MODEL.LoginResponse>(`/Login`, {
+    const res = await request.post<MODEL.IResponseBase>(`/Login`, {
       email: email,
       password: password,
       apiCallerId
@@ -51,7 +50,6 @@ export const login = async (email: string, password: string) => {
       localStorage.setItem('refreshToken', token.refreshToken)
       return res
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const confirmEmailError = res.detailErrorList?.find((error: any) => error.messageId === 'E00003')
       if (confirmEmailError) {
         throw { message: 'Your email is not confirmed.', redirect: '/confirm-email' }
@@ -62,6 +60,40 @@ export const login = async (email: string, password: string) => {
   } catch (error) {
     console.error('Login failed:', error)
     throw error
+  }
+}
+export const updateAccount = async (
+  userId: string,
+  fullName: string,
+  phoneNumber: string,
+  address: string,
+  gender: string,
+  dateOfBirth: Date,
+  imageUrl: string
+) => {
+  try {
+    const apiCallerId = 'UpdateAccount'
+    const res = await request.put<MODEL.IResponseBase>(`/Account/${userId}`, {
+      apiCallerId,
+      fullName,
+      phoneNumber,
+      gender,
+      address,
+      dateOfBirth,
+      imageUrl
+    })
+    console.log('RES', res)
+    if (res.success) {
+      return res
+    } else {
+      throw new Error(res.message || 'Update account failed')
+    }
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
   }
 }
 
@@ -81,13 +113,27 @@ export const forgotPassword = async (email: string) => {
     } else {
       throw new Error(res.message || 'Resend password failed')
     }
-  } catch (error) {
-    if(error.response){
+  } catch (error: any) {
+    if (error.response) {
       console.error('Response Error:', error.response.status, error.response.data)
-    }else{
+    } else {
       console.error('Request Error:', error.message)
     }
   }
+}
+
+export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
+  const apiCallerId = 'Payment'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
+    userId: userId,
+    membershipPlanId: membershipPlanId,
+    apiCallerId
+  })
+}
+
+export const userMembershipPlan = async (data: any) => {
+  const apiCallerId = 'UserMembershipPlan'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
 }
 
 // export const refreshToken = async (): Promise<string> => {

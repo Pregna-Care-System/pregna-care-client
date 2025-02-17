@@ -3,11 +3,13 @@ import ROUTES from '@utils/config/routes'
 import NoHeaderLayout from '@layouts/NoHeaderLayout'
 import ConfirmEmail from '@pages/Register/ConfirmPage'
 import EmailConfirmationSuccessPage from '@pages/Register/ConfirmSuccess'
-import VNPayPage from '@pages/VNPay'
+import PaymentStatus from '@/pages/PaymentStatus'
 import AdminDashboard from '@/pages/Admin/Dashboard'
 import CheckoutPage from '@pages/Checkout'
 import PlanDetail from '@pages/MembershipPlans/components/PlanDetail'
 import MemberShipPlanPage from '@/pages/MembershipPlans'
+import BlogPage from '@/pages/Blog'
+import BlogDetailsPage from '@/pages/Blog/BlogDetails'
 import Dashboard from '@/pages/Member/Dashboard'
 import TransactionPage from '@/pages/Admin/Transaction'
 import MemberPage from '@/pages/Admin/Member'
@@ -18,7 +20,8 @@ import ForgotPassword from '@/pages/Login/ForgotPassword'
 import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
 import AdminLayout from '@/layouts/AdminLayout'
-// import Profile from "@/pages/Member/Profile"
+import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
+import CommunityDetailsPage from '@/pages/Community/Details'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -27,10 +30,15 @@ const LoginPage = lazy(() => import('@pages/Login'))
 const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
 const SchedulePage = lazy(() => import('@/pages/Schedule'))
+const CommunityPage = lazy(() => import('@pages/Community/index'))
 
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
+  { path: ROUTES.BLOG, component: BlogPage },
+  { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
+  { path: ROUTES.COMMUNITY, component: CommunityPage },
+  { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.RESEND_PASSWORD, component: ResendPassword, layout: NoHeaderLayout },
@@ -40,23 +48,23 @@ const publicRoutes = [
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetail },
   { path: ROUTES.SCHEDULE, component: SchedulePage },
-  { path: ROUTES.VNPAY, component: VNPayPage },
-  //--- Member routes
-  { path: ROUTES.MEMBER_DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER_FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER_TRACKING, component: Tracking, layout: MemberLayout },
-  //--- Admin routes
-  { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: AdminLayout },
-  { path: ROUTES.ADMIN_TRANSACTION, component: TransactionPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN_MEMBER, component: MemberPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN_MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout }
+  { path: ROUTES.VNPAY, component: PaymentStatus }
 ]
 
 const adminRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile }
-  // { path: ROUTES.ADMIN_DASHBOARD, component: AdminDashboard, layout: NoHeaderLayout }
+  { path: ROUTES.PROFILE, component: MainProfile },
+  { path: ROUTES.ADMIN.DASHBOARD, component: AdminDashboard, layout: AdminLayout },
+  { path: ROUTES.ADMIN.TRANSACTION, component: TransactionPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout }
 ]
 
-const memberRoutes = [{ path: ROUTES.PROFILE, component: MainProfile }]
+const memberRoutes = [
+  { path: ROUTES.PROFILE, component: MainProfile },
+  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout }
+]
 
 export { publicRoutes, adminRoutes, memberRoutes }

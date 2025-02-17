@@ -2,11 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Result, Spin } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { jwtDecode } from 'jwt-decode'
+import { useDispatch } from 'react-redux'
 
-export default function VNPayPage() {
+export default function PaymentStatus() {
   const navigate = useNavigate()
   const location = useLocation()
+  const dispatch = useDispatch()
+  const searchParams = new URLSearchParams(location.search)
   const [paymentStatus, setPaymentStatus] = useState<'processing' | 'success' | 'failure'>('processing')
+  const planName = searchParams.get('planName')
+  const planPrice = searchParams.get('planPrice')
+
+  const user = jwtDecode(localStorage.getItem('accessToken') || '')
 
   useEffect(() => {
     const simulatePayment = async () => {
@@ -14,20 +22,28 @@ export default function VNPayPage() {
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
       // Simulate success or failure (80% success rate)
-      const isSuccess = Math.random() < 0.8
+      const isSuccess = searchParams.get('vnp_ResponseCode') === '00' ? true : false
       setPaymentStatus(isSuccess ? 'success' : 'failure')
+      if (isSuccess) {
+        dispatch({
+          type: 'USER_MEMBERSHIP_PLAN',
+          payload: {
+            userId: user.id,
+            membershipPlanId: localStorage.getItem('membershipPlanId'),
+            startDate: new Date().toISOString(),
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
+          }
+        })
+      }
+      localStorage.removeItem('membershipPlanId')
     }
 
     simulatePayment()
-  }, [])
+  }, [location])
 
   const handleReturn = () => {
     navigate('/', { state: { status: paymentStatus } })
   }
-
-  const searchParams = new URLSearchParams(location.search)
-  const planName = searchParams.get('planName') || 'Selected Plan'
-  const planPrice = searchParams.get('planPrice') || '0'
 
   if (paymentStatus === 'processing') {
     return (

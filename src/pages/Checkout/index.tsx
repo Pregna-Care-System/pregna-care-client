@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Card, Steps, Button, Form, Input, Radio, Space, message } from 'antd'
-import { QRCodeSVG } from 'qrcode.react'
 import { StyledRadioGroup, StyledSteps } from './Checkout.styled'
+import { jwtDecode } from 'jwt-decode'
+import { useDispatch } from 'react-redux'
 
 const { Step } = Steps
 
@@ -28,11 +29,14 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [form] = Form.useForm()
   const [selectedMethod, setSelectedMethod] = useState('vnpay')
-  const [qrCodeData, setQrCodeData] = useState<string | null>(null)
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
-  const planName = searchParams.get('planName') || 'Selected Plan'
-  const planPrice = searchParams.get('planPrice') || '0'
+  const planId = searchParams.get('planId')
+  const planName = searchParams.get('planName')
+  const planPrice = searchParams.get('planPrice')
+  const dispatch = useDispatch()
+
+  const user = jwtDecode(localStorage.getItem('accessToken') || '')
 
   const handleNext = async () => {
     try {
@@ -40,9 +44,7 @@ export default function CheckoutPage() {
         await form.validateFields()
       }
       if (currentStep === 1 && selectedMethod === 'vnpay') {
-        // Generate QR code for VNPAY
-        const paymentUrl = `https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?amount=${planPrice}&planName=${encodeURIComponent(planName)}`
-        setQrCodeData(paymentUrl)
+        dispatch({ type: 'PAYMENT_VNPAY', payload: { userId: user.id, membershipPlanId: planId } })
       } else if (currentStep === 1) {
         // Handle other payment methods (not implemented in this demo)
         message.info(`${selectedMethod} payment is not implemented in this demo.`)
@@ -99,17 +101,6 @@ export default function CheckoutPage() {
             </Space>
           </StyledRadioGroup>
         )
-      case 2:
-        return (
-          <div className='flex flex-col items-center'>
-            {qrCodeData && (
-              <>
-                <QRCodeSVG value={qrCodeData} size={200} />
-                <p className='mt-4 text-center'>Scan the QR code with your VNPAY app to complete the payment.</p>
-              </>
-            )}
-          </div>
-        )
       default:
         return null
     }
@@ -124,13 +115,13 @@ export default function CheckoutPage() {
             Selected Plan: <strong className='text-red-500'>{planName}</strong>
           </p>
           <p className='text-lg'>
-            Price: <strong className='text-red-500'>{parseInt(planPrice).toLocaleString('vi-VN')} ₫/month</strong>
+            Price:
+            <strong className='text-red-500'>{parseInt(planPrice || '0').toLocaleString('vi-VN')} ₫/month</strong>
           </p>
         </Card>
         <StyledSteps current={currentStep} className='mb-8'>
           <Step title='User Info' />
           <Step title='Payment Method' />
-          <Step title='Confirm Payment' />
         </StyledSteps>
         <div className='mb-8'>{renderStepContent()}</div>
         <div className='flex justify-between'>

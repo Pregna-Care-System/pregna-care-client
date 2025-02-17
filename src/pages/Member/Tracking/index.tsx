@@ -1,16 +1,34 @@
-import { selectBabyInfo, selectMotherInfo } from '@/store/modules/global/selector'
+import { selectPregnancyRecord } from '@/store/modules/global/selector'
 import { FileAddFilled } from '@ant-design/icons'
-import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
-import React from 'react'
-import { FiTrash2 } from 'react-icons/fi'
+import { Button, Form, Input, message, Modal, Select, Space, Table } from 'antd'
+import { jwtDecode } from 'jwt-decode'
+import React, { useEffect } from 'react'
 import { TbEdit } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function Tracking() {
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const dataSource = useSelector(selectBabyInfo)
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const [pregnancyInfor, setPregnancyInfor] = React.useState([])
+  const [selectedPregnancyId, setSelectedPregnancyId] = React.useState<string | null>(null)
+  const dispatch = useDispatch()
+  const pregnancyResponse = useSelector(selectPregnancyRecord)
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    if (user?.id) {
+      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (pregnancyResponse) {
+      setPregnancyInfor(pregnancyResponse)
+    }
+  }, [pregnancyResponse])
+
   const columns = [
     {
       title: 'Baby Name',
@@ -40,56 +58,68 @@ export default function Tracking() {
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      key: 'createdAt'
+      key: 'createdAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
-      key: 'updatedAt'
+      key: 'updatedAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => (
-        <Space size='middle'>
-          <Button type='primary'>
-            <TbEdit />
-          </Button>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
-          </Button>
-        </Space>
-      )
+      render: (_, record) => {
+        return (
+          <Space size='middle'>
+            <Button type='primary'>
+              <TbEdit />
+            </Button>
+            <Button type='default' onClick={() => handleOpenModal(record.id)}>
+              <FileAddFilled />
+            </Button>
+          </Space>
+        )
+      }
     }
   ]
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (pregnancyId: string) => {
+    setSelectedPregnancyId(pregnancyId)
     setIsModalOpen(true)
   }
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values)
+    if (!selectedPregnancyId) {
+      message.error('No pregnancy record selected!')
+      return
+    }
+    setLoading(true)
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    dispatch({
+      type: 'CREATE_FETAL_GROWTH_RECORD',
+      payload: {
+        userId: user?.id,
+        pregnancyRecordId: selectedPregnancyId,
+        name: values.name,
+        unit: values.unit,
+        description: values.description,
+        week: values.week,
+        value: values.value,
+        note: values.note
+      }
+    })
+    setLoading(false)
+    setIsModalOpen(false)
+    form.resetFields()
   }
+
   const onClose = () => {
     setIsModalOpen(false)
   }
   return (
-    <div className='flex-1 p-8'>
-      <div className='flex justify-end items-center mb-10'>
-        <h4 className='px-2 border-s-2 border-gray-300'>
-          Hello, <strong>Username</strong>
-        </h4>
-        <div>
-          <Avatar
-            size={50}
-            src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
-          />
-        </div>
-      </div>
-      <div className='flex justify-end w-full'>
-        <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
-          <FileAddFilled /> Tracking
-        </Button>
-      </div>
+    <>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
           <Select
@@ -102,7 +132,7 @@ export default function Tracking() {
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={pregnancyInfor} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal title={`Tracking Information`} open={isModalOpen} onCancel={onClose} footer={null}>
@@ -136,6 +166,6 @@ export default function Tracking() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   )
 }

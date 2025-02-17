@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, message } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PlanCard } from './components/PlanCard'
-import { getAllPlan } from '@/services/planService'
-import { MODEL } from '@/types/IModel'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectMembershipPlans } from '@/store/modules/global/selector'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 export default function MemberShipPlanPage() {
-  const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
-  const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(null)
+  const plans = useSelector(selectMembershipPlans)
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(null)
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      const data = await getAllPlan()
-      setPlans(data)
-      if (data.length > 0) setSelectedPlan(data[0])
+    dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (plans.length > 0 && !selectedPlan) {
+      setSelectedPlan(plans[0])
     }
-    fetchPlans()
-  }, [])
+  }, [plans, selectedPlan])
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
@@ -31,9 +33,13 @@ export default function MemberShipPlanPage() {
   }, [location])
 
   const handleUpgrade = () => {
-    navigate(
-      `/checkout?planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price.toString())}`
-    )
+    if (selectedPlan) {
+      navigate(
+        `/checkout?planId=${selectedPlan.membershipPlanId}&planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price)}`
+      )
+    } else {
+      message.error('Please select a plan before upgrading.')
+    }
   }
 
   return (
@@ -49,20 +55,16 @@ export default function MemberShipPlanPage() {
       >
         <h1 className='text-2xl lg:text-3xl font-bold mb-3 text-center'>Features and Pricing</h1>
         <h4 className='text-gray-500 mb-8 lg:mb-16 px-4 lg:px-8 text-center text-sm lg:text-base'>
-          Whether your time-saving automation needs are large or small, we’re here to help you scale.
+          Whether your time-saving automation needs are large or small, we're here to help you scale.
         </h4>
 
-        <div className='grid grid-cols-1 md:grid-cols-6 justify-center mb-6 lg:mb-8'>
-          <div className='flex justify-center col-start-2 col-span-4 gap-8 w-full'>
-            {plans.map((plan) => (
-              <div key={plan.planName} className='px-2'>
-                <PlanCard
-                  plan={plan}
-                  isSelected={plan.planName === selectedPlan?.planName}
-                  onSelect={() => setSelectedPlan(plan)}
-                />
-              </div>
-            ))}
+        <div className='grid grid-cols-12'>
+          <div className='col-span-10 col-start-2'>
+            <CarouselMembershipPlans
+              membershipPlans={plans}
+              selectedPlan={selectedPlan}
+              onSelectPlan={setSelectedPlan}
+            />
           </div>
         </div>
         <div className='text-center mb-4'>

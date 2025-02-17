@@ -1,13 +1,18 @@
-import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { selectTransactionInfo } from '@/store/modules/global/selector'
-import { Avatar, Input, Select, Table } from 'antd'
-import { useState } from 'react'
+import { Avatar, Button, Input, Select, Table } from 'antd'
+import { useEffect, useState } from 'react'
 import { FiDownload } from 'react-icons/fi'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function TransactionPage() {
   const [isHovered, setIsHovered] = useState(false)
   const dataSource = useSelector(selectTransactionInfo)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_USER_MEMBERSHIP_PLANS' })
+  }, [dispatch])
+
   const columns = [
     {
       title: 'Full Name',
@@ -21,8 +26,8 @@ export default function TransactionPage() {
     },
     {
       title: 'Type Membership plans',
-      dataIndex: 'type',
-      key: 'type'
+      dataIndex: 'membershipPlanName',
+      key: 'membershipPlanName'
     },
     {
       title: 'Price',
@@ -31,8 +36,26 @@ export default function TransactionPage() {
     },
     {
       title: 'Date make transactions',
-      dataIndex: 'date',
-      key: 'date'
+      dataIndex: 'activatedAt',
+      key: 'activatedAt',
+      render: (text) => new Date(text).toLocaleString()
+    },
+    {
+      title: 'Status',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (isActive: any) => (
+        <Button
+          style={{
+            backgroundColor: isActive ? '#84e3b7' : 'white',
+            color: isActive ? 'white' : 'red',
+            border: isActive ? '1px solid green' : '1px solid red'
+          }}
+        >
+          {isActive ? 'Active' : 'IsActive'}
+        </Button>
+      )
     }
   ]
 
@@ -41,18 +64,7 @@ export default function TransactionPage() {
     console.log(`selected ${value}`)
   }
   return (
-    <div className='flex-1 p-8'>
-      <div className='flex justify-end items-center mb-10'>
-        <h4 className='px-2 border-s-2 border-gray-300'>
-          Hello, <strong>Username</strong>
-        </h4>
-        <div>
-          <Avatar
-            size={50}
-            src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
-          />
-        </div>
-      </div>
+    <>
       <div className='flex justify-between mb-5'>
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Transaction</h1>
         <button
@@ -80,6 +92,6 @@ export default function TransactionPage() {
         </div>
         <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
-    </div>
+    </>
   )
 }

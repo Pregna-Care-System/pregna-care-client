@@ -13,27 +13,27 @@ export default function MemberSidebar() {
     {
       title: 'Mother Information',
       icon: <GoPerson size={20} />,
-      path: ROUTES.MEMBER_DASHBOARD
+      path: ROUTES.MEMBER.DASHBOARD
     },
     {
       title: 'Tracking',
       icon: <FiDollarSign size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART
+      path: ROUTES.MEMBER.TRACKING
     },
     {
       title: 'Fetal growth chart',
       icon: <FiUsers size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART
+      path: ROUTES.MEMBER.FETALGROWTHCHART
     },
     {
       title: 'Mother status',
       icon: <FiBarChart2 size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART
+      path: ROUTES.MEMBER.FETALGROWTHCHART
     },
     {
       title: 'Notifications',
       icon: <FiBell size={20} />,
-      path: ROUTES.MEMBER_FETALGROWTHCHART
+      path: ROUTES.MEMBER.FETALGROWTHCHART
     }
   ]
 

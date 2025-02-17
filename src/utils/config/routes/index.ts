@@ -11,21 +11,28 @@ const ROUTES = {
   PROFILE: '/profile',
   CONTACT: '/contact',
   BLOG: '/blog',
+  BLOG_DETAILS: '/blog-details',
+  COMMUNITY: '/community',
+  COMMUNITY_DETAILS: '/community-details',
   SERVICES: '/services',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
-  COMMUNITY: '/community',
   MEMBESHIP_PLANS: '/membership-plans',
   DETAIL_PLAN: '/detail-plan',
   CHECKOUT: '/checkout',
-  VNPAY: '/vnpay',
-  ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_TRANSACTION: '/admin/transaction',
-  ADMIN_MEMBER: '/admin/member',
-  ADMIN_MEMBERSHIP_PLAN: '/admin/membership-plans',
-  MEMBER_DASHBOARD: '/member',
-  MEMBER_TRACKING: '/member/tracking',
-  MEMBER_FETALGROWTHCHART: '/member/fetal-growth-chart',
+  VNPAY: '/checkout/result',
   SCHEDULE: '/schedule',
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    TRANSACTION: '/admin/transaction',
+    MEMBER: '/admin/member',
+    MEMBERSHIP_PLAN: '/admin/membership-plans',
+    GROWTHMETRICS: '/admin/growth-metrics'
+  },
+  MEMBER: {
+    DASHBOARD: '/member',
+    TRACKING: '/member/tracking',
+    FETALGROWTHCHART: '/member/fetal-growth-chart'
+  },
   NOT_FOUND: '*'
 }
 export default ROUTES

@@ -1,21 +1,9 @@
-import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllPlan = async () => {
-  try {
-    const res = await request.get<MODEL.PlanResponse>('/MembershipPlan/GetAllPlanWithFeature')
-
-    if (res.data.success && Array.isArray(res.data.response)) {
-      return res.data.response
-    } else {
-      return []
-    }
-  } catch (error) {
-    console.error('Get All plan failed', error)
-    return []
-  }
+  return await request.get<MODEL.PlanResponse>('/MembershipPlan/GetAllPlanWithFeature')
 }
-export const getPlanByName = async (planName:string) => {
+export const getPlanByName = async (planName: string) => {
   try {
     const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/GetPlanByName?name=${planName}`)
     if (res.data.success) {
@@ -39,7 +27,7 @@ export const deletePlan = async (planId: string) => {
   try {
     const res = await request.delete<MODEL.PlanResponse>(`/MembershipPlan/Delete?id=${planId}`)
     if (res.data.success) {
-      return res.data.response
+      return res.data
     }
   } catch (error) {
     console.error('Delete plan by id failed', error)
@@ -51,6 +39,7 @@ export const updatePlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -61,6 +50,7 @@ export const updatePlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredIds
     })
     const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
@@ -69,13 +59,14 @@ export const updatePlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredId: featuredIds
     })
     console.log('API Response', res.data)
     if (res.data.success) {
       return res
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error.response) {
       console.error('Response Error:', error.response.status, error.response.data)
     } else {
@@ -88,6 +79,7 @@ export const createPlan = async (
   price: number,
   duration: number,
   description: string,
+  imageUrl: string,
   featuredIds: string[]
 ) => {
   try {
@@ -98,9 +90,13 @@ export const createPlan = async (
       price,
       duration,
       description,
+      imageUrl,
       featuredId: featuredIds
     })
-    return res
+    console.log('API Response', res.data)
+    if (res.data.success) {
+      return res
+    }
   } catch (error) {
     console.log('Create failed', error)
     throw error

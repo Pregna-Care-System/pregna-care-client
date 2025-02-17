@@ -1,13 +1,13 @@
 //--Library
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 //--Components
 import CardService from '@components/Card/CardService'
 import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
-import CardMembershipPlans from '@components/Card/CardMembershipPlans'
+import PlanCard from '@components/Card/CardMembershipPlans'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 //--Redux
 import {
@@ -18,6 +18,7 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 const Background = styled.div`
   height: 765px;
@@ -37,6 +38,12 @@ const Content = styled.div`
 `
 
 export default function GuestHome() {
+  const dispatch = useDispatch()
+  //--Render
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
+  }, [])
+
   //--State redux
   const services = useSelector(selectServices)
   const reasons = useSelector(selectReasons)
@@ -45,7 +52,6 @@ export default function GuestHome() {
 
   //--State
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   //--Services
   const renderServices = services.map((item, index) => (
@@ -53,20 +59,7 @@ export default function GuestHome() {
   ))
 
   const renderReasons = reasons.map((item, index) => {
-    return <CardReason key={index} title={item.title} description={item.description} image={item.image} />
-  })
-
-  const renderMembershipPlans = membershipPlans.map((item, index) => {
-    return (
-      <CardMembershipPlans
-        key={index}
-        title={item.name}
-        description={item.features}
-        price={item.price}
-        isSelected={item.id === selectedPlan.id}
-        onSelect={() => setSelectedPlan(item)}
-      />
-    )
+    return <CardReason key={index} title={item.title} description={item.description} image={item} />
   })
 
   return (
@@ -127,7 +120,15 @@ export default function GuestHome() {
           </h2>
         </div>
         <div className='container mx-auto'>
-          <div className='grid grid-cols-3 gap-4 mx-20'>{renderMembershipPlans}</div>
+          <div className='grid grid-cols-12'>
+            <div className='col-span-10 col-start-2'>
+              <CarouselMembershipPlans
+                membershipPlans={membershipPlans}
+                selectedPlan={selectedPlan}
+                onSelectPlan={setSelectedPlan}
+              />
+            </div>
+          </div>
         </div>
       </div>
 

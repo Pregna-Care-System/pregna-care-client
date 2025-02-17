@@ -1,15 +1,33 @@
-import { selectMotherInfo } from '@/store/modules/global/selector'
-import { Avatar, Button, Form, Input, Modal, Select, Space, Table } from 'antd'
-import React from 'react'
-import { FiTrash2 } from 'react-icons/fi'
+import { selectPregnancyRecord } from '@/store/modules/global/selector'
+import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { jwtDecode } from 'jwt-decode'
+import React, { useEffect, useState } from 'react'
 import { TbEdit } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function Dashboard() {
+  const dispatch = useDispatch()
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const dataSource = useSelector(selectMotherInfo)
+  const [pregnancyInfor, setPregnancyInfor] = useState<MODEL.PregnancyRecordResponse[]>([])
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+
+  const pregnancyRecord = useSelector(selectPregnancyRecord)
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    if (user?.id) {
+      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (pregnancyRecord) {
+      setPregnancyInfor(pregnancyRecord)
+    }
+  }, [pregnancyRecord])
+
   const columns = [
     {
       title: 'Mother Name',
@@ -18,8 +36,8 @@ export default function Dashboard() {
     },
     {
       title: 'Date Of Birth',
-      dataIndex: 'dateOfBirth',
-      key: 'dateOfBirth'
+      dataIndex: 'motherDateOfBirth',
+      key: 'motherDateOfBirth'
     },
     {
       title: 'Blood Type',
@@ -28,8 +46,8 @@ export default function Dashboard() {
     },
     {
       title: 'Health Status',
-      dataIndex: 'healthStatus',
-      key: 'healthStatus'
+      dataIndex: 'healhStatus',
+      key: 'healhStatus'
     },
     {
       title: 'Notes',
@@ -39,12 +57,14 @@ export default function Dashboard() {
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      key: 'createdAt'
+      key: 'createdAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
-      key: 'updatedAt'
+      key: 'updatedAt',
+      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -54,9 +74,6 @@ export default function Dashboard() {
           <Button type='primary'>
             <TbEdit />
           </Button>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
-          </Button>
         </Space>
       )
     }
@@ -65,25 +82,38 @@ export default function Dashboard() {
   const handleOpenModal = () => {
     setIsModalOpen(true)
   }
+
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values)
+    setLoading(true)
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+    dispatch({
+      type: 'CREATE_PREGNANCY_RECORD',
+      payload: {
+        userId: user?.id,
+        motherName: values.motherName,
+        bloodType: values.bloodType,
+        healhStatus: values.healhStatus,
+        notes: values.notes,
+        babyName: values.babyName,
+        babyGender: values.babyGender,
+        imageUrl: values.imageUrl,
+        motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD'),
+        pregnancyStartDate: values.pregnancyStartDate.format('YYYY-MM-DD'),
+        expectedDueDate: values.expectedDueDate.format('YYYY-MM-DD')
+      }
+    })
+    setLoading(false)
+    setIsModalOpen(false)
+    form.resetFields()
   }
+
   const onClose = () => {
     setIsModalOpen(false)
   }
+
   return (
-    <div className='flex-1 p-8'>
-      <div className='flex justify-end items-center mb-10'>
-        <h4 className='px-2 border-s-2 border-gray-300'>
-          Hello, <strong>Username</strong>
-        </h4>
-        <div>
-          <Avatar
-            size={50}
-            src={'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'}
-          />
-        </div>
-      </div>
+    <>
       <div className='flex justify-end w-full'>
         <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
           Create
@@ -101,11 +131,26 @@ export default function Dashboard() {
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table
+          dataSource={Array.isArray(pregnancyInfor) ? pregnancyInfor : []}
+          columns={columns}
+          pagination={{ pageSize: 8 }}
+        />
       </div>
 
       <Modal width={800} height={600} open={isModalOpen} onCancel={onClose} footer={null}>
-        <Form form={form} onFinish={handleSubmit} layout='horizontal'>
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          layout='horizontal'
+          initialValues={{
+            BabyName: '',
+            BloodType: '',
+            HealhStatus: '',
+            MotherName: '',
+            Notes: ''
+          }}
+        >
           <div className='grid grid-cols-2 gap-5'>
             <div>
               <h4 className='text-xl font-bold mb-5'>Mother Information</h4>
@@ -117,25 +162,38 @@ export default function Dashboard() {
                 <Input />
               </Form.Item>
               <Form.Item
-                name='dateOfBirth'
+                name='motherDateOfBirth'
                 label='Date Of Birth'
                 rules={[{ required: true, message: 'Please enter your date of birth' }]}
               >
-                <Input />
+                <DatePicker value={'DD/MM/YYYY'} picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='bloodType'
                 label='Blood Type'
-                rules={[{ required: true, type: 'number', message: 'Please enter your blood type' }]}
+                rules={[{ required: true, message: 'The BloodType field is required.' }]}
               >
-                <Input />
+                <Select
+                  options={[
+                    { value: 'A', label: 'A' },
+                    { value: 'B', label: 'B' },
+                    { value: 'O', label: 'O' },
+                    { value: 'AB', label: 'AB' }
+                  ]}
+                />
               </Form.Item>
               <Form.Item
-                name='healthStatus'
+                name='healhStatus'
                 label='Health Status'
-                rules={[{ required: true, message: 'Please enter your health status' }]}
+                rules={[{ required: true, message: 'Please select your health status' }]}
               >
-                <Input />
+                <Select
+                  options={[
+                    { value: 'good', label: 'Good' },
+                    { value: 'normal', label: 'Normal' },
+                    { value: 'underlying_condition', label: 'Underlying_condition' }
+                  ]}
+                />
               </Form.Item>
               <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
                 <Input />
@@ -155,21 +213,30 @@ export default function Dashboard() {
                 label='Pregnancy Start Date'
                 rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
               >
-                <Input />
+                <DatePicker picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='expectedDueDate'
                 label='Expected Due Date'
                 rules={[{ required: true, message: 'Please enter your expected due date' }]}
               >
-                <Input />
+                <DatePicker picker='date' format={'DD/MM/YYYY'} />
               </Form.Item>
               <Form.Item
                 name='babyGender'
                 label='Baby Gender'
                 rules={[{ required: true, message: 'Please enter your baby gender' }]}
               >
-                <Input />
+                <Select
+                  defaultValue={'Selet Gender'}
+                  options={[
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
+                  ]}
+                />
+              </Form.Item>
+              <Form.Item name='imageUrl' label='Image Url'>
+                <Input placeholder='Enter your imageUrl' />
               </Form.Item>
             </div>
           </div>
@@ -180,6 +247,6 @@ export default function Dashboard() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   )
 }

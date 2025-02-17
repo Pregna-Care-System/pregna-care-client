@@ -1,10 +1,13 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal, message } from 'antd'
 import { RcFile, UploadChangeParam } from 'antd/es/upload'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
-import { useState } from 'react'
+import { jwtDecode } from 'jwt-decode'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
-
+import dayjs from 'dayjs'
+import { selectUserInfo } from '@/store/modules/global/selector'
+import request from '@/utils/axiosClient'
 const Wrapper = styled.div`
   .avatar_profile {
     transition:
@@ -52,12 +55,13 @@ const Wrapper = styled.div`
   }
 
   .edit_button {
-    position: absolute;
-    top: 85%;
-    right: 150px;
-    transform: translateY(-60%);
+    display: flex;
+    justify-content: end;
+    margin-top: 2rem;
   }
   .edit_button .ant-btn {
+    width: 7rem;
+    height: 2rem;
     background-color: black;
     border-color: black;
     color: white;
@@ -80,10 +84,11 @@ const Wrapper = styled.div`
 `
 
 export default function MainProfile() {
-
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  const [userImage, setUserImage] = useState<string | null>(user?.image || null)
+  const [userImage, setUserImage] = useState<string | null>(user?.picture || null)
+  const [form] = Form.useForm()
+  const dispatch = useDispatch()
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -101,28 +106,41 @@ export default function MainProfile() {
     setModalOpen(false)
   }
 
-  const handleChange = (info: UploadChangeParam) => {
-    if (info.file.status === 'uploading') {
-      return
+  const handleSubmit = async (values: any) => {
+    const userInfo = {
+      userId: user?.id,
+      fullName: values.fullName,
+      phoneNumber: values.phoneNumber,
+      address: values.address,
+      gender: values.gender,
+      dateOfBirth: values.dateOfBirth ? dayjs(values.dateOfBirth).format('YYYY-MM-DD') : null,
+      imageUrl: ''
     }
-    if (info.file.status === 'done') {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setUserImage(reader.result as string)
-      }
-      reader.readAsDataURL(info.file.originFileObj as RcFile)
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`)
+    console.log('User infor', userInfo)
+    dispatch({
+      type: 'UPDATE_USER_INFORMATION',
+      payload: userInfo
+    })
+  }
+  const handleUpload = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'PregnaCare')
+    formData.append('cloud_name', 'dgzn2ix8w')
+    try {
+      const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      console.log('Upload response:', response.data)
+      setUserImage(response.data.secure_url)
+
+      form.setFieldsValue({ imageUrl: response.data.secure_url })
+      message.success('Image uploaded successfully')
+    } catch (error) {
+      message.error('Failed to upload image')
+      console.error('Upload error details', error?.response.data || error.message)
     }
   }
-
-  const uploadProps = {
-    name: 'file',
-    action: 'https://httpbin.org/post',
-    showUploadList: false,
-    onChange: handleChange
-  }
-
   return (
     <Wrapper
       className='px-4 py-36 flex justify-center'
@@ -143,36 +161,44 @@ export default function MainProfile() {
               <h2>{user?.name}</h2>
               <p>{user?.email}</p>
             </div>
-            <div className='edit_button'>
-              <Button type='primary'>Edit</Button>
-            </div>
           </div>
           <div>
-            <Form className='profile_form' layout='vertical'>
+            <Form form={form} onFinish={handleSubmit} className='profile_form' layout='vertical'>
               <Row gutter={[20, 20]}>
                 <Col span={12}>
-                  <Form.Item label='Full Name'>
+                  <Form.Item label='Full Name' name='fullName' initialValue={user?.name}>
                     <Input className='bg-gray-200' placeholder='Your full name' value={user?.name} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Phone Number'>
-                    <Input className='bg-gray-200' placeholder='Your phone number' />
+                  <Form.Item label='Phone Number' name='phoneNumber' initialValue={user?.phone}>
+                    <Input className='bg-gray-200' placeholder='Your phone number' value={user?.phone} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Address'>
-                    <Input className='bg-gray-200' placeholder='Your address' />
+                  <Form.Item label='Address' name='address' initialValue={user?.address}>
+                    <Input className='bg-gray-200' placeholder='Your address' value={user?.address} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Gender'>
-                    <Select options={genderOptions} placeholder='Your gender' />
+                  <Form.Item label='Gender' name='gender' initialValue={user?.gender}>
+                    <Select options={genderOptions} placeholder='Your gender' value={user?.gender} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Date of Birth'>
-                    <DatePicker className='bg-gray-200' placeholder='Your date of birth' />
+                  <Form.Item
+                    label='Date of Birth'
+                    name='dateOfBirth'
+                    initialValue={user?.dateOfBirth ? dayjs(user.dateOfBirth) : null}
+                  >
+                    <DatePicker className='bg-gray-200' placeholder='Your date of birth' value={user?.dateOfBirth} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item>
+                    <div className='edit_button'>
+                      <Button htmlType='submit'>Edit</Button>
+                    </div>
                   </Form.Item>
                 </Col>
               </Row>
@@ -183,22 +209,58 @@ export default function MainProfile() {
       <Modal title='Edit Avatar' open={isModalOpen} onCancel={handleCancel} footer={null}>
         <div className='flex flex-col justify-center items-center w-full'>
           {userImage ? (
-            <img className='w-2/3 h-2/3 border border-solid rounded-full' src={userImage} alt='User Avatar' />
+            <img
+              className='w-60 h-60 border border-solid object-cover'
+              src={userImage}
+              alt='User Avatar'
+              style={{ borderRadius: '50%' }}
+            />
           ) : (
             <UserOutlined className='text-5xl border border-solid rounded-full' />
           )}
         </div>
         <div className='mt-10 flex'>
           <div>
-            <Upload {...uploadProps}>
-              <Button style={{ background: 'black', color: 'white' }}>Upload Avatar</Button>
+            <Upload
+              maxCount={1}
+              beforeUpload={(file) => {
+                return new Promise((resolve, reject) => {
+                  if (file.size > 900000) {
+                    reject('File size exceeded')
+                    message.error('File size exceeded')
+                  } else {
+                    resolve('Success')
+                  }
+                })
+              }}
+              customRequest={({ file, onSuccess, onError }) => {
+                handleUpload(file)
+                  .then(() => onSuccess('ok'))
+                  .catch(onError)
+              }}
+              showUploadList={false}
+            >
+              <Button>Upload image</Button>
             </Upload>
           </div>
           <div className='ml-52'>
             <Button
               type='primary'
               onClick={() => {
-                message.success('Avatar updated successfully')
+                dispatch({
+                  type: 'UPDATE_USER_INFORMATION',
+                  payload: {
+                    userId: user?.id,
+                    fullName: form.getFieldValue('fullName') || user?.name || '',
+                    phoneNumber: form.getFieldValue('phoneNumber') || user?.phone || '',
+                    address: form.getFieldValue('address') || user?.address || '',
+                    gender: form.getFieldValue('gender') || user?.gender || '',
+                    dateOfBirth: form.getFieldValue('dateOfBirth')
+                      ? dayjs(form.getFieldValue('dateOfBirth')).format('YYYY-MM-DD')
+                      : user?.dateOfBirth || null,
+                    imageUrl: userImage || user?.image || ''
+                  }
+                })
                 handleCancel()
               }}
             >

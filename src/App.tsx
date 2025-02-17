@@ -1,14 +1,15 @@
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
 import MainLayout from '@layouts/MainLayout'
-import { Fragment, Suspense } from 'react'
+import { Fragment, Suspense, useEffect } from 'react'
 import { adminRoutes, memberRoutes, publicRoutes } from './routes'
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
-import { useSelector } from 'react-redux'
-import { selectIsAuthenticated } from './store/modules/global/selector'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectIsAuthenticated, selectUserInfo } from './store/modules/global/selector'
 
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated)
+  const user = useSelector(selectUserInfo)
 
   const publicRouterObjects: RouteObject[] = publicRoutes.map(({ path, component: Component, layout }) => {
     const Layout = layout === null ? Fragment : layout || MainLayout
@@ -30,15 +31,16 @@ function App() {
 
     return {
       path: path,
-      element: isAuthenticated ? (
-        <Suspense fallback={<Loading />}>
-          <Layout>
-            <Component />
-          </Layout>
-        </Suspense>
-      ) : (
-        <Navigate to='/login' replace />
-      )
+      element:
+        isAuthenticated && user.role === 'Admin' ? (
+          <Suspense fallback={<Loading />}>
+            <Layout>
+              <Component />
+            </Layout>
+          </Suspense>
+        ) : (
+          <Navigate to={ROUTES.LOGIN} replace />
+        )
     }
   })
 
@@ -47,20 +49,25 @@ function App() {
 
     return {
       path: path,
-      element: isAuthenticated ? (
-        <Suspense fallback={<Loading />}>
-          <Layout>
-            <Component />
-          </Layout>
-        </Suspense>
-      ) : (
-        <Navigate to='/login' replace />
-      )
+      element:
+        isAuthenticated && user.role === 'Member' ? (
+          <Suspense fallback={<Loading />}>
+            <Layout>
+              <Component />
+            </Layout>
+          </Suspense>
+        ) : !isAuthenticated ? (
+          <Navigate to={ROUTES.LOGIN} replace />
+        ) : user.role === 'Admin' ? (
+          <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />
+        ) : (
+          <Navigate to={ROUTES.HOME} replace />
+        )
     }
   })
 
   // Gộp public và private routes
-  const appRouter = [...publicRouterObjects, ...adminRouterObjects, ...memberRouterObjects ]
+  const appRouter = [...publicRouterObjects, ...adminRouterObjects, ...memberRouterObjects]
 
   appRouter.push({
     path: ROUTES.NOT_FOUND,

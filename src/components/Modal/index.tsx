@@ -1,55 +1,34 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Modal, Button, Form, Input } from 'antd'
+import { Modal, Button, Form, Input, message } from 'antd'
 
 interface CreateModalProps {
+  title: string
   isOpen: boolean
+  formItem: []
   onClose: () => void
+  handleSubmit: (values: any) => void
 }
 
-export function CreateModal({ isOpen, onClose }: CreateModalProps) {
+export function CreateModal({ isOpen, title, formItem, onClose, handleSubmit }: CreateModalProps) {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (values: any) => {
-    console.log(values)
+  const renderForm = () => {
+    return formItem.map((item: any, index: number) => {
+      return (
+        <Form.Item name={item.name} label={item.label} rules={[{ required: true, message: item.message }]} key={index}>
+          <Input />
+        </Form.Item>
+      )
+    })
   }
 
   return (
-    <Modal title={`Mother Information`} open={isOpen} onCancel={onClose} footer={null}>
+    <Modal title={title} open={isOpen} onCancel={onClose} footer={null}>
       <Form form={form} onFinish={handleSubmit} layout='vertical'>
-        <Form.Item
-          name='motherName'
-          label='Mother Name'
-          rules={[{ required: true, message: 'Please enter your mother name' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name='dateOfBirth'
-          label='Date Of Birth'
-          rules={[{ required: true, message: 'Please enter your date of birth' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name='bloodType'
-          label='Blood Type'
-          rules={[{ required: true, type: 'number', message: 'Please enter your blood type' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name='healthStatus'
-          label='Health Status'
-          rules={[{ required: true, message: 'Please enter your health status' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
-          <Input />
-        </Form.Item>
+        {renderForm()}
         <Form.Item>
           <Button type='primary' htmlType='submit' loading={loading} block>
             Create
