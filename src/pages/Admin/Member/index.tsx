@@ -51,7 +51,7 @@ export default function MemberPage() {
           {status ? 'InActive' : 'Active'}
         </Button>
       )
-    },
+    }
   ]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (value: any) => {

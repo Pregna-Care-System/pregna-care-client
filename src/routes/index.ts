@@ -21,6 +21,7 @@ import FetalGrowthChart from '@/pages/Member/FetalGrowthChart'
 import MemberLayout from '@/layouts/MemberLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
+import CommunityDetailsPage from '@/pages/Community/Details'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -29,12 +30,15 @@ const LoginPage = lazy(() => import('@pages/Login'))
 const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
 const SchedulePage = lazy(() => import('@/pages/Schedule'))
+const CommunityPage = lazy(() => import('@pages/Community/index'))
 
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
+  { path: ROUTES.COMMUNITY, component: CommunityPage },
+  { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
   { path: ROUTES.REGISTER, component: Register, layout: NoHeaderLayout },
   { path: ROUTES.CONFIRM_EMAIL, component: ConfirmEmail, layout: NoHeaderLayout },
   { path: ROUTES.RESEND_PASSWORD, component: ResendPassword, layout: NoHeaderLayout },

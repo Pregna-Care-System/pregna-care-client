@@ -393,7 +393,6 @@ export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, 
     console.error('Error in deleteReminder saga:', error)
   }
 }
-//------
 //----------Reminder type information-----------
 export function* getAllReminderTypeSaga(): Generator<any, void, any> {
   try {
