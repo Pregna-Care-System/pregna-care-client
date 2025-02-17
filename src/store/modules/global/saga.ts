@@ -8,7 +8,9 @@ import {
   setUserInfo,
   setDataGrowthMetric,
   setMemberInfo,
-  setTransactionInfo
+  setTransactionInfo,
+  setReminderInfo,
+  setReminderTypeInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -26,6 +28,13 @@ import {
 import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
 import ROUTES from '@/utils/config/routes'
+import {
+  createReminder,
+  deleteReminder,
+  getAllReminder,
+  getAllReminderType,
+  updateReminder
+} from '@/services/reminderService'
 
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -315,6 +324,88 @@ export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
     throw error
   }
 }
+//----------Reminder information-----------
+export function* getAllReminderSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllReminder)
+    console.log('Response for call api', response)
+    if (response.response) {
+      yield put(setReminderInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+//----------Create reminder-----------
+export function* createReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(
+      createReminder,
+      action.payload.reminderTypeId,
+      action.payload.title,
+      action.payload.description,
+      action.payload.reminderDate,
+      action.payload.startTime,
+      action.payload.endTime,
+      action.payload.status
+    )
+    message.success('Create reminder successfully')
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+//----------Update REMINDER-----------
+export function* updateReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(
+      updateReminder,
+      action.payload.id,
+      action.payload.reminderTypeId,
+      action.payload.title,
+      action.payload.description,
+      action.payload.reminderDate,
+      action.payload.startTime,
+      action.payload.endTime,
+      action.payload.status
+    )
+    message.success('Reminder updated successfully')
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the reminder.')
+    console.error('Error in updateReminder saga:', error)
+  }
+}
+//-------------------Delete Reminder-------------------
+export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  console.log('DELETE_REMINDER action payload:', action.payload)
+  try {
+    yield call(deleteReminder, action.payload)
+
+    message.success('Reminder deleted successfully')
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+  } catch (error) {
+    message.error('An unexpected error occurred while deleting the reminder.')
+    console.error('Error in deleteReminder saga:', error)
+  }
+}
+//----------Reminder type information-----------
+export function* getAllReminderTypeSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllReminderType)
+    if (response.response) {
+      yield put(setReminderTypeInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
@@ -332,4 +423,10 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
   yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
+  yield takeLatest('GET_ALL_REMINDER_INFORMATION', getAllReminderSaga)
+  yield takeLatest('GET_ALL_REMINDER_TYPE_INFORMATION', getAllReminderTypeSaga)
+  yield takeLatest('CREATE_REMINDER', createReminderSaga)
+  yield takeLatest('UPDATE_REMINDER', updateReminderSaga)
+  yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
+
 }

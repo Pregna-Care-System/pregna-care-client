@@ -1,12 +1,14 @@
-import styled from 'styled-components'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { ScheduleXCalendar, useCalendarApp } from '@schedule-x/react'
 import { createViewWeek, createViewMonthGrid, createViewDay, createViewMonthAgenda } from '@schedule-x/calendar'
 import { createEventModalPlugin } from '@schedule-x/event-modal'
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
-import { Button, DatePicker, Input, Modal, TimePicker } from 'antd'
-import { ArrowRightOutlined, ClockCircleOutlined, FolderAddFilled } from '@ant-design/icons'
-import { useState } from 'react'
+import { Button, DatePicker, Form, Input, Modal, Select, TimePicker } from 'antd'
+import { ArrowRightOutlined, ClockCircleOutlined, DeleteOutlined, FolderAddFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import styled from 'styled-components'
+import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
 
 const Wrapper = styled.div`
   .sx-react-calendar-wrapper {
@@ -16,65 +18,115 @@ const Wrapper = styled.div`
 `
 
 export default function SchedulePage() {
-  const currentDate = dayjs()
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: 'Met du luon a',
-      start: '2025-01-26 00:00',
-      end: '2025-01-26 02:00',
-      description: 'My cool description'
-    },
-    {
-      id: 2,
-      title: 'Met qua a',
-      start: '2025-01-25 22:00',
-      end: '2025-01-25 23:00',
-      description: 'My hehe description'
-    }
-  ])
+  const dataSource = useSelector(selectReminderInfo)
+  const typeResponse = useSelector(selectReminderTypeInfo)
+  const [typeList, setTypeList] = useState([])
+  const dispatch = useDispatch()
   const [isModalOpen, setModalOpen] = useState(false)
-  const [newEvent, setNewEvent] = useState<MODEL.Event>({
-    title: '',
-    date: null,
-    timeStart: null,
-    timeEnd: null,
-    description: ''
-  })
+  const [currentEvent, setCurrentEvent] = useState(null)
+  const [form] = Form.useForm()
 
-  const showModal = () => {
-    setModalOpen(true)
-  }
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    dispatch({ type: 'GET_ALL_REMINDER_TYPE_INFORMATION' })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (typeResponse !== null) {
+      setTypeList(typeResponse)
+    }
+  }, [typeResponse])
+
+  const showModal = () => setModalOpen(true)
+
   const handleCancel = () => {
     setModalOpen(false)
+    setCurrentEvent(null)
+    form.resetFields()
   }
+
+  const handleEditEvent = (event) => {
+    setCurrentEvent(event)
+    form.setFieldsValue({
+      title: event.title,
+      reminderType: event.reminderTypeId,
+      reminderDate: dayjs(event.reminderDate),
+      startTime: dayjs(event.startTime, 'HH:mm:ss'),
+      endTime: dayjs(event.endTime, 'HH:mm:ss'),
+      description: event.description
+    })
+    setModalOpen(true)
+  }
+
   const handleAddEvent = () => {
-    const { title, date, timeStart, timeEnd, description } = newEvent
-    if (title && date && timeStart && timeEnd && description) {
+    form.validateFields().then((values) => {
+      const { reminderType, title, reminderDate, startTime, endTime, description } = values
       const newEventItem = {
-        id: events.length + 1,
+        reminderTypeId: reminderType,
         title,
-        start: `${dayjs(date).format('YYYY-MM-DD')} ${dayjs(timeStart).format('HH:mm')}`,
-        end: `${dayjs(date).format('YYYY-MM-DD')} ${dayjs(timeEnd).format('HH:mm')}`,
-        description
+        description,
+        reminderDate: dayjs(reminderDate).format('YYYY-MM-DD'),
+        startTime: dayjs(startTime).format('HH:mm:ss'),
+        endTime: dayjs(endTime).format('HH:mm:ss'),
+        status: 'ACTIVE'
       }
-      setEvents((prevEvent) => [...prevEvent, newEventItem])
-      setNewEvent({
-        title: '',
-        date: null,
-        timeStart: null,
-        timeEnd: null,
-        description: ''
-      })
+      if (currentEvent) {
+        dispatch({
+          type: 'UPDATE_REMINDER',
+          payload: {
+            reminderTypeId: reminderType,
+            title,
+            description,
+            reminderDate: dayjs(reminderDate).format('YYYY-MM-DD'),
+            startTime: dayjs(startTime).format('HH:mm:ss'),
+            endTime: dayjs(endTime).format('HH:mm:ss'),
+            status: 'ACTIVE',
+            id: currentEvent.id
+          }
+        })
+      } else {
+        dispatch({ type: 'CREATE_REMINDER', payload: newEventItem })
+      }
+
       setModalOpen(false)
-    }
+      form.resetFields()
+    })
   }
+
+  const handleDeleteEvent = (id) => {
+    console.log('ID', id)
+    Modal.confirm({
+      title: 'Are you sure you want to delete this reminder?',
+      content: 'Once deleted, this action cannot be undone.',
+      okText: 'Yes, Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        dispatch({ type: 'DELETE_REMINDER', payload: id })
+      },
+      onCancel: () => {
+        console.log('Deletion cancelled')
+      }
+    });
+  }
+
   const calendar = useCalendarApp({
     views: [createViewWeek(), createViewDay(), createViewMonthAgenda(), createViewMonthGrid()],
-    events: events,
+    events: dataSource.map((event) => ({
+      id: event.id,
+      title: event.title,
+      start: dayjs(event.reminderDate)
+        .set('hour', dayjs(event.startTime).hour())
+        .set('minute', dayjs(event.startTime).minute())
+        .format('YYYY-MM-DD HH:mm:ss'),
+      end: dayjs(event.reminderDate)
+        .set('hour', dayjs(event.endTime).hour())
+        .set('minute', dayjs(event.endTime).minute())
+        .format('YYYY-MM-DD HH:mm:ss'),
+      description: event.description
+    })),
     plugins: [createEventModalPlugin(), createDragAndDropPlugin()]
   })
-  console.log('Events:', events)
 
   return (
     <Wrapper
@@ -87,69 +139,92 @@ export default function SchedulePage() {
             <FolderAddFilled /> Create New
           </Button>
         </div>
-        <Modal title='Create New Event' visible={isModalOpen} onCancel={handleCancel} onOk={handleAddEvent}>
-          <div className='mb-5 mt-5'>
-            <label className='text-gray-700'>Event Title</label>
-            <Input
-              className='mt-1'
-              placeholder='Event Title'
-              value={newEvent.title}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(e) => setNewEvent((prev: any) => ({ ...prev, title: e.target.value }))}
-            />
-          </div>
-          <div className='mb-5'>
-            <label className='text-gray-700 block'>Event Date</label>
-            <DatePicker
-              className='mt-1 mr-2'
-              placeholder='Date Start'
-              value={newEvent.date}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(date) => setNewEvent((prev: any) => ({ ...prev, date }))}
-            />
-            <TimePicker
-              format='HH:mm'
-              placeholder='Start Time'
-              value={newEvent.timeStart}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(time) => setNewEvent((prev: any) => ({ ...prev, timeStart: time }))}
-            />
-            <ArrowRightOutlined />
-            <TimePicker
-              format='HH:mm'
-              placeholder='End Time'
-              value={newEvent.timeEnd}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(time) => setNewEvent((prev: any) => ({ ...prev, timeEnd: time }))}
-            />
-          </div>
-          <div className='mb-5'>
-            <label className='text-gray-700'>Event Description</label>
-            <Input.TextArea
-              className='mt-1 mb-5'
-              placeholder='Event Description'
-              value={newEvent.description}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(e) => setNewEvent((prev: any) => ({ ...prev, description: e.target.value }))}
-            />
-          </div>
+
+        <Modal
+          title={currentEvent ? 'Edit Reminder' : 'Create New Reminder'}
+          visible={isModalOpen}
+          onCancel={handleCancel}
+          onOk={handleAddEvent}
+        >
+          <Form form={form} layout='vertical'>
+            <Form.Item
+              name='title'
+              label='Reminder Title'
+              rules={[{ required: true, message: 'Please enter reminder title!' }]}
+            >
+              <Input placeholder='Event Title' />
+            </Form.Item>
+
+            <Form.Item
+              name='reminderType'
+              label='Reminder type'
+              rules={[{ required: true, message: 'Please select one reminder type!' }]}
+            >
+              <Select
+                placeholder='Select reminder type'
+                options={typeList.map((type) => ({ label: type.typeName, value: type.id }))}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name='reminderDate'
+              label='Reminder Date'
+              rules={[{ required: true, message: 'Please select a date!' }]}
+            >
+              <DatePicker placeholder='Date Start' style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item label='Time Range' style={{ marginBottom: 0 }}>
+              <div className='flex items-center'>
+                <Form.Item
+                  name='startTime'
+                  rules={[{ required: true, message: 'Please select start time!' }]}
+                  style={{ width: '48%' }}
+                >
+                  <TimePicker format={'HH:mm:ss'} placeholder='Start Time' style={{ width: '100%' }} />
+                </Form.Item>
+                <ArrowRightOutlined style={{ margin: '10px' }} />
+                <Form.Item
+                  name='endTime'
+                  rules={[{ required: true, message: 'Please select end time!' }]}
+                  style={{ width: '48%' }}
+                >
+                  <TimePicker placeholder='End Time' style={{ width: '100%' }} />
+                </Form.Item>
+              </div>
+            </Form.Item>
+
+            <Form.Item name='description' label='Reminder Description'>
+              <Input.TextArea placeholder='Reminder Description' />
+            </Form.Item>
+          </Form>
         </Modal>
 
         <div className='mt-10'>
           <h1 style={{ fontWeight: 'bold', fontSize: '25px' }}>Upcoming Events</h1>
-          {events
-            .filter((event) => dayjs(event.end).isAfter(currentDate))
-            .sort((a, b) => dayjs(a.start).diff(dayjs(b.start)))
-            .map((event) => (
-              <div className='border border-solid bg-white rounded-2xl shadow-md p-5 mb-4 mt-4' key={event.id}>
-                <strong>{event.title}</strong>
-                <div style={{ fontSize: '14px', color: 'gray' }}>
-                  <ClockCircleOutlined /> {event.start}
+          {dataSource.length > 0 ? (
+            dataSource.map((event) => {
+              const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
+              return (
+                <div className='border border-solid bg-white rounded-2xl shadow-md p-5 mb-4 mt-4' key={event.id}>
+                  <strong>{event.title}</strong>
+                  <div style={{ fontSize: '14px', color: 'gray' }}>
+                    <ClockCircleOutlined /> {formattedDate} {event.startTime}
+                  </div>
+                  <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
+                    View Details
+                  </Button>
+                  <Button className='bg-slate-300 text-red-500' type='danger' icon={<DeleteOutlined />} onClick={() => handleDeleteEvent(event.id)}>
+                  </Button>
                 </div>
-              </div>
-            ))}
+              )
+            })
+          ) : (
+            <p>No upcoming events.</p>
+          )}
         </div>
       </div>
+
       <ScheduleXCalendar calendarApp={calendar} />
     </Wrapper>
   )
