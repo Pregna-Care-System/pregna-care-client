@@ -288,7 +288,7 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
   }
 }
 //----------Member information-----------
-export function* getAllMemberAdmin(): Generator<any, void, any>{
+export function* getAllMemberAdmin(): Generator<any, void, any> {
   try {
     const response = yield call(getAllMember)
     console.log('Response', response.data.response)
@@ -302,7 +302,7 @@ export function* getAllMemberAdmin(): Generator<any, void, any>{
   }
 }
 //----------User Transaction information-----------
-export function* getAllUserTransactionAdmin(): Generator<any, void, any>{
+export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
   try {
     const response = yield call(getAllUserMembershipPlan)
     console.log('Response', response.data.response)
@@ -332,6 +332,4 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
   yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
-
-
 }

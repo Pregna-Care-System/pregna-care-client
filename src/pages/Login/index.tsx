@@ -92,7 +92,7 @@ export default function LoginPage() {
           </Button>
           <Form.Item className='w-full flex items-center justify-between mt-4'>
             <Button type='link' className='text-gray-600'>
-              <Link to= {ROUTES.FORGOT_PASSWORD} className='hover:text-red-300'>
+              <Link to={ROUTES.FORGOT_PASSWORD} className='hover:text-red-300'>
                 Forgot password?
               </Link>
             </Button>

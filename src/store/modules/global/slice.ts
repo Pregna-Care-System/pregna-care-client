@@ -31,7 +31,7 @@ const editorSlice = createSlice({
     },
     setTransactionInfo(state, action: PayloadAction<any>) {
       state.transactionInfo = action.payload
-    },
+    }
   }
 })
 

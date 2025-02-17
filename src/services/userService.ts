@@ -1,4 +1,4 @@
-import { put } from 'redux-saga/effects';
+import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
 
 export const registerAccount = async (
@@ -122,7 +122,6 @@ export const forgotPassword = async (email: string) => {
   }
 }
 
-
 export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
   const apiCallerId = 'Payment'
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
@@ -136,7 +135,6 @@ export const userMembershipPlan = async (data: any) => {
   const apiCallerId = 'UserMembershipPlan'
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
 }
-
 
 // export const refreshToken = async (): Promise<string> => {
 //   try {

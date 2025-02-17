@@ -33,7 +33,7 @@ const ResendPassword = () => {
           <div className='mt-6'>
             {showSuccess && (
               <p className='mt-2 text-sm text-green-600 text-center'>
-               Resend password email has been resent successfully!
+                Resend password email has been resent successfully!
               </p>
             )}
           </div>
