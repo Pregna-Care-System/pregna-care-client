@@ -59,7 +59,7 @@ export default function GuestHome() {
   ))
 
   const renderReasons = reasons.map((item, index) => {
-    return <CardReason key={index} title={item.title} description={item.description} image={item} />
+    return <CardReason key={index} title={item.title} description={item.description} image={item.image} />
   })
 
   return (

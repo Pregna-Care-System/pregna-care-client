@@ -31,7 +31,8 @@ const ROUTES = {
   MEMBER: {
     DASHBOARD: '/member',
     TRACKING: '/member/tracking',
-    FETALGROWTHCHART: '/member/fetal-growth-chart'
+    FETALGROWTHCHART: '/member/fetal-growth-chart',
+    FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId'
   },
   NOT_FOUND: '*'
 }

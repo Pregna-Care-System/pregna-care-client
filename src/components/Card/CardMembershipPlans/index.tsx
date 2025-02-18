@@ -32,9 +32,9 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
   height: 500px;
   border-radius: 8px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  transition: all 0.1s ease-out;
   cursor: pointer;
   background: white;
   overflow: hidden;
@@ -43,7 +43,7 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
     isSelected &&
     `
     border: 2px solid ${style.COLORS.RED.RED_2};
-    box-shadow: 0 10px 22px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.16);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   `}
 
   &:hover {
@@ -51,7 +51,7 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
       !isSelected &&
       `
       border: 2px solid ${style.COLORS.RED.RED_2};
-      box-shadow: 0 3px 6px rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.16);
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     `}
   }
 `

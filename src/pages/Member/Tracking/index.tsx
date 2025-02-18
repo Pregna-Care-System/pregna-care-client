@@ -120,6 +120,11 @@ export default function Tracking() {
   }
   return (
     <>
+      <div className='flex justify-end w-full'>
+        <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
+          <FileAddFilled /> Tracking
+        </Button>
+      </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
           <Select
