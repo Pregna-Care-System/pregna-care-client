@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { Bot } from 'lucide-react'
 //--Components
 import CardService from '@components/Card/CardService'
 import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
 import PlanCard from '@components/Card/CardMembershipPlans'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
-import { Bot } from 'lucide-react'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 //--Redux
 import {
   selectMembershipPlans,
@@ -19,7 +20,6 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 const Background = styled.div`
   height: 765px;
