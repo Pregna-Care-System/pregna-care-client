@@ -69,7 +69,7 @@ export default function PlanDetail() {
 
         <div className='w-full md:w-1/2 p-6'>
           <img
-            src={planDetail.image}
+            src={planDetail.imageUrl}
             alt={planDetail.planName}
             className='w-full h-60 object-cover rounded-md'
             style={{ maxHeight: '300px', borderRadius: '12px' }}

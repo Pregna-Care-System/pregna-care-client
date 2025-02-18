@@ -26,6 +26,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "framer-motion": "^11.15.0",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.475.0",
     "prettier": "^3.4.2",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",

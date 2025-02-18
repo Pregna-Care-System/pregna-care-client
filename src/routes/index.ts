@@ -23,6 +23,7 @@ import AdminLayout from '@/layouts/AdminLayout'
 import GrowthMetrics from '@/pages/Admin/GrowthMetrics'
 import FetalGrowthChartDetail from '@/pages/Member/FetalGrowthChartDetail'
 import CommunityDetailsPage from '@/pages/Community/Details'
+import ContactPage from '@/pages/Contact'
 
 // Lazy load components
 const GuestHome = lazy(() => import('@pages/Home/GuestHome'))
@@ -49,7 +50,9 @@ const publicRoutes = [
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetail },
   { path: ROUTES.SCHEDULE, component: SchedulePage },
-  { path: ROUTES.VNPAY, component: PaymentStatus }
+  { path: ROUTES.VNPAY, component: PaymentStatus },
+  { path: ROUTES.CONTACT, component: ContactPage }
+
 ]
 
 const memberRoutes = [
