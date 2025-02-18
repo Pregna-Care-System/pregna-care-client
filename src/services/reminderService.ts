@@ -3,7 +3,15 @@ import request from '@/utils/axiosClient'
 export const getAllReminder = async () => {
   try {
     const response = await request.get<MODEL.IResponseBase>('/Reminder')
-    console.log('Response from API:', response.data.response)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reminders:', error)
+    throw error
+  }
+}
+export const getAllReminderActive = async () => {
+  try {
+    const response = await request.get<MODEL.IResponseBase>('/Reminder/Available')
     return response.data
   } catch (error) {
     console.error('Error fetching reminders:', error)

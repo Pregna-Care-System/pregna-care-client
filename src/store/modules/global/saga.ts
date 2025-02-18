@@ -10,7 +10,8 @@ import {
   setMemberInfo,
   setTransactionInfo,
   setReminderInfo,
-  setReminderTypeInfo
+  setReminderTypeInfo,
+  setReminderActiveInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -35,6 +36,7 @@ import {
   createReminder,
   deleteReminder,
   getAllReminder,
+  getAllReminderActive,
   getAllReminderType,
   updateReminder
 } from '@/services/reminderService'
@@ -357,6 +359,20 @@ export function* getAllReminderSaga(): Generator<any, void, any> {
     throw error
   }
 }
+//----------Reminder active information-----------
+export function* getAllReminderActiveSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllReminderActive)
+    console.log('Response for call api', response)
+    if (response.response) {
+      yield put(setReminderActiveInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
 //----------Create reminder-----------
 export function* createReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -444,6 +460,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
   yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
   yield takeLatest('GET_ALL_REMINDER_INFORMATION', getAllReminderSaga)
+  yield takeLatest('GET_ALL_REMINDER_ACTIVE_INFORMATION', getAllReminderActiveSaga)
   yield takeLatest('GET_ALL_REMINDER_TYPE_INFORMATION', getAllReminderTypeSaga)
   yield takeLatest('CREATE_REMINDER', createReminderSaga)
   yield takeLatest('UPDATE_REMINDER', updateReminderSaga)

@@ -1,4 +1,3 @@
-import { selectReminder } from '@/store/modules/global/selector';
 import { RootState } from '@store/store'
 
 export const selectIsAuthenticated = (state: RootState) => state.global.isAuthenticated
@@ -18,4 +17,5 @@ export const selectFetalGrowthRecord = (state: RootState) => state.global.fetalG
 export const selectUserInfo = (state: RootState) => state.global.userInfo
 export const selectReminderInfo = (state: RootState) => state.global.reminderInfo
 export const selectReminderTypeInfo = (state: RootState) => state.global.reminderTypeInfo
+export const selectReminderActiveInfo = (state: RootState) => state.global.reminderActiveInfo
 
