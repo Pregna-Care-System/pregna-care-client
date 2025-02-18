@@ -19,8 +19,6 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { login, paymentVNPAY, userMembershipPlan } from '@/services/userService'
-import { createGrowthMetric, getAllGrowthMetrics } from '@/services/adminService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import { login, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
 import {
@@ -29,7 +27,6 @@ import {
   getAllMember,
   getAllUserMembershipPlan
 } from '@/services/adminService'
-import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
 import ROUTES from '@/utils/config/routes'
 import {

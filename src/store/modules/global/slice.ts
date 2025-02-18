@@ -40,7 +40,6 @@ const editorSlice = createSlice({
     },
     setReminderTypeInfo(state, action: PayloadAction<any>) {
       state.reminderTypeInfo = action.payload
-    },
     }
 })
 

@@ -38,7 +38,7 @@ const Content = styled.div`
   }
 `
 
-export default function GuestHome() {
+export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
