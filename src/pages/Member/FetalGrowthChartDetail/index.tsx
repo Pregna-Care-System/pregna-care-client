@@ -1,15 +1,78 @@
 import { useEffect, useState } from 'react'
-import ApexCharts from 'react-apexcharts'
-import { FiDownload } from 'react-icons/fi'
-import FetusInfo from './Components/FetalInfo'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBabyInfo } from '@/store/modules/global/selector'
 import { useLocation, useParams } from 'react-router-dom'
+import { Layout, Typography } from 'antd'
+import FetalGrowthScreen from './Components/FetalGrowthScreen'
+
+const { Content } = Layout
+const { Title } = Typography
+
+const mockData = {
+  gestationalAge: 20,
+  estimatedWeight: 1200,
+  headCircumference: 26.5,
+  abdominalCircumference: 23.8,
+  femurLength: 5.2,
+  dueDate: '2023-12-15',
+  motherName: 'Alice Johnson',
+  growthData: [
+    {
+      week: 20,
+      weight: 300,
+      standardWeight: 320,
+      hc: 18,
+      standardHC: 17.5,
+      ac: 16,
+      standardAC: 15.7,
+      fl: 3,
+      standardFL: 3.1
+    },
+    {
+      week: 24,
+      weight: 600,
+      standardWeight: 630,
+      hc: 22,
+      standardHC: 21.8,
+      ac: 20,
+      standardAC: 19.8,
+      fl: 4,
+      standardFL: 4.2
+    },
+    {
+      week: 28,
+      weight: 1200,
+      standardWeight: 1250,
+      hc: 26.5,
+      standardHC: 26.7,
+      ac: 23.8,
+      standardAC: 24.2,
+      fl: 5.2,
+      standardFL: 5.4
+    }
+    // Add more weeks as needed
+  ]
+
+  // Add more mock data for other IDs
+}
 
 const FetalGrowthChartDetail = () => {
   const [isHovered, setIsHovered] = useState(false)
   const dispatch = useDispatch()
   const param = useParams()
+  const { id } = param
+
+  const measurements = [
+    { key: 'hc', name: 'Head Circumference', color: '#8884d8', standardKey: 'standardHC', standardColor: '#a4a1e4' },
+    {
+      key: 'ac',
+      name: 'Abdominal Circumference',
+      color: '#82ca9d',
+      standardKey: 'standardAC',
+      standardColor: '#a7e3bc'
+    },
+    { key: 'fl', name: 'Femur Length', color: '#ffc658', standardKey: 'standardFL', standardColor: '#ffe0a3' }
+  ]
 
   useEffect(() => {
     dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: param.pregnancyRecordId })
@@ -84,44 +147,12 @@ const FetalGrowthChartDetail = () => {
 
   const babyInfo = useSelector(selectBabyInfo)
 
-  const mockData = {
-    gestationalAge: 28,
-    estimatedWeight: 1500,
-    headCircumference: 26.5,
-    abdominalCircumference: 23.8,
-    femurLength: 5.2,
-    dueDate: babyInfo[0]?.expectedDueDate
-  }
-
   return (
-    <>
-      <div className='max-w-7xl mx-auto'>
-        <div className='flex justify-between items-center mb-6'>
-          <h1 className='text-2xl font-bold text-gray-800'>Fetal growth</h1>
-          <button
-            className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
-            <span className='text-[#EE7A7A] font-semibold'>Report</span>
-          </button>
-        </div>
-
-        <FetusInfo data={mockData} />
-
-        <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <div className='bg-white rounded-lg shadow-lg p-6'>
-            <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Weight Growth</h2>
-            <ApexCharts options={fetalWeightData.options} series={fetalWeightData.series} type='line' />
-          </div>
-          <div className='bg-white rounded-lg shadow-lg p-6'>
-            <h2 className='text-xl font-bold text-gray-800 mb-4'>Fetal Measurements</h2>
-            <ApexCharts options={fetalMeasurementsData.options} series={fetalMeasurementsData.series} type='line' />
-          </div>
-        </div>
-      </div>
-    </>
+    <Layout className='min-h-screen bg-gray-100'>
+      <Content className=''>
+        <FetalGrowthScreen data={mockData} />
+      </Content>
+    </Layout>
   )
 }
 

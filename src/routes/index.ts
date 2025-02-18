@@ -48,6 +48,14 @@ const publicRoutes = [
   { path: ROUTES.VNPAY, component: PaymentStatus }
 ]
 
+const memberRoutes = [
+  { path: ROUTES.PROFILE, component: MainProfile },
+  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
+  { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout }
+]
+
 const adminRoutes = [
   { path: ROUTES.PROFILE, component: MainProfile },
   { path: ROUTES.ADMIN.DASHBOARD, component: AdminDashboard, layout: AdminLayout },
@@ -55,14 +63,6 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout }
-]
-
-const memberRoutes = [
-  { path: ROUTES.PROFILE, component: MainProfile },
-  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
-  { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout }
 ]
 
 export { publicRoutes, adminRoutes, memberRoutes }
