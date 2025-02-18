@@ -25,6 +25,19 @@ const editorSlice = createSlice({
     },
     setDataGrowthMetric(state, action: PayloadAction<any>) {
       state.growthMetrics = action.payload
+    },
+    setMemberInfo(state, action: PayloadAction<any>) {
+      state.memberInfo = action.payload
+    },
+    setTransactionInfo(state, action: PayloadAction<any>) {
+      state.transactionInfo = action.payload
+    },
+    setReminderInfo(state, action: PayloadAction<any>) {
+      state.reminderInfo = action.payload
+    },
+    setReminderTypeInfo(state, action: PayloadAction<any>) {
+      state.reminderTypeInfo = action.payload
+    },
     }
   }
 })
@@ -36,7 +49,11 @@ export const {
   setPregnancyRecord,
   setFetalGrowthRecord,
   setUserInfo,
-  setDataGrowthMetric
+  setDataGrowthMetric,
+  setMemberInfo,
+  setTransactionInfo,
+  setReminderInfo,
+  setReminderTypeInfo
 } = editorSlice.actions
 
 export default editorSlice.reducer

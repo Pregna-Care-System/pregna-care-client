@@ -1,3 +1,4 @@
+import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
 
 export const registerAccount = async (
@@ -61,6 +62,40 @@ export const login = async (email: string, password: string) => {
     throw error
   }
 }
+export const updateAccount = async (
+  userId: string,
+  fullName: string,
+  phoneNumber: string,
+  address: string,
+  gender: string,
+  dateOfBirth: Date,
+  imageUrl: string
+) => {
+  try {
+    const apiCallerId = 'UpdateAccount'
+    const res = await request.put<MODEL.IResponseBase>(`/Account/${userId}`, {
+      apiCallerId,
+      fullName,
+      phoneNumber,
+      gender,
+      address,
+      dateOfBirth,
+      imageUrl
+    })
+    console.log('RES', res)
+    if (res.success) {
+      return res
+    } else {
+      throw new Error(res.message || 'Update account failed')
+    }
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
+  }
+}
 
 export const logout = (): void => {
   localStorage.removeItem('accessToken')
@@ -86,7 +121,6 @@ export const forgotPassword = async (email: string) => {
     }
   }
 }
-
 
 export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
   const apiCallerId = 'Payment'

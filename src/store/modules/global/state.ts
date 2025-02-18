@@ -208,7 +208,7 @@ export const initialState = {
       date: '2025-01-26'
     }
   ],
-  memberAdminInfo: [
+  memberInfo: [
     {
       fullName: 'Tina Pham',
       email: 'tina@gmail.com',
@@ -266,5 +266,7 @@ export const initialState = {
     }
   ],
   featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
-  growthMetrics: []
+  growthMetrics: [],
+  reminderInfo: [],
+  reminderTypeInfo: []
 }

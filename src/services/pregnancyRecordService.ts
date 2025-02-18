@@ -30,7 +30,7 @@ export const createPregnancyRecord = async (
       imageUrl
     })
     return res
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response) {
       console.error('Response Error:', error.response.status, error.response.data)

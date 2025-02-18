@@ -1,14 +1,19 @@
-import AdminSidebar from '@/components/Sidebar/AdminSidebar'
-import { selectMemberAdminInfo } from '@/store/modules/global/selector'
-import { Avatar, Button, Select, Space, Table } from 'antd'
+import { selectMemberInfo } from '@/store/modules/global/selector'
+import { Button, Select, Space, Table } from 'antd'
 import { Input } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function MemberPage() {
   const [isHovered, setIsHovered] = useState(false)
-  const dataSource = useSelector(selectMemberAdminInfo)
+  const dataSource = useSelector(selectMemberInfo)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_MEMBERS' })
+  }, [dispatch])
+
   const columns = [
     {
       title: 'Full Name',
@@ -22,8 +27,8 @@ export default function MemberPage() {
     },
     {
       title: 'Phone Number',
-      dataIndex: 'phone',
-      key: 'phone'
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber'
     },
     {
       title: 'Address',
@@ -32,30 +37,19 @@ export default function MemberPage() {
     },
     {
       title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'isDeleted',
+      key: 'isDeleted',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (status: any) => (
         <Button
           style={{
-            backgroundColor: status ? '#84e3b7' : 'white',
-            color: status ? 'white' : 'red',
-            border: status ? '1px solid green' : '1px solid red'
+            backgroundColor: status ? 'white' : '#84e3b7',
+            color: status ? 'red' : 'white',
+            border: status ? '1px solid red' : '1px solid green'
           }}
         >
-          {status ? 'Active' : 'Inactive'}
+          {status ? 'InActive' : 'Active'}
         </Button>
-      )
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size='middle'>
-          <Button danger variant='outlined'>
-            <FiTrash2 />
-          </Button>
-        </Space>
       )
     }
   ]

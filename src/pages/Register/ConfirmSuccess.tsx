@@ -20,7 +20,9 @@ const EmailConfirmationSuccessPage = () => {
           <div className='space-y-6'>
             <div className='p-4 bg-blue-50 rounded-lg'>
               <h2 className='text-xl font-semibold text-gray-800 mb-2'>Next Steps</h2>
-              <p className='text-gray-600'>You can now access all features of your account. Get started by logging in!</p>
+              <p className='text-gray-600'>
+                You can now access all features of your account. Get started by logging in!
+              </p>
             </div>
 
             <div className='space-y-4'>
