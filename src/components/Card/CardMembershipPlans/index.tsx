@@ -118,9 +118,8 @@ interface PlanCardProps {
 export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
   const navigate = useNavigate()
 
-  const handleMoreClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigate(`${ROUTES.DETAIL_PLAN}/${plan.planName}`)
+  const handleMoreClick = (planName: string) => {
+    navigate(`${ROUTES.MEMBESHIP_PLANS}/${planName}`)
   }
 
   return (
@@ -153,7 +152,7 @@ export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) 
           </FeatureList>
         </ScrollableContent>
         <div className='px-4 mt-4'>
-          <Button type='default' onClick={handleMoreClick} danger block>
+          <Button onClick={() => handleMoreClick(plan.planName)} danger block>
             More
           </Button>
         </div>

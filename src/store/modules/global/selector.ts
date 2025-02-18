@@ -1,4 +1,3 @@
-import { selectReminder } from '@/store/modules/global/selector';
 import { RootState } from '@store/store'
 
 export const selectIsAuthenticated = (state: RootState) => state.global.isAuthenticated

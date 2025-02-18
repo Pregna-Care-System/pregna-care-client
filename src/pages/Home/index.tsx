@@ -37,7 +37,7 @@ const Content = styled.div`
   }
 `
 
-export default function GuestHome() {
+export default function Home() {
   const dispatch = useDispatch()
   //--Render
   useEffect(() => {

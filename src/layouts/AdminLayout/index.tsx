@@ -2,10 +2,10 @@ import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { logout } from '@/services/userService'
 import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
-import { BellOutlined, CalendarOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons'
+import { BellOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons'
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
 const HeaderItemProfile = styled.div`
@@ -70,7 +70,7 @@ const Dropdown = styled.div`
   }
 `
 
-export default function AdminLayout({ children }) {
+export default function AdminLayout() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
@@ -129,7 +129,7 @@ export default function AdminLayout({ children }) {
             </Dropdown>
           )}
         </div>
-        {children}
+        <Outlet />
       </div>
     </div>
   )
