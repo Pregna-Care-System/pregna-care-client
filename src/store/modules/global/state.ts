@@ -1,3 +1,4 @@
+
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
@@ -268,5 +269,6 @@ export const initialState = {
   featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
   growthMetrics: [],
   reminderInfo: [],
-  reminderTypeInfo: []
+  reminderTypeInfo: [],
+  reminderActiveInfo: []
 }
