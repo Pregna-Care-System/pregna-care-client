@@ -1,3 +1,4 @@
+import ChatBot from '@/components/Chat'
 import MemberSidebar from '@components/Sidebar/MemberSidebar'
 import { Avatar } from 'antd'
 import { Outlet } from 'react-router-dom'
@@ -21,6 +22,7 @@ export default function MemberLayout() {
           </div>
         </div>
         <Outlet />
+        <ChatBot />
       </div>
     </div>
   )
