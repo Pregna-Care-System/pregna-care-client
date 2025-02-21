@@ -13,7 +13,8 @@ import {
   setReminderTypeInfo,
   setReminderActiveInfo,
   setGrowthMetricsOfWeek,
-  setAuthLoading
+  setAuthLoading,
+  setStatistics
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -40,6 +41,7 @@ import {
   updateReminder
 } from '@/services/reminderService'
 import ROUTES from '@/utils/config/routes'
+import { fetchStatistics } from '@/services/statisticsService'
 
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -487,6 +489,17 @@ export function* getAllReminderTypeSaga(): Generator<any, void, any> {
     throw error
   }
 }
+
+export function* getStatisticsSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(fetchStatistics)
+    yield put(setStatistics(response))
+  } catch (error: any) {
+    message.error('Failed to fetch statistics. Please try again!')
+  }
+}
+
+// Get all
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
@@ -513,4 +526,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('UPDATE_REMINDER', updateReminderSaga)
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
   yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
+  yield takeLatest('FETCH_STATISTICS', fetchStatistics)
 }

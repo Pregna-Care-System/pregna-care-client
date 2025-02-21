@@ -280,5 +280,31 @@ export const initialState = {
   growthMetricsOfWeek: [],
   reminderInfo: [],
   reminderTypeInfo: [],
-  reminderActiveInfo: []
+  reminderActiveInfo: [],
+  statistics: [
+    {
+      title: 'Total Members',
+      value: '12,543',
+      increase: '+15.3%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Users',
+      value: '45,233',
+      increase: '+8.2%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Transactions',
+      value: '23,847',
+      increase: '-12.4%',
+      isIncrease: false
+    },
+    {
+      title: 'Total Revenue',
+      value: '$154,239',
+      increase: '-16.8%',
+      isIncrease: false
+    }
+  ]
 }

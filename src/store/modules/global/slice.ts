@@ -46,6 +46,9 @@ const editorSlice = createSlice({
     },
     setGrowthMetricsOfWeek(state, action: PayloadAction<any>) {
       state.growthMetricsOfWeek = action.payload
+    },
+    setStatistics(state, action: PayloadAction<any>) {
+      state.statistics = action.payload
     }
   }
 })
@@ -64,7 +67,8 @@ export const {
   setReminderInfo,
   setReminderTypeInfo,
   setReminderActiveInfo,
-  setGrowthMetricsOfWeek
+  setGrowthMetricsOfWeek,
+  setStatistics
 } = editorSlice.actions
 
 export default editorSlice.reducer
