@@ -8,6 +8,9 @@ const editorSlice = createSlice({
     setLoginStatus(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload
     },
+    setAuthLoading: (state, action: PayloadAction<boolean>) => {
+      state.isAuthLoading = action.payload
+    },
     setMembershipPlans(state, action: PayloadAction<any>) {
       state.membershipPlans = action.payload
     },
@@ -49,6 +52,7 @@ const editorSlice = createSlice({
 
 export const {
   setLoginStatus,
+  setAuthLoading,
   setMembershipPlans,
   setFeatures,
   setPregnancyRecord,

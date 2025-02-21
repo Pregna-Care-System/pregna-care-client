@@ -1,6 +1,7 @@
 import { RootState } from '@store/store'
 
 export const selectIsAuthenticated = (state: RootState) => state.global.isAuthenticated
+export const selectIsAuthLoading = (state: RootState) => state.global.isAuthLoading
 export const selectServices = (state: RootState) => state.global.services
 export const selectReasons = (state: RootState) => state.global.reason
 export const selectMembershipPlans = (state: RootState) => state.global.membershipPlans

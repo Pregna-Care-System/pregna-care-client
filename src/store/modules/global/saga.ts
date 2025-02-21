@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects'
+import { call, delay, put, takeLatest } from 'redux-saga/effects'
 import {
   setLoginStatus,
   setMembershipPlans,
@@ -12,7 +12,8 @@ import {
   setReminderInfo,
   setReminderTypeInfo,
   setReminderActiveInfo,
-  setGrowthMetricsOfWeek
+  setGrowthMetricsOfWeek,
+  setAuthLoading
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -43,6 +44,7 @@ import ROUTES from '@/utils/config/routes'
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
+    yield put(setAuthLoading(true))
     const response = yield call(login, action.payload.email, action.payload.password)
     if (response.success && response.response !== null) {
       const token = response.response as MODEL.TokenResponse
@@ -81,11 +83,14 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
       localStorage.setItem('userInfo', JSON.stringify(decodedToken))
       yield put(setLoginStatus(true))
       yield put(setUserInfo(decodedToken))
+
+      // Add a small delay to ensure Redux state is updated
+      yield new Promise((resolve) => setTimeout(resolve, 1000))
+
       if (decodedToken.role === 'Admin') {
-        debugger
-        action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
+        yield call(action.payload.navigate, ROUTES.ADMIN.DASHBOARD)
       } else {
-        action.payload.navigate(ROUTES.HOME)
+        yield call(action.payload.navigate, ROUTES.HOME)
       }
     }
   } catch (error: any) {
@@ -94,6 +99,8 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
     } else {
       message.error(error.message || 'An unexpected error occurred')
     }
+  } finally {
+    yield put(setAuthLoading(false))
   }
 }
 //----------Update User information-----------
