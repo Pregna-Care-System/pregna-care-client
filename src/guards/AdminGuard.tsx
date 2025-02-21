@@ -12,14 +12,12 @@ type AuthGuardProps = {
 const AdminGuard = ({ children }: AuthGuardProps) => {
   const user = useSelector(selectUserInfo)
   const isLoading = useSelector(selectIsAuthLoading)
-  console.log(isLoading)
 
   if (isLoading) {
-    console.log('Loading...')
     return <Loading />
   }
 
-  if (user.role !== 'Admin') {
+  if (!user || user.role !== 'Admin') {
     return <Navigate to={ROUTES.HOME} replace />
   }
 

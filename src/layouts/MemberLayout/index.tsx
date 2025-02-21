@@ -3,7 +3,7 @@ import MemberSidebar from '@components/Sidebar/MemberSidebar'
 import { Avatar } from 'antd'
 import { Outlet } from 'react-router-dom'
 
-export default function MemberLayout() {
+export default function MemberLayout({ children }) {
   return (
     <div className='flex min-h-screen bg-gray-100'>
       <div className='w-64 text-white p-6'>
@@ -21,7 +21,7 @@ export default function MemberLayout() {
             />
           </div>
         </div>
-        <Outlet />
+        {children}
         <ChatBot />
       </div>
     </div>

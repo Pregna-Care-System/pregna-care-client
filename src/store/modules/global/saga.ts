@@ -1,4 +1,4 @@
-import { call, delay, put, takeLatest } from 'redux-saga/effects'
+import { call, put, takeLatest } from 'redux-saga/effects'
 import {
   setLoginStatus,
   setMembershipPlans,
@@ -44,7 +44,6 @@ import ROUTES from '@/utils/config/routes'
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
-    yield put(setAuthLoading(true))
     const response = yield call(login, action.payload.email, action.payload.password)
     if (response.success && response.response !== null) {
       const token = response.response as MODEL.TokenResponse
@@ -53,11 +52,9 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       localStorage.setItem('refreshToken', token.refreshToken)
       const decodedToken = jwtDecode(token.accessToken)
       localStorage.setItem('userInfo', JSON.stringify(decodedToken))
-      console.log('TEST ROLE ', decodedToken)
       yield put(setLoginStatus(true))
       yield put(setUserInfo(decodedToken))
       if (decodedToken.role === 'Admin') {
-        debugger
         action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
       } else {
         action.payload.navigate(ROUTES.HOME)
