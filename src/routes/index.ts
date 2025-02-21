@@ -31,9 +31,11 @@ const MainProfile = lazy(() => import('@pages/Profile/MainProfile'))
 const Register = lazy(() => import('@pages/Register'))
 const SchedulePage = lazy(() => import('@/pages/Schedule'))
 const CommunityPage = lazy(() => import('@pages/Community/index'))
+const NutritionFitnessPage = lazy(() => import('@pages/NutritionAndFitness/index'))
 
 const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
+  { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
   { path: ROUTES.GUEST_HOME, component: GuestHome },
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
