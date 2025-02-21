@@ -30,7 +30,9 @@ const ForgotPasswordPage = React.lazy(() => import('@/pages/Login/ForgotPassword
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
 const LoginPage = React.lazy(() => import('@/pages/Login'))
 const CommunityPage = React.lazy(() => import('@/pages/Community'))
-const Register = React.lazy(() => import('@/pages/Register'))
+const Register = React.lazy(() => import('@pages/Register'))
+const Schedule = React.lazy(() => import('@pages/Schedule'))
+const Contact = React.lazy(() => import('@pages/Contact'))
 //Pages-Admin
 const AdminDashboard = React.lazy(() => import('@/pages/Admin/Dashboard'))
 const TransactionPage = React.lazy(() => import('@/pages/Admin/Transaction'))
@@ -95,6 +97,10 @@ export const router = createBrowserRouter([
         path: ROUTES.SUCCESS_CONFIRM,
         element: <EmailConfirmationSuccessPage />
       },
+      {
+        path: ROUTES.CONTACT,
+        element: <Contact />
+      },
       //Private Routes
       {
         path: ROUTES.PROFILE,
@@ -117,6 +123,14 @@ export const router = createBrowserRouter([
         element: (
           <AuthGuard>
             <PaymentStatusPage />
+          </AuthGuard>
+        )
+      },
+      {
+        path: ROUTES.SCHEDULE,
+        element: (
+          <AuthGuard>
+            <Schedule />
           </AuthGuard>
         )
       }

@@ -7,13 +7,12 @@ import loginBg from '@/assets/register.jpg'
 import ROUTES from '@/utils/config/routes'
 import useAuth from '@/hooks/useAuth'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectUserInfo } from '@/store/modules/global/selector'
+import React from 'react'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { setIsAuthenticated } = useAuth()
-  const user = useSelector(selectUserInfo)
 
   const onLogin = async (values: MODEL.LoginFormValues) => {
     dispatch({
