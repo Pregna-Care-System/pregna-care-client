@@ -13,7 +13,7 @@ export default function BlogDetailsPage() {
     navigate('/next-article') // Thay đổi đường dẫn trang
   }
   return (
-    <div className='bg-gray-50 min-h-screen text-gray-800'>
+    <div className='bg-gray-50 min-h-screen text-gray-800 mt-12'>
       <main className='container mx-auto py-8 px-4'>
         <h2 className='text-3xl font-bold text-center  mt-12'>Top 10 Foods Every Pregnant Mom </h2>
         <h2 className='text-3xl font-bold text-center  '>Should Include in Her Diet</h2>

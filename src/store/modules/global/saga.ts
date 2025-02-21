@@ -22,7 +22,7 @@ import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planS
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
-import { login, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
+import { login, loginWithGG, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
 import {
   createGrowthMetric,
   getAllGrowthMetrics,
@@ -46,6 +46,34 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
   try {
     yield put(setAuthLoading(true))
     const response = yield call(login, action.payload.email, action.payload.password)
+    if (response.success && response.response !== null) {
+      const token = response.response as MODEL.TokenResponse
+      message.success('Login successful')
+      localStorage.setItem('accessToken', token.accessToken)
+      localStorage.setItem('refreshToken', token.refreshToken)
+      const decodedToken = jwtDecode(token.accessToken)
+      localStorage.setItem('userInfo', JSON.stringify(decodedToken))
+      console.log('TEST ROLE ', decodedToken)
+      yield put(setLoginStatus(true))
+      yield put(setUserInfo(decodedToken))
+      if (decodedToken.role === 'Admin') {
+        debugger
+        action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
+      } else {
+        action.payload.navigate(ROUTES.HOME)
+      }
+    }
+  } catch (error: any) {
+    if (error.redirect) {
+      message.warning(error.message)
+    } else {
+      message.error(error.message || 'An unexpected error occurred')
+    }
+  }
+}
+export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
+  try {
+    const response = yield call(loginWithGG, action.payload.email)
     if (response.success && response.response !== null) {
       const token = response.response as MODEL.TokenResponse
       message.success('Login successful')
@@ -464,6 +492,7 @@ export function* getAllReminderTypeSaga(): Generator<any, void, any> {
 }
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
+  yield takeLatest('USER_LOGIN_GG', userLoginGG)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
   yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyPregnancyRecord)
   yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
