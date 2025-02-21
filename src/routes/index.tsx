@@ -84,10 +84,7 @@ export const router = createBrowserRouter([
         path: ROUTES.FORGOT_PASSWORD,
         element: <ForgotPasswordPage />
       },
-      {
-        path: ROUTES.RESEND_PASSWORD,
-        element: <ResendPasswordPage />
-      },
+      
   
       //Private Routes
       {
@@ -132,6 +129,16 @@ export const router = createBrowserRouter([
       <Suspense fallback={<Loading />}>
         <NoHeaderLayout>
           <EmailConfirmationSuccessPage />
+        </NoHeaderLayout>
+      </Suspense>
+    )
+  },
+  {
+    path: ROUTES.RESEND_PASSWORD,
+    element:(
+      <Suspense fallback={<Loading />}>
+        <NoHeaderLayout>
+          <ResendPasswordPage />
         </NoHeaderLayout>
       </Suspense>
     )
