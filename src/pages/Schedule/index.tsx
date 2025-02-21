@@ -17,9 +17,8 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
 import { Button, Form, Modal, Select, TimePicker } from 'antd'
-import { ClockCircleOutlined, DeleteOutlined} from '@ant-design/icons'
+import { ClockCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-
 const VIEW_TYPES = {
   MONTH: 'month',
   WEEK: 'week'
@@ -37,6 +36,34 @@ const SchedulePage = () => {
   const dispatch = useDispatch()
   const [currentEvent, setCurrentEvent] = useState(null)
   const [form] = Form.useForm()
+
+  const getDaysInMonth = (date) => {
+    const start = startOfWeek(startOfMonth(date))
+    const end = endOfWeek(endOfMonth(date))
+    return eachDayOfInterval({ start, end })
+  }
+
+  const navigateMonth = (direction) => {
+    setCurrentDate(direction === 'next' ? addMonths(currentDate, 1) : subMonths(currentDate, 1))
+  }
+
+  const goToToday = () => {
+    setCurrentDate(new Date())
+    setSelectedDate(new Date())
+  }
+
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const days = getDaysInMonth(currentDate)
+
+  const handleDateClickSmall = (date) => {
+    setSelectedDate(date)
+  }
+
+  const handleKeyDown = (e, date) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      setSelectedDate(date)
+    }
+  }
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_REMINDER_INFORMATION' })
@@ -257,45 +284,105 @@ const SchedulePage = () => {
   )
 
   return (
-    <div className='px-2 py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
+    <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
       <div className='flex justify-around'>
         <div>
-          <h1 style={{ fontWeight: 'bold', fontSize: '25px' }}>Upcoming Events</h1>
-          {dataSource.length > 0 ? (
-            dataSource.map((event) => {
-              const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
-              return (
-                <div
-                  className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
-                    event.status === 'DONE' ? 'border-green-300' : 'border-red-200'
-                  } bg-white`}
-                  key={event.id}
+          <div className='max-w-md mx-auto bg-card p-4 rounded-lg shadow-lg'>
+            <div className='flex items-center justify-between mb-4'>
+              <h2 className='text-xl font-semibold text-foreground'>{format(currentDate, 'MMMM yyyy')}</h2>
+              <div className='flex items-center space-x-2'>
+                <button
+                  onClick={goToToday}
+                  className='px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-opacity-90 transition-colors'
                 >
-                  <div className='flex justify-between'>
-                    <strong>{event.title}</strong>
-                    {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'gray' }}>
-                    <ClockCircleOutlined /> {formattedDate} {event.startTime}
-                  </div>
+                  Today
+                </button>
+                <button
+                  onClick={() => navigateMonth('prev')}
+                  className='p-2 hover:bg-secondary rounded-full transition-colors'
+                >
+                  <FiChevronLeft className='w-5 h-5' />
+                </button>
+                <button
+                  onClick={() => navigateMonth('next')}
+                  className='p-2 hover:bg-secondary rounded-full transition-colors'
+                >
+                  <FiChevronRight className='w-5 h-5' />
+                </button>
+              </div>
+            </div>
 
-                  <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
-                    View Details
-                  </Button>
-                  <Button
-                    className='border-red-200 text-red-500'
-                    type='danger'
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteEvent(event.id)}
-                  ></Button>
+            <div className='grid grid-cols-7 gap-1'>
+              {daysOfWeek.map((day) => (
+                <div key={day} className='text-center py-2 text-sm font-semibold text-muted-foreground'>
+                  {day}
                 </div>
-              )
-            })
-          ) : (
-            <p>No upcoming events.</p>
-          )}
+              ))}
+
+              {days.map((day, index) => {
+                const isCurrentMonth = isSameMonth(day, currentDate)
+                const isTodayDate = isToday(day)
+                const isSelected = isSameDay(day, selectedDate)
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleDateClickSmall(day)}
+                    onKeyDown={(e) => handleKeyDown(e, day)}
+                    className={`
+                p-2 text-center text-sm rounded-full transition-all
+                hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
+                ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
+                ${isTodayDate ? 'bg-blue-500 text-white': ''}
+                ${isSelected ? 'bg-primary text-primary-foreground' : ''}
+              `}
+                    tabIndex={0}
+                    aria-label={format(day, 'PPPP')}
+                  >
+                    {format(day, 'd')}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <h1 style={{ fontSize: '25px' , marginTop: '30px'}}>Upcoming Events</h1>
+          <div className='max-h-[550px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 bg-white'>
+            {dataSource.length > 0 ? (
+              dataSource.map((event) => {
+                const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
+                return (
+                  <div
+                    className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
+                      event.status === 'DONE' ? 'border-green-300' : 'border-red-200'
+                    } bg-white`}
+                    key={event.id}
+                  >
+                    <div className='flex justify-between'>
+                      <strong>{event.title}</strong>
+                      {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
+                    </div>
+                    <div style={{ fontSize: '14px', color: 'gray' }}>
+                      <ClockCircleOutlined /> {formattedDate} {event.startTime}
+                    </div>
+
+                    <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
+                      View Details
+                    </Button>
+                    <Button
+                      className='border-red-200 text-red-500'
+                      type='danger'
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteEvent(event.id)}
+                    ></Button>
+                  </div>
+                )
+              })
+            ) : (
+              <p>No upcoming events.</p>
+            )}
+          </div>
         </div>
-        <div className='w-2/3 p-2 mr-8 bg-gray-50'>
+        <div className='w-2/3 h-2/3 p-2 mr-8 bg-gray-50'>
           <div className='flex items-center justify-between mb-4'>
             <div className='flex gap-2'>
               <button
@@ -364,7 +451,7 @@ const SchedulePage = () => {
                         {dayEvents.map((event, i) => (
                           <div
                             key={i}
-                            className=' border border-solid border-gray-700 text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
+                            className=' border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
                           >
                             {event.title}
                             {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
