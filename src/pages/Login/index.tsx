@@ -25,11 +25,13 @@ export default function LoginPage() {
   const handleGoogleSuccess = (response: CredentialResponse) => {
     if (response.credential) {
       const decodedToken = jwtDecode(response.credential)
-      console.log('Decoded Token:', decodedToken)
-      message.success('Google login successful')
-      localStorage.setItem('accessToken', response.credential)
-      setIsAuthenticated(true)
-      navigate(ROUTES.HOME)
+      const email = decodedToken?.email
+      if (email) {
+        dispatch({
+          type: 'USER_LOGIN_GG',
+          payload: { email: email, navigate }
+        })
+      }
     } else {
       message.error('Google login failed. No credentials received.')
     }

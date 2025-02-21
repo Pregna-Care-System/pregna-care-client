@@ -13,6 +13,7 @@ import MainLayout from '@/layouts/MainLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import MemberLayout from '@/layouts/MemberLayout'
 import Loading from '@/components/Loading'
+import NoHeaderLayout from '@/layouts/NoHeaderLayout'
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
 const ConfirmEmail = React.lazy(() => import('@pages/Register/ConfirmPage'))
@@ -87,14 +88,7 @@ export const router = createBrowserRouter([
         path: ROUTES.RESEND_PASSWORD,
         element: <ResendPasswordPage />
       },
-      {
-        path: ROUTES.CONFIRM_EMAIL,
-        element: <ConfirmEmail />
-      },
-      {
-        path: ROUTES.SUCCESS_CONFIRM,
-        element: <EmailConfirmationSuccessPage />
-      },
+  
       //Private Routes
       {
         path: ROUTES.PROFILE,
@@ -121,6 +115,26 @@ export const router = createBrowserRouter([
         )
       }
     ]
+  },
+  {
+    path: ROUTES.CONFIRM_EMAIL,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <NoHeaderLayout>
+          <ConfirmEmail />
+        </NoHeaderLayout>
+      </Suspense>
+    )
+  },
+  {
+    path: ROUTES.SUCCESS_CONFIRM,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <NoHeaderLayout>
+          <EmailConfirmationSuccessPage />
+        </NoHeaderLayout>
+      </Suspense>
+    )
   },
   //Admin Routes
   {
