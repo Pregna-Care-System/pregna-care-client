@@ -10,7 +10,11 @@ type MemberGuardProps = {
 const MemberGuard = ({ children }: MemberGuardProps) => {
   const user = useSelector(selectUserInfo)
 
-  if (user.role !== 'Member') return <Navigate to={ROUTES.HOME} replace />
+  if (user.role !== 'Member' && user.role === 'Admin') {
+    return <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />
+  } else if (user.role !== 'Member') {
+    return <Navigate to={ROUTES.HOME} replace />
+  }
 
   return <>{children}</>
 }

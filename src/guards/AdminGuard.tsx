@@ -10,7 +10,9 @@ type AuthGuardProps = {
 const AdminGuard = ({ children }: AuthGuardProps) => {
   const user = useSelector(selectUserInfo)
 
-  if (user.role !== 'Admin') return <Navigate to={ROUTES.HOME} replace />
+  if (user.role !== 'Admin') {
+    return <Navigate to={ROUTES.HOME} replace />
+  }
 
   return <>{children}</>
 }
