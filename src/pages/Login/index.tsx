@@ -6,17 +6,19 @@ import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
 import ROUTES from '@/utils/config/routes'
 import useAuth from '@/hooks/useAuth'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectUserInfo } from '@/store/modules/global/selector'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { setIsAuthenticated } = useAuth()
+  const user = useSelector(selectUserInfo)
 
   const onLogin = async (values: MODEL.LoginFormValues) => {
     dispatch({
       type: 'USER_LOGIN',
-      payload: { email: values.email, password: values.password, route: ROUTES.GUEST_HOME, navigate }
+      payload: { email: values.email, password: values.password, navigate }
     })
   }
 

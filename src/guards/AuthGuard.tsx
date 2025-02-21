@@ -10,7 +10,9 @@ type AuthGuardProps = {
 const AuthGuard = ({ children }: AuthGuardProps) => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
 
-  if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} replace />
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />
+  }
 
   return <>{children}</>
 }

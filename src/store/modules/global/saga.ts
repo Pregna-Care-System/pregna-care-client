@@ -11,7 +11,8 @@ import {
   setTransactionInfo,
   setReminderInfo,
   setReminderTypeInfo,
-  setReminderActiveInfo
+  setReminderActiveInfo,
+  setGrowthMetricsOfWeek
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -24,11 +25,11 @@ import { login, paymentVNPAY, updateAccount, userMembershipPlan } from '@/servic
 import {
   createGrowthMetric,
   getAllGrowthMetrics,
+  getAllGrowthMetricsOfWeek,
   getAllMember,
   getAllUserMembershipPlan
 } from '@/services/adminService'
 import { jwtDecode } from 'jwt-decode'
-import ROUTES from '@/utils/config/routes'
 import {
   createReminder,
   deleteReminder,
@@ -37,6 +38,7 @@ import {
   getAllReminderType,
   updateReminder
 } from '@/services/reminderService'
+import ROUTES from '@/utils/config/routes'
 
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -52,9 +54,10 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       yield put(setLoginStatus(true))
       yield put(setUserInfo(decodedToken))
       if (decodedToken.role === 'Admin') {
+        debugger
         action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
       } else {
-        action.payload.navigate(action.payload.route)
+        action.payload.navigate(ROUTES.HOME)
       }
     }
   } catch (error: any) {
@@ -314,6 +317,20 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
     throw error
   }
 }
+
+export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const res = yield call(getAllGrowthMetricsOfWeek, action.payload.week)
+    if (res.data.success) {
+      yield put(setGrowthMetricsOfWeek(res.data.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 //----------Member information-----------
 export function* getAllMemberAdmin(): Generator<any, void, any> {
   try {
@@ -462,4 +479,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_REMINDER', createReminderSaga)
   yield takeLatest('UPDATE_REMINDER', updateReminderSaga)
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
+  yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
 }
