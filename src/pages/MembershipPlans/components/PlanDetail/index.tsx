@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 import { getPlanByName } from '@/services/planService'
@@ -7,7 +7,7 @@ import { getPlanByName } from '@/services/planService'
 export default function PlanDetail() {
   const { planName } = useParams()
   const [planDetail, setPlanDetail] = useState<MODEL.PlanResponse | null>(null)
-  console.log('Plan Name:', planName)
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchPlans = async () => {
       if (!planName) return
@@ -24,6 +24,13 @@ export default function PlanDetail() {
   if (!planName) {
     return <div>Plan not found</div>
   }
+  const handleUpgrade = () => {
+    if (!planDetail) return
+    navigate(
+      `/checkout?planId=${planDetail.membershipPlanId}&planName=${encodeURIComponent(planDetail.planName)}&planPrice=${encodeURIComponent(planDetail.price)}`
+    )
+  }
+  
 
   return (
     <div
@@ -61,6 +68,7 @@ export default function PlanDetail() {
                 backgroundColor: 'transparent',
                 borderWidth: '1px'
               }}
+              onClick={handleUpgrade}
             >
               Upgrade to {planDetail.planName}
             </Button>
@@ -69,9 +77,9 @@ export default function PlanDetail() {
 
         <div className='w-full md:w-1/2 p-6'>
           <img
-            src={planDetail.image}
+            src={planDetail.imageUrl}
             alt={planDetail.planName}
-            className='w-full h-60 object-cover rounded-md'
+            className='w-full h-2/3 object-cover rounded-md'
             style={{ maxHeight: '300px', borderRadius: '12px' }}
           />
         </div>

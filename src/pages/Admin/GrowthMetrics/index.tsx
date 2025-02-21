@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Input, message, Select, Space, Table } from 'antd'
+import { useCallback, useEffect, useState } from 'react'
+import { Form, Input, Select, Table } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectGrowthMetrics } from '@/store/modules/global/selector'
@@ -8,7 +8,9 @@ import { CreateModal } from '@/components/Modal'
 export default function GrowthMetrics() {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const dataSource = useSelector(selectGrowthMetrics)
+  const [form] = Form.useForm()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -93,6 +95,8 @@ export default function GrowthMetrics() {
 
   const handleCreate = (values: any) => {
     dispatch({ type: 'CREATE_GROWTH_METRIC', payload: values })
+    form.resetFields()
+    setIsOpen(false)
   }
 
   return (
@@ -109,7 +113,7 @@ export default function GrowthMetrics() {
           <span className='text-[#EE7A7A] font-semibold text-sm'>Create</span>
         </button>
       </div>
-      <div className='bg-white p-10 rounded-xl shadow-md'>
+      <div className='bg-white p-5 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
           <Input.Search className='w-1/4 mr-4' allowClear placeholder='Search' />
           <Select
@@ -126,7 +130,7 @@ export default function GrowthMetrics() {
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
       <CreateModal
         isOpen={isOpen}
@@ -134,6 +138,8 @@ export default function GrowthMetrics() {
         formItem={growthMetricsFormItem}
         onClose={() => setIsOpen(false)}
         handleSubmit={handleCreate}
+        form={form}
+        loading={loading}
       />
     </>
   )

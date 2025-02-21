@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects'
+import { call, delay, put, takeLatest } from 'redux-saga/effects'
 import {
   setLoginStatus,
   setMembershipPlans,
@@ -11,7 +11,9 @@ import {
   setTransactionInfo,
   setReminderInfo,
   setReminderTypeInfo,
-  setReminderActiveInfo
+  setReminderActiveInfo,
+  setGrowthMetricsOfWeek,
+  setAuthLoading
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -19,16 +21,16 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
-import { login, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
+import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
+import { login, loginWithGG, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
 import {
   createGrowthMetric,
   getAllGrowthMetrics,
+  getAllGrowthMetricsOfWeek,
   getAllMember,
   getAllUserMembershipPlan
 } from '@/services/adminService'
-import { createFetalGrowth } from '@/services/fetalGrowthRecordService'
 import { jwtDecode } from 'jwt-decode'
-import ROUTES from '@/utils/config/routes'
 import {
   createReminder,
   deleteReminder,
@@ -37,11 +39,41 @@ import {
   getAllReminderType,
   updateReminder
 } from '@/services/reminderService'
+import ROUTES from '@/utils/config/routes'
 
 //-----User-----
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
+    yield put(setAuthLoading(true))
     const response = yield call(login, action.payload.email, action.payload.password)
+    if (response.success && response.response !== null) {
+      const token = response.response as MODEL.TokenResponse
+      message.success('Login successful')
+      localStorage.setItem('accessToken', token.accessToken)
+      localStorage.setItem('refreshToken', token.refreshToken)
+      const decodedToken = jwtDecode(token.accessToken)
+      localStorage.setItem('userInfo', JSON.stringify(decodedToken))
+      console.log('TEST ROLE ', decodedToken)
+      yield put(setLoginStatus(true))
+      yield put(setUserInfo(decodedToken))
+      if (decodedToken.role === 'Admin') {
+        debugger
+        action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
+      } else {
+        action.payload.navigate(ROUTES.HOME)
+      }
+    }
+  } catch (error: any) {
+    if (error.redirect) {
+      message.warning(error.message)
+    } else {
+      message.error(error.message || 'An unexpected error occurred')
+    }
+  }
+}
+export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
+  try {
+    const response = yield call(loginWithGG, action.payload.email)
     if (response.success && response.response !== null) {
       const token = response.response as MODEL.TokenResponse
       message.success('Login successful')
@@ -51,10 +83,14 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       localStorage.setItem('userInfo', JSON.stringify(decodedToken))
       yield put(setLoginStatus(true))
       yield put(setUserInfo(decodedToken))
+
+      // Add a small delay to ensure Redux state is updated
+      yield new Promise((resolve) => setTimeout(resolve, 1000))
+
       if (decodedToken.role === 'Admin') {
-        action.payload.navigate(ROUTES.ADMIN.DASHBOARD)
+        yield call(action.payload.navigate, ROUTES.ADMIN.DASHBOARD)
       } else {
-        action.payload.navigate(action.payload.route)
+        yield call(action.payload.navigate, ROUTES.HOME)
       }
     }
   } catch (error: any) {
@@ -63,6 +99,8 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
     } else {
       message.error(error.message || 'An unexpected error occurred')
     }
+  } finally {
+    yield put(setAuthLoading(false))
   }
 }
 //----------Update User information-----------
@@ -131,7 +169,7 @@ export function* getAllMembershipPlans(): Generator<any, void, any> {
     throw error
   }
 }
-//----------Create Membership Plan-----------
+
 export function* createMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -153,7 +191,7 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
     throw error
   }
 }
-//----------Update Membership Plan-----------
+
 export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -177,7 +215,7 @@ export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any
     console.error('Error in updateMembershipPlan saga:', error)
   }
 }
-//-------------------Delete Membership Plan-------------------
+
 export function* deleteMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(deletePlan, action.payload.planId)
@@ -192,6 +230,7 @@ export function* deleteMembershipPlan(action: PayloadAction<any>): Generator<any
     console.error('Error in deleteMembershipPlan saga:', error)
   }
 }
+
 //------------Feature-----------
 export function* getFeatures(): Generator<any, void, any> {
   try {
@@ -206,7 +245,7 @@ export function* getFeatures(): Generator<any, void, any> {
   }
 }
 
-//----------Create PregnancyRecord-----------
+//----------Pregnancy Record information-----------
 export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
@@ -235,11 +274,12 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
   }
 }
 
-//----------Pregnancy Record information-----------
 export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }>): Generator<any, void, any> {
   try {
-    const response = yield call(getAllPregnancyRecord, action.payload.userId)
-    yield put(setPregnancyRecord(response))
+    const res = yield call(getAllPregnancyRecord, action.payload.userId)
+    if (res.success) {
+      yield put(setPregnancyRecord(res.response))
+    }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
@@ -272,12 +312,26 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
   }
 }
 
+export function* getFetalGrowthRecordsSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const res = yield call(getFetalGrowthRecords, action.payload)
+    if (res.success) {
+      yield put(setFetalGrowthRecord(res.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 //-----GrowthMetric-----
 export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(createGrowthMetric, action.payload)
     if (response.success) {
       message.success('Growth metric created successfully')
+      yield getAllGrowthMetrics()
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -298,6 +352,20 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
     throw error
   }
 }
+
+export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const res = yield call(getAllGrowthMetricsOfWeek, action.payload.week)
+    if (res.data.success) {
+      yield put(setGrowthMetricsOfWeek(res.data.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
 //----------Member information-----------
 export function* getAllMemberAdmin(): Generator<any, void, any> {
   try {
@@ -424,6 +492,7 @@ export function* getAllReminderTypeSaga(): Generator<any, void, any> {
 }
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
+  yield takeLatest('USER_LOGIN_GG', userLoginGG)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
   yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyPregnancyRecord)
   yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
@@ -436,6 +505,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
+  yield takeLatest('GET_FETAL_GROWTH_RECORDS', getFetalGrowthRecordsSaga)
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
   yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
@@ -445,5 +515,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_REMINDER', createReminderSaga)
   yield takeLatest('UPDATE_REMINDER', updateReminderSaga)
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
-
+  yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
 }

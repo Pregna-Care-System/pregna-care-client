@@ -7,8 +7,8 @@ import styled from 'styled-components'
 import CardService from '@components/Card/CardService'
 import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
-import PlanCard from '@components/Card/CardMembershipPlans'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 //--Redux
 import {
   selectMembershipPlans,
@@ -18,7 +18,6 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 const Background = styled.div`
   height: 765px;
@@ -37,7 +36,11 @@ const Content = styled.div`
   }
 `
 
-export default function GuestHome() {
+export default function Home() {
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen)
+  }
   const dispatch = useDispatch()
   //--Render
   useEffect(() => {
@@ -59,7 +62,7 @@ export default function GuestHome() {
   ))
 
   const renderReasons = reasons.map((item, index) => {
-    return <CardReason key={index} title={item.title} description={item.description} image={item} />
+    return <CardReason key={index} title={item.title} description={item.description} image={item.image} />
   })
 
   return (

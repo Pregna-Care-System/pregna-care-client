@@ -32,9 +32,9 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
   height: 500px;
   border-radius: 8px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  transition: all 0.1s ease-out;
   cursor: pointer;
   background: white;
   overflow: hidden;
@@ -43,7 +43,7 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
     isSelected &&
     `
     border: 2px solid ${style.COLORS.RED.RED_2};
-    box-shadow: 0 10px 22px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.16);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   `}
 
   &:hover {
@@ -51,7 +51,7 @@ const StyledCard = styled.div<{ isSelected: boolean }>`
       !isSelected &&
       `
       border: 2px solid ${style.COLORS.RED.RED_2};
-      box-shadow: 0 3px 6px rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.16);
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     `}
   }
 `
@@ -70,7 +70,7 @@ const PlanName = styled.span`
 `
 
 const ScrollableContent = styled.div`
-  height: 192px;
+  height: 180px;
   overflow-y: auto;
   padding: 0 16px;
 `
@@ -107,7 +107,7 @@ interface PlanCardProps {
   plan: {
     planName: string
     price: number
-    image: string
+    imageUrl: string
     features: Feature[]
     recommended: boolean
   }
@@ -118,9 +118,8 @@ interface PlanCardProps {
 export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
   const navigate = useNavigate()
 
-  const handleMoreClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigate(`${ROUTES.DETAIL_PLAN}/${plan.planName}`)
+  const handleMoreClick = (planName: string) => {
+    navigate(`${ROUTES.MEMBESHIP_PLANS}/${planName}`)
   }
 
   return (
@@ -131,7 +130,7 @@ export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) 
           <PlanName>{plan.planName}</PlanName>
           {plan.recommended && <Tag color='red'>Recommended</Tag>}
         </CardHeader>
-        <img src={plan.image || '/placeholder.svg'} alt={plan.planName} className='w-full h-28 object-cover mb-4 p-2' />
+        <img src={plan.imageUrl || '/placeholder.svg'} alt={plan.planName} className='w-full h-32 object-cover mb-4 p-2' />
         <p className='text-3xl font-bold mb-4 px-4'>
           {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'></span>
         </p>
@@ -153,7 +152,7 @@ export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) 
           </FeatureList>
         </ScrollableContent>
         <div className='px-4 mt-4'>
-          <Button type='default' onClick={handleMoreClick} danger block>
+          <Button onClick={() => handleMoreClick(plan.planName)} danger block>
             More
           </Button>
         </div>

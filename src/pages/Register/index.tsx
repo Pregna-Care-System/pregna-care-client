@@ -39,10 +39,7 @@ export default function Register() {
           wrapperCol={{ span: 24 }}
         >
           <Typography.Title style={{ color: '#e57373' }}>SIGN UP</Typography.Title>
-          <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' />
-            <FacebookFilled className='cursor-pointer text-blue-900' />
-          </div>
+          
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item
             rules={[

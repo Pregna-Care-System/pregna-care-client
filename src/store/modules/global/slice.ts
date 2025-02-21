@@ -8,6 +8,9 @@ const editorSlice = createSlice({
     setLoginStatus(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload
     },
+    setAuthLoading: (state, action: PayloadAction<boolean>) => {
+      state.isAuthLoading = action.payload
+    },
     setMembershipPlans(state, action: PayloadAction<any>) {
       state.membershipPlans = action.payload
     },
@@ -41,12 +44,15 @@ const editorSlice = createSlice({
     setReminderTypeInfo(state, action: PayloadAction<any>) {
       state.reminderTypeInfo = action.payload
     },
+    setGrowthMetricsOfWeek(state, action: PayloadAction<any>) {
+      state.growthMetricsOfWeek = action.payload
     }
   }
 })
 
 export const {
   setLoginStatus,
+  setAuthLoading,
   setMembershipPlans,
   setFeatures,
   setPregnancyRecord,
@@ -57,7 +63,8 @@ export const {
   setTransactionInfo,
   setReminderInfo,
   setReminderTypeInfo,
-  setReminderActiveInfo
+  setReminderActiveInfo,
+  setGrowthMetricsOfWeek
 } = editorSlice.actions
 
 export default editorSlice.reducer

@@ -1,6 +1,6 @@
-
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
+  isAuthLoading: true,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
   services: [
     {
@@ -58,8 +58,17 @@ export const initialState = {
     }
   ],
   membershipPlans: [],
-  pregnancyRecord: [],
-  fetalGrowthRecord: [],
+  pregnancyRecord: [
+    {
+      id: 1,
+      babyName: 'Mike'
+    },
+    {
+      id: 1,
+      babyName: 'Mike'
+    }
+  ],
+  fetalGrowthRecord: {},
   testimonials: [
     {
       id: 1,
@@ -268,6 +277,7 @@ export const initialState = {
   ],
   featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
   growthMetrics: [],
+  growthMetricsOfWeek: [],
   reminderInfo: [],
   reminderTypeInfo: [],
   reminderActiveInfo: []

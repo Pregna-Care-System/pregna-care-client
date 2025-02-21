@@ -54,7 +54,7 @@ export default function MemberShipPlanPage() {
         }}
       >
         <h1 className='text-2xl lg:text-3xl font-bold mb-3 text-center'>Features and Pricing</h1>
-        <h4 className='text-gray-500 mb-8 lg:mb-16 px-4 lg:px-8 text-center text-sm lg:text-base'>
+        <h4 className='text-gray-500 mb-8 px-4 lg:px-8 text-center text-sm lg:text-base'>
           Whether your time-saving automation needs are large or small, we're here to help you scale.
         </h4>
 
