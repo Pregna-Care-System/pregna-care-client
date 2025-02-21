@@ -70,7 +70,7 @@ const Dropdown = styled.div`
   }
 `
 
-export default function AdminLayout() {
+export default function AdminLayout({ children }) {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
@@ -129,7 +129,7 @@ export default function AdminLayout() {
             </Dropdown>
           )}
         </div>
-        <Outlet />
+        {children}
       </div>
     </div>
   )

@@ -18,8 +18,8 @@ const FetalGrowthChart = () => {
   const pregnancyRecord = useSelector(selectPregnancyRecord)
 
   return (
-    <Layout className='min-h-screen bg-gray-100'>
-      <Content className='p-4 sm:p-6 lg:p-8'>
+    <Layout>
+      <Content className='px-4'>
         <Title level={1} className='text-center mb-8'>
           Pregnancy Records
         </Title>
