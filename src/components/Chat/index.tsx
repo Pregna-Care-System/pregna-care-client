@@ -70,7 +70,7 @@ export default function ChatBot() {
       </div>
 
       {isOpenChat && (
-        <div className='fixed bottom-24 right-8 w-80 bg-white border-2 border-grey-200 shadow-lg rounded-lg pb-4 bl-4 br-4 z-10'>
+        <div className='fixed bottom-24 right-8 w-80 bg-white border-2 border-grey-200 shadow-lg rounded-lg bl-4 br-4 z-10'>
           <div className='flex justify-center gap-2 items-center mb-4 bg-blue-100 p-4 border rounded-md'>
             <Bot
               style={{

@@ -19,7 +19,7 @@ export default function ChatForm({chatHistory, setChatHistory , generateChatResp
   return (
     <div>
       <Form form={form} onFinish={handleSubmit}>
-        <Row gutter={8}>
+        <Row gutter={2}>
           <Col flex='auto'>
             <Form.Item name='message'>
               <Input

@@ -70,7 +70,7 @@ const PlanName = styled.span`
 `
 
 const ScrollableContent = styled.div`
-  height: 192px;
+  height: 180px;
   overflow-y: auto;
   padding: 0 16px;
 `
@@ -107,7 +107,7 @@ interface PlanCardProps {
   plan: {
     planName: string
     price: number
-    image: string
+    imageUrl: string
     features: Feature[]
     recommended: boolean
   }
@@ -130,7 +130,7 @@ export default function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) 
           <PlanName>{plan.planName}</PlanName>
           {plan.recommended && <Tag color='red'>Recommended</Tag>}
         </CardHeader>
-        <img src={plan.image || '/placeholder.svg'} alt={plan.planName} className='w-full h-28 object-cover mb-4 p-2' />
+        <img src={plan.imageUrl || '/placeholder.svg'} alt={plan.planName} className='w-full h-32 object-cover mb-4 p-2' />
         <p className='text-3xl font-bold mb-4 px-4'>
           {plan.price.toLocaleString('vi-VN')} ₫<span className='text-base font-normal'></span>
         </p>
