@@ -34,6 +34,7 @@ const CommunityPage = React.lazy(() => import('@/pages/Community'))
 const Register = React.lazy(() => import('@pages/Register'))
 const Schedule = React.lazy(() => import('@pages/Schedule'))
 const Contact = React.lazy(() => import('@pages/Contact'))
+const NutritionFitnessPage = React.lazy(() => import('@pages/NutritionAndFitness/index')) 
 //Pages-Admin
 const AdminDashboard = React.lazy(() => import('@/pages/Admin/Dashboard'))
 const TransactionPage = React.lazy(() => import('@/pages/Admin/Transaction'))
@@ -63,7 +64,8 @@ const publicRoutes = [
   { path: `${ROUTES.DETAIL_PLAN}/:planName`, component: PlanDetailPage },
   { path: ROUTES.SCHEDULE, component: Schedule },
   { path: ROUTES.PAYMENTSTATUS, component: PaymentStatusPage },
-  { path: ROUTES.CONTACT, component: Contact }
+  { path: ROUTES.CONTACT, component: Contact },
+  { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
 ]
 
 const privateRoutes = [{ path: ROUTES.PROFILE, component: ProfilePage }]
