@@ -1,5 +1,6 @@
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
+  isAuthLoading: false,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
   services: [
     {
@@ -57,8 +58,17 @@ export const initialState = {
     }
   ],
   membershipPlans: [],
-  pregnancyRecord: [],
-  fetalGrowthRecord: [],
+  pregnancyRecord: [
+    {
+      id: 1,
+      babyName: 'Mike'
+    },
+    {
+      id: 1,
+      babyName: 'Mike'
+    }
+  ],
+  fetalGrowthRecord: {},
   testimonials: [
     {
       id: 1,
@@ -266,5 +276,35 @@ export const initialState = {
     }
   ],
   featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
-  growthMetrics: []
+  growthMetrics: [],
+  growthMetricsOfWeek: [],
+  reminderInfo: [],
+  reminderTypeInfo: [],
+  reminderActiveInfo: [],
+  statistics: [
+    {
+      title: 'Total Members',
+      value: '12,543',
+      increase: '+15.3%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Users',
+      value: '45,233',
+      increase: '+8.2%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Transactions',
+      value: '23,847',
+      increase: '-12.4%',
+      isIncrease: false
+    },
+    {
+      title: 'Total Revenue',
+      value: '$154,239',
+      increase: '-16.8%',
+      isIncrease: false
+    }
+  ]
 }

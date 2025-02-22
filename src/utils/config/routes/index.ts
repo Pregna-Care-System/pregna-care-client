@@ -17,12 +17,12 @@ const ROUTES = {
   SERVICES: '/services',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   MEMBESHIP_PLANS: '/membership-plans',
-  DETAIL_PLAN: '/detail-plan',
+  DETAIL_PLAN: '/membership-plans/:planName',
   CHECKOUT: '/checkout',
-  VNPAY: '/checkout/result',
+  PAYMENTSTATUS: '/checkout/result',
   SCHEDULE: '/schedule',
   ADMIN: {
-    DASHBOARD: '/admin/dashboard',
+    DASHBOARD: '/admin',
     TRANSACTION: '/admin/transaction',
     MEMBER: '/admin/member',
     MEMBERSHIP_PLAN: '/admin/membership-plans',
@@ -31,7 +31,8 @@ const ROUTES = {
   MEMBER: {
     DASHBOARD: '/member',
     TRACKING: '/member/tracking',
-    FETALGROWTHCHART: '/member/fetal-growth-chart'
+    FETALGROWTHCHART: '/member/fetal-growth-chart',
+    FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId'
   },
   NOT_FOUND: '*'
 }

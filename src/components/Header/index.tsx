@@ -164,6 +164,9 @@ export default function Header() {
                 <Link to={ROUTES.PROFILE}>
                   <UserOutlined /> My Profile
                 </Link>
+                <Link to={ROUTES.MEMBER.DASHBOARD}>
+                  <UserOutlined /> Member dashboard
+                </Link>
                 <Link to={ROUTES.PROFILE}>
                   <SettingOutlined /> Setting
                 </Link>
