@@ -13,7 +13,8 @@ export default function Register() {
         message.success('Registration successful')
         navigate('/confirm-email')
       } else {
-        message.error(response.message || 'Registration failed')
+        console.log(response.detailErrorList[0].message)
+        message.error(response.detailErrorList[0].message || 'Registration failed')
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -39,7 +40,7 @@ export default function Register() {
           wrapperCol={{ span: 24 }}
         >
           <Typography.Title style={{ color: '#e57373' }}>SIGN UP</Typography.Title>
-          
+
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item
             rules={[

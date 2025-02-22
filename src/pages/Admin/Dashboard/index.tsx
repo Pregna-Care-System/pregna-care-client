@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const [timeframe, setTimeframe] = useState('month')
   const [hasMore, setHasMore] = useState(true)
   const [isFetching, setIsFetching] = useState(false)
-  const [offset, setOffset] = useState(1)
+  const [offset, setOffset] = useState(0)
   const [limit] = useState(5)
   const observer = useRef<IntersectionObserver | null>(null)
   const lastTransactionRef = useRef<HTMLDivElement | null>(null)

@@ -1,5 +1,6 @@
 import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
+import ROUTES from '@/utils/config/routes'
 
 export const registerAccount = async (
   fullName: string,
@@ -17,12 +18,7 @@ export const registerAccount = async (
       password,
       roleName
     })
-
-    if (res.success) {
-      return res
-    } else {
-      throw new Error(res.message || 'Registration failed')
-    }
+    return res
   } catch (error: any) {
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
@@ -84,7 +80,6 @@ export const loginWithGG = async (email: string) => {
   }
 }
 
-
 export const updateAccount = async (
   userId: string,
   fullName: string,
@@ -123,7 +118,7 @@ export const updateAccount = async (
 export const logout = (): void => {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
-  window.location.reload()
+  window.location.href = ROUTES.LOGIN
 }
 
 export const forgotPassword = async (email: string) => {
