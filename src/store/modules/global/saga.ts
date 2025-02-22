@@ -426,6 +426,7 @@ export function* createReminderSaga(action: PayloadAction<any>): Generator<any, 
   try {
     yield call(
       createReminder,
+      action.payload.userId,
       action.payload.reminderTypeId,
       action.payload.title,
       action.payload.description,

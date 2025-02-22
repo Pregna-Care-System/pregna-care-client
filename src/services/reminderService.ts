@@ -58,6 +58,7 @@ export const updateReminder = async (
   }
 }
 export const createReminder = async (
+  userId: string,
   reminderTypeId: string,
   title: string,
   description: string,
@@ -68,7 +69,7 @@ export const createReminder = async (
 ) => {
   try {
     const apiCallerId = 'createReminder'
-    await request.post<MODEL.IResponseBase>('/Reminder', {
+    await request.post<MODEL.IResponseBase>(`/Reminder/${userId}`, {
       apiCallerId,
       reminderTypeId,
       title,
