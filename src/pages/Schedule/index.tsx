@@ -19,6 +19,7 @@ import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/glob
 import { Button, Form, Modal, Select, TimePicker } from 'antd'
 import { ClockCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import { jwtDecode } from 'jwt-decode'
 const VIEW_TYPES = {
   MONTH: 'month',
   WEEK: 'week'
@@ -36,7 +37,9 @@ const SchedulePage = () => {
   const dispatch = useDispatch()
   const [currentEvent, setCurrentEvent] = useState(null)
   const [form] = Form.useForm()
-
+  const token = localStorage.getItem('accessToken')
+  const user = jwtDecode(token || '')
+  
   const getDaysInMonth = (date) => {
     const start = startOfWeek(startOfMonth(date))
     const end = endOfWeek(endOfMonth(date))
@@ -132,6 +135,7 @@ const SchedulePage = () => {
       console.log('SELECT DATE', values)
       const { reminderType, title, startTime, endTime, description, reminderDate, status } = values
       const newEventItem = {
+        userId: user.id,
         reminderTypeId: reminderType,
         title,
         description,
