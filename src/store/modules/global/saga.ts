@@ -43,7 +43,7 @@ import {
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
 
-//-----User-----
+//#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
     const response = yield call(login, action.payload.email, action.payload.password)
@@ -126,6 +126,7 @@ export function* updateUserInformation(action: PayloadAction<any>): Generator<an
     console.error('Error in updateAccount saga:', error)
   }
 }
+
 //----------Payment-----------
 export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, void, any> {
   const { userId, membershipPlanId } = action.payload
@@ -154,6 +155,7 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
     throw error
   }
 }
+//#endregion
 
 //----------Membership plan-----------
 export function* getAllMembershipPlans(): Generator<any, void, any> {
@@ -289,17 +291,7 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
 //----------Create fetal growth record-----------
 export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    const response = yield call(
-      createFetalGrowth,
-      action.payload.userId,
-      action.payload.pregnancyRecordId,
-      action.payload.name,
-      action.payload.unit,
-      action.payload.description,
-      action.payload.week,
-      action.payload.value,
-      action.payload.note
-    )
+    const response = yield call(createFetalGrowth, action.payload)
     if (response) {
       message.success('Create fetal growth record successfully')
       yield put(setFetalGrowthRecord(response))
@@ -496,6 +488,15 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
     yield put(setStatistics(response))
   } catch (error: any) {
     message.error('Failed to fetch statistics. Please try again!')
+  }
+}
+
+export function* getMotherInfoSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getMotherInfo)
+    yield put(setMotherInfo(response))
+  } catch (error: any) {
+    message.error('Failed to fetch mother information. Please try again!')
   }
 }
 

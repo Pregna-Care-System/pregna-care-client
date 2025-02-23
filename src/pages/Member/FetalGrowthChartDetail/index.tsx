@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBabyInfo } from '@/store/modules/global/selector'
 import { useLocation, useParams } from 'react-router-dom'
-import { Layout, Typography } from 'antd'
+import { Breadcrumb, Layout, Typography } from 'antd'
 import FetalGrowthScreen from './Components/FetalGrowthScreen'
+import { HomeOutlined, UserOutlined } from '@ant-design/icons'
 
 const { Content } = Layout
 const { Title } = Typography

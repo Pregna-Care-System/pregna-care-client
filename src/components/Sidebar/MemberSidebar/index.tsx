@@ -1,4 +1,5 @@
 import ROUTES from '@/utils/config/routes'
+import { LucideBaby } from 'lucide-react'
 import React, { useState } from 'react'
 import { FiBarChart2, FiBell, FiDollarSign, FiMenu, FiUsers, FiX } from 'react-icons/fi'
 import { GoPerson } from 'react-icons/go'
@@ -16,23 +17,13 @@ export default function MemberSidebar() {
       path: ROUTES.MEMBER.DASHBOARD
     },
     {
-      title: 'Tracking',
-      icon: <FiDollarSign size={20} />,
-      path: ROUTES.MEMBER.TRACKING
-    },
-    {
-      title: 'Fetal growth chart',
-      icon: <FiUsers size={20} />,
+      title: 'Fetal growth',
+      icon: <LucideBaby size={20} />,
       path: ROUTES.MEMBER.FETALGROWTHCHART
     },
     {
       title: 'Mother status',
       icon: <FiBarChart2 size={20} />,
-      path: ROUTES.MEMBER.FETALGROWTHCHART
-    },
-    {
-      title: 'Notifications',
-      icon: <FiBell size={20} />,
       path: ROUTES.MEMBER.FETALGROWTHCHART
     }
   ]

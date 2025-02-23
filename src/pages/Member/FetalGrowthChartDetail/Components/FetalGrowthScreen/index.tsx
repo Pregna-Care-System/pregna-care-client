@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Col, Layout, Row, Typography } from 'antd'
+import { Breadcrumb, Card, Col, Layout, Row, Typography, Button } from 'antd'
 import FetusInfo from '../FetalInfo'
 import GestationalAgeChart from '../GestationalAgeChart'
 import GrowthChart from '../GrowthChart'
@@ -7,6 +7,9 @@ import MeasurementCharts from '../MeasurementCharts'
 import WeightChart from '../WeightChart'
 import ScheduleCard from '../ScheduleCard'
 import BarChart from '@/components/Chart/BarChart'
+import { Link, useNavigate } from 'react-router-dom'
+import { HomeOutlined } from '@ant-design/icons'
+import ROUTES from '@/utils/config/routes'
 
 const { Content } = Layout
 const { Title } = Typography
@@ -36,6 +39,7 @@ interface FetalGrowthScreenProps {
 }
 
 const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
+  const navigate = useNavigate()
   const measurements = [
     { key: 'hc', name: 'Head Circumference', color: '#8884d8', standardKey: 'standardHC', standardColor: '#a4a1e4' },
     {
@@ -66,9 +70,12 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
   return (
     <Layout className='bg-transparent'>
       <Content>
-        <Title level={2} className='text-center mb-8'>
-          {data.motherName}'s Fetal Growth Chart
-        </Title>
+        <Breadcrumb className='mb-4'>
+          <Breadcrumb.Item>
+            <Link to={ROUTES.MEMBER.FETALGROWTHCHART}>Pregnancy Records</Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>{data.motherName}'s Growth Chart</Breadcrumb.Item>
+        </Breadcrumb>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mt-8'>
           <div className='col-span-2'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>

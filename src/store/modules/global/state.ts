@@ -58,16 +58,7 @@ export const initialState = {
     }
   ],
   membershipPlans: [],
-  pregnancyRecord: [
-    {
-      id: 1,
-      babyName: 'Mike'
-    },
-    {
-      id: 1,
-      babyName: 'Mike'
-    }
-  ],
+  pregnancyRecord: [],
   fetalGrowthRecord: {},
   testimonials: [
     {
