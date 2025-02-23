@@ -297,5 +297,25 @@ export const initialState = {
       increase: '-16.8%',
       isIncrease: false
     }
+  ],
+  notificationInfo: [
+    {
+      id: 1,
+      title: 'Meeting the doctor',
+      message: 'HEHEEEEE',
+      isRead: false
+    },
+    {
+      id: 2,
+      title: 'Meeting the hehe',
+      message: 'HEHEEEEE',
+      isRead: false
+    },
+    {
+      id: 3,
+      title: 'Meeting the huhu',
+      message: 'HEHEEEEE',
+      isRead: false
+    }
   ]
 }

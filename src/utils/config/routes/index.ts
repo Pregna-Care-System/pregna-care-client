@@ -19,6 +19,7 @@ const ROUTES = {
   MEMBESHIP_PLANS: '/membership-plans',
   DETAIL_PLAN: '/membership-plans/:planName',
   CHECKOUT: '/checkout',
+  NOTIFICATION: '/notification',
   PAYMENTSTATUS: '/checkout/result',
   SCHEDULE: '/schedule',
   ADMIN: {

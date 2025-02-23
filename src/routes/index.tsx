@@ -14,6 +14,7 @@ import AdminLayout from '@/layouts/AdminLayout'
 import MemberLayout from '@/layouts/MemberLayout'
 import Loading from '@/components/Loading'
 import NoHeaderLayout from '@/layouts/NoHeaderLayout'
+import NotificationPage from '@/pages/Notification'
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
 const ConfirmEmail = React.lazy(() => import('@pages/Register/ConfirmPage'))
@@ -68,7 +69,10 @@ const publicRoutes = [
   { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
 ]
 
-const privateRoutes = [{ path: ROUTES.PROFILE, component: ProfilePage }]
+const privateRoutes = [
+  { path: ROUTES.PROFILE, component: ProfilePage },
+  { path: ROUTES.NOTIFICATION, component: NotificationPage }
+]
 
 const adminRoutes = [
   { path: ROUTES.ADMIN.DASHBOARD, component: AdminDashboard, layout: AdminLayout },
