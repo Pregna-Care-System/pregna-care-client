@@ -16,7 +16,13 @@ export function CreateModal({ isOpen, title, formItem, onClose, handleSubmit, fo
   const renderForm = () => {
     return formItem.map((item: any, index: number) => {
       return (
-        <Form.Item name={item.name} label={item.label} rules={[{ required: true, message: item.message }]} key={index}>
+        <Form.Item
+          name={item.name}
+          label={item.label}
+          rules={[{ required: true, message: item.message }]}
+          key={index}
+          hidden={item.hidden}
+        >
           <Input />
         </Form.Item>
       )

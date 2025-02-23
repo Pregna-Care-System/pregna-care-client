@@ -1,27 +1,11 @@
 import request from '@/utils/axiosClient'
 
-export const createFetalGrowth = async (
-  userId: string,
-  pregnancyRecordId: string,
-  name: string,
-  unit: string,
-  description: string,
-  week: number,
-  value: number,
-  note: string
-) => {
+export const createFetalGrowth = async (data: any) => {
   try {
     const apiCallerId = 'createFetalGrowth'
     const res = await request.post<MODEL.PregnancyRecordResponse>('/FetalGrowthRecord', {
-      apiCallerId,
-      userId,
-      pregnancyRecordId,
-      name,
-      unit,
-      description,
-      week,
-      value,
-      note
+      ...data,
+      apiCallerId
     })
     return res
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

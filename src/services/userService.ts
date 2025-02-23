@@ -154,6 +154,10 @@ export const userMembershipPlan = async (data: any) => {
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
 }
 
+export const getMotherInfo = async (userId: string) => {
+  return await request.get<MODEL.IResponseBase>(`/MotherInfo/${userId}`)
+}
+
 // export const refreshToken = async (): Promise<string> => {
 //   try {
 //     const refreshToken = localStorage.getItem('refreshToken')
