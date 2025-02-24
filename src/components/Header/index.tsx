@@ -20,6 +20,7 @@ import styled from 'styled-components'
 import { Button } from 'antd'
 import { useSelector } from 'react-redux'
 import { selectNotifications } from '@/store/modules/global/selector'
+import NotificationButton from '@/pages/Notification/NotificationButton'
 
 const Wrapper = styled.div`
   .active {
@@ -92,32 +93,9 @@ const Wrapper = styled.div`
 export default function Header() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  const navigate = useNavigate()
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
-  const [notificationTimer, setNotificationTimer] = useState<NodeJS.Timeout | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const [showAllNotifications, setShowAllNotifications] = useState(false)
-  const notificationInfo = useSelector(selectNotifications)
-  const [notifications, setNotifications] = useState(notificationInfo)
-
-  const unreadCount = notificationInfo.filter((n) => !n.isRead).length
-
-  const markAsRead = (id) => {
-    setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification))
-    )
-  }
-
-  const markAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
-  }
-
-  const handleNotificationClick = (notification) => {
-    setNotifications(notifications.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)))
-    setShowAllNotifications(true)
-  }
-
+  
   const handleMouseLeave = () => {
     const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
     setTimer(newTimer)
@@ -133,17 +111,7 @@ export default function Header() {
   const toggleDropDown = () => {
     setIsDropDownOpen((prev) => !prev)
   }
-  const handleNotificationMouseEnter = () => {
-    if (notificationTimer) {
-      clearTimeout(notificationTimer)
-      setNotificationTimer(null)
-    }
-  }
-
-  const handleNotificationMouseLeave = () => {
-    const newTimer = setTimeout(() => setIsOpen(false), 1000)
-    setNotificationTimer(newTimer)
-  }
+  
 
   const handleLogout = () => {
     logout()
@@ -196,66 +164,7 @@ export default function Header() {
           </>
         ) : (
           <>
-            <div className='relative ml-16'>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className='p-2 relative hover:bg-red-300 bg-slate-200 rounded-full transition-colors duration-200 border border-solid border-purple-100'
-                aria-label='Notifications'
-              >
-                {unreadCount > 0 ? (
-                  <BellFilled className='text-xl text-primary' />
-                ) : (
-                  <BellOutlined className='text-xl text-primary' />
-                )}
-                {unreadCount > 0 && (
-                  <span className='absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs'>
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {isOpen && (
-                <div
-                  className='absolute right-0 left-auto mt-2 w-80 bg-white rounded-lg shadow-xl py-2 z-100 border border-solid'
-                  onMouseEnter={handleNotificationMouseEnter}
-                  onMouseLeave={handleNotificationMouseLeave}
-                >
-                  <>
-                    <div className='flex justify-between items-center px-4 py-2 border-b border-border'>
-                      <h1 className='font-heading text-foreground'>Notifications</h1>
-                      <div className='flex gap-2'>
-                        <button
-                          onClick={markAllAsRead}
-                          className='text-xs text-primary hover:text-accent transition-colors duration-200'
-                        >
-                          Mark all as read
-                        </button>
-                        <button
-                          onClick={() => navigate(ROUTES.NOTIFICATION)}
-                          className='text-xs text-primary hover:text-accent transition-colors duration-200'
-                        >
-                          <button>See all</button>
-                        </button>
-                      </div>
-                    </div>
-                    <div className='max-h-[400px] overflow-y-auto'>
-                      {notifications.length > 0 ? (
-                        notifications.map((notification) => (
-                          <div key={notification.id} onClick={() => handleNotificationClick(notification)}>
-                            <p className={notification.isRead ? 'text-gray-500' : 'text-black font-bold'}>
-                              {notification.title}
-                            </p>
-                            <p>{notification.message}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p>No notifications</p>
-                      )}
-                    </div>
-                  </>
-                </div>
-              )}
-            </div>
+            <NotificationButton />
             <div onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='header_item_profile ml-auto'>
               {userImage ? (
                 <img src={userImage} alt='User Avatar' />
