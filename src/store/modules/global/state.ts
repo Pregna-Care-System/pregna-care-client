@@ -1,6 +1,5 @@
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
-  isAuthLoading: false,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
   services: [
     {
@@ -59,7 +58,7 @@ export const initialState = {
   ],
   membershipPlans: [],
   pregnancyRecord: [],
-  fetalGrowthRecord: {},
+  fetalGrowthRecord: [],
   testimonials: [
     {
       id: 1,
@@ -128,50 +127,7 @@ export const initialState = {
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
   ],
-  babyInfo: [
-    {
-      key: '1',
-      babyName: 'Mike',
-      pregnancyStartDate: '2025-01-26',
-      expectedDueDate: '2025-01-26',
-      babyGender: 'Female',
-      imageUrl: '',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    },
-    {
-      key: '2',
-      babyName: 'Mike',
-      pregnancyStartDate: '2025-01-26',
-      expectedDueDate: '2025-01-26',
-      babyGender: 'Female',
-      imageUrl: '',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    }
-  ],
-  motherInfo: [
-    {
-      key: '1',
-      motherName: 'Mike',
-      dateOfBirth: '2025-01-26',
-      bloodType: 'O Blood',
-      healthStatus: 'Good',
-      notes: '10 Downing Street',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    },
-    {
-      key: '2',
-      motherName: 'Mike',
-      dateOfBirth: '2025-01-26',
-      bloodType: 'O Blood',
-      healthStatus: 'Good',
-      notes: '10 Downing Street',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    }
-  ],
+  motherInfo: [],
   transactionInfo: [
     {
       fullName: 'Tina Pham',

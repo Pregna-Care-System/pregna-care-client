@@ -25,7 +25,14 @@ import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planS
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
-import { login, loginWithGG, paymentVNPAY, updateAccount, userMembershipPlan } from '@/services/userService'
+import {
+  getMotherInfo,
+  login,
+  loginWithGG,
+  paymentVNPAY,
+  updateAccount,
+  userMembershipPlan
+} from '@/services/userService'
 import {
   createGrowthMetric,
   getAllGrowthMetrics,
@@ -308,9 +315,9 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
 
 export function* getFetalGrowthRecordsSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    const res = yield call(getFetalGrowthRecords, action.payload)
-    if (res.success) {
-      yield put(setFetalGrowthRecord(res.response))
+    const res = yield call(getFetalGrowthRecords, action.payload.pregnancyRecordId)
+    if (res.data.success) {
+      yield put(setFetalGrowthRecord(res.data.response))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -495,10 +502,12 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
   }
 }
 
-export function* getMotherInfoSaga(): Generator<any, void, any> {
+export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    const response = yield call(getMotherInfo)
-    yield put(setMotherInfo(response))
+    const response = yield call(getMotherInfo, action.payload.userId)
+    if (response.success) {
+      yield put(setMotherInfo(response.response))
+    }
   } catch (error: any) {
     message.error('Failed to fetch mother information. Please try again!')
   }

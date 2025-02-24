@@ -6,7 +6,7 @@ import { FileTextOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design
 import ROUTES from '@/utils/config/routes'
 import { CreateModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectGrowthMetricsOfWeek, selectUserInfo } from '@/store/modules/global/selector'
+import { selectFetalGrowthRecord, selectGrowthMetricsOfWeek, selectUserInfo } from '@/store/modules/global/selector'
 
 interface PregnancyRecord {
   id: string
@@ -17,7 +17,7 @@ interface PregnancyRecord {
 
 interface WeeklyProgress {
   week: number
-  status: 'process' | 'success'
+  status: 'process' | 'success' | 'waiting'
   content?: string
 }
 
@@ -35,10 +35,17 @@ const PregnancyRecordList: React.FC<PregnancyRecordListProps> = ({ records }) =>
   const [form] = Form.useForm()
   const growthMetrics = useSelector(selectGrowthMetricsOfWeek) || []
   const user = useSelector(selectUserInfo)
+  const fetalGrowthRecord = useSelector(selectFetalGrowthRecord)
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
   }, [])
+
+  useEffect(() => {
+    if (activeTab) {
+      dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeTab } })
+    }
+  }, [activeTab])
 
   const fetusRecordFormItem = [
     ...growthMetrics.map((item: any) => ({
@@ -80,10 +87,19 @@ const PregnancyRecordList: React.FC<PregnancyRecordListProps> = ({ records }) =>
   }
 
   const WeeklyProgressContent: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    const weeklyData: WeeklyProgress[] = Array.from({ length: record?.totalWeeks }, (_, i) => ({
-      week: i + 1,
-      status: 'process'
-    }))
+    const weeklyData: WeeklyProgress[] = Array.from({ length: record?.totalWeeks }, (_, i) => {
+      const week = i + 1
+      let status: 'process' | 'success' | 'waiting' = 'waiting'
+      if (record.gestationalAgeResponse?.weeks === week) {
+        status = 'process'
+      } else if (record.gestationalAgeResponse?.weeks > week) {
+        status = 'success'
+      }
+      return {
+        week,
+        status
+      }
+    })
 
     return (
       <div className='p-4'>
@@ -113,12 +129,25 @@ const PregnancyRecordList: React.FC<PregnancyRecordListProps> = ({ records }) =>
                         </Button>
                         <Badge dot={<SyncOutlined spin />} text='process' status='processing' />
                       </>
+                    ) : week.status === 'waiting' ? (
+                      <Badge dot={<SyncOutlined />} text='upcoming' status='default' />
                     ) : (
                       <Badge dot={<CheckCircleOutlined />} text='success' status='success' />
                     )}
                   </div>
                 }
-              ></Panel>
+              >
+                <div className='grid grid-cols-2'>
+                  {fetalGrowthRecord
+                    .filter((record: any) => record.week === week.week)
+                    .map((itemFiltered: any) => (
+                      <div key={itemFiltered.id} className='flex items-center gap-2'>
+                        <span>{itemFiltered.name}</span>:<span>{itemFiltered.value}</span>
+                        <span>{itemFiltered.unit}</span>
+                      </div>
+                    ))}
+                </div>
+              </Panel>
             ))}
           </Collapse>
         </div>
