@@ -155,7 +155,7 @@ export const userMembershipPlan = async (data: any) => {
 }
 
 export const getMotherInfo = async (userId: string) => {
-  return await request.get<MODEL.IResponseBase>(`/MotherInfo/${userId}`)
+  return await request.get<MODEL.IResponseBase>(`/User/${userId}/MotherInfo`)
 }
 
 // export const refreshToken = async (): Promise<string> => {
