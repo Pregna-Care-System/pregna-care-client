@@ -4,7 +4,7 @@ import { selectNotifications } from '../../store/modules/global/selector'
 import { Bell } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-const NotificationPage: React.FC = () => {
+const NotificationPage = () => {
   const notifications = useSelector(selectNotifications)
   const [loading, setLoading] = useState(true)
 
