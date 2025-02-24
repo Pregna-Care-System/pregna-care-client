@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaLeaf, FaCalculator, FaBook, FaVideo, FaUserMd, FaAppleAlt, FaHeartbeat, FaPersonBooth, FaHeart, FaPlayCircle, FaDumbbell, FaYinYang, FaRunning, FaChevronDown, FaChevronUp, FaPrayingHands } from "react-icons/fa";
+import { FaLeaf, FaCalculator, FaBook, FaVideo, FaUserMd, FaAppleAlt, FaHeartbeat, FaPersonBooth, FaPlayCircle, FaDumbbell, FaYinYang, FaRunning, FaChevronDown, FaChevronUp, FaPrayingHands } from "react-icons/fa";
 import { MdTimer } from "react-icons/md";
 
 
@@ -472,15 +472,8 @@ const NutritionAndFitnessWellness = () => {
               ))}
             </div>
           </div>
-        </section>
-
-
-
-        <div className="fixed bottom-4 right-4 bg-white p-4 rounded-full shadow-lg">
-          <FaHeart className="text-coral-500 text-2xl animate-pulse" />
-        </div>
+        </section>       
       </div>
-
     </div>
   );
 };

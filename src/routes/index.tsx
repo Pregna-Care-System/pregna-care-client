@@ -22,6 +22,7 @@ const ProfilePage = React.lazy(() => import('@pages/Profile/MainProfile'))
 const PaymentStatusPage = React.lazy(() => import('@pages/PaymentStatus'))
 const CheckoutPage = React.lazy(() => import('@pages/Checkout'))
 const BlogPage = React.lazy(() => import('@pages/Blog'))
+const babyNamePage = React.lazy(() => import('@pages/BabyName'))
 const BlogDetailsPage = React.lazy(() => import('@pages/Blog/BlogDetails'))
 const CommunityDetailsPage = React.lazy(() => import('@/pages/Community/Details'))
 const PlanDetailPage = React.lazy(() => import('@pages/MembershipPlans/components/PlanDetail'))
@@ -51,6 +52,7 @@ const publicRoutes = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: HomePage },
   { path: ROUTES.BLOG, component: BlogPage },
+  { path: ROUTES.BABY_NAME, component: babyNamePage },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.COMMUNITY, component: CommunityPage },
   { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
