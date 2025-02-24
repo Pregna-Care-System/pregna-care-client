@@ -13,8 +13,10 @@ import {
   setReminderTypeInfo,
   setReminderActiveInfo,
   setGrowthMetricsOfWeek,
+  setAuthLoading,
   setStatistics,
-  setMotherInfo
+  setMotherInfo,
+  setNotifications
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -49,6 +51,7 @@ import {
 } from '@/services/reminderService'
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
+import { deleteNotification, getAllNotificationByUserId, updateNotification } from '@/services/notificationService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -510,6 +513,43 @@ export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, v
   }
 }
 
+//----------Notification information-----------
+export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('ACTION PAYLOAD', action.payload.userId)
+    const response = yield call(getAllNotificationByUserId, action.payload.userId)
+    console.log('Response for call api notification', response)
+    if (response.response) {
+      yield put(setNotifications(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+    throw error
+  }
+}
+
+//----------Update Notification-----------
+export function* updateNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('UPDATE ID NOTIFICATION', action.payload.id)
+    yield call(updateNotification, action.payload.id)
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the notification.')
+    console.error('Error in updateNotification saga:', error)
+  }
+}
+//-------------------Delete Notification-------------------
+export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('DELETE ID NOTIFICATION', action.payload.id)
+    yield call(deleteNotification, action.payload.id)
+    message.success('Notification deleted successfully')
+  } catch (error) {
+    message.error('An unexpected error occurred while deleting the notification.')
+    console.error('Error in deleteNotification saga:', error)
+  }
+}
 // Get all
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
@@ -537,5 +577,9 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('UPDATE_REMINDER', updateReminderSaga)
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
   yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
-  yield takeLatest('FETCH_STATISTICS', fetchStatistics), yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
+  yield takeLatest('FETCH_STATISTICS', fetchStatistics)
+  yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
+  yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
+  yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
+  yield takeLatest('DELETE_NOTIFICATION', deleteNotificationSaga)
 }
