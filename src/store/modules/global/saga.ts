@@ -13,7 +13,6 @@ import {
   setReminderTypeInfo,
   setReminderActiveInfo,
   setGrowthMetricsOfWeek,
-  setAuthLoading,
   setStatistics,
   setMotherInfo,
   setNotifications

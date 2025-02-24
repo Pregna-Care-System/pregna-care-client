@@ -67,7 +67,7 @@ export default function NotificationButton() {
     <div className='relative ml-16'>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='p-2 relative hover:bg-red-300 bg-slate-200 rounded-full transition-colors duration-200 border border-solid border-purple-100'
+        className='relative p-2 bg-gray-100 rounded-full transition hover:bg-gray-200 border border-gray-300'
         aria-label='Notifications'
       >
         {unreadCount > 0 ? (
@@ -76,7 +76,7 @@ export default function NotificationButton() {
           <BellOutlined className='text-xl text-primary' />
         )}
         {unreadCount > 0 && (
-          <span className='absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs'>
+          <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center'>
             {unreadCount}
           </span>
         )}
@@ -94,33 +94,33 @@ export default function NotificationButton() {
               <div className='flex gap-2'>
                 <button
                   onClick={markAllAsRead}
-                  className='text-xs text-primary hover:text-accent transition-colors duration-200'
+                  className='text-xs text-blue-600 hover:text-black transition-colors duration-200'
                 >
                   Mark all as read
                 </button>
                 <button
                   onClick={() => navigate(ROUTES.NOTIFICATION)}
-                  className='text-xs text-primary hover:text-accent transition-colors duration-200'
+                  className='text-xs text-blue-600 hover:text-black transition-colors duration-200'
                 >
                   <button>See all</button>
                 </button>
               </div>
             </div>
-            <div className='max-h-[400px] overflow-y-auto space-y-1'>
+            <div className='max-h-[400px] overflow-y-auto divide-y divide-gray-200'>
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 mb-2 border border-solid rounded-lg flex items-center justify-between px-4 py-3 hover:bg-blue-50
-                      ${notification.isRead ? 'bg-gray-50 border border-red-200' : 'bg-blue-300'}`}
+                    className={`p-4 border border-solid flex items-center justify-between px-4 py-3 hover:bg-blue-50
+                      ${notification.isRead ? 'bg-gray-50' : 'bg-blue-300'}`}
                   >
                     <div onClick={() => handleNotificationClick(notification)} className='cursor-pointer flex-grow'>
                       <div className='flex items-center'>
+                      {!notification.isRead && <div className='ml-2 w-3 h-3 bg-blue-500 rounded-full'></div>}
                         <div>
                           <p className='text-gray-500'>{notification.title}</p>
                           <p className='text-gray-700'>{notification.message}</p>
                         </div>
-                        {!notification.isRead && <div className='ml-2 w-3 h-3 bg-blue-500 rounded-full'></div>}
                       </div>
                     </div>
 
