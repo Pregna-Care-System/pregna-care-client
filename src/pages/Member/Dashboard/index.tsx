@@ -1,4 +1,4 @@
-import { selectPregnancyRecord } from '@/store/modules/global/selector'
+import { selectMotherInfo, selectPregnancyRecord } from '@/store/modules/global/selector'
 import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
 import React, { useEffect, useState } from 'react'
@@ -12,21 +12,21 @@ export default function Dashboard() {
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
 
-  const pregnancyRecord = useSelector(selectPregnancyRecord)
+  const motherInfo = useSelector(selectMotherInfo)
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
     if (user?.id) {
-      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+      dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: user.id } })
     }
   }, [dispatch])
 
   useEffect(() => {
-    if (pregnancyRecord) {
-      setPregnancyInfor(pregnancyRecord)
+    if (motherInfo) {
+      setPregnancyInfor(motherInfo)
     }
-  }, [pregnancyRecord])
+  }, [motherInfo])
 
   const columns = [
     {
@@ -36,7 +36,7 @@ export default function Dashboard() {
     },
     {
       title: 'Date Of Birth',
-      dataIndex: 'motherDateOfBirth',
+      dataIndex: 'dateOfBirth',
       key: 'motherDateOfBirth'
     },
     {
@@ -46,25 +46,13 @@ export default function Dashboard() {
     },
     {
       title: 'Health Status',
-      dataIndex: 'healhStatus',
+      dataIndex: 'healthStatus',
       key: 'healhStatus'
     },
     {
       title: 'Notes',
       dataIndex: 'notes',
       key: 'notes'
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text) => new Date(text).toLocaleString()
-    },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      render: (text) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -131,11 +119,7 @@ export default function Dashboard() {
             ]}
           />
         </div>
-        <Table
-          dataSource={Array.isArray(pregnancyInfor) ? pregnancyInfor : []}
-          columns={columns}
-          pagination={{ pageSize: 8 }}
-        />
+        <Table dataSource={motherInfo} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal width={800} height={600} open={isModalOpen} onCancel={onClose} footer={null}>
