@@ -98,7 +98,7 @@ export default function AdminLayout({ children }) {
 
   const userImage = user?.image || null
   return (
-    <div className='flex min-h-screen bg-gray-100'>
+    <div className='flex min-h-screen'  style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}>
       <div className='w-64 bg-gray-800 text-white p-6'>
         <AdminSidebar />
       </div>
