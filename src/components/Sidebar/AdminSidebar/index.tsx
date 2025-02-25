@@ -68,16 +68,17 @@ const AdminSidebar = () => {
   return (
     <div className='relative'>
       <button
-        className='lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-lg'
-        onClick={() => setIsOpen(!isOpen)}
+        className='fixed top-4 left-52 z-50 p-2 bg-red-100 rounded-md shadow-lg'
+        onClick={() => setIsOpen((prev) => !prev)}
         aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
       >
         {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
       </button>
+
       <aside
-        className={`${
+        className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed top-0 left-0 h-screen w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0`}
+        } lg:translate-x-0 z-40`}
       >
         <div className='flex flex-col h-full'>
           <div className='p-6 border-b border-gray-200'>
@@ -110,7 +111,6 @@ const AdminSidebar = () => {
                   </button>
                 </li>
               ))}
-              !
             </ul>
           </nav>
         </div>
