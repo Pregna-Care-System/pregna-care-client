@@ -103,18 +103,24 @@ export default function AdminLayout({ children }) {
         <AdminSidebar />
       </div>
       <div className='flex-1 px-6 py-4'>
-        <div className='flex justify-end items-center mb-10'>
-          <div>
-            <BellOutlined className='cursor-pointer text-xl' />
+        <div className='flex justify-end items-center mb-10 space-x-4'>
+          <BellOutlined className='cursor-pointer text-2xl text-gray-600 hover:text-gray-800 transition duration-300' />
+
+          <div className='flex items-center space-x-3'>
+            <span className='text-lg font-medium text-gray-700'>Hello, {user.name}</span>
+            <HeaderItemProfile onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='relative'>
+              {userImage ? (
+                <img
+                  src={userImage}
+                  alt='User Avatar'
+                  className='w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-500 transition duration-300'
+                />
+              ) : (
+                <UserOutlined className='text-2xl text-gray-600 cursor-pointer' />
+              )}
+            </HeaderItemProfile>
           </div>
-          Hello,{user.name}
-          <HeaderItemProfile onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='header_item_profile'>
-            {userImage ? (
-              <img src={userImage} alt='User Avatar' />
-            ) : (
-              <UserOutlined className='text-xl cursor-pointer' />
-            )}
-          </HeaderItemProfile>
+
           {isDropDownOpen && (
             <Dropdown className='dropdown' onMouseLeave={handleMouseLeave}>
               <Link to={ROUTES.PROFILE}>
@@ -129,6 +135,7 @@ export default function AdminLayout({ children }) {
             </Dropdown>
           )}
         </div>
+
         {children}
       </div>
     </div>

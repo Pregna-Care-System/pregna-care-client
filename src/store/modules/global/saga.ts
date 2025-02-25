@@ -15,12 +15,13 @@ import {
   setGrowthMetricsOfWeek,
   setStatistics,
   setMotherInfo,
-  setNotifications
+  setNotifications,
+  setMostUsedPlan
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
-import { createPlan, deletePlan, getAllPlan, updatePlan } from '@/services/planService'
+import { createPlan, deletePlan, getAllPlan, getMostUsedPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
@@ -353,15 +354,19 @@ export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Gene
 }
 
 //----------Member information-----------
-export function* getAllMemberAdmin(): Generator<any, void, any> {
+export function* getAllMemberAdmin(filterType?: string, name?: string): Generator<any, void, any> {
   try {
-    const response = yield call(getAllMember)
+    const response = yield call(getAllMember, filterType, name)
     console.log('Response', response.data.response)
-    if (response.data.response) {
+
+    if (response.data.response && response.data.response.length > 0) {
       yield put(setMemberInfo(response.data.response))
+    } else {
+      message.info('No members found!')
+      yield put(setMemberInfo([])) // Cập nhật store với mảng rỗng nếu không có dữ liệu
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
+    message.error('An unexpected error occurred, try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -372,6 +377,18 @@ export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
     console.log('Response', response.data.response)
     if (response.data.response) {
       yield put(setTransactionInfo(response.data.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+//----------Most used plan information-----------
+export function* getMostUsedPlanSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getMostUsedPlan)
+    if (response) {
+      yield put(setMostUsedPlan(response.data))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -560,4 +577,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
   yield takeLatest('DELETE_NOTIFICATION', deleteNotificationSaga)
+  yield takeLatest('GET_MOST_USED_PLAN', getMostUsedPlanSaga)
 }

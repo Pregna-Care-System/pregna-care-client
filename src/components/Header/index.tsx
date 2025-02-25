@@ -186,7 +186,6 @@ export default function Header() {
                 <Link to={ROUTES.SCHEDULE}>
                   <CalendarOutlined /> My Schedule
                 </Link>
-                <div className='border-t border-gray-300 my-2'></div>
                 
                 <div className='dropdown_item cursor-pointer border-t border-t-gray-300' onClick={handleLogout}>
                   <LogoutOutlined /> Logout

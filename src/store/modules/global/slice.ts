@@ -52,6 +52,9 @@ const editorSlice = createSlice({
     },
     setMotherInfo(state, action: PayloadAction<any>) {
       state.motherInfo = action.payload
+    },
+    setMostUsedPlan(state, action: PayloadAction<any>){
+      state.mostUsedPlan = action.payload
     }
   }
 })
@@ -72,7 +75,8 @@ export const {
   setGrowthMetricsOfWeek,
   setStatistics,
   setNotifications,
-  setMotherInfo
+  setMotherInfo,
+  setMostUsedPlan
 } = editorSlice.actions
 
 export default editorSlice.reducer

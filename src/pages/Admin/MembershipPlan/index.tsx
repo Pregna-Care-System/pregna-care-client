@@ -1,8 +1,8 @@
 import { getPlanById } from '@/services/planService'
-import { selectFeatureInfoInfo, selectMembershipPlans } from '@/store/modules/global/selector'
+import { selectFeatureInfoInfo, selectMembershipPlans, selectMostUsedPlan } from '@/store/modules/global/selector'
 import request from '@/utils/axiosClient'
 import { FileAddFilled } from '@ant-design/icons'
-import { Button, Col, Form, Input, Modal, Row, Select, Space, Table, Upload, message } from 'antd'
+import { Button, Card, Col, Form, Input, Modal, Row, Select, Space, Statistic, Table, Upload, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { TbEdit } from 'react-icons/tb'
@@ -15,16 +15,19 @@ export default function MemberShipPlanAdminPage() {
   const [featureList, setFeatureList] = useState([])
   const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
   const [isUpdateMode, setIsUpdateMode] = useState(false)
+  const [mostPlan, setMostPlan] = useState(null)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState([])
-  const [file, setFile] = useState()
   const plansResponse = useSelector(selectMembershipPlans)
+  const mostPlanResponse = useSelector(selectMostUsedPlan)
   const featuresResponse = useSelector(selectFeatureInfoInfo)
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
     dispatch({ type: 'GET_ALL_FEATURES' })
+    dispatch({ type: 'GET_MOST_USED_PLAN' })
+
   }, [dispatch])
 
   useEffect(() => {
@@ -34,7 +37,11 @@ export default function MemberShipPlanAdminPage() {
     if (featuresResponse !== null && featuresResponse.length > 0) {
       setFeatureList(featuresResponse)
     }
-  }, [plansResponse, featuresResponse])
+    if (mostPlanResponse !== null) {
+      setMostPlan(mostPlanResponse)
+    }
+  }, [plansResponse, featuresResponse, mostPlanResponse])
+
 
   const columns = [
     {
@@ -277,8 +284,16 @@ export default function MemberShipPlanAdminPage() {
           </button>
         </div>
       </div>
+      <div className='grid grid-cols-2 gap-4 mb-6'>
+        <Card className='shadow-lg'>
+          <Statistic title='Total Plans' value={plans.length} />
+        </Card>
+        <Card className='shadow-lg'>
+          <Statistic title='Most Used Plan' value={mostPlan || 'N/A'} />
+        </Card>
+      </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
-        <div className='flex justify-end mb-5'>
+        <div className='flex justify-end mb-5 '>
           <Input.Search className='w-1/3 mr-4' placeholder='Search' />
           <Select
             defaultValue='newest'

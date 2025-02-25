@@ -20,3 +20,5 @@ export const selectReminderActiveInfo = (state: RootState) => state.global.remin
 export const selectGrowthMetricsOfWeek = (state: RootState) => state.global.growthMetricsOfWeek
 export const selectStatistics = (state: RootState) => state.global.statistics
 export const selectNotifications = (state: RootState) => state.global.notificationInfo
+export const selectMostUsedPlan = (state: RootState) => state.global.mostUsedPlan
+

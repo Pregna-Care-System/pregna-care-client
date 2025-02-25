@@ -273,5 +273,6 @@ export const initialState = {
       message: 'HEHEEEEE',
       isRead: false
     }
-  ]
+  ],
+  mostUsedPlan:{}
 }
