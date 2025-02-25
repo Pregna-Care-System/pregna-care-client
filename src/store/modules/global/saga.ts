@@ -107,8 +107,6 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
     } else {
       message.error(error.message || 'An unexpected error occurred')
     }
-  } finally {
-    yield put(setAuthLoading(false))
   }
 }
 //----------Update User information-----------
@@ -148,7 +146,6 @@ export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, 
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -161,7 +158,6 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //#endregion
@@ -176,7 +172,6 @@ export function* getAllMembershipPlans(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -198,7 +193,6 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -251,7 +245,6 @@ export function* getFeatures(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -280,7 +273,6 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -293,7 +285,6 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -308,7 +299,6 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -321,7 +311,6 @@ export function* getFetalGrowthRecordsSaga(action: PayloadAction<any>): Generato
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -336,7 +325,6 @@ export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -349,7 +337,6 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -362,7 +349,6 @@ export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Gene
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -377,7 +363,6 @@ export function* getAllMemberAdmin(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //----------User Transaction information-----------
@@ -391,7 +376,6 @@ export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //----------Reminder information-----------
@@ -405,7 +389,6 @@ export function* getAllReminderSaga(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //----------Reminder active information-----------
@@ -419,7 +402,6 @@ export function* getAllReminderActiveSaga(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //----------Create reminder-----------
@@ -441,7 +423,6 @@ export function* createReminderSaga(action: PayloadAction<any>): Generator<any, 
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 //----------Update REMINDER-----------
@@ -488,7 +469,6 @@ export function* getAllReminderTypeSaga(): Generator<any, void, any> {
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
@@ -524,7 +504,6 @@ export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Gen
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
-    throw error
   }
 }
 
