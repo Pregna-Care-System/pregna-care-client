@@ -88,7 +88,7 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
 
   const columns: ColumnsType<FetalAlert> = [
     {
-      title: 'Tuần thai',
+      title: 'Week',
       dataIndex: 'week',
       key: 'week',
       sorter: (a, b) => a.week - b.week,
@@ -96,7 +96,7 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
       width: 100
     },
     {
-      title: 'Ngày cảnh báo',
+      title: 'Alert Date',
       dataIndex: 'alertDate',
       key: 'alertDate',
       render: (date) => (
@@ -109,7 +109,7 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
       width: 180
     },
     {
-      title: 'Mức độ',
+      title: 'Severity',
       dataIndex: 'severity',
       key: 'severity',
       render: (severity) => (
@@ -130,13 +130,13 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
       width: 120
     },
     {
-      title: 'Vấn đề',
+      title: 'Issue',
       dataIndex: 'issue',
       key: 'issue',
       render: (text) => <div className='max-w-lg overflow-hidden text-ellipsis whitespace-nowrap'>{text}</div>
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'isResolved',
       key: 'isResolved',
       render: (isResolved) => (
@@ -145,22 +145,22 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
           color={isResolved ? 'success' : 'default'}
           className='px-3 py-1 rounded-full text-sm font-medium'
         >
-          {isResolved ? 'Đã xử lý' : 'Chưa xử lý'}
+          {isResolved ? 'Isresolved' : 'Unresolved'}
         </Tag>
       ),
       filters: [
-        { text: 'Đã xử lý', value: true },
-        { text: 'Chưa xử lý', value: false }
+        { text: 'Isresolved', value: true },
+        { text: 'Unresolved', value: false }
       ],
       onFilter: (value, record) => record.isResolved === value,
       width: 130
     },
     {
-      title: 'Thao tác',
+      title: 'Action',
       key: 'action',
       render: (_, record) => (
         <Button type='primary' icon={<EyeOutlined />} onClick={() => showModal(record)} className='rounded-full'>
-          Chi tiết
+          Details
         </Button>
       ),
       width: 120,
@@ -180,49 +180,9 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
 
   return (
     <div className='space-y-6'>
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={6}>
-          <Card className='h-full hover:shadow-lg transition-shadow'>
-            <Statistic
-              title='Tổng số cảnh báo'
-              value={totalAlerts}
-              prefix={<AlertOutlined className='text-blue-500' />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className='h-full hover:shadow-lg transition-shadow'>
-            <Statistic
-              title='Cảnh báo nghiêm trọng'
-              value={criticalAlerts}
-              prefix={<ExclamationCircleOutlined className='text-red-500' />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className='h-full hover:shadow-lg transition-shadow'>
-            <Statistic
-              title='Chưa xử lý'
-              value={unresolvedAlerts}
-              prefix={<ClockCircleOutlined className='text-orange-500' />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className='h-full hover:shadow-lg transition-shadow'>
-            <Statistic
-              title='Đã xử lý'
-              value={resolvedAlerts}
-              prefix={<CheckCircleOutlined className='text-green-500' />}
-            />
-          </Card>
-        </Col>
-      </Row>
-
       {/* Main Content Card */}
       <Card
-        className='shadow-md hover:shadow-lg transition-shadow'
+        className='shadow-sm hover:shadow-lg transition-shadow'
         title={
           <div className='flex items-center space-x-2'>
             <AlertOutlined className='text-primary' />
@@ -230,6 +190,46 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
           </div>
         }
       >
+        <Row gutter={[16, 16]} className='mb-4'>
+          <Col xs={24} sm={12} md={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+              <Statistic
+                title='Total Alerts'
+                value={totalAlerts}
+                prefix={<AlertOutlined className='text-blue-500' />}
+                valueStyle={{ color: '#3f8600' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+              <Statistic
+                title='Critical Alerts'
+                value={criticalAlerts}
+                prefix={<ExclamationCircleOutlined className='text-red-500' />}
+                valueStyle={{ color: '#cf1322' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+              <Statistic
+                title='Unresolved Alerts'
+                value={unresolvedAlerts}
+                prefix={<ClockCircleOutlined className='text-orange-500' />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow'>
+              <Statistic
+                title='Resolved Alerts'
+                value={resolvedAlerts}
+                prefix={<CheckCircleOutlined className='text-green-500' />}
+              />
+            </Card>
+          </Col>
+        </Row>
         <Space direction='vertical' size='middle' className='w-full'>
           {/* Filters */}
           <div className='flex flex-wrap gap-4 items-center justify-between'>
@@ -278,7 +278,7 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
                 pagination={{
                   pageSize: 10,
                   showSizeChanger: true,
-                  showTotal: (total) => `Tổng số ${total} cảnh báo`,
+                  showTotal: (total) => `Total ${total} alerts`,
                   className: 'rounded-full'
                 }}
                 className='shadow-sm'
