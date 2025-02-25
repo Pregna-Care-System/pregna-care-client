@@ -56,7 +56,7 @@ const MommyServicesPage = () => {
         <header className='relative h-[400px] rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-purple-200 to-pink-200'>
           <div className='absolute inset-0 flex flex-col justify-center items-center text-white'>
             <h1 className='text-6xl font-bold animate-fade-in mb-4'>Mommy Services</h1>
-            <p className='text-xl opacity-90'>Your one-stop solution for all mommy needs</p>
+            <p className='text-xl opacity-90'>Comprehensive care for every mom</p>
           </div>
         </header>
 

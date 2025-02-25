@@ -95,25 +95,7 @@ export default function Header() {
   const user = token ? jwtDecode(token) : null
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
-  const [features, setFeatures] = useState([])
-
-  useEffect(() => {
-    if (user) {
-      fetchFeatures(user.sub) 
-    }
-  }, [user])
-
-  const fetchFeatures = async (userId) => {
-    try {
-      const response = await fetch(`https://localhost:7081/api/v1/Feature?userId=${userId}`)
-      if (!response.ok) throw new Error('Failed to fetch features')
-      const data = await response.json()
-      setFeatures(data)
-    } catch (error) {
-      console.error('Error fetching features:', error)
-    }
-  }
-
+ 
   const handleMouseLeave = () => {
     const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
     setTimer(newTimer)
@@ -205,15 +187,7 @@ export default function Header() {
                   <CalendarOutlined /> My Schedule
                 </Link>
                 <div className='border-t border-gray-300 my-2'></div>
-                {features.length > 0 ? (
-                  features.map((feature) => (
-                    <Link key={feature.id} to={feature.route}>
-                      {feature.name}
-                    </Link>
-                  ))
-                ) : (
-                  <p className='text-gray-500 text-center text-sm'>No features available</p>
-                )}
+                
                 <div className='dropdown_item cursor-pointer border-t border-t-gray-300' onClick={handleLogout}>
                   <LogoutOutlined /> Logout
                 </div>
