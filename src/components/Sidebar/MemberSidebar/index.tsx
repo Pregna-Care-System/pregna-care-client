@@ -73,7 +73,7 @@ export default function MemberSidebar() {
                   <button
                     onClick={() => handleMenuItemClick(item.title, item.path)}
                     className={`w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-                      activeMenu === item.title ? 'bg-blue-100 text-blue-600' : ''
+                      activeMenu === item.title ? 'bg-red-100 text-blue-600' : ''
                     }`}
                     aria-label={item.title}
                   >
