@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBabyInfo } from '@/store/modules/global/selector'
 import { useLocation, useParams } from 'react-router-dom'
 import { Breadcrumb, Layout, Typography } from 'antd'
 import FetalGrowthScreen from './Components/FetalGrowthScreen'
@@ -146,14 +145,10 @@ const FetalGrowthChartDetail = () => {
     }
   }
 
-  const babyInfo = useSelector(selectBabyInfo)
-
   return (
-    <Layout className='min-h-screen bg-gray-100'>
-      <Content className=''>
-        <FetalGrowthScreen data={mockData} />
-      </Content>
-    </Layout>
+    <Content className=''>
+      <FetalGrowthScreen data={mockData} />
+    </Content>
   )
 }
 

@@ -1,0 +1,78 @@
+.container {
+    padding: 24px;
+  }
+  
+  .recordCard {
+    width: 240px;
+    transition: all 0.2s ease;
+  }
+  
+  .recordCard:hover {
+    transform: translateY(-2px);
+  }
+  
+  .recordCard :global(.ant-card-body) {
+    padding: 24px;
+  }
+  
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #ff6b81;
+    margin-bottom: 16px;
+  }
+  
+  .weekList {
+    max-height: 650px;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  
+  .babyInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .babyName {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 8px 0;
+  }
+  
+  .gestationalInfo {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+    margin: 4px 0;
+  }
+  
+  .metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .weekHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  :global(.ant-btn-primary) {
+    background-color: #ff6b81;
+  }
+  
+  :global(.ant-btn-primary:hover) {
+    background-color: #ff5268;
+  }
+  
+  :global(.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+    color: #ff6b81;
+  }
+  
+  :global(.ant-tabs-ink-bar) {
+    background: #ff6b81;
+  }
+  
+  
