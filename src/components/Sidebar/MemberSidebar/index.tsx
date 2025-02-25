@@ -49,7 +49,7 @@ export default function MemberSidebar() {
       <aside
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed top-0 left-0 h-screen w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0`}
+        } fixed top-0 left-0 h-screen w-64 bg-white transition-transform duration-300 ease-in-out lg:translate-x-0`}
       >
         <div className='flex flex-col h-full'>
           <div className='p-6 border-b border-gray-200'>

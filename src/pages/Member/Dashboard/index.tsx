@@ -1,4 +1,4 @@
-import { selectMotherInfo, selectPregnancyRecord } from '@/store/modules/global/selector'
+import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
 import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
 import { jwtDecode } from 'jwt-decode'
 import React, { useEffect, useState } from 'react'
@@ -13,12 +13,11 @@ export default function Dashboard() {
   const [loading, setLoading] = React.useState(false)
 
   const motherInfo = useSelector(selectMotherInfo)
+  const userInfo = useSelector(selectUserInfo)
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    const user = token ? jwtDecode(token) : null
-    if (user?.id) {
-      dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: user.id } })
+    if (userInfo.id) {
+      dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
     }
   }, [dispatch])
 
