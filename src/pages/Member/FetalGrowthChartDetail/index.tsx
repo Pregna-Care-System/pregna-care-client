@@ -4,6 +4,7 @@ import { useLocation, useParams } from 'react-router-dom'
 import { Breadcrumb, Layout, Typography } from 'antd'
 import FetalGrowthScreen from './Components/FetalGrowthScreen'
 import { HomeOutlined, UserOutlined } from '@ant-design/icons'
+import { selectFetalGrowthRecord, selectGrowthMetrics } from '@/store/modules/global/selector'
 
 const { Content } = Layout
 const { Title } = Typography
@@ -57,93 +58,21 @@ const mockData = {
 }
 
 const FetalGrowthChartDetail = () => {
-  const [isHovered, setIsHovered] = useState(false)
   const dispatch = useDispatch()
   const param = useParams()
-  const { id } = param
 
-  const measurements = [
-    { key: 'hc', name: 'Head Circumference', color: '#8884d8', standardKey: 'standardHC', standardColor: '#a4a1e4' },
-    {
-      key: 'ac',
-      name: 'Abdominal Circumference',
-      color: '#82ca9d',
-      standardKey: 'standardAC',
-      standardColor: '#a7e3bc'
-    },
-    { key: 'fl', name: 'Femur Length', color: '#ffc658', standardKey: 'standardFL', standardColor: '#ffe0a3' }
-  ]
+  const fetalGrowthRecords = useSelector(selectFetalGrowthRecord)
+  const growthMetrics = useSelector(selectGrowthMetrics)
 
   useEffect(() => {
-    dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: param.pregnancyRecordId })
+    if (param.pregnancyRecordId) {
+      dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: param.pregnancyRecordId } })
+    }
   }, [param.pregnancyRecordId])
 
-  const fetalWeightData = {
-    series: [
-      {
-        name: '2024',
-        data: [300, 600, 1200, 1800, 2500, 3000]
-      }
-    ],
-    options: {
-      chart: {
-        type: 'line',
-        height: 300
-      },
-      stroke: {
-        width: 2
-      },
-      xaxis: {
-        categories: ['6-12', '16-20', '24-28', '32-34', '36', '38-40'],
-        title: {
-          text: 'Weeks'
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Weight (g)'
-        }
-      },
-      legend: {
-        position: 'top'
-      }
-    }
-  }
-
-  const fetalMeasurementsData = {
-    series: [
-      {
-        name: 'Head Circumference',
-        data: [18, 22, 26.5, 30, 33]
-      },
-      {
-        name: 'Abdominal Circumference',
-        data: [16, 20, 23.8, 28, 32]
-      },
-      {
-        name: 'Femur Length',
-        data: [3, 4, 5.2, 6, 7]
-      }
-    ],
-    options: {
-      chart: {
-        type: 'line',
-        height: 300
-      },
-      stroke: {
-        width: 2
-      },
-      xaxis: {
-        categories: ['6-12', '16-20', '24-28', '32-34', '36', '38-40'],
-        title: {
-          text: 'Weeks'
-        }
-      },
-      legend: {
-        position: 'bottom'
-      }
-    }
-  }
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_GROWTH_METRICS' })
+  }, [dispatch])
 
   return (
     <Content className=''>
