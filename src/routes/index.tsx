@@ -15,6 +15,7 @@ import MemberLayout from '@/layouts/MemberLayout'
 import Loading from '@/components/Loading'
 import NoHeaderLayout from '@/layouts/NoHeaderLayout'
 import NotificationPage from '@/pages/Notification'
+import MommyServicesPage from '@/pages/Service'
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
 const ConfirmEmail = React.lazy(() => import('@pages/Register/ConfirmPage'))
@@ -23,7 +24,7 @@ const ProfilePage = React.lazy(() => import('@pages/Profile/MainProfile'))
 const PaymentStatusPage = React.lazy(() => import('@pages/PaymentStatus'))
 const CheckoutPage = React.lazy(() => import('@pages/Checkout'))
 const BlogPage = React.lazy(() => import('@pages/Blog'))
-const babyNamePage = React.lazy(() => import('@pages/BabyName'))
+const babyNamePage = React.lazy(() => import('@/pages/Service/BabyName'))
 const BlogDetailsPage = React.lazy(() => import('@pages/Blog/BlogDetails'))
 const CommunityDetailsPage = React.lazy(() => import('@/pages/Community/Details'))
 const PlanDetailPage = React.lazy(() => import('@pages/MembershipPlans/components/PlanDetail'))
@@ -68,7 +69,8 @@ const publicRoutes = [
   { path: ROUTES.SCHEDULE, component: Schedule },
   { path: ROUTES.PAYMENTSTATUS, component: PaymentStatusPage },
   { path: ROUTES.CONTACT, component: Contact },
-  { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage }
+  { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
+  { path: ROUTES.SERVICES, component: MommyServicesPage }
 ]
 
 const privateRoutes = [
