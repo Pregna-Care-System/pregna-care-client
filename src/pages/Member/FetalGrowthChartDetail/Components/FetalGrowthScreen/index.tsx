@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { Breadcrumb, Card, Col, Layout, Row, Typography, Button, Alert } from 'antd'
 import GestationalAgeChart from '../GestationalAgeChart'
 import GrowthChart from '../GrowthChart'
-import MeasurementCharts from '../MeasurementCharts'
 import ScheduleCard from '../ScheduleCard'
 import BarChart from '@/components/Chart/BarChart'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -11,7 +10,6 @@ import { getPregnancyRecordById } from '@/services/pregnancyRecordService'
 import { useSelector } from 'react-redux'
 import { selectUserInfo } from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
-import FetalAlertDetail from '../FetalAlertDetail/index.tsx'
 import FetalAlertsList from '../FetalAlertList/index.tsx'
 
 const { Content } = Layout
@@ -177,21 +175,20 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
               standardKey='standardWeight'
               yAxisLabel='Weight (grams)'
             />
+            <Card className='mt-6'>
+              <BarChart
+                data={weightEstimation}
+                title='Fetal weight'
+                xaxisTitle='Gestational Age (weeks)'
+                yaxisTitle='Weight (grams)'
+              />
+            </Card>
           </div>
           <ScheduleCard scheduleData={scheduleData} />
         </div>
         <div className='mt-8'>
           <Row gutter={[16, 16]}>
-            <Col span={16}>
-              <Card>
-                <BarChart
-                  data={weightEstimation}
-                  title='Fetal weight'
-                  xaxisTitle='Gestational Age (weeks)'
-                  yaxisTitle='Weight (grams)'
-                />
-              </Card>
-            </Col>
+            <Col span={16}></Col>
             <Col span={8}></Col>
           </Row>
         </div>

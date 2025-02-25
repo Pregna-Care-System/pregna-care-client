@@ -79,7 +79,7 @@ const GrowthChart = () => {
   ]
 
   return (
-    <Card title='Fetal Heart Rate' className='shadow-md'>
+    <Card title='Fetal Heart Rate' className='shadow-sm'>
       <Chart options={chartOptions} series={series} type='line' height={350} />
     </Card>
   )
