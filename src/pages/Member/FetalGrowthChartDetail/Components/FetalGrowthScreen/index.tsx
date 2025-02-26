@@ -39,13 +39,6 @@ interface FetalGrowthScreenProps {
   }
 }
 
-interface GrowthData {
-  age: number
-  weight: number
-  height: number
-  date: string
-}
-
 const sampleAlerts = [
   {
     id: '36f2b65f-45c7-4bcb-8f78-1e41773592cc',
@@ -81,20 +74,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
     babyName: '',
     gestationalAgeResponse: { weeks: 0, days: 0 }
   })
-  const [measurements, setMeasurements] = React.useState<GrowthData[]>([
-    {
-      age: 36,
-      weight: 12,
-      height: 92,
-      date: '2024-02-25'
-    },
-    {
-      age: 37,
-      weight: 12.5,
-      height: 93,
-      date: '2024-02-26'
-    }
-  ])
+
   const param = useParams()
   const user = useSelector(selectUserInfo)
 
@@ -114,14 +94,6 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
   useEffect(() => {
     getPregrancyInfo()
   }, [param.pregnancyRecordId])
-
-  const scheduleData = [
-    { date: '2025-02-20', description: 'Khám thai định kỳ' },
-    { date: '2025-03-15', description: 'Siêu âm 4D' },
-    { date: '2025-04-10', description: 'Khám thai định kỳ' },
-    { date: '2025-05-05', description: 'Tiêm phòng' },
-    { date: '2025-05-30', description: 'Khám thai định kỳ' }
-  ]
 
   const weightEstimation = [
     { x: '20', y: 300, min: 250, max: 350 },
@@ -184,7 +156,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ data }) => {
               />
             </Card>
           </div>
-          <ScheduleCard scheduleData={scheduleData} />
+          <ScheduleCard />
         </div>
         <div className='mt-8'>
           <Row gutter={[16, 16]}>

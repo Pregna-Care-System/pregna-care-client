@@ -1,69 +1,62 @@
-import React, { useEffect, useState } from 'react'
-import dayjs from 'dayjs'
-import { Card, Avatar, Tabs, Collapse, Progress, Badge, Button, Form } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { Card, Avatar, Progress, Button, Form, Spin, Tooltip, Pagination, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { FileTextOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons'
+import { HeartOutlined, EditOutlined, EyeOutlined, CalendarOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import ROUTES from '@/utils/config/routes'
 import { CreateModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
+import styles from './styles.module.css'
 import { selectFetalGrowthRecord, selectGrowthMetricsOfWeek, selectUserInfo } from '@/store/modules/global/selector'
+import WeekDetailModal from '../WeekDetailModal'
 
 interface PregnancyRecord {
   id: string
   babyName: string
-  gestationalAgeResponse: []
+  babyGender: string
+  gestationalAgeResponse: {
+    weeks: number
+    estimatedDueDate: string
+  }
+  totalWeeks: number
   lastCheckupDate: string
 }
 
-interface WeeklyProgress {
-  week: number
-  status: 'process' | 'success' | 'waiting'
-  content?: string
-}
-
-interface PregnancyRecordListProps {
-  records: PregnancyRecord[]
-}
-
-const { Panel } = Collapse
-
-const PregnancyRecordList: React.FC<PregnancyRecordListProps> = ({ records }) => {
+const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records }) => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState(records[0]?.id)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const dispatch = useDispatch()
+  const [activeCard, setActiveCard] = useState(records[0]?.id)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const [form] = Form.useForm()
+
+  const pageSize = 12 // Number of weeks per page
   const growthMetrics = useSelector(selectGrowthMetricsOfWeek) || []
   const user = useSelector(selectUserInfo)
   const fetalGrowthRecord = useSelector(selectFetalGrowthRecord)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
-  }, [])
+    const fetchData = async () => {
+      setLoading(true)
+      await dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
+      setLoading(false)
+    }
+    fetchData()
+  }, [dispatch, user.id])
 
   useEffect(() => {
-    if (activeTab) {
-      dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeTab } })
+    if (activeCard) {
+      dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeCard } })
     }
-  }, [activeTab])
-
-  const fetusRecordFormItem = [
-    ...growthMetrics.map((item: any) => ({
-      name: item.name,
-      label: item.name,
-      message: item.message
-    })),
-    {
-      name: 'week',
-      label: 'Week',
-      type: 'number',
-      hidden: true // Hide the field but keep the value
-    }
-  ]
+  }, [activeCard, dispatch])
 
   const handleSubmit = (values: any) => {
     const payload = {
-      pregnancyRecordId: activeTab,
+      pregnancyRecordId: activeCard,
       fetalGrowthRecords: Object.entries(values)
         .filter(([key]) => key !== 'userId' && key !== 'week')
         .map(([key, value]) => ({
@@ -77,131 +70,231 @@ const PregnancyRecordList: React.FC<PregnancyRecordListProps> = ({ records }) =>
     setIsModalOpen(false)
   }
 
-  const handleOpenModal = (week: number) => {
+  const handleOpenModal = (week: number, e: React.MouseEvent) => {
+    e.stopPropagation()
     dispatch({
       type: 'GET_ALL_GROWTH_METRICS_OF_WEEK',
-      payload: { week: week }
+      payload: { week }
     })
-    form.setFieldValue('week', week) // Pre-populate week
+    form.setFieldValue('week', week)
     setIsModalOpen(true)
   }
 
-  const WeeklyProgressContent: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    const weeklyData: WeeklyProgress[] = Array.from({ length: record?.totalWeeks }, (_, i) => {
-      const week = i + 1
-      let status: 'process' | 'success' | 'waiting' = 'waiting'
-      if (record.gestationalAgeResponse?.weeks === week) {
-        status = 'process'
-      } else if (record.gestationalAgeResponse?.weeks > week) {
-        status = 'success'
-      }
-      return {
-        week,
-        status
-      }
-    })
+  const getWeekStatus = (currentWeek: number, weekNumber: number) => {
+    if (weekNumber < currentWeek) return 'success'
+    if (weekNumber === currentWeek) return 'process'
+    return 'waiting'
+  }
+
+  const handleOpenDetailModal = (week: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedWeek(week)
+    setIsDetailModalOpen(true)
+  }
+
+  const handleEditFromDetail = (week: number) => {
+    setIsDetailModalOpen(false)
+    handleOpenModal(week)
+  }
+
+  const getStatusTag = (status: 'success' | 'process' | 'waiting') => {
+    switch (status) {
+      case 'success':
+        return (
+          <Tag color='success' className={styles.statusTag}>
+            Completed
+          </Tag>
+        )
+      case 'process':
+        return (
+          <Tag color='processing' className={styles.statusTag}>
+            Current Week
+          </Tag>
+        )
+      default:
+        return <Tag className={styles.statusTag}>Upcoming</Tag>
+    }
+  }
+
+  const WeekGrid: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
+    const currentWeek = record.gestationalAgeResponse?.weeks || 0
+    const totalWeeks = record.totalWeeks || 40
+
+    // Calculate pagination
+    const startWeek = (currentPage - 1) * pageSize + 1
+    const endWeek = Math.min(currentPage * pageSize, totalWeeks)
+    const weeks = Array.from({ length: endWeek - startWeek + 1 }, (_, i) => startWeek + i)
 
     return (
-      <div className='p-4'>
-        <div className='flex justify-between items-center mb-4'>
-          <span className='text-lg font-medium'>Baby name: {record.babyName}</span>
-          <Progress percent={30} size='small' style={{ width: 100 }} />
-        </div>
-        <div className='overflow-y-auto' style={{ maxHeight: 650 }}>
-          <Collapse className='bg-white rounded-lg'>
-            {weeklyData.map((week) => (
-              <Panel
-                key={week.week}
-                header={`Week: ${week.week}`}
-                extra={
-                  <div className='flex items-center gap-2'>
-                    {week.status === 'process' ? (
-                      <>
-                        <Button
-                          type='link'
-                          className='text-red-500 p-0'
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleOpenModal(week.week) // Pass both ID and week number
-                          }}
-                        >
-                          <FileTextOutlined className='text-red-500' />
-                        </Button>
-                        <Badge dot={<SyncOutlined spin />} text='process' status='processing' />
-                      </>
-                    ) : week.status === 'waiting' ? (
-                      <Badge dot={<SyncOutlined />} text='upcoming' status='default' />
-                    ) : (
-                      <Badge dot={<CheckCircleOutlined />} text='success' status='success' />
-                    )}
+      <div className={styles.weekGridContainer}>
+        <div className={styles.weekGrid}>
+          {weeks.map((weekNumber) => {
+            const status = getWeekStatus(currentWeek, weekNumber)
+            const weekData = fetalGrowthRecord.filter((r: any) => r.week === weekNumber)
+
+            return (
+              <Card key={weekNumber} className={`${styles.weekCard} ${styles[status]}`} bordered={false}>
+                <div className={styles.weekCardHeader}>
+                  <div className={styles.weekInfo}>
+                    <span className={styles.weekNumber}>Week {weekNumber}</span>
+                    {getStatusTag(status)}
                   </div>
-                }
-              >
-                <div className='grid grid-cols-2'>
-                  {fetalGrowthRecord
-                    .filter((record: any) => record.week === week.week)
-                    .map((itemFiltered: any) => (
-                      <div key={itemFiltered.id} className='flex items-center gap-2'>
-                        <span>{itemFiltered.name}</span>:<span>{itemFiltered.value}</span>
-                        <span>{itemFiltered.unit}</span>
-                      </div>
-                    ))}
                 </div>
-              </Panel>
-            ))}
-          </Collapse>
+
+                <div className={styles.weekCardContent}>
+                  {weekData.length > 0 ? (
+                    <div className={styles.weekDataPreview}>
+                      {weekData.slice(0, 2).map((data: any) => (
+                        <Tooltip key={data.id} title={`${data.name}: ${data.value} ${data.unit}`}>
+                          <span className={styles.dataPoint}>
+                            {data.name}: {data.value}
+                          </span>
+                        </Tooltip>
+                      ))}
+                      {weekData.length > 2 && <span className={styles.moreData}>+{weekData.length - 2} more</span>}
+                    </div>
+                  ) : (
+                    <div className={styles.noDataMessage}>No records yet</div>
+                  )}
+                </div>
+
+                <div className={styles.weekCardActions}>
+                  {status === 'process' && (
+                    <Button
+                      type='primary'
+                      icon={<EditOutlined />}
+                      onClick={(e) => handleOpenModal(weekNumber, e)}
+                      className={styles.actionButton}
+                    >
+                      Add
+                    </Button>
+                  )}
+                  <Button
+                    type={weekData.length > 0 ? 'primary' : 'default'}
+                    icon={<EyeOutlined />}
+                    onClick={(e) => handleOpenDetailModal(weekNumber, e)}
+                    className={styles.actionButton}
+                  >
+                    Details
+                  </Button>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+        <div className={styles.pagination}>
+          <Pagination
+            current={currentPage}
+            total={totalWeeks}
+            pageSize={pageSize}
+            onChange={setCurrentPage}
+            showSizeChanger={false}
+          />
         </div>
       </div>
     )
   }
 
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <Spin size='large' />
+      </div>
+    )
+  }
+
+  const activeRecord = records.find((record) => record.id === activeCard)
+  const progressPercent = activeRecord
+    ? Math.round((activeRecord.gestationalAgeResponse?.weeks / activeRecord.totalWeeks) * 100)
+    : 0
+
   return (
-    <div className='pregnancy-record-list'>
-      <Tabs
-        defaultActiveKey={activeTab}
-        tabPosition='left'
-        onChange={(key) => setActiveTab(key)}
-        items={records.map((record: PregnancyRecord) => ({
-          key: record.id,
-          label: (
-            <Card hoverable className='h-full w-[240px]'>
-              <div className='flex flex-col items-center'>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.babyCards}>
+          {records.map((record) => (
+            <Card
+              key={record.id}
+              className={`${styles.recordCard} ${activeCard === record.id ? styles.activeCard : ''}`}
+              onClick={() => {
+                setActiveCard(record.id)
+                setCurrentPage(1) // Reset pagination when switching babies
+              }}
+            >
+              <div className={styles.cardContent}>
                 <Avatar
-                  size={80}
-                  src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736848318/PregnaCare/oa3zuazyvqgi2y9ef7ec.png'
-                  className='mb-2 border border-red-200'
-                  style={{ borderRadius: '50%' }}
+                  size={90}
+                  src='https://res.cloudinary.com/drcj6f81i/image/upload/v1740588447/PregnaCare/ypdcsuzin5hbi37lquec.jpg'
+                  className={styles.avatar}
                 />
-                <h3 className='text-lg font-semibold mb-2'>{record.babyName}</h3>
-                <p className='text-gray-600 text-sm font-light'>
-                  Gestational Age: {record.gestationalAgeResponse?.weeks} weeks
-                </p>
-                <p className='text-gray-600 text-sm font-light'>
-                  Estimated Due Date: {dayjs(record.gestationalAgeResponse?.estimatedDueDate).format('DD-MM-YYYY')}
-                </p>
-                <Button
-                  type='primary'
-                  className='mt-4'
-                  onClick={() =>
-                    navigate(ROUTES.MEMBER.FETALGROWTHCHART_DETAIL.replace(':pregnancyRecordId', record.id))
-                  }
-                >
-                  View Chart
-                </Button>
+                <div className={styles.babyInfo}>
+                  <h3 className={styles.babyName}>
+                    <HeartOutlined /> {record.babyName} - {record.babyGender}
+                  </h3>
+                  <p className={styles.gestationalInfo}>Week {record.gestationalAgeResponse?.weeks}</p>
+                  <p className={styles.dueDate}>
+                    <CalendarOutlined /> {dayjs(record.gestationalAgeResponse?.estimatedDueDate).format('DD-MM-YYYY')}
+                  </p>
+                  <div className='flex items-center justify-end mt-2'>
+                    <Button
+                      type='primary'
+                      className={styles.viewButton}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(ROUTES.MEMBER.FETALGROWTHCHART_DETAIL.replace(':pregnancyRecordId', record.id))
+                      }}
+                    >
+                      View Chart
+                    </Button>
+                  </div>
+                </div>
               </div>
             </Card>
-          ),
-          children: <WeeklyProgressContent record={record} />
-        }))}
-      />
+          ))}
+        </div>
+        {activeRecord && (
+          <div className={styles.progressSection}>
+            <Progress
+              type='circle'
+              percent={Math.round((activeRecord.gestationalAgeResponse?.weeks / activeRecord.totalWeeks) * 100)}
+              size={80}
+              strokeColor='#ff6b81'
+            />
+            <div className={styles.progressInfo}>
+              <h3>Progress</h3>
+              <p>
+                Week {activeRecord.gestationalAgeResponse?.weeks} of {activeRecord.totalWeeks}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.content}>{activeRecord && <WeekGrid record={activeRecord} />}</div>
+
       <CreateModal
         isOpen={isModalOpen}
-        title='Create Pregnancy Record'
+        title='Add Weekly Record'
         onClose={() => setIsModalOpen(false)}
-        formItem={fetusRecordFormItem}
+        formItem={growthMetrics.map((item: any) => ({
+          name: item.name,
+          label: item.name,
+          message: item.message
+        }))}
         handleSubmit={handleSubmit}
         form={form}
       />
+
+      {selectedWeek && (
+        <WeekDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          weekData={fetalGrowthRecord.filter((r: any) => r.week === selectedWeek)}
+          weekNumber={selectedWeek}
+          onEdit={handleEditFromDetail}
+          status={getWeekStatus(activeRecord?.gestationalAgeResponse?.weeks || 0, selectedWeek)}
+        />
+      )}
     </div>
   )
 }
