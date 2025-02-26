@@ -11,12 +11,12 @@ const FetalGrowthChart = () => {
   const pregnancyRecord = useSelector(selectPregnancyRecord)
 
   return (
-    <Content>
+    <>
       <Breadcrumb className='mb-4 ps-6'>
         <Breadcrumb.Item>Pregnancy Records</Breadcrumb.Item>
       </Breadcrumb>
       <PregnancyRecordList records={pregnancyRecord} />
-    </Content>
+    </>
   )
 }
 
