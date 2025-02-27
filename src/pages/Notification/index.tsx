@@ -58,7 +58,8 @@ const NotificationPage = () => {
   }
 
   const markAllAsRead = () => {
-    dispatch({ type: 'MARK_ALL_NOTIFICATIONS_AS_READ' })
+    const allNotificationIds = notifications.map(notification => notification.id)
+    dispatch({ type: 'UPDATE_ALL_IS_READ', payload: { ids: allNotificationIds } })
   }
 
   const handleNotificationClick = (notification) => {
@@ -77,8 +78,9 @@ const NotificationPage = () => {
     setNotificationTimer(newTimer)
   }
   return (
+    <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
     <div
-      className='mt-36 mb-24 mx-auto max-w-2xl p-6 bg-white rounded-xl border border-solid'
+      className='mt-14 mb-24 mx-auto max-w-2xl p-6 bg-white rounded-xl border border-solid'
       style={{ boxShadow: '10px 20px 50px 20px rgba(128, 0, 128, 0.5' }}
     >
       <div className='flex justify-between items-center mb-4'>
@@ -142,6 +144,8 @@ const NotificationPage = () => {
         </ul>
       )}
     </div>
+    </div>
+    
   )
 }
 

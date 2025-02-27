@@ -51,7 +51,7 @@ import {
 } from '@/services/reminderService'
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
-import { deleteNotification, getAllNotificationByUserId, updateNotification } from '@/services/notificationService'
+import { deleteNotification, getAllNotificationByUserId, updateAllIsRead, updateNotification } from '@/services/notificationService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -527,8 +527,18 @@ export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Gen
 //----------Update Notification-----------
 export function* updateNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('UPDATE ID NOTIFICATION', action.payload.id)
     yield call(updateNotification, action.payload.id)
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the notification.')
+    console.error('Error in updateNotification saga:', error)
+  }
+}
+//----------Update All Notification-----------
+export function* updateIsReadSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(updateAllIsRead, action.payload.ids)
+    message.success('Notification update successfully')
+
   } catch (error) {
     message.error('An unexpected error occurred while updating the notification.')
     console.error('Error in updateNotification saga:', error)
@@ -576,6 +586,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
+  yield takeLatest('UPDATE_ALL_IS_READ', updateIsReadSaga)
   yield takeLatest('DELETE_NOTIFICATION', deleteNotificationSaga)
   yield takeLatest('GET_MOST_USED_PLAN', getMostUsedPlanSaga)
 }

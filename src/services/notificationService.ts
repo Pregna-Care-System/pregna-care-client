@@ -1,8 +1,8 @@
 import request from '@/utils/axiosClient'
 
 export const getAllNotificationByUserId = async (userId: string) => {
-   const res = await request.get<MODEL.IResponseBase>(`/Notification/${userId}`)
-   return res.data
+  const res = await request.get<MODEL.IResponseBase>(`/Notification/${userId}`)
+  return res.data
 }
 
 export const deleteNotification = async (id: string) => {
@@ -26,4 +26,9 @@ export const updateNotification = async (id: string) => {
     }
     return false
   }
+}
+export const updateAllIsRead = async (ids: string[]) => {
+  console.log('IDS', ids)
+  await request.put<MODEL.IResponseBase>('/Notification/all', ids)
+  return true
 }
