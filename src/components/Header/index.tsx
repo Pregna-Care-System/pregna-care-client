@@ -1,26 +1,14 @@
 import { logout } from '@/services/userService'
 import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
-import {
-  BellFilled,
-  BellOutlined,
-  CalendarOutlined,
-  LogoutOutlined,
-  MailFilled,
-  SettingOutlined,
-  UserOutlined
-} from '@ant-design/icons'
+import { UserOutlined } from '@ant-design/icons'
 import { jwtDecode } from 'jwt-decode'
-import { MailPlus } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { format } from 'date-fns'
-import { MdErrorOutline } from 'react-icons/md'
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Button } from 'antd'
-import { useSelector } from 'react-redux'
-import { selectNotifications } from '@/store/modules/global/selector'
+import { Avatar } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
+import { FaCalendarAlt, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 
 const Wrapper = styled.div`
   .active {
@@ -51,40 +39,59 @@ const Wrapper = styled.div`
       height: 40px;
     }
   }
+  .avatar-wrapper {
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
   .dropdown {
     position: absolute;
     top: 65px;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 0.5rem;
-    padding: 0.5rem 0;
-    min-width: 150px;
+    right: 24px;
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    min-width: 200px;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 107, 129, 0.1);
+    z-index: 45;
 
+    a,
     .dropdown_item {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
       color: #4a4a4a;
-      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+
+      svg {
+        margin-right: 0.75rem;
+        font-size: 1rem;
+        color: #ff6b81;
+      }
+
       &:hover {
-        background-color: ${style.COLORS.RED.RED_5};
-        color: #fff;
+        background-color: #fff1f3;
+        color: #ff6b81;
       }
     }
 
-    a {
-      display: block;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      color: #4a4a4a;
-      text-decoration: none;
-      transition:
-        background-color 0.3s,
-        color 0.3s;
+    .dropdown_item.logout {
+      border-top: 1px solid #f0f0f0;
+      margin-top: 0.5rem;
+      color: #ff6b81;
+      cursor: pointer;
 
       &:hover {
-        background-color: ${style.COLORS.RED.RED_5};
-        color: #fff;
+        background-color: #fff1f3;
       }
     }
   }
@@ -95,13 +102,14 @@ export default function Header() {
   const user = token ? jwtDecode(token) : null
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
- 
+  const navigate = useNavigate()
+
   const handleMouseLeave = () => {
     const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
     setTimer(newTimer)
   }
 
-  const hadleMouseEnter = () => {
+  const handleMouseEnter = () => {
     if (timer) {
       clearTimeout(timer)
       setTimer(null)
@@ -111,7 +119,6 @@ export default function Header() {
   const toggleDropDown = () => {
     setIsDropDownOpen((prev) => !prev)
   }
-  
 
   const handleLogout = () => {
     logout()
@@ -121,7 +128,7 @@ export default function Header() {
 
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
-      <div className='col-span-2 flex gap-2 items-center'>
+      <div className='col-span-2 flex gap-2 items-center cursor-pointer' onClick={() => navigate(ROUTES.GUEST_HOME)}>
         <img
           src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
           alt='logo'
@@ -152,7 +159,7 @@ export default function Header() {
           Contact Us
         </NavLink>
       </div>
-      <div className='col-span-2 ms-10 flex justify-center gap-4 font-bold text-xs items-center'>
+      <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
         {user === null ? (
           <>
             <Link to={ROUTES.REGISTER} className='border-red-400 border-2 bg-white text-red-500 rounded py-2 px-4'>
@@ -165,9 +172,19 @@ export default function Header() {
         ) : (
           <>
             <NotificationButton />
-            <div onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='header_item_profile ml-auto'>
+            <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
               {userImage ? (
-                <img src={userImage} alt='User Avatar' />
+                <Avatar
+                  size={45}
+                  src={
+                    userImage ||
+                    'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
+                  }
+                  style={{
+                    border: '2px solid #ff6b81',
+                    cursor: 'pointer'
+                  }}
+                />
               ) : (
                 <UserOutlined className='text-xl cursor-pointer' />
               )}
@@ -175,20 +192,19 @@ export default function Header() {
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
                 <Link to={ROUTES.PROFILE}>
-                  <UserOutlined /> My Profile
+                  <FaUser /> My Profile
                 </Link>
                 <Link to={ROUTES.MEMBER.DASHBOARD}>
-                  <UserOutlined /> Member dashboard
+                  <FaTachometerAlt /> Member Dashboard
                 </Link>
                 <Link to={ROUTES.PROFILE}>
-                  <SettingOutlined /> Setting
+                  <FaCog /> Settings
                 </Link>
                 <Link to={ROUTES.SCHEDULE}>
-                  <CalendarOutlined /> My Schedule
+                  <FaCalendarAlt /> My Schedule
                 </Link>
-                
-                <div className='dropdown_item cursor-pointer border-t border-t-gray-300' onClick={handleLogout}>
-                  <LogoutOutlined /> Logout
+                <div className='dropdown_item logout' onClick={handleLogout}>
+                  <FaSignOutAlt /> Logout
                 </div>
               </div>
             )}

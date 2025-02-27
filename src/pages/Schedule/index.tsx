@@ -251,7 +251,7 @@ const SchedulePage = () => {
             <Form.Item name='status' label='Status'>
               <Select>
                 <Select.Option value='Active'>🔵 Active</Select.Option>
-                <Select.Option value='DONE'>🟢 Done</Select.Option>
+                <Select.Option value='Done'>🟢 Done</Select.Option>
               </Select>
             </Form.Item>
           </div>

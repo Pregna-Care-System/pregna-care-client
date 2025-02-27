@@ -15,7 +15,9 @@ export default function Footer() {
           <h5 className='text-red-500 font-bold text-xl'>PregnaCare</h5>
           <p className='m-0 text-sm font-light'>Pregnancy tracker and woman health website</p>
         </div>
+        
       </div>
+      
       <div className='col-start-6 col-span-2 flex flex-col gap-2 font-bold'>
         <Link to={ROUTES.HOME} className='hover:text-red-500'>
           About us
@@ -61,6 +63,9 @@ export default function Footer() {
             <p className='text-white text-xs m-0'>Google Play</p>
           </div>
         </Link>
+      </div>
+      <div className='col-span-12 text-start'>
+        <p className='text-sm text-gray-500'>&copy; 2025 PregnaCare. All rights reserved.</p>
       </div>
     </div>
   )
