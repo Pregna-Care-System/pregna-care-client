@@ -528,6 +528,39 @@ export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Gen
 export function* updateNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     yield call(updateNotification, action.payload.id)
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the notification.')
+    console.error('Error in updateNotification saga:', error)
+  }
+}
+//----------Update All Notification-----------
+export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(updateAllIsRead, action.payload.ids)
+    message.success('Notification update successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
+    }
+
   } catch (error) {
     message.error('An unexpected error occurred while updating the notification.')
     console.error('Error in updateNotification saga:', error)
@@ -550,6 +583,17 @@ export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<a
     console.log('DELETE ID NOTIFICATION', action.payload.id)
     yield call(deleteNotification, action.payload.id)
     message.success('Notification deleted successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
+    }
   } catch (error) {
     message.error('An unexpected error occurred while deleting the notification.')
     console.error('Error in deleteNotification saga:', error)
@@ -586,7 +630,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
-  yield takeLatest('UPDATE_ALL_IS_READ', updateIsReadSaga)
+  yield takeLatest('UPDATE_ALL_IS_READ', updateAllIsReadSaga)
   yield takeLatest('DELETE_NOTIFICATION', deleteNotificationSaga)
   yield takeLatest('GET_MOST_USED_PLAN', getMostUsedPlanSaga)
 }

@@ -1,6 +1,6 @@
 import { selectNotifications } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
-import { BellFilled, BellOutlined,  MoreOutlined } from '@ant-design/icons'
+import { BellFilled, BellOutlined, MoreOutlined } from '@ant-design/icons'
 import { jwtDecode } from 'jwt-decode'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +14,7 @@ export default function NotificationButton() {
   const notificationInfo = useSelector(selectNotifications)
   const [notifications, setNotifications] = useState(notificationInfo)
   const dispatch = useDispatch()
+  const [visibleCount, setVisibleCount] = useState(5)
   const token = localStorage.getItem('accessToken')
   let user = null
   try {
@@ -44,7 +45,9 @@ export default function NotificationButton() {
   }
 
   const markAllAsRead = () => {
-    dispatch({ type: 'MARK_ALL_NOTIFICATIONS_AS_READ' })
+    const allNotificationIds = notifications.map((notification) => notification.id)
+    dispatch({ type: 'UPDATE_ALL_IS_READ', payload: { ids: allNotificationIds } })
+    dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
   }
 
   const handleNotificationClick = (notification) => {
@@ -63,11 +66,16 @@ export default function NotificationButton() {
     const newTimer = setTimeout(() => setIsOpen(false), 1000)
     setNotificationTimer(newTimer)
   }
+
+  const loadMoreNotifications = () => {
+    setVisibleCount((prevCount) => prevCount + 5)
+  }
   return (
     <div className='relative ml-16'>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='relative p-2 bg-gray-100 rounded-full transition hover:bg-gray-200 border border-gray-300'
+        className='p-2 relative hover:bg-red-300 bg-slate-200 rounded-full transition-colors duration-200 border border-solid border-purple-100'
+        className='relative p-2 bg-gray-100 rounded-full transition hover:bg-[#fff1f3] border border-[#f4d3d8]'
         aria-label='Notifications'
       >
         {unreadCount > 0 ? (
@@ -84,13 +92,13 @@ export default function NotificationButton() {
 
       {isOpen && (
         <div
-          className='absolute right-0 left-auto mt-2 w-80 bg-white rounded-lg shadow-xl py-2 z-100 border border-solid'
+          className='absolute right-0 left-auto mt-2 w-80 bg-white shadow-xl py-2 z-100 border border-solid rounded-xl'
           onMouseEnter={handleNotificationMouseEnter}
           onMouseLeave={handleNotificationMouseLeave}
         >
           <>
             <div className='flex justify-between items-center px-4 py-2 border-b border-border'>
-              <h1 className='font-heading text-foreground'>Notifications</h1>
+              <h1 className='font-bold text-lg '>Notifications</h1>
               <div className='flex gap-2'>
                 <button
                   onClick={markAllAsRead}
@@ -106,20 +114,26 @@ export default function NotificationButton() {
                 </button>
               </div>
             </div>
-            <div className='max-h-[400px] overflow-y-auto divide-y divide-gray-200'>
+            <div className='max-h-[400px] overflow-y-auto space-y-1'>
+            <div className='max-h-[400px] overflow-y-auto scrollbar-custom divide-y divide-gray-200'>
               {notifications.length > 0 ? (
-                notifications.map((notification) => (
+                notifications.slice(0, visibleCount).map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 border border-solid flex items-center justify-between px-4 py-3 hover:bg-blue-50
+                    className={`p-4 mb-2 border border-solid rounded-lg flex items-center justify-between px-4 py-3 hover:bg-blue-50
+                      ${notification.isRead ? 'bg-gray-50 border border-red-200' : 'bg-blue-300'}`}
+                    className={`p-4 border border-solid flex items-center justify-between px-4 py-3 hover:shadow-xl hover:bg-[#fff1f3]
                       ${notification.isRead ? 'bg-gray-50' : 'bg-blue-300'}`}
                   >
                     <div onClick={() => handleNotificationClick(notification)} className='cursor-pointer flex-grow'>
                       <div className='flex items-center'>
                       {!notification.isRead && <div className='ml-2 w-3 h-3 bg-blue-500 rounded-full'></div>}
                         <div>
-                          <p className='text-gray-500'>{notification.title}</p>
-                          <p className='text-gray-700'>{notification.message}</p>
+                          <p className='text-gray-800 flex items-center'>
+                            {notification.title}
+                            {!notification.isRead && <div className='w-3 h-3 bg-blue-500 rounded-full ml-2'></div>}
+                          </p>
+                          <p className='text-gray-500'>{notification.message}</p>
                         </div>
                       </div>
                     </div>
@@ -152,6 +166,13 @@ export default function NotificationButton() {
                 ))
               ) : (
                 <p>No notifications</p>
+              )}
+              {visibleCount < notifications.length && (
+                <div className='flex justify-center'>
+                  <button onClick={loadMoreNotifications} className='text-sm mt-2 text-black'>
+                    More notifications
+                  </button>
+                </div>
               )}
             </div>
           </>
