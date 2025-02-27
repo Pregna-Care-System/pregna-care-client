@@ -1,5 +1,6 @@
 'use client'
 
+import type React from 'react'
 import { useState } from 'react'
 import { Table, Tag, Button, Input, Space, Modal, Card, Select, Statistic, Row, Col, Spin, Empty } from 'antd'
 import {
@@ -15,39 +16,15 @@ import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import FetalAlertDetail from '../FetalAlertDetail'
+import { getSeverityColor } from '@/utils/helper'
 
 dayjs.extend(relativeTime)
 
 const { Search } = Input
 
-interface FetalAlert {
-  id: string
-  fetalGrowthRecordId: string
-  week: number
-  alertDate: string
-  alertFor: string
-  issue: string
-  severity: string
-  recommendation: string
-  isResolved: boolean
-}
-
 interface FetalAlertsListProps {
-  alerts: FetalAlert[]
+  alerts: IFetalGrowth.FetalAlert[]
   loading?: boolean
-}
-
-const getSeverityColor = (severity: string) => {
-  switch (severity.toLowerCase()) {
-    case 'critical':
-      return '#ff4d4f'
-    case 'warning':
-      return '#faad14'
-    case 'info':
-      return '#1890ff'
-    default:
-      return '#1890ff'
-  }
 }
 
 const getSeverityIcon = (severity: string) => {
@@ -63,14 +40,14 @@ const getSeverityIcon = (severity: string) => {
   }
 }
 
-export default function FetalAlertsList({ alerts, loading = false }: FetalAlertsListProps) {
-  const [selectedAlert, setSelectedAlert] = useState<FetalAlert | null>(null)
+const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = false }) => {
+  const [selectedAlert, setSelectedAlert] = useState<IFetalGrowth.FetalAlert | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [severityFilter, setSeverityFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
-  const showModal = (alert: FetalAlert) => {
+  const showModal = (alert: IFetalGrowth.FetalAlert) => {
     setSelectedAlert(alert)
     setIsModalOpen(true)
   }
@@ -86,7 +63,7 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
   const unresolvedAlerts = alerts.filter((a) => !a.isResolved).length
   const resolvedAlerts = alerts.filter((a) => a.isResolved).length
 
-  const columns: ColumnsType<FetalAlert> = [
+  const columns: ColumnsType<IFetalGrowth.FetalAlert> = [
     {
       title: 'Week',
       dataIndex: 'week',
@@ -145,11 +122,11 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
           color={isResolved ? 'success' : 'default'}
           className='px-3 py-1 rounded-full text-sm font-medium'
         >
-          {isResolved ? 'Isresolved' : 'Unresolved'}
+          {isResolved ? 'Resolved' : 'Unresolved'}
         </Tag>
       ),
       filters: [
-        { text: 'Isresolved', value: true },
+        { text: 'Resolved', value: true },
         { text: 'Unresolved', value: false }
       ],
       onFilter: (value, record) => record.isResolved === value,
@@ -311,3 +288,5 @@ export default function FetalAlertsList({ alerts, loading = false }: FetalAlerts
     </div>
   )
 }
+
+export default FetalAlertsList

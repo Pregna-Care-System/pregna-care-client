@@ -1,6 +1,6 @@
 import type React from 'react'
-import { Card } from 'antd'
 import Chart from 'react-apexcharts'
+import { ChartCard } from '../../../styles/styled-components'
 
 interface GestationalAgeChartProps {
   currentWeek: number
@@ -58,17 +58,7 @@ const GestationalAgeChart: React.FC<GestationalAgeChartProps> = ({ currentWeek }
 
   const series = [percentage]
 
-  return (
-    <Card className='shadow-sm'>
-      <div className='flex items-center justify-center'>
-        <div>
-          <p className='text-lg text-gray-600'>Gestational Age:</p>
-          <p className='text-base text-gray-600'>Week {currentWeek} of 40</p>
-        </div>
-        <Chart options={options} series={series} type='radialBar' width={100} height={100} />
-      </div>
-    </Card>
-  )
+  return <Chart options={options} series={series} type='radialBar' width={100} height={100} />
 }
 
 export default GestationalAgeChart
