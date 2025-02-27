@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export const formatNumber = (num: any) => {
   const formattedNum = new Intl.NumberFormat('en-US').format(num)
   return formattedNum.length === 1 ? `0${formattedNum}` : formattedNum
@@ -37,4 +39,80 @@ export const formatDateTime = (dateString: string): string => {
   const seconds = date.getSeconds().toString().padStart(2, '0')
 
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+}
+
+/**
+ * Format date to display format
+ * @param date Date string
+ * @returns Formatted date string
+ */
+export const formatDate = (date: string): string => {
+  return dayjs(date).format('DD/MM/YYYY HH:mm')
+}
+
+/**
+ * Parse recommendation string into structured data
+ * @param recommendation Recommendation string with line breaks
+ * @returns Array of structured recommendation items
+ */
+export const parseRecommendation = (recommendation: string) => {
+  const lines = recommendation.split('\n')
+  return lines.map((line, index) => {
+    const [key, value] = line.split(':').map((item) => item.trim())
+    return { key, value, id: index }
+  })
+}
+
+/**
+ * Get color based on severity level
+ * @param severity Severity string
+ * @returns Color code
+ */
+export const getSeverityColor = (severity: string): string => {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return '#ff4d4f'
+    case 'warning':
+      return '#faad14'
+    case 'info':
+      return '#1890ff'
+    default:
+      return '#1890ff'
+  }
+}
+
+/**
+ * Get status color for appointments
+ * @param status Status string
+ * @returns Color code
+ */
+export const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'confirmed':
+      return 'success'
+    case 'pending':
+      return 'warning'
+    case 'cancelled':
+      return 'error'
+    default:
+      return 'default'
+  }
+}
+
+/**
+ * Get status text in Vietnamese
+ * @param status Status string
+ * @returns Vietnamese status text
+ */
+export const getStatusText = (status: string): string => {
+  switch (status) {
+    case 'confirmed':
+      return 'Đã xác nhận'
+    case 'pending':
+      return 'Chờ xác nhận'
+    case 'cancelled':
+      return 'Đã hủy'
+    default:
+      return status
+  }
 }

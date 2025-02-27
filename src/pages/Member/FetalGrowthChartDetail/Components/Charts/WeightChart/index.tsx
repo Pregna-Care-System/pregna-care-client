@@ -1,36 +1,13 @@
 import type React from 'react'
-import { Card } from 'antd'
 import Chart from 'react-apexcharts'
+import { ChartCard } from '../../../styles/styled-components'
+import { mockAmnioticData } from '@/utils/constants/mock-data'
 
-interface GrowthData {
-  week: number
-  weight: number
-  standardWeight: number
-  [key: string]: number
+interface WeightChartProps {
+  title?: string
 }
 
-interface GrowthChartProps {
-  data: GrowthData[]
-  title: string
-  dataKey: string
-  standardKey: string
-  yAxisLabel: string
-}
-
-const weeks = Array.from({ length: 33 }, (_, i) => i + 8)
-
-const sampleData = {
-  amniotic: {
-    data: weeks.map((week) => ({
-      x: week,
-      y: 13 + Math.sin(week / 3) * 2
-    })),
-    min: weeks.map(() => 8),
-    max: weeks.map(() => 18)
-  }
-}
-
-const WeightChart = () => {
+const WeightChart: React.FC<WeightChartProps> = ({ title = 'Amniotic Fluid Index' }) => {
   const chartOptions = {
     chart: {
       type: 'line',
@@ -64,24 +41,24 @@ const WeightChart = () => {
   const series = [
     {
       name: 'Amniotic fluid value',
-      data: sampleData.amniotic.data
+      data: mockAmnioticData.data
     },
     {
       name: 'Minimum value',
-      data: sampleData.amniotic.min.map((y, i) => ({ x: weeks[i], y })),
+      data: mockAmnioticData.min.map((y, i) => ({ x: chartWeeks[i], y })),
       dashArray: 5
     },
     {
       name: 'Maximum value',
-      data: sampleData.amniotic.max.map((y, i) => ({ x: weeks[i], y })),
+      data: mockAmnioticData.max.map((y, i) => ({ x: chartWeeks[i], y })),
       dashArray: 5
     }
   ]
 
   return (
-    <Card title='Fetal Weight' className='shadow-md'>
+    <ChartCard title={title}>
       <Chart options={chartOptions} series={series} type='line' height={350} />
-    </Card>
+    </ChartCard>
   )
 }
 

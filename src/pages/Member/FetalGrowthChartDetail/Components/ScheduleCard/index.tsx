@@ -1,73 +1,28 @@
-'use client'
-
+import type React from 'react'
 import { useState } from 'react'
-import { Badge, Calendar, Modal, Tag, Card, Divider } from 'antd'
+import { Badge, Calendar, Modal, Tag, Divider } from 'antd'
 import type { Dayjs } from 'dayjs'
-import { format, addDays, isAfter, isSameDay } from 'date-fns'
+import { format, isAfter, isSameDay } from 'date-fns'
 import { CalendarIcon, Clock, User, Building2, ChevronRight } from 'lucide-react'
+import { mockAppointments } from '@/utils/constants/mock-data'
+import { CalendarCard } from '../../styles/styled-components'
+import { getStatusColor, getStatusText } from '@/utils/helper'
 
-// Sample appointment data - replace with your actual data
-const appointments = [
-  {
-    id: 1,
-    title: 'Khám tổng quát',
-    date: new Date(),
-    time: '09:00',
-    doctor: 'Dr. Nguyen Van A',
-    department: 'Khoa Nội',
-    status: 'confirmed',
-    patientName: 'Nguyen Van X',
-    room: 'P.201'
-  },
-  {
-    id: 2,
-    title: 'Tái khám',
-    date: addDays(new Date(), 2),
-    time: '14:30',
-    doctor: 'Dr. Tran Thi B',
-    department: 'Khoa Tim mạch',
-    status: 'pending',
-    patientName: 'Tran Thi Y',
-    room: 'P.305'
-  },
-  {
-    id: 3,
-    title: 'Khám định kỳ',
-    date: addDays(new Date(), 5),
-    time: '10:15',
-    doctor: 'Dr. Le Van C',
-    department: 'Khoa Nội tiết',
-    status: 'confirmed',
-    patientName: 'Le Van Z',
-    room: 'P.103'
-  }
-]
-
-interface Appointment {
-  id: number
-  title: string
-  date: Date
-  time: string
-  doctor: string
-  department: string
-  status: 'confirmed' | 'pending' | 'cancelled'
-  patientName: string
-  room: string
-}
-
-export default function MedicalCalendar() {
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+const ScheduleCard: React.FC = () => {
+  const [selectedAppointment, setSelectedAppointment] = useState<IFetalGrowth.Appointment | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Get appointments for a specific date
   const getAppointmentsForDate = (date: Date) => {
-    return appointments.filter((appointment) => format(appointment.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'))
+    return mockAppointments.filter(
+      (appointment) => format(appointment.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+    )
   }
 
   // Get upcoming appointments
   const getUpcomingAppointments = () => {
     const now = new Date()
-    return appointments
+    return mockAppointments
       .filter((appointment) => isAfter(appointment.date, now) || isSameDay(appointment.date, now))
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .slice(0, 3) // Only show next 3 appointments
@@ -96,39 +51,13 @@ export default function MedicalCalendar() {
     )
   }
 
-  const handleAppointmentClick = (appointment: Appointment) => {
+  const handleAppointmentClick = (appointment: IFetalGrowth.Appointment) => {
     setSelectedAppointment(appointment)
     setIsModalOpen(true)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'success'
-      case 'pending':
-        return 'warning'
-      case 'cancelled':
-        return 'error'
-      default:
-        return 'default'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'Đã xác nhận'
-      case 'pending':
-        return 'Chờ xác nhận'
-      case 'cancelled':
-        return 'Đã hủy'
-      default:
-        return status
-    }
-  }
-
   return (
-    <Card className='shadow-sm border-0 overflow-hidden'>
+    <CalendarCard className='shadow-sm border-0 overflow-hidden'>
       {/* Header with gradient */}
       <div className='absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-primary/80 to-blue-600/80 -mx-6 -mt-6' />
 
@@ -164,7 +93,7 @@ export default function MedicalCalendar() {
             </div>
 
             <div className='space-y-3'>
-              {getUpcomingAppointments().map((appointment, index) => (
+              {getUpcomingAppointments().map((appointment) => (
                 <div
                   key={appointment.id}
                   className='p-3 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100'
@@ -278,6 +207,8 @@ export default function MedicalCalendar() {
           </div>
         )}
       </Modal>
-    </Card>
+    </CalendarCard>
   )
 }
+
+export default ScheduleCard

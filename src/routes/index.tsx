@@ -1,6 +1,5 @@
 //Libaries
-import React, { Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import React from 'react'
 //Utils
 import ROUTES from '@utils/config/routes'
 //Guard
@@ -46,7 +45,6 @@ const MemberShipPlanAdminPage = React.lazy(() => import('@/pages/Admin/Membershi
 const GrowthMetrics = React.lazy(() => import('@/pages/Admin/GrowthMetrics'))
 //Pages-Member
 const Dashboard = React.lazy(() => import('@/pages/Member/Dashboard'))
-const Tracking = React.lazy(() => import('@/pages/Member/Tracking'))
 const FetalGrowthChart = React.lazy(() => import('@/pages/Member/FetalGrowthChart'))
 const FetalGrowthChartDetail = React.lazy(() => import('@/pages/Member/FetalGrowthChartDetail'))
 
@@ -89,7 +87,6 @@ const adminRoutes = [
 const memberRoutes = [
   { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.TRACKING, component: Tracking, layout: MemberLayout },
   { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout }
 ]
 

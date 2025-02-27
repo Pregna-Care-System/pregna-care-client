@@ -1,4 +1,4 @@
-'use client'
+import type React from 'react'
 import { Card, Typography, Tag, Space, Divider, Alert, Steps } from 'antd'
 import {
   WarningOutlined,
@@ -8,52 +8,15 @@ import {
   CalendarOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons'
-import dayjs from 'dayjs'
+import { formatDate, getSeverityColor, parseRecommendation } from '@/utils/helper'
 
-const { Title, Text, Paragraph } = Typography
-
-interface FetalAlert {
-  id: string
-  fetalGrowthRecordId: string
-  week: number
-  alertDate: string
-  alertFor: string
-  issue: string
-  severity: string
-  recommendation: string
-  isResolved: boolean
-}
+const { Title, Text } = Typography
 
 interface FetalAlertDetailProps {
-  alert: FetalAlert
+  alert: IFetalGrowth.FetalAlert
 }
 
-const getSeverityColor = (severity: string) => {
-  switch (severity.toLowerCase()) {
-    case 'critical':
-      return '#ff4d4f'
-    case 'warning':
-      return '#faad14'
-    case 'info':
-      return '#1890ff'
-    default:
-      return '#1890ff'
-  }
-}
-
-const formatDate = (date: string) => {
-  return dayjs(date).format('DD/MM/YYYY HH:mm')
-}
-
-const parseRecommendation = (recommendation: string) => {
-  const lines = recommendation.split('\n')
-  return lines.map((line, index) => {
-    const [key, value] = line.split(':').map((item) => item.trim())
-    return { key, value, id: index }
-  })
-}
-
-export default function FetalAlertDetail({ alert }: FetalAlertDetailProps) {
+const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
   const recommendationItems = parseRecommendation(alert.recommendation)
 
   return (
@@ -139,3 +102,5 @@ export default function FetalAlertDetail({ alert }: FetalAlertDetailProps) {
     </Space>
   )
 }
+
+export default FetalAlertDetail

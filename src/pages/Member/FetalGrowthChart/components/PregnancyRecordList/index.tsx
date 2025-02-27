@@ -33,7 +33,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   const [currentPage, setCurrentPage] = useState(1)
   const [form] = Form.useForm()
 
-  const pageSize = 12 // Number of weeks per page
+  const pageSize = 10 // Number of weeks per page
   const growthMetrics = useSelector(selectGrowthMetricsOfWeek) || []
   const user = useSelector(selectUserInfo)
   const fetalGrowthRecord = useSelector(selectFetalGrowthRecord)
@@ -127,7 +127,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
 
     return (
       <div className={styles.weekGridContainer}>
-        <div className={styles.weekGrid}>
+        <div className={`${styles.weekGrid} grid grid-cols-5 gap-4`}>
           {weeks.map((weekNumber) => {
             const status = getWeekStatus(currentWeek, weekNumber)
             const weekData = fetalGrowthRecord.filter((r: any) => r.week === weekNumber)
