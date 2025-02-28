@@ -16,8 +16,8 @@ import {
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
-import { Button, Form, Modal, Select, TimePicker } from 'antd'
-import { ClockCircleOutlined, DeleteOutlined } from '@ant-design/icons'
+import { Button, DatePicker, Form, Modal, Select, TimePicker } from 'antd'
+import { ClockCircleOutlined, DeleteOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 const VIEW_TYPES = {
@@ -39,7 +39,10 @@ const SchedulePage = () => {
   const [form] = Form.useForm()
   const token = localStorage.getItem('accessToken')
   const user = jwtDecode(token || '')
-  
+  const [showMoreEventsModal, setShowMoreEventsModal] = useState(false)
+  const [moreEventsDate, setMoreEventsDate] = useState(null)
+  const [isCreateButtonMode, setIsCreateButtonMode] = useState(false)
+
   const getDaysInMonth = (date) => {
     const start = startOfWeek(startOfMonth(date))
     const end = endOfWeek(endOfMonth(date))
@@ -126,7 +129,7 @@ const SchedulePage = () => {
         reminderDate: dayjs(date)
       })
     }
-
+    setIsCreateButtonMode(false)
     setShowEventModal(true)
   }
 
@@ -177,6 +180,7 @@ const SchedulePage = () => {
       description: event.description,
       status: event.status
     })
+    setShowMoreEventsModal(false)
     setShowEventModal(true)
   }
   const handleDeleteEvent = (id) => {
@@ -199,10 +203,12 @@ const SchedulePage = () => {
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
       <div className='bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md'>
         <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
-          <h1 className='text-xl font-semibold mb-4 text-foreground dark:text-dark-foreground'>
-            {currentEvent
-              ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
-              : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
+          <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
+            {isCreateButtonMode
+              ? 'Create Event'
+              : currentEvent
+                ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
+                : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
           </h1>
           <div>
             <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
@@ -226,6 +232,16 @@ const SchedulePage = () => {
               />
             </Form.Item>
           </div>
+
+          {isCreateButtonMode && (
+            <Form.Item
+              label='Event Date'
+              name='reminderDate'
+              rules={[{ required: true, message: 'Please select event date!' }]}
+            >
+              <DatePicker style={{ width: '100%' }} />
+            </Form.Item>
+          )}
 
           <div className='grid grid-cols-2 gap-4'>
             <div>
@@ -264,9 +280,11 @@ const SchedulePage = () => {
               />
             </Form.Item>
           </div>
-          <Form.Item name='reminderDate' hidden>
-            <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
-          </Form.Item>
+          {!isCreateButtonMode && (
+            <Form.Item name='reminderDate' hidden>
+              <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
+            </Form.Item>
+          )}
           <div className='flex justify-end gap-2'>
             <button
               type='button'
@@ -277,7 +295,7 @@ const SchedulePage = () => {
             </button>
             <button
               type='submit'
-              className='bg-black text-red-300 px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
+              className='bg-black text-[#ff6b81] px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
             >
               {currentEvent ? 'Update Event' : 'Add Event'}
             </button>
@@ -286,6 +304,49 @@ const SchedulePage = () => {
       </div>
     </div>
   )
+
+  const handleShowMoreEvents = (date) => {
+    setMoreEventsDate(date)
+    setShowMoreEventsModal(true)
+  }
+
+  const MoreEventsModal = () => {
+    const dayEvents = events.filter((event) =>
+      isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), moreEventsDate)
+    )
+
+    return (
+      <Modal
+        visible={showMoreEventsModal}
+        onCancel={() => setShowMoreEventsModal(false)}
+        footer={null}
+        title={<span className='text-[#ff6b81] text-lg'>{`Events on ${format(moreEventsDate, 'MMMM d, yyyy')}`}</span>}
+        className='custom-modal'
+      >
+        <div className='space-y-4'>
+          {dayEvents.map((event, i) => (
+            <div
+              key={i}
+              className='border border-solid border-red-200 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded-xl p-2 shadow-md cursor-pointer hover:bg-red-50 dark:hover:bg-dark-primary-light transition-all'
+              onClick={() => handleEditEvent(event)}
+            >
+              <div className='flex justify-between items-center'>
+                <div>
+                  <h3 className='text-lg font-semibold'>{event.title}</h3>
+                  <p className='text-sm text-muted-foreground'>{event.description}</p>
+                </div>
+                {event.status === 'DONE' && <span className='text-green-500 font-bold'>🟢</span>}
+              </div>
+              <div className='text-sm text-muted-foreground mt-2'>
+                <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')} {event.startTime} -{' '}
+                {event.endTime}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Modal>
+    )
+  }
 
   return (
     <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
@@ -336,7 +397,7 @@ const SchedulePage = () => {
                 p-2 text-center text-sm rounded-full transition-all
                 hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
                 ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
-                ${isTodayDate ? 'bg-blue-500 text-white': ''}
+                ${isTodayDate ? 'bg-blue-500 text-white' : ''}
                 ${isSelected ? 'bg-primary text-primary-foreground' : ''}
               `}
                     tabIndex={0}
@@ -349,7 +410,7 @@ const SchedulePage = () => {
             </div>
           </div>
 
-          <h1 style={{ fontSize: '25px' , marginTop: '30px'}}>Upcoming Events</h1>
+          <h1 style={{ fontSize: '25px', marginTop: '30px' }}>Upcoming Events</h1>
           <div className='max-h-[550px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 bg-white'>
             {dataSource.length > 0 ? (
               dataSource.map((event) => {
@@ -386,7 +447,7 @@ const SchedulePage = () => {
             )}
           </div>
         </div>
-        <div className='w-2/3 h-2/3 p-2 mr-8 bg-gray-50'>
+        <div className='w-2/3 h-2/3 p-2 bg-gray-50'>
           <div className='flex items-center justify-between mb-4'>
             <div className='flex gap-2'>
               <button
@@ -402,9 +463,23 @@ const SchedulePage = () => {
                 Week
               </button>
             </div>
+            <div className='mr-4'>
+              <button
+                className='text-[#ff6b81] flex border border-[#ff6b81] rounded-lg p-2 hover:bg-[#e9bcc2]'
+                onClick={() => {
+                  setIsCreateButtonMode(true)
+                  setCurrentEvent(null)
+                  form.resetFields()
+                  setShowEventModal(true)
+                }}
+              >
+                <PlusCircleFilled className='mr-2' />
+                <h2 className='text-[#ff6b81]'>Create</h2>
+              </button>
+            </div>
           </div>
 
-          <div className='flex items-center justify-between mb-8'>
+          <div className='flex items-center justify-between mb-4'>
             <h1 className='text-2xl font-bold text-foreground dark:text-dark-foreground'>
               {viewType === VIEW_TYPES.WEEK
                 ? `Week ${getWeek(currentDate)} - ${format(currentDate, 'MMMM yyyy')}`
@@ -442,25 +517,37 @@ const SchedulePage = () => {
               const dayEvents = events.filter((event) =>
                 isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), date)
               )
+              const maxEventsToShow = 2
               return (
                 <button
                   key={index}
                   onClick={() => handleDateClick(date)}
-                  className={`p-2 h-24 border rounded-md transition-all ${isToday(date) ? 'bg-accent dark:bg-dark-accent text-accent-foreground dark:text-dark-accent-foreground' : ''} ${!isSameMonth(date, currentDate) ? 'opacity-50' : ''} ${isSameDay(date, selectedDate) ? 'ring-2 ring-primary dark:ring-dark-primary' : ''} hover:bg-muted dark:hover:bg-dark-muted`}
+                  className={`p-2 h-32 border rounded-md transition-all ${isToday(date) ? 'bg-accent dark:bg-dark-accent text-accent-foreground dark:text-dark-accent-foreground' : ''} ${!isSameMonth(date, currentDate) ? 'opacity-50' : ''} ${isSameDay(date, selectedDate) ? 'ring-2 ring-primary dark:ring-dark-primary' : ''} hover:bg-muted dark:hover:bg-dark-muted`}
                 >
                   <div className='flex flex-col h-full'>
                     <span className='text-sm'>{format(date, 'd')}</span>
                     {dayEvents.length > 0 && (
-                      <div className='mt-1 space-y-1 overflow-hidden max-h-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600'>
-                        {dayEvents.map((event, i) => (
+                      <div className='mt-1 space-y-1 overflow-hidden'>
+                        {dayEvents.slice(0, maxEventsToShow).map((event, i) => (
                           <div
                             key={i}
-                            className=' border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
+                            className='border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
                           >
                             {event.title}
                             {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
                           </div>
                         ))}
+                        {dayEvents.length > maxEventsToShow && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleShowMoreEvents(date)
+                            }}
+                            className='text-xs text-blue-500 hover:text-[#ff6b81]'
+                          >
+                            Show More
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -471,6 +558,7 @@ const SchedulePage = () => {
         </div>
       </div>
       {showEventModal && <EventModal />}
+      {showMoreEventsModal && <MoreEventsModal />}
     </div>
   )
 }

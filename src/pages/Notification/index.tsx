@@ -168,8 +168,6 @@ const NotificationPage = () => {
         )}
       </div>
     </div>
-    </div>
-    
   )
 }
 
