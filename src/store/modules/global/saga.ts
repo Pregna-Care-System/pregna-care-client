@@ -560,18 +560,6 @@ export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any,
     if (user?.id) {
       yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
     }
-
-  } catch (error) {
-    message.error('An unexpected error occurred while updating the notification.')
-    console.error('Error in updateNotification saga:', error)
-  }
-}
-//----------Update All Notification-----------
-export function* updateIsReadSaga(action: PayloadAction<any>): Generator<any, void, any> {
-  try {
-    yield call(updateAllIsRead, action.payload.ids)
-    message.success('Notification update successfully')
-
   } catch (error) {
     message.error('An unexpected error occurred while updating the notification.')
     console.error('Error in updateNotification saga:', error)

@@ -23,8 +23,8 @@ export default function NotificationButton() {
     console.error('Invalid token:', error)
   }
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
-  }, [dispatch])
+          dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
+      }, [dispatch])
 
   useEffect(() => {
     if (notificationInfo !== null && notificationInfo.length > 0) {
@@ -74,7 +74,6 @@ export default function NotificationButton() {
     <div className='relative ml-16'>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='p-2 relative hover:bg-red-300 bg-slate-200 rounded-full transition-colors duration-200 border border-solid border-purple-100'
         className='relative p-2 bg-gray-100 rounded-full transition hover:bg-[#fff1f3] border border-[#f4d3d8]'
         aria-label='Notifications'
       >
@@ -110,24 +109,20 @@ export default function NotificationButton() {
                   onClick={() => navigate(ROUTES.NOTIFICATION)}
                   className='text-xs text-blue-600 hover:text-black transition-colors duration-200'
                 >
-                  <button>See all</button>
+                  See all
                 </button>
               </div>
             </div>
-            <div className='max-h-[400px] overflow-y-auto space-y-1'>
             <div className='max-h-[400px] overflow-y-auto scrollbar-custom divide-y divide-gray-200'>
               {notifications.length > 0 ? (
                 notifications.slice(0, visibleCount).map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 mb-2 border border-solid rounded-lg flex items-center justify-between px-4 py-3 hover:bg-blue-50
-                      ${notification.isRead ? 'bg-gray-50 border border-red-200' : 'bg-blue-300'}`}
                     className={`p-4 border border-solid flex items-center justify-between px-4 py-3 hover:shadow-xl hover:bg-[#fff1f3]
                       ${notification.isRead ? 'bg-gray-50' : 'bg-blue-300'}`}
                   >
                     <div onClick={() => handleNotificationClick(notification)} className='cursor-pointer flex-grow'>
                       <div className='flex items-center'>
-                      {!notification.isRead && <div className='ml-2 w-3 h-3 bg-blue-500 rounded-full'></div>}
                         <div>
                           <p className='text-gray-800 flex items-center'>
                             {notification.title}
