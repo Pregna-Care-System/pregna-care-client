@@ -17,6 +17,7 @@ const ROUTES = {
   SERVICES: '/services',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   BABY_NAME: '/baby-name',
+  BABY_SHOP: '/baby-shop',
   MEMBESHIP_PLANS: '/membership-plans',
   DETAIL_PLAN: '/membership-plans/:planName',
   CHECKOUT: '/checkout',

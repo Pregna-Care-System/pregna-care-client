@@ -16,6 +16,7 @@ import Loading from '@/components/Loading'
 import NoHeaderLayout from '@/layouts/NoHeaderLayout'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
+import BabyShopApp from '@/pages/Service/BabyShop/index '
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
 const ConfirmEmail = React.lazy(() => import('@pages/Register/ConfirmPage'))
@@ -55,6 +56,7 @@ const publicRoutes = [
   { path: ROUTES.GUEST_HOME, component: HomePage },
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BABY_NAME, component: babyNamePage },
+  { path: ROUTES.BABY_SHOP, component: BabyShopApp },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.COMMUNITY, component: CommunityPage },
   { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
