@@ -37,7 +37,8 @@ const MommyServicesPage = () => {
       description:
         'Explore curated collections of baby essentials, compare prices, and read authentic reviews from other moms. Get the best value for your money.',
       image: 'https://res.cloudinary.com/dgzn2ix8w/image/upload/v1740464997/pregnaCare/rmh7lqtgura0cakywrtx.jpg',
-      gradient: 'from-blue-400/70 to-transparent'
+      gradient: 'from-blue-400/70 to-transparent',
+      path: ROUTES.BABY_SHOP
     },
     {
       id: 'tracking',
