@@ -8,6 +8,7 @@ const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
+  YOUR_BLOG:'your-blog',
   PROFILE: '/profile',
   CONTACT: '/contact',
   BLOG: '/blog',
