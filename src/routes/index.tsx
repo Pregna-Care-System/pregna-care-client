@@ -16,7 +16,7 @@ import NoHeaderLayout from '@/layouts/NoHeaderLayout'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
 import BabyShopApp from '@/pages/Service/BabyShop/index '
-import YourBlogPage from '@/pages/Blog/YourBlog/index'
+
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
 const ConfirmEmail = React.lazy(() => import('@pages/Register/ConfirmPage'))
@@ -24,6 +24,7 @@ const EmailConfirmationSuccessPage = React.lazy(() => import('@pages/Register/Co
 const ProfilePage = React.lazy(() => import('@pages/Profile/MainProfile'))
 const PaymentStatusPage = React.lazy(() => import('@pages/PaymentStatus'))
 const CheckoutPage = React.lazy(() => import('@pages/Checkout'))
+const BlogDashboard = React.lazy(() => import('@pages/Blog/YourBlog'))
 const BlogPage = React.lazy(() => import('@pages/Blog'))
 const babyNamePage = React.lazy(() => import('@/pages/Service/BabyName'))
 const BlogDetailsPage = React.lazy(() => import('@pages/Blog/BlogDetails'))
@@ -56,7 +57,7 @@ const publicRoutes = [
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BABY_NAME, component: babyNamePage },
   { path: ROUTES.BABY_SHOP, component: BabyShopApp },
-  { path: ROUTES.YOUR_BLOG, component: YourBlogPage },
+  { path: ROUTES.YOUR_BLOG, component: BlogDashboard },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.COMMUNITY, component: CommunityPage },
   { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
