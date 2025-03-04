@@ -21,4 +21,7 @@ export const selectGrowthMetricsOfWeek = (state: RootState) => state.global.grow
 export const selectStatistics = (state: RootState) => state.global.statistics
 export const selectNotifications = (state: RootState) => state.global.notificationInfo
 export const selectMostUsedPlan = (state: RootState) => state.global.mostUsedPlan
+export const selectTagInfo = (state: RootState) => state.global.tagInfo
+export const selectBlogInfo = (state: RootState) => state.global.blogInfo
+
 

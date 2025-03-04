@@ -16,7 +16,9 @@ import {
   setStatistics,
   setMotherInfo,
   setNotifications,
-  setMostUsedPlan
+  setMostUsedPlan,
+  setTagsInfo,
+  setBlogInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -52,6 +54,7 @@ import {
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
 import { deleteNotification, getAllNotificationByUserId, updateAllIsRead, updateNotification } from '@/services/notificationService'
+import { createBlog, getAllBlogByUserId, getAllTag } from '@/services/blogService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -587,6 +590,55 @@ export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<a
     console.error('Error in deleteNotification saga:', error)
   }
 }
+//----------Tag information-----------
+export function* getAllTagsSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllTag)
+    if (response.response) {
+      yield put(setTagsInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+//----------Blog information-----------
+export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllBlogByUserId, action.payload.id)
+    console.log('Response for call api blog', response)
+    if (response.response) {
+      yield put(setBlogInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+//----------Create blog-----------
+export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('BLOG INPUT', action)
+    yield call(
+      createBlog,
+      action.payload.userId,
+      action.payload.tagIds,
+      action.payload.pageTitle,
+      action.payload.heading,
+      action.payload.content,
+      action.payload.shortDescription,
+      action.payload.featuredImageUrl,
+      action.payload.isVisible
+    )
+    message.success('Create blog successfully')
+    const token = localStorage.getItem('accessToken')
+    const user = jwtDecode(token) ?? null
+    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: {id: user.id} })
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
 // Get all
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
@@ -621,4 +673,8 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('UPDATE_ALL_IS_READ', updateAllIsReadSaga)
   yield takeLatest('DELETE_NOTIFICATION', deleteNotificationSaga)
   yield takeLatest('GET_MOST_USED_PLAN', getMostUsedPlanSaga)
+  yield takeLatest('GET_ALL_TAGS', getAllTagsSaga)
+  yield takeLatest('GET_ALL_BLOGS_BY_USERID', getAllBlogByUserIdSaga)
+  yield takeLatest('CREATE_BLOG', createBlogSaga)
+
 }

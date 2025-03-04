@@ -274,5 +274,7 @@ export const initialState = {
       isRead: false
     }
   ],
-  mostUsedPlan:{}
+  mostUsedPlan:{},
+  tagInfo: [],
+  blogInfo: []
 }
