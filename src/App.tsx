@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
 import MainLayout from '@layouts/MainLayout'
 import { Fragment, Suspense, useEffect } from 'react'
-import { adminRoutes, memberRoutes, publicRoutes } from './routes'
+import { adminRoutes, memberRoutes, privateRoutes, publicRoutes } from './routes'
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,6 +22,23 @@ function App() {
             <Component />
           </Layout>
         </Suspense>
+      )
+    }
+  })
+
+  const privateRouterObjects: RouteObject[] = privateRoutes.map(({ path, component: Component, layout }) => {
+    const Layout = layout === null ? Fragment : layout || MainLayout
+
+    return {
+      path: path,
+      element: isAuthenticated ? (
+        <Suspense fallback={<Loading />}>
+          <Layout>
+            <Component />
+          </Layout>
+        </Suspense>
+      ) : (
+        <Navigate to={ROUTES.LOGIN} replace />
       )
     }
   })
@@ -67,7 +84,7 @@ function App() {
   })
 
   // Gộp public và private routes
-  const appRouter = [...publicRouterObjects, ...adminRouterObjects, ...memberRouterObjects]
+  const appRouter = [...publicRouterObjects, ...privateRouterObjects, ...adminRouterObjects, ...memberRouterObjects]
 
   appRouter.push({
     path: ROUTES.NOT_FOUND,

@@ -1,252 +1,738 @@
-import { selectPregnancyRecord } from '@/store/modules/global/selector'
-import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd'
+import { useEffect, useState } from 'react'
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Descriptions,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Tabs,
+  Typography,
+  Tag,
+  ConfigProvider,
+  Empty
+} from 'antd'
+import { FaUser, FaCalendarAlt, FaHeartbeat, FaNotesMedical, FaFileAlt, FaBaby, FaEdit, FaPlus } from 'react-icons/fa'
 import { jwtDecode } from 'jwt-decode'
-import React, { useEffect, useState } from 'react'
-import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
+import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
+import dayjs from 'dayjs'
+import styled from 'styled-components'
 
-export default function Dashboard() {
-  const dispatch = useDispatch()
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const [pregnancyInfor, setPregnancyInfor] = useState<MODEL.PregnancyRecordResponse[]>([])
-  const [form] = Form.useForm()
-  const [loading, setLoading] = React.useState(false)
+const { Title, Text } = Typography
+const { TabPane } = Tabs
 
-  const pregnancyRecord = useSelector(selectPregnancyRecord)
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    const user = token ? jwtDecode(token) : null
-    if (user?.id) {
-      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
-    }
-  }, [dispatch])
-
-  useEffect(() => {
-    if (pregnancyRecord) {
-      setPregnancyInfor(pregnancyRecord)
-    }
-  }, [pregnancyRecord])
-
-  const columns = [
-    {
-      title: 'Mother Name',
-      dataIndex: 'motherName',
-      key: 'motherName'
-    },
-    {
-      title: 'Date Of Birth',
-      dataIndex: 'motherDateOfBirth',
-      key: 'motherDateOfBirth'
-    },
-    {
-      title: 'Blood Type',
-      dataIndex: 'bloodType',
-      key: 'bloodType'
-    },
-    {
-      title: 'Health Status',
-      dataIndex: 'healhStatus',
-      key: 'healhStatus'
-    },
-    {
-      title: 'Notes',
-      dataIndex: 'notes',
-      key: 'notes'
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text) => new Date(text).toLocaleString()
-    },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      render: (text) => new Date(text).toLocaleString()
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size='middle'>
-          <Button type='primary'>
-            <TbEdit />
-          </Button>
-        </Space>
-      )
-    }
-  ]
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
+// Styled components
+const PageWrapper = styled.div`
+  .profile-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
-  const handleSubmit = (values: any) => {
+  .tab-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .info-card {
+    border: 1px solid #ffccd5;
+    border-radius: 8px;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(255, 107, 129, 0.2);
+    }
+  }
+
+  .pregnancy-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
+    }
+
+    &.active {
+      border: 2px solid #ff6b81;
+      background: #fff9fa;
+    }
+  }
+
+  .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #ff6b81 !important;
+  }
+
+  .ant-tabs-ink-bar {
+    background: #ff6b81 !important;
+  }
+
+  .ant-btn-primary {
+    background: #ff6b81;
+    border-color: #ff6b81;
+
+    &:hover {
+      background: #ff8296;
+      border-color: #ff8296;
+    }
+  }
+`
+
+const theme = {
+  token: {
+    colorPrimary: '#ff6b81',
+    colorLink: '#ff6b81'
+  }
+}
+
+export default function ProfilePage() {
+  const dispatch = useDispatch()
+  const [isMotherModalOpen, setIsMotherModalOpen] = useState(false)
+  const [isBabyModalOpen, setIsBabyModalOpen] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [selectedPregnancy, setSelectedPregnancy] = useState(null)
+  const [motherForm] = Form.useForm()
+  const [babyForm] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+
+  const motherInfo = useSelector(selectMotherInfo)
+  const userInfo = useSelector(selectUserInfo)
+  const pregnancyRecords = useSelector(selectPregnancyRecord) || []
+  const currentProfile = motherInfo?.[0] || {}
+
+  useEffect(() => {
+    if (userInfo.id) {
+      dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
+      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: userInfo.id } })
+    }
+  }, [dispatch, userInfo.id])
+
+  useEffect(() => {
+    if (pregnancyRecords.length > 0 && !selectedPregnancy) {
+      setSelectedPregnancy(pregnancyRecords[0])
+    }
+  }, [pregnancyRecords]) // Removed setSelectedPregnancy from dependencies
+
+  useEffect(() => {
+    if (currentProfile && editMode) {
+      motherForm.setFieldsValue({
+        motherName: currentProfile.motherName,
+        motherDateOfBirth: currentProfile.dateOfBirth ? dayjs(currentProfile.dateOfBirth) : null,
+        bloodType: currentProfile.bloodType,
+        healhStatus: currentProfile.healthStatus,
+        notes: currentProfile.notes,
+        imageUrl: currentProfile.imageUrl
+      })
+    }
+  }, [currentProfile, motherForm, editMode])
+
+  useEffect(() => {
+    if (selectedPregnancy && editMode) {
+      babyForm.setFieldsValue({
+        babyName: selectedPregnancy.babyName,
+        pregnancyStartDate: selectedPregnancy.pregnancyStartDate ? dayjs(selectedPregnancy.pregnancyStartDate) : null,
+        expectedDueDate: selectedPregnancy.expectedDueDate ? dayjs(selectedPregnancy.expectedDueDate) : null,
+        babyGender: selectedPregnancy.babyGender
+      })
+    }
+  }, [selectedPregnancy, babyForm, editMode])
+
+  const handleOpenMotherModal = () => {
+    setEditMode(false)
+    motherForm.resetFields()
+    setIsMotherModalOpen(true)
+  }
+
+  const handleOpenBabyModal = () => {
+    setEditMode(false)
+    babyForm.resetFields()
+    setIsBabyModalOpen(true)
+  }
+
+  const handleEditMotherProfile = () => {
+    setEditMode(true)
+    setIsMotherModalOpen(true)
+  }
+
+  const handleEditBabyProfile = () => {
+    setEditMode(true)
+    setIsBabyModalOpen(true)
+  }
+
+  const handleSubmitMotherInfo = (values) => {
     setLoading(true)
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
-    dispatch({
-      type: 'CREATE_PREGNANCY_RECORD',
-      payload: {
-        userId: user?.id,
-        motherName: values.motherName,
-        bloodType: values.bloodType,
-        healhStatus: values.healhStatus,
-        notes: values.notes,
-        babyName: values.babyName,
-        babyGender: values.babyGender,
-        imageUrl: values.imageUrl,
-        motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD'),
-        pregnancyStartDate: values.pregnancyStartDate.format('YYYY-MM-DD'),
-        expectedDueDate: values.expectedDueDate.format('YYYY-MM-DD')
-      }
-    })
+
+    const payload = {
+      userId: user?.id,
+      motherName: values.motherName,
+      bloodType: values.bloodType,
+      healhStatus: values.healhStatus,
+      notes: values.notes,
+      imageUrl: values.imageUrl,
+      motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD')
+    }
+
+    if (editMode && currentProfile.id) {
+      dispatch({
+        type: 'UPDATE_MOTHER_INFO',
+        payload: {
+          ...payload,
+          id: currentProfile.id
+        }
+      })
+    } else {
+      dispatch({
+        type: 'CREATE_MOTHER_INFO',
+        payload
+      })
+    }
+
     setLoading(false)
-    setIsModalOpen(false)
-    form.resetFields()
+    setIsMotherModalOpen(false)
+    motherForm.resetFields()
   }
 
-  const onClose = () => {
-    setIsModalOpen(false)
+  const handleSubmitBabyInfo = (values) => {
+    setLoading(true)
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
+
+    const payload = {
+      userId: user?.id,
+      motherId: currentProfile.id,
+      babyName: values.babyName,
+      babyGender: values.babyGender,
+      pregnancyStartDate: values.pregnancyStartDate.format('YYYY-MM-DD'),
+      expectedDueDate: values.expectedDueDate.format('YYYY-MM-DD')
+    }
+
+    if (editMode && selectedPregnancy?.id) {
+      dispatch({
+        type: 'UPDATE_PREGNANCY_RECORD',
+        payload: {
+          ...payload,
+          id: selectedPregnancy.id
+        }
+      })
+    } else {
+      if (currentProfile.id) {
+        dispatch({
+          type: 'CREATE_PREGNANCY_RECORD',
+          payload
+        })
+      } else {
+        alert('Please create mother information first')
+        setIsBabyModalOpen(false)
+        setIsMotherModalOpen(true)
+        return
+      }
+    }
+
+    setLoading(false)
+    setIsBabyModalOpen(false)
+    babyForm.resetFields()
+  }
+
+  const closeMotherModal = () => {
+    setIsMotherModalOpen(false)
+  }
+
+  const closeBabyModal = () => {
+    setIsBabyModalOpen(false)
+  }
+
+  const getHealthStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'good':
+        return '#4caf50'
+      case 'normal':
+        return '#2196f3'
+      case 'underlying_condition':
+        return '#ff9800'
+      default:
+        return '#d9d9d9'
+    }
+  }
+
+  const calculateWeeksOfPregnancy = (startDate) => {
+    if (!startDate) return 'N/A'
+    const start = dayjs(startDate)
+    const today = dayjs()
+    const weeks = today.diff(start, 'week')
+    return `${weeks} weeks`
+  }
+
+  const calculateDaysUntilDueDate = (dueDate) => {
+    if (!dueDate) return 'N/A'
+    const due = dayjs(dueDate)
+    const today = dayjs()
+    const days = due.diff(today, 'day')
+    return days > 0 ? `${days} days` : 'Past due date'
+  }
+
+  const renderPregnancyList = () => {
+    if (!pregnancyRecords.length) {
+      return (
+        <Empty
+          image={<FaBaby className='text-6xl text-[#ff6b81]' />}
+          description={<Text type='secondary'>No pregnancy records found</Text>}
+        >
+          <Button type='primary' icon={<FaPlus />} onClick={handleOpenBabyModal} disabled={!currentProfile.id}>
+            Add Pregnancy Record
+          </Button>
+        </Empty>
+      )
+    }
+
+    return (
+      <div className='space-y-4'>
+        <div className='flex justify-between items-center mb-4'>
+          <Title level={5} className='m-0'>
+            Pregnancy Records
+          </Title>
+          <Button type='primary' icon={<FaPlus />} onClick={handleOpenBabyModal} size='small'>
+            Add New
+          </Button>
+        </div>
+        {pregnancyRecords.map((record) => (
+          <Card
+            key={record.id}
+            className={`pregnancy-card ${selectedPregnancy?.id === record.id ? 'active' : ''}`}
+            onClick={() => setSelectedPregnancy(record)}
+            size='small'
+          >
+            <div className='flex justify-between items-center'>
+              <div>
+                <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
+                <div className='text-sm text-gray-500'>{dayjs(record.pregnancyStartDate).format('MMM D, YYYY')}</div>
+              </div>
+              <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>{record.babyGender?.toUpperCase()}</Tag>
+            </div>
+          </Card>
+        ))}
+      </div>
+    )
   }
 
   return (
-    <>
-      <div className='flex justify-end w-full'>
-        <Button type='primary' className='mb-5' danger onClick={handleOpenModal}>
-          Create
-        </Button>
-      </div>
-      <div className='bg-white p-10 rounded-xl shadow-md'>
-        <div className='flex justify-end mb-5'>
-          <Select
-            defaultValue='newest'
-            style={{ width: 120 }}
-            options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'newest', label: 'Newest' },
-              { value: 'Yiminghe', label: 'yiminghe' }
-            ]}
-          />
-        </div>
-        <Table
-          dataSource={Array.isArray(pregnancyInfor) ? pregnancyInfor : []}
-          columns={columns}
-          pagination={{ pageSize: 8 }}
-        />
-      </div>
+    <ConfigProvider theme={theme}>
+      <PageWrapper>
+        <div className='px-8 py-6'>
+          <Row gutter={[24, 24]}>
+            <Col xs={24} lg={8}>
+              <Card className='profile-card' bordered={false}>
+                <div className='text-center mb-6'>
+                  <Avatar
+                    size={120}
+                    src={currentProfile.imageUrl}
+                    icon={<FaUser />}
+                    style={{
+                      marginBottom: '16px',
+                      border: '4px solid #ff6b81'
+                    }}
+                  />
+                  <Title level={3} style={{ color: '#333', marginBottom: '8px' }}>
+                    {currentProfile.motherName || 'Your Name'}
+                  </Title>
+                  {currentProfile.healthStatus && (
+                    <Tag
+                      color={getHealthStatusColor(currentProfile.healthStatus)}
+                      style={{ borderRadius: '12px', padding: '0 12px' }}
+                    >
+                      {currentProfile.healthStatus?.replace('_', ' ').toUpperCase()}
+                    </Tag>
+                  )}
+                  <div className='mt-4 space-x-2'>
+                    <Button
+                      type='primary'
+                      icon={<FaEdit className='mr-1' />}
+                      onClick={handleEditMotherProfile}
+                      className='rounded-md'
+                    >
+                      Edit Profile
+                    </Button>
+                    {!currentProfile.id && (
+                      <Button
+                        type='default'
+                        onClick={handleOpenMotherModal}
+                        className='rounded-md'
+                        style={{ borderColor: '#ff6b81', color: '#ff6b81' }}
+                      >
+                        Create New
+                      </Button>
+                    )}
+                  </div>
+                </div>
 
-      <Modal width={800} height={600} open={isModalOpen} onCancel={onClose} footer={null}>
-        <Form
-          form={form}
-          onFinish={handleSubmit}
-          layout='horizontal'
-          initialValues={{
-            BabyName: '',
-            BloodType: '',
-            HealhStatus: '',
-            MotherName: '',
-            Notes: ''
-          }}
+                <Divider style={{ borderColor: '#ffccd5' }} />
+
+                <Descriptions column={1} className='text-sm'>
+                  <Descriptions.Item
+                    label={
+                      <span className='flex items-center'>
+                        <FaCalendarAlt className='mr-2 text-[#ff6b81]' />
+                        Date of Birth
+                      </span>
+                    }
+                  >
+                    {currentProfile.dateOfBirth || 'Not set'}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <span className='flex items-center'>
+                        <FaHeartbeat className='mr-2 text-[#ff6b81]' />
+                        Blood Type
+                      </span>
+                    }
+                  >
+                    {currentProfile.bloodType || 'Not set'}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <span className='flex items-center'>
+                        <FaNotesMedical className='mr-2 text-[#ff6b81]' />
+                        Health Status
+                      </span>
+                    }
+                  >
+                    {currentProfile.healthStatus?.replace('_', ' ') || 'Not set'}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <span className='flex items-center'>
+                        <FaFileAlt className='mr-2 text-[#ff6b81]' />
+                        Notes
+                      </span>
+                    }
+                  >
+                    {currentProfile.notes || 'No notes'}
+                  </Descriptions.Item>
+                </Descriptions>
+
+                <Divider style={{ borderColor: '#ffccd5' }} />
+
+                {renderPregnancyList()}
+              </Card>
+            </Col>
+
+            <Col xs={24} lg={16}>
+              <Card className='tab-card' bordered={false}>
+                <Tabs defaultActiveKey='1'>
+                  <TabPane
+                    tab={
+                      <span className='flex items-center'>
+                        <FaBaby className='mr-2' />
+                        Pregnancy Details
+                      </span>
+                    }
+                    key='1'
+                  >
+                    {selectedPregnancy ? (
+                      <Row gutter={[16, 16]}>
+                        <Col span={24}>
+                          <Card
+                            className='info-card'
+                            title={
+                              <div className='flex justify-between items-center'>
+                                <span className='flex items-center text-[#ff6b81]'>
+                                  <FaBaby className='mr-2' />
+                                  {selectedPregnancy.babyName || 'Unnamed Baby'}
+                                </span>
+                                <Button
+                                  type='primary'
+                                  icon={<FaEdit className='mr-1' />}
+                                  onClick={() => {
+                                    setEditMode(true)
+                                    handleEditBabyProfile()
+                                  }}
+                                  className='rounded-md'
+                                >
+                                  Edit Details
+                                </Button>
+                              </div>
+                            }
+                            bordered={false}
+                          >
+                            <Row gutter={[16, 16]}>
+                              <Col xs={24} md={12}>
+                                <Card className='info-card' title='Baby Information'>
+                                  <Descriptions column={1}>
+                                    <Descriptions.Item label='Baby Name'>
+                                      {selectedPregnancy.babyName || 'Not named yet'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label='Gender'>
+                                      {selectedPregnancy.babyGender ? (
+                                        <Tag
+                                          color={selectedPregnancy.babyGender === 'male' ? '#91caff' : '#ffadd2'}
+                                          className='rounded-full px-3'
+                                        >
+                                          {selectedPregnancy.babyGender.toUpperCase()}
+                                        </Tag>
+                                      ) : (
+                                        'Not set'
+                                      )}
+                                    </Descriptions.Item>
+                                  </Descriptions>
+                                </Card>
+                              </Col>
+                              <Col xs={24} md={12}>
+                                <Card className='info-card' title='Pregnancy Timeline'>
+                                  <Descriptions column={1}>
+                                    <Descriptions.Item label='Start Date'>
+                                      {selectedPregnancy.pregnancyStartDate || 'Not set'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label='Due Date'>
+                                      {selectedPregnancy.expectedDueDate || 'Not set'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label='Current Week'>
+                                      {calculateWeeksOfPregnancy(selectedPregnancy.pregnancyStartDate)}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label='Days Until Due'>
+                                      {calculateDaysUntilDueDate(selectedPregnancy.expectedDueDate)}
+                                    </Descriptions.Item>
+                                  </Descriptions>
+                                </Card>
+                              </Col>
+                            </Row>
+                          </Card>
+                        </Col>
+                      </Row>
+                    ) : (
+                      <div className='text-center py-10'>
+                        <FaBaby className='text-5xl text-[#ff6b81] mb-4' />
+                        <Title level={4} className='text-[#ff6b81]'>
+                          No Pregnancy Selected
+                        </Title>
+                        <Text type='secondary'>Select a pregnancy record or create a new one</Text>
+                        <div className='mt-4'>
+                          {currentProfile.id ? (
+                            <Button
+                              type='primary'
+                              onClick={handleOpenBabyModal}
+                              icon={<FaPlus className='mr-1' />}
+                              className='rounded-md'
+                            >
+                              Add Pregnancy Record
+                            </Button>
+                          ) : (
+                            <Button type='primary' onClick={handleOpenMotherModal} className='rounded-md'>
+                              Create Mother Profile First
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </TabPane>
+
+                  <TabPane
+                    tab={
+                      <span className='flex items-center'>
+                        <FaNotesMedical className='mr-2' />
+                        Medical History
+                      </span>
+                    }
+                    key='2'
+                  >
+                    <div className='text-center py-10'>
+                      <FaNotesMedical className='text-5xl text-[#ff6b81] mb-4' />
+                      <Title level={4} className='text-[#ff6b81]'>
+                        Medical History
+                      </Title>
+                      <Text type='secondary'>Medical history records will be displayed here</Text>
+                    </div>
+                  </TabPane>
+
+                  <TabPane
+                    tab={
+                      <span className='flex items-center'>
+                        <FaCalendarAlt className='mr-2' />
+                        Appointments
+                      </span>
+                    }
+                    key='3'
+                  >
+                    <div className='text-center py-10'>
+                      <FaCalendarAlt className='text-5xl text-[#ff6b81] mb-4' />
+                      <Title level={4} className='text-[#ff6b81]'>
+                        Upcoming Appointments
+                      </Title>
+                      <Text type='secondary'>Your scheduled appointments will be displayed here</Text>
+                    </div>
+                  </TabPane>
+                </Tabs>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+
+        {/* Mother Information Modal */}
+        <Modal
+          title={
+            <div className='flex items-center text-[#ff6b81] border-b-2 border-[#ff6b81] pb-2'>
+              <FaUser className='mr-2' />
+              {editMode ? 'Edit Mother Profile' : 'Create Mother Profile'}
+            </div>
+          }
+          width={600}
+          open={isMotherModalOpen}
+          onCancel={closeMotherModal}
+          footer={null}
+          style={{ top: 20 }}
+          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
         >
-          <div className='grid grid-cols-2 gap-5'>
-            <div>
-              <h4 className='text-xl font-bold mb-5'>Mother Information</h4>
-              <Form.Item
-                name='motherName'
-                label='Mother Name'
-                rules={[{ required: true, message: 'Please enter your mother name' }]}
+          <Form
+            form={motherForm}
+            onFinish={handleSubmitMotherInfo}
+            layout='vertical'
+            initialValues={{
+              motherName: '',
+              bloodType: '',
+              healhStatus: '',
+              notes: ''
+            }}
+          >
+            <Form.Item
+              name='motherName'
+              label='Mother Name'
+              rules={[{ required: true, message: 'Please enter your mother name' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name='motherDateOfBirth'
+              label='Date Of Birth'
+              rules={[{ required: true, message: 'Please enter your date of birth' }]}
+            >
+              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item
+              name='bloodType'
+              label='Blood Type'
+              rules={[{ required: true, message: 'The BloodType field is required.' }]}
+            >
+              <Select
+                options={[
+                  { value: 'A', label: 'A' },
+                  { value: 'B', label: 'B' },
+                  { value: 'O', label: 'O' },
+                  { value: 'AB', label: 'AB' }
+                ]}
+              />
+            </Form.Item>
+            <Form.Item
+              name='healhStatus'
+              label='Health Status'
+              rules={[{ required: true, message: 'Please select your health status' }]}
+            >
+              <Select
+                options={[
+                  { value: 'good', label: 'Good' },
+                  { value: 'normal', label: 'Normal' },
+                  { value: 'underlying_condition', label: 'Underlying Condition' }
+                ]}
+              />
+            </Form.Item>
+            <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
+              <Input.TextArea rows={4} />
+            </Form.Item>
+            <Form.Item name='imageUrl' label='Profile Image URL'>
+              <Input placeholder='Enter profile image URL' />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type='primary'
+                htmlType='submit'
+                loading={loading}
+                block
+                style={{ height: '40px', borderRadius: '6px' }}
               >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name='motherDateOfBirth'
-                label='Date Of Birth'
-                rules={[{ required: true, message: 'Please enter your date of birth' }]}
-              >
-                <DatePicker value={'DD/MM/YYYY'} picker='date' format={'DD/MM/YYYY'} />
-              </Form.Item>
-              <Form.Item
-                name='bloodType'
-                label='Blood Type'
-                rules={[{ required: true, message: 'The BloodType field is required.' }]}
-              >
-                <Select
-                  options={[
-                    { value: 'A', label: 'A' },
-                    { value: 'B', label: 'B' },
-                    { value: 'O', label: 'O' },
-                    { value: 'AB', label: 'AB' }
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item
-                name='healhStatus'
-                label='Health Status'
-                rules={[{ required: true, message: 'Please select your health status' }]}
-              >
-                <Select
-                  options={[
-                    { value: 'good', label: 'Good' },
-                    { value: 'normal', label: 'Normal' },
-                    { value: 'underlying_condition', label: 'Underlying_condition' }
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
-                <Input />
-              </Form.Item>
+                {editMode ? 'Update Mother Profile' : 'Create Mother Profile'}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Baby Information Modal */}
+        <Modal
+          title={
+            <div className='flex items-center text-[#ff6b81] border-b-2 border-[#ff6b81] pb-2'>
+              <FaBaby className='mr-2' />
+              {editMode ? 'Edit Baby Information' : 'Add Baby Information'}
             </div>
-            <div>
-              <h4 className='text-lg font-bold mb-4'>Baby Information</h4>
-              <Form.Item
-                name='babyName'
-                label='Baby Name'
-                rules={[{ required: true, message: 'Please enter your baby name' }]}
+          }
+          width={600}
+          open={isBabyModalOpen}
+          onCancel={closeBabyModal}
+          footer={null}
+          style={{ top: 20 }}
+          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
+        >
+          <Form
+            form={babyForm}
+            onFinish={handleSubmitBabyInfo}
+            layout='vertical'
+            initialValues={{
+              babyName: '',
+              babyGender: ''
+            }}
+          >
+            <Form.Item
+              name='babyName'
+              label='Baby Name'
+              rules={[{ required: true, message: 'Please enter your baby name' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name='pregnancyStartDate'
+              label='Pregnancy Start Date'
+              rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
+            >
+              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item
+              name='expectedDueDate'
+              label='Expected Due Date'
+              rules={[{ required: true, message: 'Please enter your expected due date' }]}
+            >
+              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item
+              name='babyGender'
+              label='Baby Gender'
+              rules={[{ required: true, message: 'Please enter your baby gender' }]}
+            >
+              <Select
+                placeholder='Select Gender'
+                options={[
+                  { value: 'male', label: 'Male' },
+                  { value: 'female', label: 'Female' }
+                ]}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type='primary'
+                htmlType='submit'
+                loading={loading}
+                block
+                style={{ height: '40px', borderRadius: '6px' }}
               >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name='pregnancyStartDate'
-                label='Pregnancy Start Date'
-                rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
-              >
-                <DatePicker picker='date' format={'DD/MM/YYYY'} />
-              </Form.Item>
-              <Form.Item
-                name='expectedDueDate'
-                label='Expected Due Date'
-                rules={[{ required: true, message: 'Please enter your expected due date' }]}
-              >
-                <DatePicker picker='date' format={'DD/MM/YYYY'} />
-              </Form.Item>
-              <Form.Item
-                name='babyGender'
-                label='Baby Gender'
-                rules={[{ required: true, message: 'Please enter your baby gender' }]}
-              >
-                <Select
-                  defaultValue={'Selet Gender'}
-                  options={[
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' }
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item name='imageUrl' label='Image Url'>
-                <Input placeholder='Enter your imageUrl' />
-              </Form.Item>
-            </div>
-          </div>
-          <Form.Item>
-            <Button type='primary' htmlType='submit' loading={loading} block>
-              Create
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+                {editMode ? 'Update Baby Information' : 'Add Baby Information'}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </PageWrapper>
+    </ConfigProvider>
   )
 }

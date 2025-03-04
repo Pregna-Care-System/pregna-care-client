@@ -1,0 +1,354 @@
+.container {
+  padding: 24px;
+  background: #fff;
+  min-height: 100vh;
+  border-radius: 6px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.babyCards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.recordCard {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  background: #fff;
+  cursor: pointer;
+}
+
+.activeCard {
+  transform: scale(1.02);
+  border-color: #ff6b81;
+  box-shadow: 0 8px 24px rgba(255, 107, 129, 0.15);
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.avatar {
+  border: 2px solid #ff6b81;
+  flex-shrink: 0;
+}
+
+.babyInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.babyName {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.babyName :global(.anticon) {
+  color: #ff6b81;
+}
+
+.gestationalInfo {
+  color: #ff6b81;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 0 6px;
+
+}
+
+.dueDate {
+  color: #666;
+  font-size: 12px;
+  margin: 4px 0 0 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewButton {
+  background: #ff6b81;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 16px;
+  height: 32px;
+  font-weight: 500;
+}
+
+.viewButton:hover {
+  background: #ff5268 !important;
+}
+
+.progressSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.progressInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progressInfo h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.progressInfo p {
+  margin: 0;
+  color: #666;
+}
+
+.content {
+  margin-top: 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+.weekCard {
+  background: #fff;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.weekCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.weekCard.success {
+  background: linear-gradient(to bottom right, #f6ffed, #fff);
+  border: 1px solid #b7eb8f;
+}
+
+.weekCard.process {
+  background: linear-gradient(to bottom right, #FFB6C1, #fff);
+  border: 1px solid #FFB6C1;
+}
+
+.weekCard.waiting {
+  background: linear-gradient(to bottom right, #f5f5f5, #fff);
+  border: 1px solid #d9d9d9;
+}
+
+.weekGridContainer {
+  border-radius: 16px;
+  padding: 10px;
+  margin-top: 24px;
+}
+
+.weekGrid {
+  margin-bottom: 24px;
+}
+
+.weekCard {
+  background: #fff;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.weekCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.weekCardHeader {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.weekInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.weekNumber {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.statusTag {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 12px;
+}
+
+.weekCardContent {
+  flex: 1;
+  padding: 16px;
+  min-height: 126px;
+}
+
+.weekDataPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dataPoint {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+}
+
+.moreData {
+  font-size: 12px;
+  color: #ff6b81;
+  margin-top: 4px;
+}
+
+.noDataMessage {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.weekCardActions {
+  padding: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.weekCardActions button {
+  color: #666;
+}
+
+.weekCardActions button:hover {
+  color: #ff6b81;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Week Detail Modal Styles */
+.weekDetailModal {
+  :global(.ant-modal-content) {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modalContent {
+  margin-top: 20px;
+}
+
+.descriptions {
+  background: #fff;
+}
+
+.descriptions :global(.ant-descriptions-item-label) {
+  width: 150px;
+  background: #fafafa;
+}
+
+.noData {
+  text-align: center;
+  color: #999;
+  padding: 32px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .recordCard {
+    width: 100%;
+    max-width: none;
+  }
+
+  .weekGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 8px;
+  }
+
+  .progressSection {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+

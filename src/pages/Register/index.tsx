@@ -1,5 +1,5 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import { UserOutlined, LockOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
 import { registerAccount } from '@/services/userService'
@@ -13,7 +13,8 @@ export default function Register() {
         message.success('Registration successful')
         navigate('/confirm-email')
       } else {
-        message.error(response.message || 'Registration failed')
+        console.log(response.detailErrorList[0].message)
+        message.error(response.detailErrorList[0].message || 'Registration failed')
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -39,10 +40,7 @@ export default function Register() {
           wrapperCol={{ span: 24 }}
         >
           <Typography.Title style={{ color: '#e57373' }}>SIGN UP</Typography.Title>
-          <div className='flex justify-center gap-6 text-gray-600 font-bold text-xl'>
-            <GoogleOutlined className='cursor-pointer text-red-500' />
-            <FacebookFilled className='cursor-pointer text-blue-900' />
-          </div>
+
           <Divider className='border-black border-solid'>OR</Divider>
           <Form.Item
             rules={[

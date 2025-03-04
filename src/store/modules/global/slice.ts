@@ -31,6 +31,36 @@ const editorSlice = createSlice({
     },
     setTransactionInfo(state, action: PayloadAction<any>) {
       state.transactionInfo = action.payload
+    },
+    setReminderInfo(state, action: PayloadAction<any>) {
+      state.reminderInfo = action.payload
+    },
+    setReminderActiveInfo(state, action: PayloadAction<any>) {
+      state.reminderInfo = action.payload
+    },
+    setReminderTypeInfo(state, action: PayloadAction<any>) {
+      state.reminderTypeInfo = action.payload
+    },
+    setGrowthMetricsOfWeek(state, action: PayloadAction<any>) {
+      state.growthMetricsOfWeek = action.payload
+    },
+    setStatistics(state, action: PayloadAction<any>) {
+      state.statistics = action.payload
+    },
+    setNotifications(state, action: PayloadAction<any>) {
+      state.notificationInfo = action.payload
+    },
+    setMotherInfo(state, action: PayloadAction<any>) {
+      state.motherInfo = action.payload
+    },
+    setMostUsedPlan(state, action: PayloadAction<any>){
+      state.mostUsedPlan = action.payload
+    },
+    setTagsInfo(state, action: PayloadAction<any>){
+      state.tagInfo = action.payload
+    },
+    setBlogInfo(state, action: PayloadAction<any>){
+      state.blogInfo = action.payload
     }
   }
 })
@@ -44,7 +74,17 @@ export const {
   setUserInfo,
   setDataGrowthMetric,
   setMemberInfo,
-  setTransactionInfo
+  setTransactionInfo,
+  setReminderInfo,
+  setReminderTypeInfo,
+  setReminderActiveInfo,
+  setGrowthMetricsOfWeek,
+  setStatistics,
+  setNotifications,
+  setMotherInfo,
+  setMostUsedPlan,
+  setTagsInfo,
+  setBlogInfo
 } = editorSlice.actions
 
 export default editorSlice.reducer

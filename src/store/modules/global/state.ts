@@ -127,50 +127,7 @@ export const initialState = {
       content: `"AI've tried a few pregnancy apps, but this one takes the cake. The beta version is polished, and the features are exactly what I needed. Well done!  ”`
     }
   ],
-  babyInfo: [
-    {
-      key: '1',
-      babyName: 'Mike',
-      pregnancyStartDate: '2025-01-26',
-      expectedDueDate: '2025-01-26',
-      babyGender: 'Female',
-      imageUrl: '',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    },
-    {
-      key: '2',
-      babyName: 'Mike',
-      pregnancyStartDate: '2025-01-26',
-      expectedDueDate: '2025-01-26',
-      babyGender: 'Female',
-      imageUrl: '',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    }
-  ],
-  motherInfo: [
-    {
-      key: '1',
-      motherName: 'Mike',
-      dateOfBirth: '2025-01-26',
-      bloodType: 'O Blood',
-      healthStatus: 'Good',
-      notes: '10 Downing Street',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    },
-    {
-      key: '2',
-      motherName: 'Mike',
-      dateOfBirth: '2025-01-26',
-      bloodType: 'O Blood',
-      healthStatus: 'Good',
-      notes: '10 Downing Street',
-      createdAt: '2025-01-26',
-      updatedAt: '2025-01-26'
-    }
-  ],
+  motherInfo: [],
   transactionInfo: [
     {
       fullName: 'Tina Pham',
@@ -266,5 +223,58 @@ export const initialState = {
     }
   ],
   featureInfo: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
-  growthMetrics: []
+  growthMetrics: [],
+  growthMetricsOfWeek: [],
+  reminderInfo: [],
+  reminderTypeInfo: [],
+  reminderActiveInfo: [],
+  statistics: [
+    {
+      title: 'Total Members',
+      value: '12,543',
+      increase: '+15.3%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Users',
+      value: '45,233',
+      increase: '+8.2%',
+      isIncrease: true
+    },
+    {
+      title: 'Total Transactions',
+      value: '23,847',
+      increase: '-12.4%',
+      isIncrease: false
+    },
+    {
+      title: 'Total Revenue',
+      value: '$154,239',
+      increase: '-16.8%',
+      isIncrease: false
+    }
+  ],
+  notificationInfo: [
+    {
+      id: 1,
+      title: 'Meeting the doctor',
+      message: 'HEHEEEEE',
+      isRead: false
+    },
+    {
+      id: 2,
+      title: 'Meeting the hehe',
+      message: 'HEHEEEEE',
+      isRead: false
+    },
+    {
+      id: 3,
+      title: 'Meeting the huhu',
+      message: 'HEHEEEEE',
+      isRead: false
+    }
+  ],
+  mostUsedPlan:{},
+  tagInfo: [],
+  blogInfo: []
 }

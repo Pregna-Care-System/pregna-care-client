@@ -7,8 +7,8 @@ import styled from 'styled-components'
 import CardService from '@components/Card/CardService'
 import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
-import PlanCard from '@components/Card/CardMembershipPlans'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
+import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 //--Redux
 import {
   selectMembershipPlans,
@@ -18,7 +18,6 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 
 const Background = styled.div`
   height: 765px;
@@ -36,8 +35,42 @@ const Content = styled.div`
     width: 8rem;
   }
 `
+const ScrollToTopButton = styled.button`
+  position: fixed;
+  bottom: 50px;
+  right: 100px;
+  border-radius: 50%;
+  background-color: pink;
+  color: white;
+  width: 50px;
+  height: 50px;
+  display: ${(props) => (props.isVisible ? 'block' : 'none')};
+  cursor: pointer;
+  font-size: 24px;
+`
 
-export default function GuestHome() {
+export default function Home() {
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false)
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen)
+  }
+  const handleScroll = () => {
+    if (window.scrollY > 300) {
+      setIsScrollButtonVisible(true)
+    } else {
+      setIsScrollButtonVisible(false)
+    }
+  }
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
   const dispatch = useDispatch()
   //--Render
   useEffect(() => {
@@ -59,7 +92,7 @@ export default function GuestHome() {
   ))
 
   const renderReasons = reasons.map((item, index) => {
-    return <CardReason key={index} title={item.title} description={item.description} image={item} />
+    return <CardReason key={index} title={item.title} description={item.description} image={item.image} />
   })
 
   return (
@@ -195,6 +228,9 @@ export default function GuestHome() {
           Start free trial
         </Link>
       </div>
+      <ScrollToTopButton isVisible={isScrollButtonVisible} onClick={scrollToTop}>
+        ↑
+      </ScrollToTopButton>
     </div>
   )
 }

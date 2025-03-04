@@ -3,6 +3,9 @@ import request from '@/utils/axiosClient'
 export const getAllPlan = async () => {
   return await request.get<MODEL.PlanResponse>('/MembershipPlan/GetAllPlanWithFeature')
 }
+export const getMostUsedPlan = async () => {
+  return await request.get<MODEL.PlanResponse>('/MembershipPlan/MostUsed')
+}
 export const getPlanByName = async (planName: string) => {
   try {
     const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/GetPlanByName?name=${planName}`)

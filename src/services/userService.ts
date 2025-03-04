@@ -1,5 +1,6 @@
 import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
+import ROUTES from '@/utils/config/routes'
 
 export const registerAccount = async (
   fullName: string,
@@ -17,19 +18,8 @@ export const registerAccount = async (
       password,
       roleName
     })
-
-    if (res.success) {
-      return res
-    } else {
-      throw new Error(res.message || 'Registration failed')
-    }
+    return res
   } catch (error: any) {
-    if (error.response?.data?.detailErrorList?.length > 0) {
-      const passwordError = error.response.data.detailErrorList.find((detail: any) => detail.fieldName === 'Password')
-      if (passwordError) {
-        throw new Error(passwordError.message)
-      }
-    }
     console.error('Registration failed:', error)
     throw new Error(error.message || 'Registration failed')
   }
@@ -62,6 +52,34 @@ export const login = async (email: string, password: string) => {
     throw error
   }
 }
+export const loginWithGG = async (email: string) => {
+  try {
+    const apiCallerId = 'LoginGG'
+    const res = await request.post<MODEL.IResponseBase>(`/Login/Google`, {
+      email: email,
+      password: '',
+      apiCallerId
+    })
+
+    if (res.success) {
+      const token = res.response as MODEL.TokenResponse
+      localStorage.setItem('accessToken', token.accessToken)
+      localStorage.setItem('refreshToken', token.refreshToken)
+      return res
+    } else {
+      const confirmEmailError = res.detailErrorList?.find((error: any) => error.messageId === 'E00003')
+      if (confirmEmailError) {
+        throw { message: 'Your email is not confirmed.', redirect: '/confirm-email' }
+      } else {
+        throw new Error('Login failed. Please check your email and password.')
+      }
+    }
+  } catch (error) {
+    console.error('Login failed:', error)
+    throw error
+  }
+}
+
 export const updateAccount = async (
   userId: string,
   fullName: string,
@@ -100,7 +118,7 @@ export const updateAccount = async (
 export const logout = (): void => {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
-  window.location.reload()
+  window.location.href = ROUTES.LOGIN
 }
 
 export const forgotPassword = async (email: string) => {
@@ -134,6 +152,10 @@ export const paymentVNPAY = async (userId: string, membershipPlanId: string) => 
 export const userMembershipPlan = async (data: any) => {
   const apiCallerId = 'UserMembershipPlan'
   return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
+}
+
+export const getMotherInfo = async (userId: string) => {
+  return await request.get<MODEL.IResponseBase>(`/User/${userId}/MotherInfo`)
 }
 
 // export const refreshToken = async (): Promise<string> => {

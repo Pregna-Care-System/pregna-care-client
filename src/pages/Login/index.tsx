@@ -6,7 +6,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
 import ROUTES from '@/utils/config/routes'
 import useAuth from '@/hooks/useAuth'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -16,18 +17,20 @@ export default function LoginPage() {
   const onLogin = async (values: MODEL.LoginFormValues) => {
     dispatch({
       type: 'USER_LOGIN',
-      payload: { email: values.email, password: values.password, route: ROUTES.GUEST_HOME, navigate }
+      payload: { email: values.email, password: values.password, navigate }
     })
   }
 
   const handleGoogleSuccess = (response: CredentialResponse) => {
     if (response.credential) {
       const decodedToken = jwtDecode(response.credential)
-      console.log('Decoded Token:', decodedToken)
-      message.success('Google login successful')
-      localStorage.setItem('accessToken', response.credential)
-      setIsAuthenticated(true)
-      navigate(ROUTES.HOME)
+      const email = decodedToken?.email
+      if (email) {
+        dispatch({
+          type: 'USER_LOGIN_GG',
+          payload: { email: email, navigate }
+        })
+      }
     } else {
       message.error('Google login failed. No credentials received.')
     }

@@ -40,6 +40,11 @@ export const createPregnancyRecord = async (
   }
 }
 export const getAllPregnancyRecord = async (userId: string) => {
-  const rest = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord`)
-  return rest.data
+  const res = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord`)
+  return res.data
+}
+
+export const getPregnancyRecordById = async (userId: string, pregnancyRecordId: string) => {
+  const res = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord/${pregnancyRecordId}`)
+  return res.data
 }

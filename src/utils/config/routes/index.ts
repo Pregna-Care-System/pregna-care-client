@@ -8,6 +8,7 @@ const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
+  YOUR_BLOG:'/your-blog',
   PROFILE: '/profile',
   CONTACT: '/contact',
   BLOG: '/blog',
@@ -16,13 +17,16 @@ const ROUTES = {
   COMMUNITY_DETAILS: '/community-details',
   SERVICES: '/services',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
+  BABY_NAME: '/baby-name',
+  BABY_SHOP: '/baby-shop',
   MEMBESHIP_PLANS: '/membership-plans',
-  DETAIL_PLAN: '/detail-plan',
+  DETAIL_PLAN: '/membership-plans/:planName',
   CHECKOUT: '/checkout',
-  VNPAY: '/checkout/result',
+  NOTIFICATION: '/notification',
+  PAYMENTSTATUS: '/checkout/result',
   SCHEDULE: '/schedule',
   ADMIN: {
-    DASHBOARD: '/admin/dashboard',
+    DASHBOARD: '/admin',
     TRANSACTION: '/admin/transaction',
     MEMBER: '/admin/member',
     MEMBERSHIP_PLAN: '/admin/membership-plans',
@@ -31,7 +35,8 @@ const ROUTES = {
   MEMBER: {
     DASHBOARD: '/member',
     TRACKING: '/member/tracking',
-    FETALGROWTHCHART: '/member/fetal-growth-chart'
+    FETALGROWTHCHART: '/member/fetal-growth-chart',
+    FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId'
   },
   NOT_FOUND: '*'
 }
