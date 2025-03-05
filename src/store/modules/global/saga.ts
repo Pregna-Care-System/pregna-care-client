@@ -54,7 +54,7 @@ import {
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
 import { deleteNotification, getAllNotificationByUserId, updateAllIsRead, updateNotification } from '@/services/notificationService'
-import { createBlog, getAllBlogByUserId, getAllTag } from '@/services/blogService'
+import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, updateBlog } from '@/services/blogService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -615,10 +615,22 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
     console.error('Fetch error:', error)
   }
 }
+//----------Blog information all-----------
+export function* getAllBlogSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllBlog)
+    console.log('Response for call api blog', response)
+    if (response.response) {
+      yield put(setBlogInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
 //----------Create blog-----------
 export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('BLOG INPUT', action)
     yield call(
       createBlog,
       action.payload.userId,
@@ -639,7 +651,61 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     console.error('Fetch error:', error)
   }
 }
-// Get all
+//-------------------Delete Blog-------------------
+export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('DELETE BLOG', action)
+    yield call(deleteBlog, action.payload)
+    message.success('Blog deleted successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while deleting the blog.')
+    console.error('Error in deleteBlog saga:', error)
+  }
+}
+//----------Update Blog-----------
+export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('UPDATE BLOG', action)
+    yield call(
+      updateBlog,
+      action.payload.id,
+      action.payload.userId,
+      action.payload.tagIds,
+      action.payload.pageTitle,
+      action.payload.heading,
+      action.payload.content,
+      action.payload.shortDescription,
+      action.payload.featuredImageUrl,
+      action.payload.isVisible
+    )
+    message.success('Blog update successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the blog.')
+    console.error('Error in updateBlog saga:', error)
+  }
+}
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
@@ -676,5 +742,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_TAGS', getAllTagsSaga)
   yield takeLatest('GET_ALL_BLOGS_BY_USERID', getAllBlogByUserIdSaga)
   yield takeLatest('CREATE_BLOG', createBlogSaga)
-
+  yield takeLatest('DELETE_BLOG', deleteBlogSaga)
+  yield takeLatest('UPDATE_BLOG', updateBlogSaga)
+  yield takeLatest('GET_ALL_BLOGS', getAllBlogSaga)
 }

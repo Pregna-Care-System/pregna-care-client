@@ -3,13 +3,14 @@ import styled from 'styled-components'
 import { useInView } from 'react-intersection-observer'
 import { Link } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
 
 //--Styled Components
 const Container = styled.div`
   margin: auto;
 `
-
 
 const CategoryContainer = styled.div`
   display: flex;
@@ -17,8 +18,7 @@ const CategoryContainer = styled.div`
   align-items: center;
   margin: 20px 0;
   gap: 55px;
-`;
-
+`
 
 const DropdownButton = styled.button`
   background: #007bff;
@@ -31,55 +31,61 @@ const DropdownButton = styled.button`
   &:hover {
     background: #0056b3;
   }
-`;
-
+`
 
 const CategoryDropdown = styled.div`
   position: relative;
   display: inline-block;
-`;
+`
 
-const DropdownContent = ({ isOpen, children, closeDropdown }: { isOpen: boolean; children: React.ReactNode; closeDropdown: () => void }) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
+const DropdownContent = ({
+  isOpen,
+  children,
+  closeDropdown
+}: {
+  isOpen: boolean
+  children: React.ReactNode
+  closeDropdown: () => void
+}) => {
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        closeDropdown(); // Đóng dropdown nếu click bên ngoài
+        closeDropdown() // Đóng dropdown nếu click bên ngoài
       }
-    };
+    }
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, closeDropdown]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen, closeDropdown])
 
   return (
     <div
       ref={dropdownRef}
       style={{
-        display: isOpen ? "block" : "none",
-        position: "absolute",
-        background: "white",
-        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        minWidth: "160px",
+        display: isOpen ? 'block' : 'none',
+        position: 'absolute',
+        background: 'white',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+        minWidth: '160px',
         zIndex: 1,
-        borderRadius: "5px",
-        overflow: "hidden",
-        padding: "10px",
+        borderRadius: '5px',
+        overflow: 'hidden',
+        padding: '10px'
       }}
     >
       {children}
     </div>
-  );
-};
-
+  )
+}
 
 const SearchBar = styled.div`
   display: flex;
@@ -105,9 +111,7 @@ const SearchBar = styled.div`
       background: #0056b3;
     }
   }
-`;
-
-
+`
 
 const HeaderImage = styled.div`
   position: relative;
@@ -207,86 +211,55 @@ const BlogContainer = styled.div`
 
 const images = ['src/assets/OYH_newborn-holding.jpg']
 
-//--Data
-const blogData = [
-  { id: 1, title: 'The Importance of Sleep for Moms and Babies', image: 'src/assets/tải xuống (5).jpg', category: 'Sleep' },
-  { id: 2, title: '5 Simple Prenatal Yoga Poses', image: 'src/assets/images (1).jpg', category: 'Yoga' },
-  { id: 3, title: 'Pregnancy Warning Signs', image: 'src/assets/images (2).jpg', category: 'Pregnancy' },
-  { id: 4, title: 'Top 10 Foods for Pregnant Moms', image: 'src/assets/1-3-Month-pregnancy-diet-chart-preview-1200x675.jpg', category: 'Nutrition' },
-  { id: 5, title: 'Guide to Babyproofing Your Home', image: 'src/assets/baby-girl-smiling-babyproofing-checklist.jpg', category: 'Baby Care' },
-  { id: 6, title: 'Common Newborn Health Issues', image: 'src/assets/OYH_newborn-holding.jpg', category: 'Baby Care' }
-];
-
-//--Component
 export default function BlogPage() {
+  const blogResponse = useSelector(selectBlogInfo)
+  const tagResponse = useSelector(selectTagInfo)
   const [currentPage] = useState(0)
   const [animationDirection] = useState('')
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const dispatch = useDispatch()
 
-
-
-  const mainCategories = ['Sleep', 'Yoga', 'Pregnancy', 'Nutrition', 'Baby Care', 'Mental Health', 'Parenting Tips', 'Mental Health', 'Parenting Tips', 'Breastfeeding', 'Exercise', 'Newborn Care'];
-
-  const getBlogDescription = (title: string) => {
-    switch (title) {
-      case 'The Importance of Sleep for Moms and Babies: Tips to Rest Better':
-        return "Create a conducive environment for the baby to improve the baby's and the mother's sleep quality[..]"
-      case '5 Simple Prenatal Yoga Poses to Reduce Stress and Boost Energy':
-        return 'Discover easy yoga poses that help reduce stress and rejuvenate energy for moms-to-be[..]'
-      case 'Pregnancy Warning Signs You Should Never Ignore':
-        return 'Stay informed about critical health signs during pregnancy to ensure safety and well-being[..]'
-      case 'Top 10 Foods Every Pregnant Mom Should Include in HerDiet':
-        return 'While you’re pregnant, you’ll want to eat extra protein, calcium, iron, and essential vitamins[..]'
-      case 'The Ultimate Guide to Babyproofing Your Home':
-        return 'Learn how to create a safe and welcoming environment for your baby to explore and grow[..]'
-      case 'Common Newborn Health Issues and How to Handle Them':
-        return 'Understand common newborn health concerns and practical solutions for every parent[..]'
-      default:
-        return 'Explore helpful tips and resources to improve parenting and baby care experiences[..]'
-    }
-  }
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_BLOGS'})
+    dispatch({ type: 'GET_ALL_TAGS'})
+  }, [dispatch])
 
   return (
     <Container className='overflow-hidden'>
-      <div className="opacity-0 mt-10">
-        Comment!!!
-      </div>
-      {/* Dropdown Categories */}
+      <div className='opacity-0 mt-10'>Comment!!!</div>
       <CategoryContainer>
         <CategoryDropdown>
-          <DropdownButton onClick={() => setDropdownOpen(!isDropdownOpen)}>
-            More Categories ▼
-          </DropdownButton>
+          <DropdownButton onClick={() => setDropdownOpen(!isDropdownOpen)}>More Tags ▼</DropdownButton>
           <DropdownContent isOpen={isDropdownOpen} closeDropdown={() => setDropdownOpen(false)}>
-        {mainCategories.map((category) => (
-          <a key={category} href="#" className="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-            {category}
-          </a>
-        ))}
-      </DropdownContent>
+            {tagResponse.map((tag) => (
+              <a key={tag.id} href='#' className='block px-4 py-2 text-gray-600 hover:bg-gray-100'>
+                {tag.name}
+              </a>
+            ))}
+          </DropdownContent>
         </CategoryDropdown>
-        {mainCategories.slice(0, 6).map((category) => (
-        <button key={category} onClick={() => console.log(category)}>
-          {category}
-        </button>
-      ))}
+        {tagResponse.map((tag) => (
+          <button key={tag.id} onClick={() => console.log(tag.id)}>
+            {tag.name}
+          </button>
+        ))}
         <SearchBar>
           <input
             type='text'
             placeholder='Search for a blog...'
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button>🔍</button>
         </SearchBar>
       </CategoryContainer>
 
       <HeaderImage className=' mt-1 cursor-pointer'>
-        {/* Hiển thị ảnh chính */}
         <div
-          className={`image-container ${animationDirection === 'slide-left' ? 'slide-left' : ''} ${animationDirection === 'slide-right' ? 'slide-right' : ''
-            }`}
+          className={`image-container ${animationDirection === 'slide-left' ? 'slide-left' : ''} ${
+            animationDirection === 'slide-right' ? 'slide-right' : ''
+          }`}
         >
           <img
             src={images[currentPage]}
@@ -299,7 +272,7 @@ export default function BlogPage() {
 
       {/* Blog List */}
       <BlogContainer>
-        {blogData.map((blog) => {
+        {blogResponse.map((blog) => {
           const { ref, inView } = useInView({
             threshold: 0.1
           })
@@ -307,10 +280,10 @@ export default function BlogPage() {
           return (
             <div ref={ref} className={`blog-card ${inView ? 'visible' : ''}`} key={blog.id}>
               <Link to={ROUTES.BLOG_DETAILS}>
-                <img src={blog.image} alt={blog.title} />
+                <img src={blog.featuredImageUrl} alt={blog.pageTitle} />
                 <div className='content'>
-                  <h3 className='title'>{blog.title}</h3>
-                  <h3 className='description'>{getBlogDescription(blog.title)}</h3>
+                  <h3 className='title'>{blog.pageTitle}</h3>
+                  <h3 className='description'>{blog.shortDescription}</h3>
                   <h3 className='text-blue-500 mt-2'>Read More →</h3>
                 </div>
               </Link>

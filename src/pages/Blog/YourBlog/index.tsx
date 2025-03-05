@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Modal, Select, Input, Switch, Upload, message, Tag, Tooltip } from 'antd'
+import { useState, useEffect, useCallback } from 'react'
+import { Modal, Select, Input, Switch, Upload, message, Tag, Tooltip, Form, Button } from 'antd'
 import { FiEdit2, FiTrash2, FiImage, FiSearch, FiPlus } from 'react-icons/fi'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
 import { jwtDecode } from 'jwt-decode'
 import { convert } from 'html-to-text'
+import debounce from 'lodash/debounce'
+import request from '@/utils/axiosClient'
 
 const BlogDashboard = () => {
   const [blogs, setBlogs] = useState([])
@@ -16,7 +18,7 @@ const BlogDashboard = () => {
   const dispatch = useDispatch()
   const tagResponse = useSelector(selectTagInfo)
   const blogResponse = useSelector(selectBlogInfo)
-  
+
   useEffect(() => {
     dispatch({ type: 'GET_ALL_TAGS' })
     dispatch({ type: 'GET_ALL_BLOGS_BY_USERID', payload: user })
@@ -35,65 +37,95 @@ const BlogDashboard = () => {
   const [currentPost, setCurrentPost] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTag, setSelectedTag] = useState(null)
-  const [form, setForm] = useState({
-    pageTitle: '',
-    heading: '',
-    shortDescription: '',
-    content: '',
-    tagIds: [],
-    featuredImageUrl: '',
-    isVisible: false
-  })
-
+  const [form] = Form.useForm()
+  const [userImage, setUserImage] = useState<string | null>(user?.picture || null)
 
   const handleCreatePost = () => {
     setCurrentPost(null)
-    setForm({
-      pageTitle: '',
-      heading: '',
-      shortDescription: '',
-      content: '',
-      tagIds: [],
-      featuredImageUrl: 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f',
-      isVisible: false
-    })
+    form.resetFields()
     setIsModalVisible(true)
   }
 
   const handleEditPost = (post) => {
+    console.log('EDIT INPUT', post)
     setCurrentPost(post)
-    setForm(post)
+    form.setFieldsValue({
+      pageTitle: post.pageTitle || '',
+      heading: post.heading || '',
+      shortDescription: post.shortDescription || '',
+      content: post.content || '',
+      tagIds: post.tags?.map((tag) => tag.id) || [],
+      featuredImageUrl: post.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f',
+      isVisible: post.isVisible
+    })
     setIsModalVisible(true)
   }
 
   const handleDeletePost = (postId) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this post?',
+      title: 'Are you sure you want to delete this blog?',
       content: 'This action cannot be undone.',
       onOk: () => {
-        setBlogs(blogs.filter((post) => post.id !== postId))
-        message.success('Post deleted successfully')
+        dispatch({ type: 'DELETE_BLOG', payload: postId })
       }
     })
   }
 
   const handleSubmit = () => {
-    if (!form.pageTitle || !form.content) {
-      message.error('Title and content are required')
-      return
-    }
-    const plainTextContent = convert(form.content)
+    form
+      .validateFields()
+      .then((values) => {
+        const plainTextContent = convert(values.content)
+        console.log('FORM VALUES', values)
 
-    dispatch({
-      type: 'CREATE_BLOG',
-      payload: { ...form, content: plainTextContent, userId: user?.id }
-    })
-    setIsModalVisible(false)
+        if (currentPost) {
+          dispatch({
+            type: 'UPDATE_BLOG',
+            payload: { ...values, content: plainTextContent, userId: user?.id, id: currentPost.id }
+          })
+        } else {
+          dispatch({
+            type: 'CREATE_BLOG',
+            payload: { ...values, content: plainTextContent, userId: user?.id }
+          })
+        }
+
+        setIsModalVisible(false)
+      })
+      .catch((info) => {
+        message.error('Please fill in the required fields')
+      })
   }
-  
+  const debouncedSearchTerm = useCallback(
+    debounce((value) => setSearchTerm(value), 500),
+    []
+  )
+
+  const handleSearchChange = (e) => {
+    debouncedSearchTerm(e.target.value)
+  }
 
   const filteredBlogs = blogs.filter((post) => post.pageTitle.toLowerCase().includes(searchTerm.toLowerCase()))
 
+  const handleUpload = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'PregnaCare')
+    formData.append('cloud_name', 'dgzn2ix8w')
+    try {
+      const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      console.log('Upload response:', response.data)
+      setUserImage(response.data.secure_url)
+
+      form.setFieldsValue({ featuredImageUrl: response.data.secure_url })
+      message.success('Image uploaded successfully')
+    } catch (error) {
+      message.error('Failed to upload image')
+      console.error('Upload error details', error?.response.data || error.message)
+    }
+  }
   return (
     <div
       className='flex min-h-screen bg-background p-6 mt-20'
@@ -128,7 +160,7 @@ const BlogDashboard = () => {
           <Input
             prefix={<FiSearch className='text-gray-400' />}
             placeholder='Search blogs...'
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className='max-w-md'
           />
         </div>
@@ -142,13 +174,17 @@ const BlogDashboard = () => {
               >
                 <h2 className='text-xl font-semibold mb-2'>{post.pageTitle}</h2>
                 <h3 className='mb-2'>{post.shortDescription}</h3>
-                <img src={post.image} alt={post.title} className='w-full h-48 object-cover rounded-md mb-4' />
+                <img
+                  src={post.featuredImageUrl}
+                  alt={post.title}
+                  className='w-full h-48 object-cover rounded-md mb-4'
+                />
                 <div className='flex flex-wrap gap-2 mb-4'>
                   {post.tags?.map((tag) => {
                     const tagData = tags.find((t) => t.name === tag.name)
                     return (
                       <Tag key={tag} color={tagData?.color}>
-                        {tag.name}
+                          
                       </Tag>
                     )
                   })}
@@ -158,7 +194,7 @@ const BlogDashboard = () => {
                     <Tooltip title='Edit post'>
                       <button
                         onClick={() => handleEditPost(post)}
-                        className='p-2 text-gray-600 hover:text-primary transition-colors'
+                        className='p-2 bg-gray-100 text-blue-500 border border-blue-300 rounded-md hover:bg-gray-200'
                       >
                         <FiEdit2 />
                       </button>
@@ -166,13 +202,13 @@ const BlogDashboard = () => {
                     <Tooltip title='Delete post'>
                       <button
                         onClick={() => handleDeletePost(post.id)}
-                        className='p-2 text-gray-600 hover:text-destructive transition-colors'
+                        className='p-2 bg-red-200 text-red-500 border border-red-300 rounded-md hover:bg-gray-200'
                       >
                         <FiTrash2 />
                       </button>
                     </Tooltip>
                   </div>
-                  {post.isVisible && <span className='text-sm text-muted-foreground'>Draft</span>}
+                  {!post.isVisible && <Tag color='gray'>Draft</Tag>}
                 </div>
               </div>
             ))}
@@ -187,67 +223,77 @@ const BlogDashboard = () => {
           title={currentPost ? 'Edit Blog' : 'Create New Blog'}
           open={isModalVisible}
           onOk={handleSubmit}
-          onCancel={() => setIsModalVisible(false)}
+          onCancel={() => {
+            setIsModalVisible(false)
+            form.resetFields()
+          }}
           width={800}
         >
-          <div className='space-y-4'>
-            <Input
-              placeholder='Blog title'
-              value={form.pageTitle}
-              onChange={(e) => setForm({ ...form, pageTitle: e.target.value })}
-            />
-            <Input
-              placeholder='Heading'
-              value={form.heading}
-              onChange={(e) => setForm({ ...form, heading: e.target.value })}
-            />
-            <Input.TextArea
-              placeholder='Short description'
-              value={form.shortDescription}
-              onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
-              rows={2}
-            />
-            <ReactQuill
-              value={form.content}
-              onChange={(content) => setForm({ ...form, content })}
-              className='h-64 mb-12'
-            />
-            <Select
-              mode='tags'
-              placeholder='Select tags'
-              value={form.tagIds}
-              onChange={(tagIds) => setForm({ ...form, tagIds })}
-              className='w-full'
+          <Form form={form} layout='vertical'>
+            <Form.Item
+              name='tagIds'
+              rules={[{ required: true, message: 'Please select at least one tag!' }]}
+              initialValue={[]}
             >
-              {tags.map((tag) => (
-                <Select.Option key={tag.id} value={tag.id}>
-                  {tag.name}
-                </Select.Option>
-              ))}
-            </Select>
-            <div className='flex justify-between items-center'>
-              <Upload
-                accept='image/*'
-                showUploadList={false}
-                beforeUpload={(file) => {
-                  const reader = new FileReader()
-                  reader.onload = (e) => {
-                    setForm({ ...form, featuredImageUrl: e.target.result })
-                  }
-                  reader.readAsDataURL(file)
-                  return false
-                }}
+              <label className='block mb-2'>Tags</label>
+              <Select
+                mode='tags'
+                placeholder='Select tags'
+                className='w-full'
+                onChange={(value) => form.setFieldsValue({ tagIds: value || [] })}
               >
-                <button className='flex items-center gap-2 text-primary'>
-                  <FiImage /> Upload Image
-                </button>
+                {tags.map((tag) => (
+                  <Select.Option key={tag.id} value={tag.id}>
+                    {tag.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item name='pageTitle' rules={[{ required: true, message: 'Please input the blog title!' }]}>
+              <Input placeholder='Blog title' />
+            </Form.Item>
+            <Form.Item name='heading'>
+              <Input placeholder='Heading' />
+            </Form.Item>
+            <Form.Item name='shortDescription'>
+              <Input.TextArea placeholder='Short description' rows={2} />
+            </Form.Item>
+            <Form.Item name='content' rules={[{ required: true, message: 'Please input the blog content!' }]}>
+              <ReactQuill className='h-64 mb-12' />
+            </Form.Item>
+            <Form.Item name='featuredImageUrl'>
+              <Upload
+                maxCount={1}
+                beforeUpload={(file) => {
+                  return new Promise((resolve, reject) => {
+                    if (file.size > 900000) {
+                      reject('File size exceeded')
+                      message.error('File size exceeded')
+                    } else {
+                      resolve('Success')
+                    }
+                  })
+                }}
+                customRequest={({ file, onSuccess, onError }) => {
+                  handleUpload(file)
+                    .then(() => onSuccess('ok'))
+                    .catch(onError)
+                }}
+                showUploadList={false}
+              >
+                <Button>Upload image</Button>
               </Upload>
-              <div className='flex items-center gap-2'>
-                <span>Draft</span>
-                <Switch checked={form.isVisible} onChange={(checked) => setForm({ ...form, isVisible: checked })} />
-              </div>
-            </div>
-          </div>
+              {userImage && (
+                <div className='mt-4'>
+                  <img src={userImage} alt='Uploaded' className='w-full h-48 object-cover rounded-md' />
+                </div>
+              )}
+            </Form.Item>
+            <Form.Item name='isVisible' valuePropName='checked' initialValue={false}>
+              <label className='block mb-2'>DRAFT</label>
+              <Switch />
+            </Form.Item>
+          </Form>
         </Modal>
       </div>
     </div>
