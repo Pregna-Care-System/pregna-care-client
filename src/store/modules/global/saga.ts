@@ -28,6 +28,7 @@ import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import {
+  createMotherInfo,
   getMotherInfo,
   login,
   loginWithGG,
@@ -53,7 +54,12 @@ import {
 } from '@/services/reminderService'
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
-import { deleteNotification, getAllNotificationByUserId, updateAllIsRead, updateNotification } from '@/services/notificationService'
+import {
+  deleteNotification,
+  getAllNotificationByUserId,
+  updateAllIsRead,
+  updateNotification
+} from '@/services/notificationService'
 import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, updateBlog } from '@/services/blogService'
 
 //#region User
@@ -253,16 +259,11 @@ export function* getFeatures(): Generator<any, void, any> {
 }
 
 //----------Pregnancy Record information-----------
-export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
+export function* createBabyInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
       createPregnancyRecord,
-      action.payload.userId,
-      action.payload.motherName,
-      action.payload.motherDateOfBirth,
-      action.payload.bloodType,
-      action.payload.healhStatus,
-      action.payload.notes,
+      action.payload.motherInfoId,
       action.payload.babyName,
       action.payload.pregnancyStartDate,
       action.payload.expectedDueDate,
@@ -501,6 +502,7 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
   }
 }
 
+//----------Mother information-----------
 export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getMotherInfo, action.payload.userId)
@@ -509,6 +511,18 @@ export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, v
     }
   } catch (error: any) {
     message.error('Failed to fetch mother information. Please try again!')
+  }
+}
+
+export function* createMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createMotherInfo, action.payload)
+    if (response.success) {
+      message.success('Mother information created successfully')
+      yield put(setMotherInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('Failed to create mother information. Please try again!')
   }
 }
 
@@ -645,7 +659,7 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     message.success('Create blog successfully')
     const token = localStorage.getItem('accessToken')
     const user = jwtDecode(token) ?? null
-    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: {id: user.id} })
+    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
@@ -710,7 +724,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
-  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyPregnancyRecord)
+  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyInfoSaga)
   yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
   yield takeLatest('GET_ALL_MEMBERSHIP_PLANS', getAllMembershipPlans)
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
@@ -733,6 +747,8 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
   yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
   yield takeLatest('FETCH_STATISTICS', fetchStatistics)
+  //Mother information
+  yield takeLatest('CREATE_MOTHER_INFO', createMotherInfoSaga)
   yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)

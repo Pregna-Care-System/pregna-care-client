@@ -1,12 +1,7 @@
 import request from '@/utils/axiosClient'
 
 export const createPregnancyRecord = async (
-  userId: string,
-  motherName: string,
-  motherDateOfBirth: Date,
-  bloodType: string,
-  healhStatus: string,
-  notes: string,
+  motherInfoId: string,
   babyName: string,
   pregnancyStartDate: Date,
   expectedDueDate: Date,
@@ -17,12 +12,7 @@ export const createPregnancyRecord = async (
     const apiCallerId = 'createPregnancy'
     const res = await request.post<MODEL.PregnancyRecordResponse>('/PregnancyRecord', {
       apiCallerId,
-      userId,
-      motherName,
-      motherDateOfBirth,
-      bloodType,
-      healhStatus,
-      notes,
+      motherInfoId,
       babyName,
       pregnancyStartDate,
       expectedDueDate,

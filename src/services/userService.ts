@@ -158,6 +158,11 @@ export const getMotherInfo = async (userId: string) => {
   return await request.get<MODEL.IResponseBase>(`/User/${userId}/MotherInfo`)
 }
 
+export const createMotherInfo = async (data: any) => {
+  const apiCallerId = 'MotherInfo'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
+}
+
 // export const refreshToken = async (): Promise<string> => {
 //   try {
 //     const refreshToken = localStorage.getItem('refreshToken')
