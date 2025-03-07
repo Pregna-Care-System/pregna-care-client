@@ -4,14 +4,14 @@ import { Breadcrumb, Card, Col, Layout, Row, Typography, Space, Spin } from 'ant
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { AlertCircle, Baby, Calendar, Clock } from 'lucide-react'
-import { mockFetalAlerts, mockWeightEstimation } from '@/utils/constants/mock-data'
+import { mockFetalAlerts } from '@/utils/constants/mock-data'
 import { CriticalAlert, StyledLayout } from '../../styles/styled-components'
 import ROUTES from '@/utils/config/routes'
-import GrowthChart from '../Charts/GrowthChart'
-import BarChart from '@/components/Chart/BarChart'
 import GestationalAgeChart from '../Charts/GestationalAgeChart'
 import ScheduleCard from '../ScheduleCard'
 import FetalAlertsList from '../Alerts/FetalAlertList'
+import { fetalGrowthStats } from '@/services/pregnancyRecordService'
+import EnhancedFetalChart from '../Charts/EnhancedFetalChart'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -22,9 +22,22 @@ interface FetalGrowthScreenProps {
 
 const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy }) => {
   const [loading, setLoading] = useState(true)
+  const [fetalData, setFetalData] = useState([])
+
+  const getFetalGrowthStats = async () => {
+    try {
+      if (selectedPregnancy) {
+        const res = await fetalGrowthStats(selectedPregnancy.id)
+        setFetalData(res.response)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
 
   useEffect(() => {
     if (selectedPregnancy) {
+      getFetalGrowthStats()
       setLoading(false)
     }
   }, [selectedPregnancy])
@@ -145,21 +158,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
             {/* Growth Charts */}
             <Space direction='vertical' size='large' className='w-full'>
               <Card className='chart-card'>
-                <GrowthChart
-                  data={selectedPregnancy.growthData || []}
-                  title='Fetal Weight Growth'
-                  dataKey='weight'
-                  standardKey='standardWeight'
-                  yAxisLabel='Weight (grams)'
-                />
-              </Card>
-              <Card className='chart-card'>
-                <BarChart
-                  data={mockWeightEstimation}
-                  title='Estimated Fetal Weight'
-                  xaxisTitle='Gestational Age (weeks)'
-                  yaxisTitle='Weight (grams)'
-                />
+                <EnhancedFetalChart fetalData={fetalData} />
               </Card>
             </Space>
           </Col>
