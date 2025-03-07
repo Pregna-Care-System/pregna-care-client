@@ -194,8 +194,12 @@ export default function ProfilePage() {
       dispatch({
         type: 'UPDATE_MOTHER_INFO',
         payload: {
-          ...payload,
-          id: motherInfoData.id
+          motherName: payload.motherName,
+          bloodType: payload.bloodType,
+          healhStatus: payload.healhStatus,
+          notes: payload.notes,
+          motherDateOfBirth: payload.motherDateOfBirth,
+          motherInfoId: motherInfoData.id
         }
       })
     } else {
@@ -225,8 +229,11 @@ export default function ProfilePage() {
       dispatch({
         type: 'UPDATE_PREGNANCY_RECORD',
         payload: {
-          ...payload,
-          id: selectedPregnancy.id
+          babyName: payload.babyName,
+          babyGender: payload.babyGender,
+          pregnancyStartDate: payload.pregnancyStartDate,
+          expectedDueDate: payload.expectedDueDate,
+          pregnancyRecordId: selectedPregnancy.id
         }
       })
     } else {

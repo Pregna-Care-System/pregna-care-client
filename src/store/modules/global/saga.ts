@@ -25,7 +25,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
 import { createPlan, deletePlan, getAllPlan, getMostUsedPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
-import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
+import { createPregnancyRecord, getAllPregnancyRecord, updatePregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import {
   createMotherInfo,
@@ -34,6 +34,7 @@ import {
   loginWithGG,
   paymentVNPAY,
   updateAccount,
+  updateMotherInfo,
   userMembershipPlan
 } from '@/services/userService'
 import {
@@ -272,6 +273,20 @@ export function* createBabyInfoSaga(action: PayloadAction<any>): Generator<any, 
     )
     if (response) {
       message.success('Create pregnancyRecord successfully')
+      yield put(setPregnancyRecord(response))
+      yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+
+export function* updateBabyInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(updatePregnancyRecord, action.payload)
+    if (response) {
+      message.success('Update pregnancyRecord successfully')
       yield put(setPregnancyRecord(response))
       yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
     }
@@ -526,6 +541,18 @@ export function* createMotherInfoSaga(action: PayloadAction<any>): Generator<any
   }
 }
 
+export function* updateMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(updateMotherInfo, action.payload)
+    if (response.success) {
+      message.success('Mother information updated successfully')
+      yield put(setMotherInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('Failed to update mother information. Please try again!')
+  }
+}
+
 //----------Notification information-----------
 export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -724,8 +751,6 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
-  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyInfoSaga)
-  yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
   yield takeLatest('GET_ALL_MEMBERSHIP_PLANS', getAllMembershipPlans)
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
   yield takeLatest('UPDATE_MEMBERSHIP_PLANS', updateMembershipPlan)
@@ -749,7 +774,13 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('FETCH_STATISTICS', fetchStatistics)
   //Mother information
   yield takeLatest('CREATE_MOTHER_INFO', createMotherInfoSaga)
+  yield takeLatest('UPDATE_MOTHER_INFO', updateMotherInfoSaga)
   yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
+  //PregnancyRecord information
+  yield takeLatest('UPDATE_PREGNANCY_RECORD', updateBabyInfoSaga)
+  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyInfoSaga)
+  yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
+  //Notification
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
   yield takeLatest('UPDATE_ALL_IS_READ', updateAllIsReadSaga)
