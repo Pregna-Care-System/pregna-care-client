@@ -12,6 +12,7 @@ import ScheduleCard from '../ScheduleCard'
 import FetalAlertsList from '../Alerts/FetalAlertList'
 import { fetalGrowthStats } from '@/services/pregnancyRecordService'
 import EnhancedFetalChart from '../Charts/EnhancedFetalChart'
+import { getFetalGrowthAlert } from '@/services/fetalGrowthRecordService'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -23,6 +24,7 @@ interface FetalGrowthScreenProps {
 const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy }) => {
   const [loading, setLoading] = useState(true)
   const [fetalData, setFetalData] = useState([])
+  const [alertData, setAlertData] = useState([])
 
   const getFetalGrowthStats = async () => {
     try {
@@ -35,17 +37,27 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
     }
   }
 
+  const getFetalAlerts = async () => {
+    try {
+      if (selectedPregnancy) {
+        const res = await getFetalGrowthAlert(selectedPregnancy.id)
+        setAlertData(res.response)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
+
   useEffect(() => {
     if (selectedPregnancy) {
       getFetalGrowthStats()
+      getFetalAlerts()
       setLoading(false)
     }
   }, [selectedPregnancy])
 
   // Filter critical alerts (this should be updated to use actual data when available)
-  const criticalAlerts = mockFetalAlerts.filter(
-    (alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved
-  )
+  const criticalAlerts = alertData.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
 
   if (loading) {
     return (
@@ -171,7 +183,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
           </Col>
           <Col xs={24} xl={24}>
             <div id='alerts-section'>
-              <FetalAlertsList alerts={mockFetalAlerts} />
+              <FetalAlertsList alerts={alertData} />
             </div>
           </Col>
         </Row>
