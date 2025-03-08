@@ -163,7 +163,7 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
         title={
           <div className='flex items-center space-x-2'>
             <AlertOutlined className='text-primary' />
-            <span>Danh sách cảnh báo</span>
+            <span>List alerts</span>
           </div>
         }
       >
@@ -224,7 +224,7 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
                 style={{ width: 120 }}
                 onChange={(value) => setSeverityFilter(value)}
                 options={[
-                  { value: 'all', label: 'Tất cả' },
+                  { value: 'all', label: 'All' },
                   { value: 'critical', label: 'Critical' },
                   { value: 'warning', label: 'Warning' },
                   { value: 'info', label: 'Info' }
@@ -236,9 +236,9 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
                 style={{ width: 120 }}
                 onChange={(value) => setStatusFilter(value)}
                 options={[
-                  { value: 'all', label: 'Tất cả' },
-                  { value: 'resolved', label: 'Đã xử lý' },
-                  { value: 'unresolved', label: 'Chưa xử lý' }
+                  { value: 'all', label: 'All' },
+                  { value: 'resolved', label: 'Resolved' },
+                  { value: 'unresolved', label: 'Unresolved' }
                 ]}
                 className='rounded-full'
               />
@@ -263,7 +263,7 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
                 rowClassName={(record) => (record.severity.toLowerCase() === 'critical' ? 'bg-red-50' : '')}
               />
             ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='Không tìm thấy cảnh báo nào' />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='Not have any alerts yet' />
             )}
           </Spin>
         </Space>
@@ -274,7 +274,7 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
         title={
           <div className='flex items-center space-x-2'>
             <AlertOutlined className='text-primary' />
-            <span>Chi tiết cảnh báo</span>
+            <span>Alert detail</span>
           </div>
         }
         open={isModalOpen}
