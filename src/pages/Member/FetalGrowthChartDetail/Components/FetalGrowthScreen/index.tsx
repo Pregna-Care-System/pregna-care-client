@@ -4,7 +4,6 @@ import { Breadcrumb, Card, Col, Layout, Row, Typography, Space, Spin } from 'ant
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { AlertCircle, Baby, Calendar, Clock } from 'lucide-react'
-import { mockFetalAlerts } from '@/utils/constants/mock-data'
 import { CriticalAlert, StyledLayout } from '../../styles/styled-components'
 import ROUTES from '@/utils/config/routes'
 import GestationalAgeChart from '../Charts/GestationalAgeChart'
@@ -13,6 +12,7 @@ import FetalAlertsList from '../Alerts/FetalAlertList'
 import { fetalGrowthStats } from '@/services/pregnancyRecordService'
 import EnhancedFetalChart from '../Charts/EnhancedFetalChart'
 import { getFetalGrowthAlert } from '@/services/fetalGrowthRecordService'
+import { mockFetalAlerts } from '@/utils/constants/mock-data'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -57,7 +57,9 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
   }, [selectedPregnancy])
 
   // Filter critical alerts (this should be updated to use actual data when available)
-  const criticalAlerts = alertData.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
+  const criticalAlerts = mockFetalAlerts.filter(
+    (alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved
+  )
 
   if (loading) {
     return (

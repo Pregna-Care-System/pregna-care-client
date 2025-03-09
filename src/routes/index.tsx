@@ -46,6 +46,7 @@ const TransactionPage = React.lazy(() => import('@/pages/Admin/Transaction'))
 const MemberPage = React.lazy(() => import('@/pages/Admin/Member'))
 const MemberShipPlanAdminPage = React.lazy(() => import('@/pages/Admin/MembershipPlan'))
 const GrowthMetrics = React.lazy(() => import('@/pages/Admin/GrowthMetrics'))
+const Featrure = React.lazy(() => import('@/pages/Admin/Feature'))
 //Pages-Member
 const Dashboard = React.lazy(() => import('@/pages/Member/Dashboard'))
 const FetalGrowthChart = React.lazy(() => import('@/pages/Member/FetalGrowthChart'))
@@ -86,7 +87,8 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.TRANSACTION, component: TransactionPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout }
+  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout },
+  { path: ROUTES.ADMIN.FEATURE, component: Featrure, layout: AdminLayout }
 ]
 
 const memberRoutes = [
