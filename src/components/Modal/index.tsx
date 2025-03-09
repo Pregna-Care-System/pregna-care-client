@@ -10,9 +10,19 @@ interface CreateModalProps {
   handleSubmit: (values: any) => void
   form: any
   loading: boolean
+  buttonName: string
 }
 
-export function CreateModal({ isOpen, title, formItem, onClose, handleSubmit, form, loading }: CreateModalProps) {
+export function CreateModal({
+  isOpen,
+  title,
+  formItem,
+  onClose,
+  handleSubmit,
+  form,
+  loading,
+  buttonName
+}: CreateModalProps) {
   const renderForm = () => {
     return formItem.map((item: any, index: number) => {
       return (
@@ -35,7 +45,7 @@ export function CreateModal({ isOpen, title, formItem, onClose, handleSubmit, fo
         {renderForm()}
         <Form.Item>
           <Button type='primary' htmlType='submit' loading={loading} block>
-            Create
+            {buttonName}
           </Button>
         </Form.Item>
       </Form>

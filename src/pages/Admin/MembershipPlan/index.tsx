@@ -240,6 +240,7 @@ export default function MemberShipPlanAdminPage() {
       message.error('Failed to fetch plan details for update')
     }
   }
+
   const handleUpload = async (file) => {
     const formData = new FormData()
     formData.append('file', file)

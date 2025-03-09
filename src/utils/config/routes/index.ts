@@ -8,7 +8,7 @@ const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
-  YOUR_BLOG:'/your-blog',
+  YOUR_BLOG: '/your-blog',
   PROFILE: '/profile',
   CONTACT: '/contact',
   BLOG: '/blog',
@@ -30,7 +30,8 @@ const ROUTES = {
     TRANSACTION: '/admin/transaction',
     MEMBER: '/admin/member',
     MEMBERSHIP_PLAN: '/admin/membership-plans',
-    GROWTHMETRICS: '/admin/growth-metrics'
+    GROWTHMETRICS: '/admin/growth-metrics',
+    FEATURE: '/admin/feature'
   },
   MEMBER: {
     DASHBOARD: '/member',
