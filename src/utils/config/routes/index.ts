@@ -11,6 +11,7 @@ const ROUTES = {
   YOUR_BLOG: '/your-blog',
   PROFILE: '/profile',
   CONTACT: '/contact',
+  FAQ: '/faq',
   BLOG: '/blog',
   BLOG_DETAILS: '/blog-details',
   COMMUNITY: '/community',

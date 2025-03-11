@@ -158,6 +158,9 @@ export default function Header() {
         <NavLink to={ROUTES.CONTACT} className='header_item'>
           Contact Us
         </NavLink>
+        <NavLink to={ROUTES.FAQ} className='header_item'>
+          FAQ
+        </NavLink>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
         {user === null ? (

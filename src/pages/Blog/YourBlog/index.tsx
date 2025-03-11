@@ -289,7 +289,7 @@ const BlogDashboard = () => {
                 </div>
               )}
             </Form.Item>
-            <Form.Item name='isVisible' valuePropName='checked' initialValue={false}>
+            <Form.Item name='isVisible' valuePropName='checked' initialValue={true}>
               <label className='block mb-2'>DRAFT</label>
               <Switch />
             </Form.Item>

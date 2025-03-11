@@ -16,6 +16,7 @@ import NoHeaderLayout from '@/layouts/NoHeaderLayout'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
 import BabyShopApp from '@/pages/Service/BabyShop/index '
+import FAQPage from '@/pages/FAQ'
 
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
@@ -73,6 +74,7 @@ const publicRoutes = [
   { path: ROUTES.SCHEDULE, component: Schedule },
   { path: ROUTES.PAYMENTSTATUS, component: PaymentStatusPage },
   { path: ROUTES.CONTACT, component: Contact },
+  { path: ROUTES.FAQ, component: FAQPage },
   { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
   { path: ROUTES.SERVICES, component: MommyServicesPage }
 ]
