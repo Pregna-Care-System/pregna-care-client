@@ -8,6 +8,10 @@ export const getAllBlogByUserId = async (userId: string) => {
   const res = await request.get<MODEL.IResponseBase>(`/Blog/User/${userId}`)
   return res.data
 }
+export const getAllBlog = async () => {
+  const res = await request.get<MODEL.IResponseBase>(`/Blog`)
+  return res.data
+}
 export const createBlog = async (
   userId: string,
   tagIds: [],
@@ -36,18 +40,39 @@ export const createBlog = async (
     throw error
   }
 }
-export const deleteNotification = async (id: string) => {
+export const deleteBlog = async (id: string) => {
   try {
-    await request.delete<MODEL.IResponseBase>(`/Notification?id=${id}`)
+    await request.delete<MODEL.IResponseBase>(`/Blog/${id}`)
     return true
   } catch (error) {
-    console.error('Delete notification by id failed', error)
+    console.error('Delete blog by id failed', error)
     return false
   }
 }
-export const updateNotification = async (id: string) => {
+export const updateBlog = async (
+  id: string,
+  userId: string,
+  tagIds: [],
+  pageTitle: string,
+  heading: string,
+  content: string,
+  shortDescription: string,
+  featuredImageUrl: string,
+  isVisible: boolean
+) => {
   try {
-    await request.put<MODEL.IResponseBase>(`/Notification?id=${id}`)
+    const apiCallerId = 'updateBlog'
+    await request.put<MODEL.IResponseBase>(`/Blog/${id}`, {
+      apiCallerId,
+      userId,
+      tagIds,
+      pageTitle,
+      heading,
+      content,
+      shortDescription,
+      featuredImageUrl,
+      isVisible
+    })
     return true
   } catch (error: any) {
     if (error.response) {
@@ -57,9 +82,4 @@ export const updateNotification = async (id: string) => {
     }
     return false
   }
-}
-export const updateAllIsRead = async (ids: string[]) => {
-  console.log('IDS', ids)
-  await request.put<MODEL.IResponseBase>('/Notification/all', ids)
-  return true
 }

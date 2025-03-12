@@ -25,14 +25,16 @@ import { PayloadAction } from '@reduxjs/toolkit'
 //-----Services-----
 import { createPlan, deletePlan, getAllPlan, getMostUsedPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
-import { createPregnancyRecord, getAllPregnancyRecord } from '@/services/pregnancyRecordService'
+import { createPregnancyRecord, getAllPregnancyRecord, updatePregnancyRecord } from '@/services/pregnancyRecordService'
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import {
+  createMotherInfo,
   getMotherInfo,
   login,
   loginWithGG,
   paymentVNPAY,
   updateAccount,
+  updateMotherInfo,
   userMembershipPlan
 } from '@/services/userService'
 import {
@@ -53,8 +55,13 @@ import {
 } from '@/services/reminderService'
 import ROUTES from '@/utils/config/routes'
 import { fetchStatistics } from '@/services/statisticsService'
-import { deleteNotification, getAllNotificationByUserId, updateAllIsRead, updateNotification } from '@/services/notificationService'
-import { createBlog, getAllBlogByUserId, getAllTag } from '@/services/blogService'
+import {
+  deleteNotification,
+  getAllNotificationByUserId,
+  updateAllIsRead,
+  updateNotification
+} from '@/services/notificationService'
+import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, updateBlog } from '@/services/blogService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -253,16 +260,11 @@ export function* getFeatures(): Generator<any, void, any> {
 }
 
 //----------Pregnancy Record information-----------
-export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generator<any, void, any> {
+export function* createBabyInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(
       createPregnancyRecord,
-      action.payload.userId,
-      action.payload.motherName,
-      action.payload.motherDateOfBirth,
-      action.payload.bloodType,
-      action.payload.healhStatus,
-      action.payload.notes,
+      action.payload.motherInfoId,
       action.payload.babyName,
       action.payload.pregnancyStartDate,
       action.payload.expectedDueDate,
@@ -271,6 +273,20 @@ export function* createBabyPregnancyRecord(action: PayloadAction<any>): Generato
     )
     if (response) {
       message.success('Create pregnancyRecord successfully')
+      yield put(setPregnancyRecord(response))
+      yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+
+export function* updateBabyInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(updatePregnancyRecord, action.payload)
+    if (response) {
+      message.success('Update pregnancyRecord successfully')
       yield put(setPregnancyRecord(response))
       yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
     }
@@ -501,6 +517,7 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
   }
 }
 
+//----------Mother information-----------
 export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getMotherInfo, action.payload.userId)
@@ -509,6 +526,30 @@ export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, v
     }
   } catch (error: any) {
     message.error('Failed to fetch mother information. Please try again!')
+  }
+}
+
+export function* createMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(createMotherInfo, action.payload)
+    if (response.success) {
+      message.success('Mother information created successfully')
+      yield put(setMotherInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('Failed to create mother information. Please try again!')
+  }
+}
+
+export function* updateMotherInfoSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(updateMotherInfo, action.payload)
+    if (response.success) {
+      message.success('Mother information updated successfully')
+      yield put(setMotherInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('Failed to update mother information. Please try again!')
   }
 }
 
@@ -615,10 +656,22 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
     console.error('Fetch error:', error)
   }
 }
+//----------Blog information all-----------
+export function* getAllBlogSaga(): Generator<any, void, any> {
+  try {
+    const response = yield call(getAllBlog)
+    console.log('Response for call api blog', response)
+    if (response.response) {
+      yield put(setBlogInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
 //----------Create blog-----------
 export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('BLOG INPUT', action)
     yield call(
       createBlog,
       action.payload.userId,
@@ -633,19 +686,71 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     message.success('Create blog successfully')
     const token = localStorage.getItem('accessToken')
     const user = jwtDecode(token) ?? null
-    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: {id: user.id} })
+    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
-// Get all
+//-------------------Delete Blog-------------------
+export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('DELETE BLOG', action)
+    yield call(deleteBlog, action.payload)
+    message.success('Blog deleted successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while deleting the blog.')
+    console.error('Error in deleteBlog saga:', error)
+  }
+}
+//----------Update Blog-----------
+export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('UPDATE BLOG', action)
+    yield call(
+      updateBlog,
+      action.payload.id,
+      action.payload.userId,
+      action.payload.tagIds,
+      action.payload.pageTitle,
+      action.payload.heading,
+      action.payload.content,
+      action.payload.shortDescription,
+      action.payload.featuredImageUrl,
+      action.payload.isVisible
+    )
+    message.success('Blog update successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error) {
+    message.error('An unexpected error occurred while updating the blog.')
+    console.error('Error in updateBlog saga:', error)
+  }
+}
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
   yield takeLatest('GET_ALL_FEATURES', getFeatures)
-  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyPregnancyRecord)
-  yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
   yield takeLatest('GET_ALL_MEMBERSHIP_PLANS', getAllMembershipPlans)
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
   yield takeLatest('UPDATE_MEMBERSHIP_PLANS', updateMembershipPlan)
@@ -667,7 +772,15 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('DELETE_REMINDER', deleteReminderSaga)
   yield takeLatest('GET_ALL_GROWTH_METRICS_OF_WEEK', getAllGrowthMetricsOfWeekSaga)
   yield takeLatest('FETCH_STATISTICS', fetchStatistics)
+  //Mother information
+  yield takeLatest('CREATE_MOTHER_INFO', createMotherInfoSaga)
+  yield takeLatest('UPDATE_MOTHER_INFO', updateMotherInfoSaga)
   yield takeLatest('GET_ALL_MOTHER_INFO', getMotherInfoSaga)
+  //PregnancyRecord information
+  yield takeLatest('UPDATE_PREGNANCY_RECORD', updateBabyInfoSaga)
+  yield takeLatest('CREATE_PREGNANCY_RECORD', createBabyInfoSaga)
+  yield takeLatest('GET_ALL_PREGNANCY_RECORD', getAllPregnancyRecords)
+  //Notification
   yield takeLatest('GET_ALL_NOTIFICATION_BY_USERID', getAllNotificationByUserIdSaga)
   yield takeLatest('UPDATE_NOTIFICATION_STATUS', updateNotificationSaga)
   yield takeLatest('UPDATE_ALL_IS_READ', updateAllIsReadSaga)
@@ -676,5 +789,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_TAGS', getAllTagsSaga)
   yield takeLatest('GET_ALL_BLOGS_BY_USERID', getAllBlogByUserIdSaga)
   yield takeLatest('CREATE_BLOG', createBlogSaga)
-
+  yield takeLatest('DELETE_BLOG', deleteBlogSaga)
+  yield takeLatest('UPDATE_BLOG', updateBlogSaga)
+  yield takeLatest('GET_ALL_BLOGS', getAllBlogSaga)
 }

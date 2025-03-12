@@ -158,6 +158,22 @@ export const getMotherInfo = async (userId: string) => {
   return await request.get<MODEL.IResponseBase>(`/User/${userId}/MotherInfo`)
 }
 
+export const createMotherInfo = async (data: any) => {
+  const apiCallerId = 'MotherInfo'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
+}
+
+export const updateMotherInfo = async (data: any) => {
+  const apiCallerId = 'MotherInfo'
+  return await request.put<MODEL.IResponseBase>(`/${apiCallerId}/${data.motherInfoId}`, {
+    motherName: data.motherName,
+    bloodType: data.bloodType,
+    healhStatus: data.healhStatus,
+    notes: data.notes,
+    motherDateOfBirth: data.motherDateOfBirth
+  })
+}
+
 // export const refreshToken = async (): Promise<string> => {
 //   try {
 //     const refreshToken = localStorage.getItem('refreshToken')

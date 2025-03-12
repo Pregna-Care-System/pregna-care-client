@@ -1,79 +1,156 @@
+import ChatBot from '@/components/Chat'
 import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { logout } from '@/services/userService'
-import { style } from '@/theme'
+import { selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
-import { BellOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons'
-import { jwtDecode } from 'jwt-decode'
+import { Avatar } from 'antd'
 import { useState } from 'react'
+import { FaCalendarAlt, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { useSelector } from 'react-redux'
 import { Link, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
-const HeaderItemProfile = styled.div`
-  .header_item_profile {
-    transition:
-      transform 0.4s ease,
-      opacity 0,
-      4s ease;
+const LayoutWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #ff6b81 0%, #ff8296 100%);
+
+  .layout-container {
     display: flex;
-    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 16rem;
+    z-index: 40;
+  }
+
+  .main-content {
+    flex: 1;
+    margin-left: 16rem;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    min-height: 100vh;
+    position: relative;
+    z-index: 30;
+  }
+
+  .header {
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
-    cursor: pointer;
+    padding: 1rem 1.5rem;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    position: relative;
+    z-index: 35;
 
-    &:hover {
-      transform: scale(1.1);
-      opacity: 0.9;
-    }
-    img {
-      transition: transform 0.4s ease;
-      border-radius: 50%;
-      object-fit: cover;
-      width: 40px;
-      height: 40px;
-    }
-  }
-`
-const Dropdown = styled.div`
-  position: absolute;
-  top: 65px;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0;
-  min-width: 150px;
+    .welcome-text {
+      padding: 0 0.5rem;
+      margin-right: 1rem;
+      border-left: 2px solid #ff6b81;
+      color: #4a4a4a;
 
-  .dropdown_item {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: #4a4a4a;
-    cursor: pointer;
-    &:hover {
-      background-color: ${style.COLORS.RED.RED_5};
-      color: #fff;
+      strong {
+        color: #ff6b81;
+      }
+    }
+
+    .avatar-wrapper {
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.05);
+      }
     }
   }
 
-  a {
-    display: block;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: #4a4a4a;
-    text-decoration: none;
-    transition:
-      background-color 0.3s,
-      color 0.3s;
+  .content {
+    flex: 1;
+    padding: 2rem;
+    background: linear-gradient(to bottom, #f0f8ff, #f6e3e1);
+    position: relative;
+    z-index: 30;
+  }
 
-    &:hover {
-      background-color: ${style.COLORS.RED.RED_5};
-      color: #fff;
+  .dropdown {
+    position: absolute;
+    top: 65px;
+    right: 24px;
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    min-width: 200px;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 107, 129, 0.1);
+    z-index: 45;
+
+    a,
+    .dropdown_item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: #4a4a4a;
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+
+      svg {
+        margin-right: 0.75rem;
+        font-size: 1rem;
+        color: #ff6b81;
+      }
+
+      &:hover {
+        background-color: #fff1f3;
+        color: #ff6b81;
+      }
+    }
+
+    .dropdown_item.logout {
+      border-top: 1px solid #f0f0f0;
+      margin-top: 0.5rem;
+      color: #ff6b81;
+
+      &:hover {
+        background-color: #fff1f3;
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .sidebar-container {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+
+      &.sidebar-open {
+        transform: translateX(0);
+      }
+    }
+
+    .main-content {
+      margin-left: 0;
+      width: 100%;
     }
   }
 `
 
 export default function AdminLayout({ children }) {
-  const token = localStorage.getItem('accessToken')
-  const user = token ? jwtDecode(token) : null
+  const user = useSelector(selectUserInfo)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
 
   const handleMouseLeave = () => {
@@ -81,7 +158,7 @@ export default function AdminLayout({ children }) {
     setTimer(newTimer)
   }
 
-  const hadleMouseEnter = () => {
+  const handleMouseEnter = () => {
     if (timer) {
       clearTimeout(timer)
       setTimer(null)
@@ -96,48 +173,58 @@ export default function AdminLayout({ children }) {
     logout()
   }
 
-  const userImage = user?.image || null
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev)
+  }
+
   return (
-    <div className='flex min-h-screen'  style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}>
-      <div className='w-64 bg-gray-800 text-white p-6'>
-        <AdminSidebar />
-      </div>
-      <div className='flex-1 px-6 py-4'>
-        <div className='flex justify-end items-center mb-10 space-x-4'>
-          <BellOutlined className='cursor-pointer text-2xl text-gray-600 hover:text-gray-800 transition duration-300' />
-
-          <div className='flex items-center space-x-3'>
-            <span className='text-lg font-medium text-gray-700'>Hello, {user.name}</span>
-            <HeaderItemProfile onClick={toggleDropDown} onMouseEnter={hadleMouseEnter} className='relative'>
-              {userImage ? (
-                <img
-                  src={userImage}
-                  alt='User Avatar'
-                  className='w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-500 transition duration-300'
-                />
-              ) : (
-                <UserOutlined className='text-2xl text-gray-600 cursor-pointer' />
-              )}
-            </HeaderItemProfile>
-          </div>
-
-          {isDropDownOpen && (
-            <Dropdown className='dropdown' onMouseLeave={handleMouseLeave}>
-              <Link to={ROUTES.PROFILE}>
-                <UserOutlined /> My Profile
-              </Link>
-              <Link to={ROUTES.PROFILE}>
-                <SettingOutlined /> Setting
-              </Link>
-              <div className='dropdown_item cursor-pointer border-t border-t-gray-300' onClick={handleLogout}>
-                <LogoutOutlined /> Logout
-              </div>
-            </Dropdown>
-          )}
+    <LayoutWrapper>
+      <div className='layout-container'>
+        <div className={`sidebar-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+          <AdminSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
         </div>
-
-        {children}
+        <div className='main-content'>
+          <div className='header'>
+            <h4 className='welcome-text'>
+              Hello, <strong>{user.name}</strong>
+            </h4>
+            <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
+              <Avatar
+                size={45}
+                src={
+                  user.image ||
+                  'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
+                }
+                style={{
+                  border: '2px solid #ff6b81',
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
+            {isDropDownOpen && (
+              <div className='dropdown' onMouseLeave={handleMouseLeave}>
+                <Link to={ROUTES.PROFILE}>
+                  <FaUser /> My Profile
+                </Link>
+                <Link to={ROUTES.MEMBER.DASHBOARD}>
+                  <FaTachometerAlt /> Member Dashboard
+                </Link>
+                <Link to={ROUTES.PROFILE}>
+                  <FaCog /> Settings
+                </Link>
+                <Link to={ROUTES.SCHEDULE}>
+                  <FaCalendarAlt /> My Schedule
+                </Link>
+                <div className='dropdown_item logout' onClick={handleLogout}>
+                  <FaSignOutAlt /> Logout
+                </div>
+              </div>
+            )}
+          </div>
+          <div className='content'>{children}</div>
+          <ChatBot />
+        </div>
       </div>
-    </div>
+    </LayoutWrapper>
   )
 }

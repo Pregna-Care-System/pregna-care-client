@@ -1,12 +1,7 @@
 import request from '@/utils/axiosClient'
 
 export const createPregnancyRecord = async (
-  userId: string,
-  motherName: string,
-  motherDateOfBirth: Date,
-  bloodType: string,
-  healhStatus: string,
-  notes: string,
+  motherInfoId: string,
   babyName: string,
   pregnancyStartDate: Date,
   expectedDueDate: Date,
@@ -17,12 +12,7 @@ export const createPregnancyRecord = async (
     const apiCallerId = 'createPregnancy'
     const res = await request.post<MODEL.PregnancyRecordResponse>('/PregnancyRecord', {
       apiCallerId,
-      userId,
-      motherName,
-      motherDateOfBirth,
-      bloodType,
-      healhStatus,
-      notes,
+      motherInfoId,
       babyName,
       pregnancyStartDate,
       expectedDueDate,
@@ -39,12 +29,28 @@ export const createPregnancyRecord = async (
     }
   }
 }
+
+export const updatePregnancyRecord = async (data: any) => {
+  const res = await request.put<MODEL.PregnancyRecordResponse>(`/PregnancyRecord/${data.pregnancyRecordId}`, {
+    babyName: data.babyName,
+    pregnancyStartDate: data.pregnancyStartDate,
+    expectedDueDate: data.expectedDueDate,
+    babyGender: data.babyGender
+  })
+  return res.data
+}
+
 export const getAllPregnancyRecord = async (userId: string) => {
   const res = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord`)
   return res.data
 }
 
-export const getPregnancyRecordById = async (userId: string, pregnancyRecordId: string) => {
-  const res = await request.get<MODEL.PregnancyRecordResponse>(`/User/${userId}/PregnancyRecord/${pregnancyRecordId}`)
+export const getPregnancyRecordById = async (pregnancyRecordId: string) => {
+  const res = await request.get<MODEL.PregnancyRecordResponse>(`PregnancyRecord/${pregnancyRecordId}`)
+  return res.data
+}
+
+export const fetalGrowthStats = async (pregnancyRecordId: string) => {
+  const res = await request.get(`PregnancyRecord/${pregnancyRecordId}/FetalGrowthStats`)
   return res.data
 }
