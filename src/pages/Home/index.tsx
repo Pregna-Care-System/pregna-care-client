@@ -132,19 +132,6 @@ export default function Home() {
         <div className='flex justify-center'>{renderServices}</div>
       </div>
 
-      {/* --Reasons */}
-      <div className='bg-red-50 rounded-2xl'>
-        <div className='container mx-auto p-8'>
-          <div className='flex flex-col items-center'>
-            <h2 className='text-5xl font-bold'>Why choose us</h2>
-            <p className='py-4 text-xl text-wrap font-light'>
-              We are the only service that provides all 3 services as a packaged service.
-            </p>
-          </div>
-          <div className='flex flex-col gap-4'>{renderReasons}</div>
-        </div>
-      </div>
-
       {/* --Pricing */}
       <div className='container mx-auto p-8'>
         <div className='flex flex-col items-center mb-8'>
