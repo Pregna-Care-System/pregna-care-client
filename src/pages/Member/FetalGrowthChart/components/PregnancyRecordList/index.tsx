@@ -40,15 +40,6 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      await dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: user.id } })
-      setLoading(false)
-    }
-    fetchData()
-  }, [dispatch, user.id])
-
-  useEffect(() => {
     if (activeCard) {
       dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeCard } })
     }
