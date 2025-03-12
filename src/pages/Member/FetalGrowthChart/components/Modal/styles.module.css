@@ -1,0 +1,129 @@
+.customModal :global(.ant-modal-content) {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.customModal :global(.ant-modal-header) {
+  padding: 20px 24px;
+  border-bottom: none;
+}
+
+.customModal :global(.ant-modal-body) {
+  padding: 0 24px 24px;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleText {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modalDivider {
+  margin: 0 0 16px;
+}
+
+/* Week indicator styling */
+.weekIndicator {
+  background: rgba(255, 107, 129, 0.1);
+  border-left: 4px solid rgb(255, 107, 129);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weekBadge {
+  background: rgb(255, 107, 129);
+  color: white;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.weekDescription {
+  color: #555;
+  font-size: 14px;
+}
+
+.customFormItem :global(.ant-form-item-label) > label {
+  font-weight: 500;
+  color: #333;
+}
+
+.customInput {
+  border-radius: 8px;
+  padding: 10px 12px;
+  height: 42px;
+  transition: all 0.3s;
+}
+
+.customInput:hover {
+  border-color: rgb(255, 107, 129);
+}
+
+.customInput:focus {
+  border-color: rgb(255, 107, 129);
+  box-shadow: 0 0 0 2px rgba(255, 107, 129, 0.2);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.cancelButton {
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 20px;
+}
+
+.submitButton {
+  background: rgb(255, 107, 129) !important;
+  border-color: rgb(255, 107, 129) !important;
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 20px;
+  font-weight: 500;
+}
+
+.submitButton:hover {
+  background: rgba(255, 107, 129, 0.85) !important;
+  border-color: rgba(255, 107, 129, 0.85) !important;
+}
+
+/* Animation for modal */
+.customModal :global(.ant-modal) {
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
