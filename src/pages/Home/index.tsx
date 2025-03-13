@@ -14,11 +14,13 @@ import {
   selectMembershipPlans,
   selectReasons,
   selectServices,
-  selectTestimonials
+  selectTestimonials,
+  selectUserInfo
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import { getAllFeature } from '@/services/featureService'
+import { getAllFeature, getAllFeatureByUserId } from '@/services/featureService'
+import { message, Modal } from 'antd'
 
 const Background = styled.div`
   height: 765px;
@@ -54,22 +56,53 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false)
   const [featureList, setFeatureList] = useState([])
-  const memoizedDataSource = useMemo(() => featureList, [featureList])
-  
-   const getListFeature = async () => {
-      try {
-        const res = await getAllFeature()
-        if (res.status === 200) {
-          setFeatureList(res.data.response)
-        }
-      } catch (error) {
-        console.error(error)
+  const user = useSelector(selectUserInfo)
+  const userId = user?.id
+  const [userFeatures, setUserFeatures] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalContent, setModalContent] = useState('')
+
+  const getListFeature = async () => {
+    try {
+      const res = await getAllFeature()
+      if (res.status === 200) {
+        setFeatureList(res.data.response)
       }
+    } catch (error) {
+      console.error(error)
     }
-  
-    useEffect(() => {
-      getListFeature()
-    }, [])
+  }
+
+  const getUserFeatures = async () => {
+    if (!userId) return
+    try {
+      const res = await getAllFeatureByUserId(userId)
+      if (res.status === 200) {
+        setUserFeatures(res.data.response)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getListFeature()
+    getUserFeatures()
+  }, [userId])
+
+  const checkFeatureAccess = (id) => {
+    return userFeatures.some((feature) => feature.featureId === id)
+  }
+
+  const handleFeatureClick = (feature) => {
+
+    if (!checkFeatureAccess(feature?.id)) {
+      setModalContent(`Bạn cần nâng cấp để sử dụng tính năng "${feature.featureName}".`)
+      setIsModalOpen(true)
+    } else {
+      message.success(`Bạn đã truy cập vào ${feature.featureName}!`)
+    }
+  }
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
@@ -97,8 +130,6 @@ export default function Home() {
   }, [])
 
   //--State redux
-  const services = useSelector(selectServices)
-  const reasons = useSelector(selectReasons)
   const membershipPlans = useSelector(selectMembershipPlans)
   const testimonials = useSelector(selectTestimonials)
 
@@ -106,13 +137,12 @@ export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
 
   //--Services
-  const renderServices = memoizedDataSource.map((item, index) => (
-    <CardService key={index} title={item.featureName} description={item.description} width='100%' height='100%' />
+  const renderServices = featureList.map((item, index) => (
+    <div key={index} onClick={() => handleFeatureClick(item)} className='cursor-pointer'>
+      <CardService title={item.featureName} description={item.description} width='100%' height='100%' />
+    </div>
   ))
-
-  const renderReasons = reasons.map((item, index) => {
-    return <CardReason key={index} title={item.title} description={item.description} image={item.image} />
-  })
+  
 
   return (
     <div className='bg-white'>
@@ -149,7 +179,16 @@ export default function Home() {
         </div>
         <div className='flex justify-center'>{renderServices}</div>
       </div>
-
+      <Modal
+        title='Thông báo'
+        open={isModalOpen}
+        onOk={() => setIsModalOpen(false)}
+        onCancel={() => setIsModalOpen(false)}
+        okText='Nâng cấp ngay'
+        cancelText='Đóng'
+      >
+        <p>{modalContent}</p>
+      </Modal>
       {/* --Pricing */}
       <div className='container mx-auto p-8'>
         <div className='flex flex-col items-center mb-8'>
