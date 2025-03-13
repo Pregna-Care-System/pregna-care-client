@@ -8,7 +8,6 @@ const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESEND_PASSWORD: '/resend-password',
   SUCCESS_CONFIRM: '/email-success-confirm',
-  YOUR_BLOG: '/your-blog',
   PROFILE: '/profile',
   CONTACT: '/contact',
   FAQ: '/faq',
@@ -25,7 +24,6 @@ const ROUTES = {
   CHECKOUT: '/checkout',
   NOTIFICATION: '/notification',
   PAYMENTSTATUS: '/checkout/result',
-  SCHEDULE: '/schedule',
   ADMIN: {
     DASHBOARD: '/admin',
     TRANSACTION: '/admin/transaction',
@@ -38,7 +36,9 @@ const ROUTES = {
     DASHBOARD: '/member',
     TRACKING: '/member/tracking',
     FETALGROWTHCHART: '/member/fetal-growth-chart',
-    FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId'
+    FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId',
+    SCHEDULE: '/schedule',
+    YOUR_BLOG: '/your-blog'
   },
   NOT_FOUND: '*'
 }

@@ -1,5 +1,5 @@
 //--Library
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -18,6 +18,7 @@ import {
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
+import { getAllFeature } from '@/services/featureService'
 
 const Background = styled.div`
   height: 765px;
@@ -52,6 +53,24 @@ const ScrollToTopButton = styled.button`
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false)
+  const [featureList, setFeatureList] = useState([])
+  const memoizedDataSource = useMemo(() => featureList, [featureList])
+  
+   const getListFeature = async () => {
+      try {
+        const res = await getAllFeature()
+        if (res.status === 200) {
+          setFeatureList(res.data.response)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  
+    useEffect(() => {
+      getListFeature()
+    }, [])
+
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
   }
@@ -87,8 +106,8 @@ export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
 
   //--Services
-  const renderServices = services.map((item, index) => (
-    <CardService key={index} title={item.title} description={item.description} width='100%' height='100%' />
+  const renderServices = memoizedDataSource.map((item, index) => (
+    <CardService key={index} title={item.featureName} description={item.description} width='100%' height='100%' />
   ))
 
   const renderReasons = reasons.map((item, index) => {
@@ -120,7 +139,6 @@ export default function Home() {
       </Background>
 
       {/* --Services */}
-      {/* // Then in your JSX, wrap the services section: */}
       <div className='container mx-auto p-16'>
         <div className='flex flex-col items-center'>
           <h2 className='text-5xl font-bold'>See our services for member</h2>

@@ -1,6 +1,7 @@
 import ROUTES from '@/utils/config/routes'
 import { LucideBaby } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
+import { FaCalendarAlt, FaPenNib } from 'react-icons/fa'
 import { FiBarChart2 } from 'react-icons/fi'
 import { GoPerson } from 'react-icons/go'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -154,9 +155,14 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         path: ROUTES.MEMBER.FETALGROWTHCHART
       },
       {
-        title: 'Mother Status',
-        icon: <FiBarChart2 size={20} />,
-        path: ROUTES.MEMBER.MOTHERSTATUS
+        title: 'Your Schedule',
+        icon: <FaCalendarAlt size={20} />,
+        path: ROUTES.MEMBER.SCHEDULE
+      },
+      {
+        title: 'Your Blog',
+        icon: <FaPenNib size={20} />,
+        path: ROUTES.MEMBER.YOUR_BLOG
       }
     ],
     []
@@ -252,7 +258,7 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         </nav>
 
         <div className='footer text-center'>
-          <p>PregnaCare © 2024</p>
+          <p>PregnaCare © 2025</p>
         </div>
       </div>
     </SidebarWrapper>

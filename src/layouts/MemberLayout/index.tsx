@@ -212,9 +212,6 @@ export default function MemberLayout({ children }) {
                 <Link to={ROUTES.PROFILE}>
                   <FaCog /> Settings
                 </Link>
-                <Link to={ROUTES.SCHEDULE}>
-                  <FaCalendarAlt /> My Schedule
-                </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout
                 </div>

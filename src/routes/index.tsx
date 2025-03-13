@@ -59,7 +59,6 @@ const publicRoutes = [
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BABY_NAME, component: babyNamePage },
   { path: ROUTES.BABY_SHOP, component: BabyShopApp },
-  { path: ROUTES.YOUR_BLOG, component: BlogDashboard },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.COMMUNITY, component: CommunityPage },
   { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
@@ -71,12 +70,17 @@ const publicRoutes = [
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: ROUTES.DETAIL_PLAN, component: PlanDetailPage },
-  { path: ROUTES.SCHEDULE, component: Schedule },
   { path: ROUTES.PAYMENTSTATUS, component: PaymentStatusPage },
   { path: ROUTES.CONTACT, component: Contact },
   { path: ROUTES.FAQ, component: FAQPage },
   { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
-  { path: ROUTES.SERVICES, component: MommyServicesPage }
+  { path: ROUTES.SERVICES, component: MommyServicesPage },
+  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
+  { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
+  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
+
 ]
 
 const privateRoutes = [
@@ -94,9 +98,9 @@ const adminRoutes = [
 ]
 
 const memberRoutes = [
-  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout }
+//   { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+//   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+//   { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout }
 ]
 
 export { publicRoutes, adminRoutes, memberRoutes, privateRoutes }

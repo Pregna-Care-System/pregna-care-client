@@ -8,7 +8,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Avatar } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
-import { FaCalendarAlt, FaCog, FaPenNib, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 
 const Wrapper = styled.div`
   .active {
@@ -200,14 +200,8 @@ export default function Header() {
                 <Link to={ROUTES.MEMBER.DASHBOARD}>
                   <FaTachometerAlt /> Member Dashboard
                 </Link>
-                <Link to={ROUTES.YOUR_BLOG}>
-                  <FaPenNib /> Your Blog
-                </Link>
                 <Link to={ROUTES.PROFILE}>
                   <FaCog /> Settings
-                </Link>
-                <Link to={ROUTES.SCHEDULE}>
-                  <FaCalendarAlt /> My Schedule
                 </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

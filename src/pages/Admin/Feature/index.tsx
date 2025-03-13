@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button, Form, message, Modal, Table } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
-import { useDispatch, useSelector } from 'react-redux'
 import { CreateModal } from '@/components/Modal'
 import { createFeature, deleteFeature, getFeatureById, updateFeature } from '@/services/adminService'
 import { getAllFeature } from '@/services/featureService'
