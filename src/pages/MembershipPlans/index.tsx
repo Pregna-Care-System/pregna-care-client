@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Button, message } from 'antd'
+import { Button, Form, Input, message, Modal } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMembershipPlans } from '@/store/modules/global/selector'
+import { selectMembershipPlans, selectUserInfo } from '@/store/modules/global/selector'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
+import { upgradeFreePlan } from '@/services/planService'
+import { MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
 
 export default function MemberShipPlanPage() {
   const plans = useSelector(selectMembershipPlans)
@@ -11,6 +13,10 @@ export default function MemberShipPlanPage() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [selectedPlan, setSelectedPlan] = useState<MODEL.PlanResponse | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const user = useSelector(selectUserInfo)
+  const userId = user?.id
+  const [form] = Form.useForm()
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
@@ -33,15 +39,35 @@ export default function MemberShipPlanPage() {
   }, [location])
 
   const handleUpgrade = () => {
-    if (selectedPlan) {
+    if (!selectedPlan) {
+      message.error('Please select a plan before upgrading.')
+      return
+    }
+    console.log('selectedPlan', selectedPlan)
+    if (selectedPlan.planName === 'FreePlan') {
+      // Nếu chọn Free Plan thì mở modal xác nhận
+      setIsModalOpen(true)
+    } else {
+      // Nếu chọn plan khác thì điều hướng đến trang checkout
       navigate(
         `/checkout?planId=${selectedPlan.membershipPlanId}&planName=${encodeURIComponent(selectedPlan.planName)}&planPrice=${encodeURIComponent(selectedPlan.price)}`
       )
-    } else {
-      message.error('Please select a plan before upgrading.')
     }
   }
 
+  const handleConfirmUpgrade = async () => {
+    try {
+      if (!userId) {
+        message.error('User ID not found. Please log in again.')
+        return
+      }
+      await upgradeFreePlan(userId)
+      message.success('Successfully upgraded to Free Plan!')
+      setIsModalOpen(false)
+    } catch (error) {
+      message.error('Failed to upgrade plan. Please try again.')
+    }
+  }
   return (
     <div
       className='px-4 py-36 flex justify-center'
@@ -73,6 +99,93 @@ export default function MemberShipPlanPage() {
           </Button>
         </div>
       </div>
+
+      <Modal
+        title={
+          <div className='text-center pb-6 border-b border-gray-200'>
+            <h1 className='text-2xl font-semibold text-red-400'>Enter Your Information</h1>
+            <p className='text-sm text-gray-500 mt-2'>Please fill in your details to continue</p>
+          </div>
+        }
+        open={isModalOpen}
+        onOk={handleConfirmUpgrade}
+        onCancel={() => setIsModalOpen(false)}
+        width={480}
+        centered
+        className='[&_.ant-modal-content]:rounded-2xl [&_.ant-modal-content]:p-6'
+        footer={null}
+      >
+        <div className='py-6'>
+          <Form form={form} layout='vertical' className='space-y-4'>
+            <Form.Item
+              label={<span className='text-gray-700 font-medium'>Full Name</span>}
+              name='fullName'
+              rules={[{ required: true, message: 'Please enter your full name' }]}
+              className='mb-6'
+            >
+              <Input
+                prefix={<UserOutlined className='text-gray-400' />}
+                placeholder='Enter your full name'
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                  [&_.ant-input]:placeholder-gray-400 border-gray-200
+                  hover:border-blue-400 focus:border-blue-400'
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={<span className='text-gray-700 font-medium'>Email Address</span>}
+              name='email'
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Please enter a valid email' }
+              ]}
+              className='mb-6'
+            >
+              <Input
+                prefix={<MailOutlined className='text-gray-400' />}
+                placeholder='Enter your email'
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                  [&_.ant-input]:placeholder-gray-400 border-gray-200
+                  hover:border-blue-400 focus:border-blue-400'
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={<span className='text-gray-700 font-medium'>Phone Number</span>}
+              name='phone'
+              rules={[{ required: true, message: 'Please enter your phone number' }]}
+              className='mb-6'
+            >
+              <Input
+                prefix={<PhoneOutlined className='text-gray-400' />}
+                placeholder='Enter your phone number'
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                  [&_.ant-input]:placeholder-gray-400 border-gray-200
+                  hover:border-blue-400 focus:border-blue-400'
+              />
+            </Form.Item>
+
+            <div className='flex justify-end space-x-3 pt-4 border-t border-gray-200'>
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                className='px-6 h-10 text-gray-600 border-gray-300 hover:border-gray-400
+                  hover:text-gray-800 transition-colors'
+              >
+                Cancel
+              </Button>
+              <Button
+                type='primary'
+                onClick={handleConfirmUpgrade}
+                className='px-6 h-10 bg-blue-500 hover:bg-blue-600 border-none
+                  transition-colors'
+                danger
+              >
+                Confirm Upgrade
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </Modal>
     </div>
   )
 }
