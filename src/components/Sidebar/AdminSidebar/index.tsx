@@ -5,6 +5,7 @@ import {
   // FiBarChart2,
   // FiBell,
   FiDollarSign,
+  FiHelpCircle,
   // FiHelpCircle,
   FiHome,
   FiPackage,
@@ -177,9 +178,9 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         icon: <FiPackage size={20} />,
         path: ROUTES.ADMIN.GROWTHMETRICS
       },
-      { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE }
+      { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE },
 
-      // { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
+      { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
     ],
     []
   )
@@ -274,7 +275,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         </nav>
 
         <div className='footer text-center'>
-          <p>PregnaCare © 2024</p>
+          <p>PregnaCare © 2025</p>
         </div>
       </div>
     </SidebarWrapper>

@@ -1,4 +1,3 @@
-import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
 import ROUTES from '@/utils/config/routes'
 
@@ -173,22 +172,3 @@ export const updateMotherInfo = async (data: any) => {
     motherDateOfBirth: data.motherDateOfBirth
   })
 }
-
-// export const refreshToken = async (): Promise<string> => {
-//   try {
-//     const refreshToken = localStorage.getItem('refreshToken')
-//     if (!refreshToken) {
-//       throw new Error('No refresh token found')
-//     }
-
-//     const res = await request.post<{ accessToken: string }>(`/authentication/refresh`, {
-//       refreshToken: refreshToken
-//     })
-//     return res.accessToken
-//   } catch (error) {
-//     console.error('Refresh token failed:', error)
-//     localStorage.removeItem('accessToken')
-//     localStorage.removeItem('refreshToken')
-//     throw error
-//   }
-// }
