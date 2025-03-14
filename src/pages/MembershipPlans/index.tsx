@@ -126,7 +126,7 @@ export default function MemberShipPlanPage() {
               <Input
                 prefix={<UserOutlined className='text-gray-400' />}
                 placeholder='Enter your full name'
-                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2
                   [&_.ant-input]:placeholder-gray-400 border-gray-200
                   hover:border-blue-400 focus:border-blue-400'
               />
@@ -144,7 +144,7 @@ export default function MemberShipPlanPage() {
               <Input
                 prefix={<MailOutlined className='text-gray-400' />}
                 placeholder='Enter your email'
-                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2
                   [&_.ant-input]:placeholder-gray-400 border-gray-200
                   hover:border-blue-400 focus:border-blue-400'
               />
@@ -159,7 +159,7 @@ export default function MemberShipPlanPage() {
               <Input
                 prefix={<PhoneOutlined className='text-gray-400' />}
                 placeholder='Enter your phone number'
-                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2 
+                className='h-11 text-base rounded-lg [&_.ant-input-prefix]:mr-2
                   [&_.ant-input]:placeholder-gray-400 border-gray-200
                   hover:border-blue-400 focus:border-blue-400'
               />
@@ -180,7 +180,7 @@ export default function MemberShipPlanPage() {
                   transition-colors'
                 danger
               >
-                Confirm Upgrade
+                Upgrade
               </Button>
             </div>
           </Form>

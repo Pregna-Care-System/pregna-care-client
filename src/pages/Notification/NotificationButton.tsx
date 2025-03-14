@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { selectUserInfo } from '@store/modules/global/selector'
 
 export default function NotificationButton() {
   const [notificationTimer, setNotificationTimer] = useState<NodeJS.Timeout | null>(null)
@@ -15,13 +16,8 @@ export default function NotificationButton() {
   const [notifications, setNotifications] = useState(notificationInfo)
   const dispatch = useDispatch()
   const [visibleCount, setVisibleCount] = useState(5)
-  const token = localStorage.getItem('accessToken')
-  let user = null
-  try {
-    user = token ? jwtDecode(token) : null
-  } catch (error) {
-    console.error('Invalid token:', error)
-  }
+  const user = useSelector(selectUserInfo)
+
   useEffect(() => {
           dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
       }, [dispatch])

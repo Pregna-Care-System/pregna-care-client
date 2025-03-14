@@ -75,11 +75,7 @@ const publicRoutes = [
   { path: ROUTES.FAQ, component: FAQPage },
   { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
   { path: ROUTES.SERVICES, component: MommyServicesPage },
-  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
-  { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
-  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
+  
 
 ]
 
@@ -98,9 +94,11 @@ const adminRoutes = [
 ]
 
 const memberRoutes = [
-//   { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-//   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-//   { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout }
+{ path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+{ path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+{ path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
+{ path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
+{ path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
 ]
 
 export { publicRoutes, adminRoutes, memberRoutes, privateRoutes }

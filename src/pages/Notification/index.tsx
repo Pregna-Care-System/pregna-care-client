@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { selectNotifications } from '../../store/modules/global/selector'
 import { Bell, MoreVertical } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
 import Loading from '@/components/Loading'
+import { useSelector } from 'react-redux'
+import { selectUserInfo } from '@store/modules/global/selector'
 
 const NotificationPage = () => {
   const notificationResponse = useSelector(selectNotifications)
@@ -17,14 +18,8 @@ const NotificationPage = () => {
   const [visibleCount, setVisibleCount] = useState(5)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const user = useSelector(selectUserInfo)
 
-  const token = localStorage.getItem('accessToken')
-  let user = null
-  try {
-    user = token ? jwtDecode(token) : null
-  } catch (error) {
-    console.error('Invalid token:', error)
-  }
   useEffect(() => {
     if (user?.id) {
       dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })

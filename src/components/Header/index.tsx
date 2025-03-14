@@ -2,14 +2,107 @@ import { logout } from '@/services/userService'
 import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
 import { UserOutlined } from '@ant-design/icons'
-import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Avatar } from 'antd'
+import { Avatar, Button, Modal } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
-import { FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCheck, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { useSelector } from 'react-redux'
+import { selectUserInfo } from '@store/modules/global/selector'
 
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const Wrapper = styled.div`
   .active {
     color: ${style.COLORS.RED.RED_5};
@@ -98,11 +191,11 @@ const Wrapper = styled.div`
 `
 
 export default function Header() {
-  const token = localStorage.getItem('accessToken')
-  const user = token ? jwtDecode(token) : null
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
   const navigate = useNavigate()
+  const userInfor = useSelector(selectUserInfo)
+  const [isModalVisible, setIsModalVisible] = useState(false)
 
   const handleMouseLeave = () => {
     const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
@@ -123,8 +216,15 @@ export default function Header() {
   const handleLogout = () => {
     logout()
   }
+  const handleNavClick = (path: string) => {
+    if (userInfor?.role !== 'Member') {
+      setIsModalVisible(true)
+    } else {
+      navigate(path)
+    }
+  }
 
-  const userImage = user?.picture || null
+  const userImage = userInfor?.picture || null
 
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
@@ -137,33 +237,33 @@ export default function Header() {
         <span className='text-red-500 text-xl font-bold'>PregnaCare</span>
       </div>
       <div className='col-span-8 flex justify-center items-center gap-8 font-bold'>
-        <NavLink to={ROUTES.GUEST_HOME} className='header_item'>
+        <button className='header_item' onClick={() => navigate(ROUTES.GUEST_HOME)}>
           Home
-        </NavLink>
-        <NavLink to={ROUTES.SERVICES} className='header_item'>
+        </button>
+        <button onClick={() => handleNavClick(ROUTES.SERVICES)} className='header_item'>
           Services
-        </NavLink>
-        <NavLink to={ROUTES.BLOG} className='header_item'>
+        </button>
+        <button onClick={() => handleNavClick(ROUTES.BLOG)} className='header_item'>
           Blog
-        </NavLink>
-        <NavLink to={ROUTES.MEMBESHIP_PLANS} className='header_item'>
+        </button>
+        <button onClick={() => handleNavClick(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
           Pricing
-        </NavLink>
-        <NavLink to={ROUTES.NUTRITION_AND_FITNESS} className='header_item'>
+        </button>
+        <button onClick={() => handleNavClick(ROUTES.NUTRITION_AND_FITNESS)} className='header_item'>
           Nutrition and Fitness
-        </NavLink>
-        <NavLink to={ROUTES.COMMUNITY} className='header_item'>
+        </button>
+        <button onClick={() => handleNavClick(ROUTES.COMMUNITY)} className='header_item'>
           Community
-        </NavLink>
-        <NavLink to={ROUTES.CONTACT} className='header_item'>
+        </button>
+        <button onClick={() => navigate(ROUTES.CONTACT)} className='header_item'>
           Contact Us
-        </NavLink>
-        <NavLink to={ROUTES.FAQ} className='header_item'>
+        </button>
+        <button onClick={() => navigate(ROUTES.FAQ)} className='header_item'>
           FAQ
-        </NavLink>
+        </button>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
-        {user === null ? (
+        {userInfor === null ? (
           <>
             <Link to={ROUTES.REGISTER} className='border-red-400 border-2 bg-white text-red-500 rounded py-2 px-4'>
               Sign Up
@@ -194,15 +294,15 @@ export default function Header() {
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
-                <Link to={ROUTES.PROFILE}>
+                <button className='dropdown_item' onClick={() => navigate(ROUTES.PROFILE)}>
                   <FaUser /> My Profile
-                </Link>
-                <Link to={ROUTES.MEMBER.DASHBOARD}>
+                </button>
+                <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.DASHBOARD)}>
                   <FaTachometerAlt /> Member Dashboard
-                </Link>
-                <Link to={ROUTES.PROFILE}>
+                </button>
+                <button className='dropdown_item' onClick={() => navigate(ROUTES.PROFILE)}>
                   <FaCog /> Settings
-                </Link>
+                </button>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout
                 </div>
@@ -211,6 +311,36 @@ export default function Header() {
           </>
         )}
       </div>
+      <StyledModal
+        title='Become a PregnaCare Member'
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsModalVisible(false)}>
+            Later
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            onClick={() => {
+              setIsModalVisible(false)
+              navigate(ROUTES.MEMBESHIP_PLANS)
+            }}
+          >
+            View Membership Plans
+          </Button>
+        ]}
+      >
+        <div className='membership-content'>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+            alt='Membership'
+            className='membership-image'
+          />
+
+          <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+        </div>
+      </StyledModal>
     </Wrapper>
   )
 }
