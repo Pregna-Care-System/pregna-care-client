@@ -1,25 +1,22 @@
 //--Library
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 //--Components
 import CardService from '@components/Card/CardService'
-import CardReason from '@components/Card/CardReason'
 import CarouselTestimonials from '@components/Carousel/CarouselTestimonials'
 import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
+import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
 import {
   selectMembershipPlans,
-  selectReasons,
-  selectServices,
   selectTestimonials,
-  selectUserInfo
 } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
-import { getAllFeature, getAllFeatureByUserId } from '@/services/featureService'
+import { getAllFeature } from '@/services/featureService'
 import { message, Modal } from 'antd'
 
 const Background = styled.div`
@@ -56,11 +53,9 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false)
   const [featureList, setFeatureList] = useState([])
-  const user = useSelector(selectUserInfo)
-  const userId = user?.id
-  const [userFeatures, setUserFeatures] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
+  const { hasAccess } = useFeatureAccess()
 
   const getListFeature = async () => {
     try {
@@ -73,30 +68,14 @@ export default function Home() {
     }
   }
 
-  const getUserFeatures = async () => {
-    if (!userId) return
-    try {
-      const res = await getAllFeatureByUserId(userId)
-      if (res.status === 200) {
-        setUserFeatures(res.data.response)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
 
   useEffect(() => {
     getListFeature()
-    getUserFeatures()
-  }, [userId])
-
-  const checkFeatureAccess = (id) => {
-    return userFeatures.some((feature) => feature.featureId === id)
-  }
+  }, [])
 
   const handleFeatureClick = (feature) => {
 
-    if (!checkFeatureAccess(feature?.id)) {
+    if (!hasAccess(feature.id, feature.featureName)) {
       setModalContent(`Bạn cần nâng cấp để sử dụng tính năng "${feature.featureName}".`)
       setIsModalOpen(true)
     } else {

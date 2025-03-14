@@ -2,10 +2,10 @@ import ROUTES from '@/utils/config/routes'
 import { LucideBaby } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { FaCalendarAlt, FaPenNib } from 'react-icons/fa'
-import { FiBarChart2 } from 'react-icons/fi'
 import { GoPerson } from 'react-icons/go'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import useFeatureAccess from '@/hooks/useFeatureAccess'
 
 const SidebarWrapper = styled.div`
   height: 100%;
@@ -141,28 +141,33 @@ interface MemberSidebarProps {
 export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { hasAccess } = useFeatureAccess()
 
   const menuItems = useMemo(
     () => [
       {
         title: 'Mother Information',
         icon: <GoPerson size={20} />,
-        path: ROUTES.MEMBER.DASHBOARD
+        path: ROUTES.MEMBER.DASHBOARD,
+        featureName: 'View Mother Infor'
       },
       {
         title: 'Fetal Growth',
         icon: <LucideBaby size={20} />,
-        path: ROUTES.MEMBER.FETALGROWTHCHART
+        path: ROUTES.MEMBER.FETALGROWTHCHART,
+        featureName: 'Tracking Pregnancy'
       },
       {
         title: 'Your Schedule',
         icon: <FaCalendarAlt size={20} />,
-        path: ROUTES.MEMBER.SCHEDULE
+        path: ROUTES.MEMBER.SCHEDULE,
+        featureName: 'Remider schedule'
       },
       {
         title: 'Your Blog',
         icon: <FaPenNib size={20} />,
-        path: ROUTES.MEMBER.YOUR_BLOG
+        path: ROUTES.MEMBER.YOUR_BLOG,
+        featureName: 'Create Blog'
       }
     ],
     []
@@ -186,13 +191,19 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
     navigate('/')
   }
 
-  const handleMenuItemClick = (title: string, path: string) => {
-    setActiveMenu(title)
-    navigate(path)
-    if (window.innerWidth < 1024) {
-      onToggle()
+  const handleMenuItemClick = (title: string, path: string, featureName: string) => {
+    console.log('featureName', featureName)
+    if (hasAccess(undefined, featureName)) {
+      setActiveMenu(title)
+      navigate(path) 
+      if (window.innerWidth < 1024) {
+        onToggle()
+      }
+    } else {
+      alert(`Bạn cần nâng cấp để sử dụng tính năng "${featureName}".`)
     }
   }
+  
 
   return (
     <SidebarWrapper>
@@ -243,7 +254,7 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
             {menuItems.map((item, index) => (
               <li key={index}>
                 <button
-                  onClick={() => handleMenuItemClick(item.title, item.path)}
+                  onClick={() => handleMenuItemClick(item.title, item.path, item.featureName)}
                   className={`nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out ${
                     activeMenu === item.title ? 'active' : ''
                   }`}
