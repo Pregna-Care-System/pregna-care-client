@@ -1,6 +1,9 @@
-import { useState, useMemo, useEffect } from 'react'
-import { Card, Select, Typography, Row, Col, Statistic, Tabs, Spin } from 'antd'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { Card, Select, Typography, Row, Col, Statistic, Tabs, Spin, Button, message } from 'antd'
 import Chart from 'react-apexcharts'
+import { ShareAltOutlined } from '@ant-design/icons'
+import html2canvas from 'html2canvas'
+import ShareChartModal from '../../ShareChartModal'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -19,8 +22,11 @@ interface ProcessedDataItem {
 }
 
 export default function EnhancedFetalChart({ fetalData }: { fetalData: ProcessedDataItem[] }) {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [processedData, setProcessedData] = useState<ProcessedDataItem[]>([])
+  const chartRef = useRef<HTMLDivElement>(null)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [chartImageUrl, setChartImageUrl] = useState('')
 
   useEffect(() => {
     if (fetalData && fetalData.length > 0) {
@@ -265,6 +271,29 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
     }
   }
 
+  // Function to capture chart as image for sharing
+  const captureChart = async () => {
+    if (chartRef.current) {
+      try {
+        // Show a loading message
+        message.loading('Preparing chart for sharing...', 1)
+
+        const canvas = await html2canvas(chartRef.current)
+        const imageUrl = canvas.toDataURL('image/png')
+        setChartImageUrl(imageUrl)
+        setIsShareModalOpen(true)
+      } catch (error) {
+        console.error('Error capturing chart:', error)
+        message.error('Failed to capture chart image')
+      }
+    }
+  }
+
+  // Prepare chart data for sharing (as a JSON string)
+  const prepareChartDataForSharing = () => {
+    return JSON.stringify(fetalData)
+  }
+
   if (loading) {
     return (
       <Card className='w-full'>
@@ -277,8 +306,15 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
 
   return (
     <Card className='w-full'>
-      <Title level={4}>Fetal Growth Metrics</Title>
-      <Text type='secondary'>Track fetal development measurements over time</Text>
+      <div className='flex items-center justify-between mb-4'>
+        <div>
+          <Title level={4}>Fetal Growth Metrics</Title>
+          <Text type='secondary'>Track fetal development measurements over time</Text>
+        </div>
+        <Button type='primary' icon={<ShareAltOutlined />} onClick={captureChart}>
+          Share Chart
+        </Button>
+      </div>
 
       <div className='my-4'>
         <Select
@@ -326,7 +362,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
 
       <Tabs defaultActiveKey='line'>
         <TabPane tab='Line Chart' key='line'>
-          <div style={{ height: 400 }}>
+          <div style={{ height: 400 }} ref={chartRef}>
             {typeof window !== 'undefined' && chartData.length > 0 && (
               <Chart options={lineChartOptions} series={lineSeries} type='line' height={400} />
             )}
@@ -339,7 +375,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
           </div>
         </TabPane>
         <TabPane tab='Range Area Chart' key='area'>
-          <div style={{ height: 400 }}>
+          <div style={{ height: 400 }} ref={chartRef}>
             {typeof window !== 'undefined' && chartData.length > 0 && (
               <Chart options={areaChartOptions} series={areaSeries} type='rangeArea' height={400} />
             )}
@@ -352,6 +388,14 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
           </div>
         </TabPane>
       </Tabs>
+
+      <ShareChartModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        chartData={prepareChartDataForSharing()}
+        chartType='Fetal Growth'
+        previewImage={chartImageUrl}
+      />
     </Card>
   )
 }

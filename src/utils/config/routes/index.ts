@@ -15,7 +15,7 @@ const ROUTES = {
   BLOG: '/blog',
   BLOG_DETAILS: '/blog-details',
   COMMUNITY: '/community',
-  COMMUNITY_DETAILS: '/community-details',
+  COMMUNITY_DETAILS: '/community/:id',
   SERVICES: '/services',
   NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   BABY_NAME: '/baby-name',

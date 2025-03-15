@@ -20,7 +20,10 @@ export const createBlog = async (
   content: string,
   shortDescription: string,
   featuredImageUrl: string,
-  isVisible: boolean
+  isVisible: boolean,
+  type?: string,
+  status?: string,
+  sharedChartData?: string
 ) => {
   try {
     const apiCallerId = 'createBlog'
@@ -33,7 +36,10 @@ export const createBlog = async (
       content,
       shortDescription,
       featuredImageUrl,
-      isVisible
+      isVisible,
+      type,
+      status,
+      sharedChartData
     })
   } catch (error) {
     console.log('Create failed', error)
@@ -81,5 +87,15 @@ export const updateBlog = async (
       console.error('Request Error:', error.message)
     }
     return false
+  }
+}
+
+export const getBlogById = async (id: string) => {
+  try {
+    const response = await request.get(`/Blog/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching blog by ID:', error)
+    throw error
   }
 }
