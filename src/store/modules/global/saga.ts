@@ -696,12 +696,18 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.content,
       action.payload.shortDescription,
       action.payload.featuredImageUrl,
-      action.payload.isVisible
+      action.payload.isVisible,
+      action.payload.type || null,
+      action.payload.status || null,
+      action.payload.sharedChartData || null
     )
     message.success('Create blog successfully')
     const token = localStorage.getItem('accessToken')
-    const user = jwtDecode(token) ?? null
-    yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    const user = token ? jwtDecode(token) : null
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
