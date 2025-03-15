@@ -10,11 +10,11 @@ import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
-import { selectMembershipPlans, selectTestimonials, selectUserInfo } from '@store/modules/global/selector'
+import { selectMemberInfo, selectMembershipPlans, selectTestimonials, selectUserInfo } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
-import { Button, message, Modal } from 'antd'
+import { Button, Modal } from 'antd'
 import { style } from '@/theme'
 
 const StyledModal = styled(Modal)`
@@ -237,6 +237,15 @@ const ScrollToTopButton = styled.button`
   font-size: 24px;
 `
 
+const featureRoutes: { [key: string]: string } = {
+  'Generate baby name': ROUTES.BABY_NAME,
+  'Shoppe for mommy': ROUTES.BABY_SHOP,
+  Blog: ROUTES.BLOG,
+  Community: ROUTES.COMMUNITY,
+  'Tracking Pregnancy': ROUTES.MEMBER.DASHBOARD,
+  'Remider schedule': ROUTES.MEMBER.SCHEDULE
+  // 'Entertainment Games': ROUTES.MEMBER.GAMES,
+}
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false)
@@ -246,6 +255,10 @@ export default function Home() {
   const { hasAccess } = useFeatureAccess()
   const userInfor = useSelector(selectUserInfo)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [visibleServices, setVisibleServices] = useState(3)
+  const [servicesToDisplay, setServicesToDisplay] = useState(featureList.slice(0, visibleServices))
+  const member = useSelector(selectMemberInfo)
+  const currentPlanName = member?.planName || ''
   const navigate = useNavigate()
 
   const getListFeature = async () => {
@@ -263,6 +276,16 @@ export default function Home() {
     getListFeature()
   }, [])
 
+  useEffect(() => {
+    setServicesToDisplay(featureList.slice(0, visibleServices))
+  }, [featureList, visibleServices])
+
+  const handleLoadMore = () => {
+    setVisibleServices(visibleServices + 3)
+    setServicesToDisplay(featureList.slice(0, visibleServices + 3))
+    navigate(ROUTES.SERVICES)
+  }
+
   const handleFeatureClick = (feature) => {
     if (userInfor?.role !== 'Member') {
       setIsModalVisible(true)
@@ -272,7 +295,9 @@ export default function Home() {
       setModalContent(`You need to upgrade membership plan to use the  "${feature.featureName}".`)
       setIsModalOpen(true)
     } else {
-      message.success(`${feature.featureName}!`)
+      const route =
+        featureRoutes[feature.featureName] || `/service/${feature.featureName.toLowerCase().replace(/\s+/g, '-')}`
+      navigate(route)
     }
   }
 
@@ -309,9 +334,9 @@ export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
 
   //--Services
-  const renderServices = featureList.map((item, index) => (
+  const renderServices = servicesToDisplay.map((item, index) => (
     <div key={index} onClick={() => handleFeatureClick(item)} className='cursor-pointer'>
-      <CardService title={item.featureName} description={item.description} width='100%' height='100%' />
+      <CardService title={item.featureName} description={item.description} width='300px' height='350px' />
     </div>
   ))
 
@@ -349,6 +374,13 @@ export default function Home() {
           </p>
         </div>
         <div className='flex justify-center'>{renderServices}</div>
+        {featureList.length > visibleServices && (
+          <div className='flex justify-center mt-4'>
+            <Button onClick={handleLoadMore} className='bg-red-500 text-white'>
+              Load More
+            </Button>
+          </div>
+        )}
       </div>
       <StyledModal
         title='Become a PregnaCare Member'
@@ -414,6 +446,7 @@ export default function Home() {
                 membershipPlans={membershipPlans}
                 selectedPlan={selectedPlan}
                 onSelectPlan={setSelectedPlan}
+                currentPlanName={currentPlanName}
               />
             </div>
           </div>

@@ -67,7 +67,7 @@ export default function NotificationButton() {
     setVisibleCount((prevCount) => prevCount + 5)
   }
   return (
-    <div className='relative ml-16'>
+    <div className='relative'>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className='relative p-2 bg-gray-100 rounded-full transition hover:bg-[#fff1f3] border border-[#f4d3d8]'

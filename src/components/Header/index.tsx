@@ -2,14 +2,14 @@ import { logout } from '@/services/userService'
 import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
 import { UserOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Avatar, Button, Modal } from 'antd'
+import { Avatar, Button, Modal, Tooltip } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
 import { FaCheck, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
-import { useSelector } from 'react-redux'
-import { selectUserInfo } from '@store/modules/global/selector'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectMemberInfo, selectUserInfo } from '@store/modules/global/selector'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -189,6 +189,77 @@ const Wrapper = styled.div`
     }
   }
 `
+const AnimatedUpgradeButton = styled(Button)`
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  min-width: 80px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 6px;
+    z-index: -1;
+    background: linear-gradient(90deg, #ff6b81, #a855f7, #000000, #954dd9, #ff6b81);
+    background-size: 400% 400%;
+    animation: borderAnimation 3s ease infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    background: white;
+    border-radius: 6px;
+    z-index: -1;
+  }
+
+  @keyframes borderAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  &.ant-btn {
+    border: none !important;
+    color: #ff6b81;
+    font-weight: 600;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 2;
+
+    .days-text {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .upgrade-text {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    &:hover {
+      color: #a855f7;
+      transform: scale(1.02);
+      transition: transform 0.2s ease;
+    }
+  }
+`
 
 export default function Header() {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
@@ -196,6 +267,19 @@ export default function Header() {
   const navigate = useNavigate()
   const userInfor = useSelector(selectUserInfo)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const memberInfo = useSelector(selectMemberInfo)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    fetchMembers()
+  }, [dispatch])
+
+  const fetchMembers = () => {
+    dispatch({
+      type: 'GET_MEMBER_WITH_PLAN_DETAIL',
+      payload: { userId: userInfor.id }
+    })
+  }
 
   const handleMouseLeave = () => {
     const newTimer = setTimeout(() => setIsDropDownOpen(false), 1000)
@@ -274,6 +358,26 @@ export default function Header() {
           </>
         ) : (
           <>
+            <Tooltip
+              title={
+                memberInfo && memberInfo.remainingDate
+                  ? `Your Plan: ${memberInfo.planName || 'N/A'} - Remaining: ${memberInfo.remainingDate || 0} days`
+                  : 'Upgrade to access premium features'
+              }
+            >
+              <div>
+                {memberInfo?.remainingDate ? (
+                  <AnimatedUpgradeButton>
+                    <div className='text-red-500 font-bold'>{memberInfo.remainingDate} days left</div>
+                  </AnimatedUpgradeButton>
+                ) : (
+                  <AnimatedUpgradeButton onClick={() => navigate(ROUTES.MEMBESHIP_PLANS)}>
+                    Upgrade
+                  </AnimatedUpgradeButton>
+                )}
+              </div>
+            </Tooltip>
+
             <NotificationButton />
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
               {userImage ? (

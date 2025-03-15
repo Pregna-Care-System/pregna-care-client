@@ -172,3 +172,7 @@ export const updateMotherInfo = async (data: any) => {
     motherDateOfBirth: data.motherDateOfBirth
   })
 }
+export const getMemberInforWithPlanDetail = async (userId: string) => {
+  const res = await request.get<MODEL.IResponseBase>(`/Account/${userId}`)
+  return res
+}

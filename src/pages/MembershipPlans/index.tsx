@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button, Form, Input, message, Modal } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMembershipPlans, selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@/store/modules/global/selector'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import { upgradeFreePlan } from '@/services/planService'
 import { MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
@@ -17,6 +17,8 @@ export default function MemberShipPlanPage() {
   const user = useSelector(selectUserInfo)
   const userId = user?.id
   const [form] = Form.useForm()
+  const member = useSelector(selectMemberInfo)
+  const currentPlanName = member?.planName || ''
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
@@ -40,7 +42,11 @@ export default function MemberShipPlanPage() {
 
   const handleUpgrade = () => {
     if (!selectedPlan) {
-      message.error('Please select a plan before upgrading.')
+      message.error('Please select a plan before upgrading')
+      return
+    }
+    if (selectedPlan.planName === currentPlanName) {
+      message.warning('You are already using this plan')
       return
     }
     console.log('selectedPlan', selectedPlan)
@@ -90,6 +96,7 @@ export default function MemberShipPlanPage() {
               membershipPlans={plans}
               selectedPlan={selectedPlan}
               onSelectPlan={setSelectedPlan}
+              currentPlanName={currentPlanName}
             />
           </div>
         </div>
