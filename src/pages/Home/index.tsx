@@ -10,12 +10,14 @@ import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
-import { selectMemberInfo, selectMembershipPlans, selectTestimonials, selectUserInfo } from '@store/modules/global/selector'
+import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
-import { Button, Modal } from 'antd'
+import { Button, Input, message, Modal, Rate } from 'antd'
 import { style } from '@/theme'
+import { createFeedBack, getAllFeedBack } from '@/services/feedbackService'
+import dayjs from 'dayjs'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -259,6 +261,10 @@ export default function Home() {
   const [servicesToDisplay, setServicesToDisplay] = useState(featureList.slice(0, visibleServices))
   const member = useSelector(selectMemberInfo)
   const currentPlanName = member?.planName || ''
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [feedbackList, setFeedbackList] = useState([])
+  const [rating, setRating] = useState(0)
+  const [feedback, setFeedback] = useState('')
   const navigate = useNavigate()
 
   const getListFeature = async () => {
@@ -275,6 +281,40 @@ export default function Home() {
   useEffect(() => {
     getListFeature()
   }, [])
+
+  // Fetch Feedback List
+  const getListFeedback = async () => {
+    try {
+      const res = await getAllFeedBack()
+      if (res?.status === 200) {
+        setFeedbackList(res.data.response || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch feedback:', error)
+    }
+  }
+
+  useEffect(() => {
+    getListFeedback()
+  }, [])
+
+  useEffect(() => {
+    const hasSubmittedFeedback = localStorage.getItem('hasSubmittedFeedback')
+    if (hasSubmittedFeedback) return
+
+    if (member?.createdAt) {
+      const createdDate = dayjs(member.createdAt)
+      const currentDate = dayjs()
+      const diffInDays = currentDate.diff(createdDate, 'day')
+
+      if (diffInDays >= 1) {
+        setTimeout(() => setIsFeedbackModalOpen(true), 500)
+      } else {
+        const timeLeft = createdDate.add(1, 'day').diff(currentDate)
+        setTimeout(() => setIsFeedbackModalOpen(true), timeLeft)
+      }
+    }
+  }, [member?.createdAt])
 
   useEffect(() => {
     setServicesToDisplay(featureList.slice(0, visibleServices))
@@ -328,7 +368,6 @@ export default function Home() {
 
   //--State redux
   const membershipPlans = useSelector(selectMembershipPlans)
-  const testimonials = useSelector(selectTestimonials)
 
   //--State
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
@@ -339,7 +378,18 @@ export default function Home() {
       <CardService title={item.featureName} description={item.description} width='300px' height='350px' />
     </div>
   ))
-
+  //--Feedback
+  const handleSubmitFeedback = async () => {
+    try {
+      await createFeedBack(userInfor.id, feedback, rating)
+      localStorage.setItem('hasSubmittedFeedback', 'true')
+      setIsFeedbackModalOpen(false)
+      message.success('Feedback create successfully')
+      getListFeedback() // Refresh danh sách feedback
+    } catch (error) {
+      console.error('Failed to submit feedback:', error)
+    }
+  }
   return (
     <div className='bg-white'>
       {/* --Background image */}
@@ -468,8 +518,32 @@ export default function Home() {
         <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
           <div className='bg-red-500 w-16 h-1'></div>Testimonials<div className='bg-red-500 w-16 h-1'></div>
         </h1>
-        <CarouselTestimonials testimonials={testimonials} />
+        <CarouselTestimonials testimonials={feedbackList} />
       </div>
+
+      <Modal
+        title='Share your experience'
+        open={isFeedbackModalOpen}
+        onCancel={() => setIsFeedbackModalOpen(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsFeedbackModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key='submit' type='primary' onClick={handleSubmitFeedback}>
+            Send feedback
+          </Button>
+        ]}
+      >
+        <p>Let share your experience after one day use our website!</p>
+        <Rate onChange={setRating} value={rating} />
+        <Input.TextArea
+          rows={4}
+          placeholder='Enter feedback...'
+          onChange={(e) => setFeedback(e.target.value)}
+          value={feedback}
+          style={{ marginTop: 10 }}
+        />
+      </Modal>
 
       {/* --Contact */}
       <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>

@@ -15,13 +15,8 @@ interface CarouselTestimonialsProps {
 
 interface Testimonial {
   rating: number
-  userInfo: {
-    name: string
-    profession: string
-    location: string
-    avatar: string
-  }
   content: string
+  email: string
 }
 
 export default function CarouselTestimonials(props: CarouselTestimonialsProps) {
@@ -29,7 +24,7 @@ export default function CarouselTestimonials(props: CarouselTestimonialsProps) {
   const renderTestimonials = testimonials.map((item, index) => {
     return (
       <SwiperSlide key={index}>
-        <CardTestimonials rating={item.rating} userInfo={item.userInfo} content={item.content} />
+        <CardTestimonials rating={item.rating} email={item.email} content={item.content} />
       </SwiperSlide>
     )
   })
