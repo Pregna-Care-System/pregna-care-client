@@ -192,7 +192,7 @@ const featureQuestions: FAQItem[] = [
       'Yes, you can set up customized reminders for taking prenatal vitamins, upcoming appointments, and important pregnancy milestones. These can be synchronized with your calendar.'
   },
   {
-    question: 'Does the app provide nutritional guidance?',
+    question: 'Does the web provide nutritional guidance?',
     answer:
       'Yes, we offer comprehensive nutritional guidance including meal planning, food safety information, and dietary recommendations specific to each trimester of pregnancy.'
   }

@@ -1,6 +1,6 @@
 import ROUTES from '@/utils/config/routes'
 import { LucideBaby } from 'lucide-react'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaCalendarAlt, FaPenNib } from 'react-icons/fa'
 import { GoPerson } from 'react-icons/go'
 import { useLocation, useNavigate } from 'react-router-dom'

@@ -30,7 +30,8 @@ const ROUTES = {
     MEMBER: '/admin/member',
     MEMBERSHIP_PLAN: '/admin/membership-plans',
     GROWTHMETRICS: '/admin/growth-metrics',
-    FEATURE: '/admin/feature'
+    FEATURE: '/admin/feature',
+    FAQ: '/admin/faq'
   },
   MEMBER: {
     DASHBOARD: '/member',
