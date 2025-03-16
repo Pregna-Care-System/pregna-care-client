@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@/store/modules/global/selector'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
-import { upgradeFreePlan } from '@/services/planService'
+import { hasFreePlan, upgradeFreePlan } from '@/services/planService'
 import { MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
 
 export default function MemberShipPlanPage() {
@@ -19,6 +19,7 @@ export default function MemberShipPlanPage() {
   const [form] = Form.useForm()
   const member = useSelector(selectMemberInfo)
   const currentPlanName = member?.planName || ''
+  const [hasFreePlanState, setHasFreePlanState] = useState(false)
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
@@ -40,16 +41,26 @@ export default function MemberShipPlanPage() {
     }
   }, [location])
 
-  const handleUpgrade = () => {
+  useEffect(() => {
+    const checkFreePlan = async () => {
+      const res = await hasFreePlan(userId)
+      setHasFreePlanState(res.data.hasFreePlan)
+    }
+    checkFreePlan()
+  }, [userId])
+  const handleUpgrade = async () => {
     if (!selectedPlan) {
       message.error('Please select a plan before upgrading')
       return
     }
     if (selectedPlan.planName === currentPlanName) {
-      message.warning('You are already using this plan')
+      message.warning('You are using this plan')
       return
     }
-    console.log('selectedPlan', selectedPlan)
+    if (hasFreePlanState && selectedPlan.planName === 'FreePlan') {
+      message.warning('You already upgraded Free Plan before! Choose another plan to upgrade now.')
+      return
+    }
     if (selectedPlan.planName === 'FreePlan') {
       // Nếu chọn Free Plan thì mở modal xác nhận
       setIsModalOpen(true)
@@ -101,7 +112,13 @@ export default function MemberShipPlanPage() {
           </div>
         </div>
         <div className='text-center mb-4'>
-          <Button type='primary' size='large' onClick={handleUpgrade} danger>
+          <Button
+            type='primary'
+            size='large'
+            onClick={handleUpgrade}
+            danger
+            disabled={hasFreePlanState && selectedPlan?.planName === 'FreePlan'}
+          >
             Upgrade to {selectedPlan ? selectedPlan.planName : 'a plan'}
           </Button>
         </div>

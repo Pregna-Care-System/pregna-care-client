@@ -119,3 +119,7 @@ export const upgradeFreePlan = async (
     }
   }
 }
+export const hasFreePlan = async (userId: string) => {
+  const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/Has-free-plan/${userId}`)
+  return res
+}
