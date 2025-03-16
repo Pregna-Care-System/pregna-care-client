@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, message, Space } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, DownOutlined, DownCircleOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, DownCircleOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import {
   getAllFAQCategories,
@@ -192,7 +192,7 @@ const CategoryModal: React.FC<{
   )
 }
 
-const FAQAdmin: React.FC = () => {
+const FAQAdmin = () => {
   const [categories, setCategories] = useState<FAQCategory[]>([])
   const [loading, setLoading] = useState(false)
   const [categoryModalVisible, setCategoryModalVisible] = useState(false)
