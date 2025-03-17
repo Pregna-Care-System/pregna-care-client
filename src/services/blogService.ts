@@ -99,3 +99,35 @@ export const getBlogById = async (id: string) => {
     throw error
   }
 }
+
+// Function to create a comment
+export const createComment = async (
+  apiCallerId: string,
+  blogId: string,
+  userId: string,
+  commentText: string,
+  parentCommentId: string = ''
+) => {
+  try {
+    const response = await request.post<MODEL.IResponseBase>('/Comment', {
+      apiCallerId,
+      blogId,
+      userId,
+      parentCommentId,
+      commentText
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error creating comment:', error)
+    throw error
+  }
+}
+
+export const getAllCommentByBlogId = async (blogId: string) => {
+  try {
+    const response = await request.get<MODEL.IResponseBase>(`/Comment/Blog/${blogId}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching comment by blog ID:', error)
+  }
+}

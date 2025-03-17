@@ -3,7 +3,9 @@ import { Card, Select, Typography, Row, Col, Statistic, Tabs, Spin, Button, mess
 import Chart from 'react-apexcharts'
 import { ShareAltOutlined } from '@ant-design/icons'
 import html2canvas from 'html2canvas'
-import ShareChartModal from '../../ShareChartModal'
+import ChartShareModal from '@/components/ChartShareModal'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -21,18 +23,29 @@ interface ProcessedDataItem {
   metricResponseList: MetricResponse[]
 }
 
-export default function EnhancedFetalChart({ fetalData }: { fetalData: ProcessedDataItem[] }) {
+export default function EnhancedFetalChart({
+  fetalData,
+  sharing
+}: {
+  fetalData: ProcessedDataItem[]
+  sharing: boolean
+}) {
+  const dispatch = useDispatch()
+  const currentUser = useSelector(selectUserInfo)
+  const tags = useSelector(selectTagInfo) || []
   const [loading, setLoading] = useState(false)
   const [processedData, setProcessedData] = useState<ProcessedDataItem[]>([])
   const chartRef = useRef<HTMLDivElement>(null)
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [chartImageUrl, setChartImageUrl] = useState('')
+  const [processedChartData, setProcessedChartData] = useState<any>(null)
 
   useEffect(() => {
-    if (fetalData && fetalData.length > 0) {
+    if (Array.isArray(fetalData) && fetalData.length > 0) {
       setProcessedData(fetalData)
       setLoading(false)
     } else {
+      setProcessedData([])
       setLoading(true)
     }
   }, [fetalData])
@@ -40,7 +53,9 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
   // Get unique metric names for the dropdown
   const metricNames = useMemo(() => {
     const names = new Set<string>()
-    processedData.forEach((item) => names.add(item.metricName))
+    if (Array.isArray(processedData)) {
+      processedData.forEach((item) => names.add(item.metricName))
+    }
     return Array.from(names)
   }, [processedData])
 
@@ -61,6 +76,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
     if (
       !selectedMetric ||
       selectedMetric === 'No metrics available' ||
+      !Array.isArray(processedData) ||
       !processedData.some((item) => item.metricName === selectedMetric)
     )
       return []
@@ -181,7 +197,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
 
   const lineChartOptions = {
     chart: {
-      type: 'line',
+      type: 'line' as const,
       height: 400,
       toolbar: {
         show: true
@@ -191,7 +207,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
       }
     },
     stroke: {
-      curve: 'smooth',
+      curve: 'smooth' as const,
       width: [3, 2, 2],
       dashArray: [0, 5, 5]
     },
@@ -204,7 +220,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
       title: {
         text: 'Gestational Age (weeks)'
       },
-      type: 'numeric'
+      type: 'numeric' as const
     },
     yaxis: {
       title: {
@@ -225,35 +241,38 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
       }
     },
     legend: {
-      position: 'top'
+      position: 'top' as const
     }
   }
 
   const areaChartOptions = {
     chart: {
-      type: 'rangeArea',
+      type: 'rangeArea' as const,
       height: 400,
       toolbar: {
         show: true
       }
     },
     stroke: {
-      curve: 'smooth',
+      curve: 'smooth' as const,
       width: [3, 0]
     },
     colors: ['#1890ff', '#ff4d4f'],
     fill: {
-      opacity: [1, 0.2]
+      opacity: [0.2, 0.2]
     },
     xaxis: {
       title: {
         text: 'Gestational Age (weeks)'
       },
-      type: 'numeric'
+      type: 'numeric' as const
     },
     yaxis: {
       title: {
         text: `${selectedMetric} ${unit ? `(${unit})` : ''}`
+      },
+      labels: {
+        formatter: (value: number) => value.toFixed(2)
       }
     },
     markers: {
@@ -267,7 +286,7 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
       }
     },
     legend: {
-      position: 'top'
+      position: 'top' as const
     }
   }
 
@@ -275,22 +294,28 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
   const captureChart = async () => {
     if (chartRef.current) {
       try {
-        // Show a loading message
-        message.loading('Preparing chart for sharing...', 1)
-
+        setLoading(true)
         const canvas = await html2canvas(chartRef.current)
         const imageUrl = canvas.toDataURL('image/png')
         setChartImageUrl(imageUrl)
+
+        // Prepare chart data for sharing
+        const chartDataForSharing = prepareChartDataForSharing()
+        setProcessedChartData(chartDataForSharing)
+
         setIsShareModalOpen(true)
+        setLoading(false)
       } catch (error) {
         console.error('Error capturing chart:', error)
-        message.error('Failed to capture chart image')
+        message.error('Failed to capture chart for sharing')
+        setLoading(false)
       }
     }
   }
 
-  // Prepare chart data for sharing (as a JSON string)
+  // Prepare chart data for sharing
   const prepareChartDataForSharing = () => {
+    // Return the actual array instead of a JSON string
     return JSON.stringify(fetalData)
   }
 
@@ -311,9 +336,11 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
           <Title level={4}>Fetal Growth Metrics</Title>
           <Text type='secondary'>Track fetal development measurements over time</Text>
         </div>
-        <Button type='primary' icon={<ShareAltOutlined />} onClick={captureChart}>
-          Share Chart
-        </Button>
+        {sharing && (
+          <Button type='primary' icon={<ShareAltOutlined />} onClick={captureChart}>
+            Share Chart
+          </Button>
+        )}
       </div>
 
       <div className='my-4'>
@@ -389,12 +416,34 @@ export default function EnhancedFetalChart({ fetalData }: { fetalData: Processed
         </TabPane>
       </Tabs>
 
-      <ShareChartModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        chartData={prepareChartDataForSharing()}
-        chartType='Fetal Growth'
-        previewImage={chartImageUrl}
+      <ChartShareModal
+        isVisible={isShareModalOpen}
+        onCancel={() => setIsShareModalOpen(false)}
+        onSubmit={(postData) => {
+          // Handle the submission
+          dispatch({
+            type: 'CREATE_BLOG',
+            payload: {
+              ...postData,
+              userId: currentUser?.id,
+              featuredImageUrl: chartImageUrl || '',
+              type: 'community',
+              sharedChartData: prepareChartDataForSharing()
+            },
+            callback: (success: boolean) => {
+              if (success) {
+                message.success('Chart shared successfully!')
+                setIsShareModalOpen(false)
+              } else {
+                message.error('Failed to share chart')
+              }
+            }
+          })
+        }}
+        currentUser={currentUser}
+        tags={tags || []}
+        submitting={false}
+        chartData={processedChartData}
       />
     </Card>
   )

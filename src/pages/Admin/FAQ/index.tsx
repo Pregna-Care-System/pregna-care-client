@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button, Form, message, Modal, Table } from 'antd'
-import { MdOutlineCreateNewFolder } from 'react-icons/md'
-import { useDispatch, useSelector } from 'react-redux'
-import { CreateModal } from '@/components/Modal'
-import { createFeature, deleteFeature, getFeatureById, updateFeature } from '@/services/adminService'
-import { getAllFeature } from '@/services/featureService'
+import { getAllFeature } from '@/services/featureService.ts'
 import { TbEdit } from 'react-icons/tb'
 import { FiTrash2 } from 'react-icons/fi'
+import { createFeature, deleteFeature, getFeatureById, updateFeature } from '@/services/adminService.ts'
+import { MdOutlineCreateNewFolder } from 'react-icons/md'
+import { CreateModal } from '@components/Modal'
 
-export default function FeatureAdminPage() {
+const FAQ = () => {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isUpdateMode, setIsUpdateMode] = useState(false)
@@ -190,3 +189,5 @@ export default function FeatureAdminPage() {
     </>
   )
 }
+
+export default FAQ

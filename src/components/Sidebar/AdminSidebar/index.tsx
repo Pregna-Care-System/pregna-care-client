@@ -4,7 +4,7 @@ import {
   FiBell,
   // FiBarChart2,
   // FiBell,
-  FiDollarSign,
+  FiDollarSign, FiHelpCircle,
   // FiHelpCircle,
   FiHome,
   FiPackage,
@@ -177,9 +177,8 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         icon: <FiPackage size={20} />,
         path: ROUTES.ADMIN.GROWTHMETRICS
       },
-      { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE }
-
-      // { title: 'FAQ', icon: <FiHelpCircle size={20} />, action: () => console.log('FAQ clicked') }
+      { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE },
+      { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ },
     ],
     []
   )

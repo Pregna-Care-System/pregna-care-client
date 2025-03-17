@@ -683,7 +683,7 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.featuredImageUrl,
       action.payload.isVisible,
       action.payload.type || null,
-      action.payload.status || null,
+      action.payload.status || '',
       action.payload.sharedChartData || null
     )
     message.success('Create blog successfully')
