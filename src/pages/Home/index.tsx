@@ -373,7 +373,7 @@ export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState(membershipPlans[0])
 
   //--Services
-  const renderServices = servicesToDisplay.map((item, index) => (
+  const renderServices = servicesToDisplay.slice(0, 3).map((item, index) => (
     <div key={index} onClick={() => handleFeatureClick(item)} className='cursor-pointer'>
       <CardService title={item.featureName} description={item.description} width='300px' height='350px' />
     </div>
