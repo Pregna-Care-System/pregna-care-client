@@ -106,7 +106,7 @@ export const createComment = async (
   blogId: string,
   userId: string,
   commentText: string,
-  parentCommentId: string = ''
+  parentCommentId: string | null = ''
 ) => {
   try {
     const response = await request.post<MODEL.IResponseBase>('/Comment', {

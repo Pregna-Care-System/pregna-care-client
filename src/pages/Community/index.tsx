@@ -1,12 +1,13 @@
 import ROUTES from '@/utils/config/routes'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
-import { Tabs, message } from 'antd'
+import { Tabs, message, Tooltip } from 'antd'
 import { FaRegComment, FaShare } from 'react-icons/fa'
 import { MdMoreHoriz } from 'react-icons/md'
-import { AiOutlineLike } from 'react-icons/ai'
+import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
+import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise } from 'react-icons/fa'
 import PostCreationModal from '@/components/PostCreationModal'
 
 const { TabPane } = Tabs
@@ -29,6 +30,7 @@ interface BlogPost {
   sharedChartData?: string
   tags?: Tag[]
   blogTags?: { tag: Tag }[]
+  userReaction?: string
 }
 
 interface Tag {
@@ -147,7 +149,7 @@ const CommunityPage = () => {
     navigate(`${ROUTES.COMMUNITY}/${postId}`)
   }
 
-  // Updated post card component to match Facebook style
+  // Updated post card component with reaction feature
   const PostCard = ({ post }: { post: BlogPost }) => {
     // Extract tags from either tags or blogTags property
     const displayTags = post.tags || post.blogTags?.map((bt) => bt.tag) || []
@@ -164,6 +166,94 @@ const CommunityPage = () => {
         {tag.name}
       </span>
     )
+
+    // State for reaction hover panel
+    const [showReactions, setShowReactions] = useState(false)
+    const [selectedReaction, setSelectedReaction] = useState<string>(post.userReaction || '')
+    const [reactionTimeout, setReactionTimeout] = useState<NodeJS.Timeout | null>(null)
+    const reactionRef = useRef<HTMLDivElement>(null)
+
+    // Reaction configuration
+    const reactions = [
+      { name: 'Like', icon: <AiFillLike size={20} className='text-blue-500' />, color: 'text-blue-500' },
+      { name: 'Love', icon: <FaHeart size={20} className='text-red-500' />, color: 'text-red-500' },
+      { name: 'Haha', icon: <FaRegLaughBeam size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+      { name: 'Wow', icon: <FaRegSurprise size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+      { name: 'Sad', icon: <FaRegSadTear size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+      { name: 'Angry', icon: <FaRegAngry size={20} className='text-orange-500' />, color: 'text-orange-500' }
+    ]
+
+    // Handler for hovering on the like button
+    const handleLikeHover = () => {
+      // Clear any existing timeout to prevent unwanted state changes
+      if (reactionTimeout) {
+        clearTimeout(reactionTimeout)
+        setReactionTimeout(null)
+      }
+      setShowReactions(true)
+    }
+
+    // Handler for leaving the like button or reactions area
+    const handleMouseLeave = () => {
+      // Set a timeout to hide reactions with a small delay
+      // to allow moving mouse to the reactions panel
+      const timeout = setTimeout(() => {
+        setShowReactions(false)
+      }, 300)
+      setReactionTimeout(timeout)
+    }
+
+    // Keep reactions visible when hovering over them
+    const handleReactionsHover = () => {
+      if (reactionTimeout) {
+        clearTimeout(reactionTimeout)
+        setReactionTimeout(null)
+      }
+    }
+
+    // Handle reaction selection
+    const handleReaction = (reaction: string) => {
+      setSelectedReaction(reaction)
+      setShowReactions(false)
+
+      // Here you would dispatch an action to update the reaction on the server
+      dispatch({
+        type: 'UPDATE_POST_REACTION',
+        payload: {
+          postId: post.id,
+          reaction: reaction
+        }
+      })
+
+      message.success(`Reacted with ${reaction}`)
+    }
+
+    // Get active reaction display
+    const getActiveReaction = () => {
+      if (!selectedReaction)
+        return (
+          <>
+            <AiOutlineLike className='mr-2' />
+            <span>Like</span>
+          </>
+        )
+
+      const reaction = reactions.find((r) => r.name === selectedReaction)
+      if (!reaction)
+        return (
+          <>
+            <AiOutlineLike className='mr-2' />
+            <span>Like</span>
+          </>
+        )
+
+      return (
+        <>
+          {reaction.icon}
+          <span className={`ml-2 ${reaction.color}`}>{reaction.name}</span>
+        </>
+      )
+    }
 
     return (
       <div className='bg-white rounded-lg shadow-md overflow-hidden'>
@@ -286,21 +376,51 @@ const CommunityPage = () => {
         )}
 
         {/* Action buttons */}
-        <div className='px-2 py-1 flex justify-between border-t border-gray-100'>
-          <button className='flex-1 flex items-center justify-center py-2 text-gray-500 hover:bg-gray-100 rounded-md'>
-            <AiOutlineLike className='mr-2' />
-            <span>Thích</span>
+        <div className='px-2 py-1 flex justify-between border-t border-gray-100 relative'>
+          {/* Reaction panel */}
+          {showReactions && (
+            <div
+              ref={reactionRef}
+              onMouseEnter={handleReactionsHover}
+              onMouseLeave={handleMouseLeave}
+              className='absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg px-2 py-1 flex items-center space-x-2 z-10'
+              style={{
+                transform: 'translateY(-5px)',
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              {reactions.map((reaction) => (
+                <Tooltip key={reaction.name} title={reaction.name} placement='top'>
+                  <div
+                    onClick={() => handleReaction(reaction.name)}
+                    className='hover:bg-gray-100 p-2 rounded-full cursor-pointer transform transition-transform hover:scale-125'
+                  >
+                    {reaction.icon}
+                  </div>
+                </Tooltip>
+              ))}
+            </div>
+          )}
+
+          <button
+            className={`flex-1 flex items-center justify-center py-2 hover:bg-gray-100 rounded-md ${selectedReaction ? reactions.find((r) => r.name === selectedReaction)?.color : 'text-gray-500'}`}
+            onMouseEnter={handleLikeHover}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleReaction(selectedReaction ? '' : 'Like')}
+          >
+            {getActiveReaction()}
           </button>
+
           <button
             className='flex-1 flex items-center justify-center py-2 text-gray-500 hover:bg-gray-100 rounded-md'
             onClick={() => navigateToPostDetail(post.id)}
           >
             <FaRegComment className='mr-2' />
-            <span>Bình luận</span>
+            <span>Comment</span>
           </button>
           <button className='flex-1 flex items-center justify-center py-2 text-gray-500 hover:bg-gray-100 rounded-md'>
             <FaShare className='mr-2' />
-            <span>Chia sẻ</span>
+            <span>Share</span>
           </button>
         </div>
       </div>

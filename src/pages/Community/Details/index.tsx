@@ -79,7 +79,7 @@ const CommunityCommentDetails = () => {
         id, // blogId from URL params
         currentUser.id, // userId - you'll need to get this from your auth context/Redux store
         commentText,
-        undefined // parentCommentId empty for top-level comments
+        null // parentCommentId empty for top-level comments
       )
 
       if (response.success) {
