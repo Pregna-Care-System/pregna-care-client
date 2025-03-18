@@ -3,22 +3,16 @@ import React from 'react'
 //Utils
 import ROUTES from '@utils/config/routes'
 //Guard
-import GuestGuard from '@/guards/GuestGuard'
-import AuthGuard from '@/guards/AuthGuard'
-import AdminGuard from '@/guards/AdminGuard'
-import MemberGuard from '@/guards/MemberGuard'
 //Layout
-import MainLayout from '@/layouts/MainLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import MemberLayout from '@/layouts/MemberLayout'
-import Loading from '@/components/Loading'
 import NoHeaderLayout from '@/layouts/NoHeaderLayout'
+import FAQAdmin from '@/pages/Admin/FAQ'
+import FeedBack from '@/pages/Admin/FeedBack'
+import FAQPage from '@/pages/FAQ'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
 import BabyShopApp from '@/pages/Service/BabyShop/index '
-import FAQPage from '@/pages/FAQ'
-import FAQAdmin from '@/pages/Admin/FAQ'
-import FeedBack from '@/pages/Admin/FeedBack'
 
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
@@ -77,9 +71,7 @@ const publicRoutes = [
   { path: ROUTES.CONTACT, component: Contact },
   { path: ROUTES.FAQ, component: FAQPage },
   { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
-  { path: ROUTES.SERVICES, component: MommyServicesPage },
-  
-
+  { path: ROUTES.SERVICES, component: MommyServicesPage }
 ]
 
 const privateRoutes = [
@@ -93,20 +85,20 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout },
-  { path: ROUTES.ADMIN.FEATURE, component: Featrure, layout: AdminLayout },
+  { path: ROUTES.ADMIN.FEATURE, component: Feature, layout: AdminLayout },
   { path: ROUTES.ADMIN.FAQ, component: FAQAdmin, layout: AdminLayout },
   { path: ROUTES.ADMIN.FEEDBACK, component: FeedBack, layout: AdminLayout }
 ]
 
 const memberRoutes = [
-{ path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-{ path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-{ path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
-{ path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
-{ path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
+  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
+  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
+  { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
+  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
 ]
 
-export { publicRoutes, adminRoutes, memberRoutes, privateRoutes }
+export { adminRoutes, memberRoutes, privateRoutes, publicRoutes }
 
 // export const router = createBrowserRouter([
 //   //Public Routes and Protected Routes

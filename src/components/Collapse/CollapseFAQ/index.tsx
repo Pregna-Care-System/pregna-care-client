@@ -7,7 +7,7 @@ import { getAllFAQCategories } from '@/services/faqService'
 
 const CollapseFAQ: React.FC = () => {
   const { token } = theme.useToken()
-  const [categories, setCategories] = useState<>([])
+  const [categories, setCategories] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +45,7 @@ const CollapseFAQ: React.FC = () => {
       expandIcon={({ isActive }) => (
         <CaretRightOutlined rotate={isActive ? 90 : 0} style={{ color: style.COLORS.RED.RED_1 }} />
       )}
-      expandIconPosition="end"
+      expandIconPosition='end'
       style={{ background: token.colorBgContainer }}
       items={items}
     />
