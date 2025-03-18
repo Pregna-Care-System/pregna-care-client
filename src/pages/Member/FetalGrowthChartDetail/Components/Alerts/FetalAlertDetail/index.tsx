@@ -44,7 +44,7 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
                 icon={alert.isResolved ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
                 className='px-3 py-1 rounded-full text-sm font-medium'
               >
-                {alert.isResolved ? 'Đã xử lý' : 'Chưa xử lý'}
+                {alert.isResolved ? 'Resolved' : 'Unresolved'}
               </Tag>
             </Space>
           </div>
@@ -69,13 +69,6 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
               </Text>
               <Text strong>{formatDate(alert.alertDate)}</Text>
             </div>
-            <div className='space-y-2'>
-              <Text type='secondary' className='block'>
-                <InfoCircleOutlined className='mr-2' />
-                ID Cảnh báo
-              </Text>
-              <Text strong>{alert.id}</Text>
-            </div>
           </div>
 
           <Divider />
@@ -84,7 +77,7 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
           <div className='space-y-4'>
             <Title level={5}>
               <AlertOutlined className='mr-2' />
-              Khuyến nghị và hướng dẫn
+              Recommendations and guidelines
             </Title>
 
             <Steps

@@ -540,7 +540,9 @@ export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, v
       yield put(setMotherInfo(response.response))
     }
   } catch (error: any) {
-    message.error('Failed to fetch mother information. Please try again!')
+    if (error.response.status === 500) {
+      message.error('An unexpected error occurred try again later!')
+    }
   }
 }
 

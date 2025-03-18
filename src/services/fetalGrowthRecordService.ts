@@ -23,6 +23,6 @@ export const getFetalGrowthRecords = async (pregnancyRecordId: string) => {
   return request.get<MODEL.PregnancyRecordResponse[]>(`/${apiCallerId}/${pregnancyRecordId}/FetalGrowthRecord`)
 }
 
-export const getFetalGrowthAlert = async (userId: string) => {
-  return request.get(`/User/${userId}/GrowthAlert`)
+export const getFetalGrowthAlert = async (pregnancyRecordId: string) => {
+  return request.get(`/PregnancyRecord/${pregnancyRecordId}/GrowthAlert`)
 }

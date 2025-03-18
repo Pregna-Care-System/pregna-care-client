@@ -151,6 +151,19 @@ const CommunityPage = () => {
   const PostCard = ({ post }: { post: BlogPost }) => {
     // Extract tags from either tags or blogTags property
     const displayTags = post.tags || post.blogTags?.map((bt) => bt.tag) || []
+    const [showAllTags, setShowAllTags] = useState(false)
+
+    // Render tag with small dot indicator
+    const renderTag = (tag: Tag) => (
+      <span
+        key={tag.id}
+        className='inline-flex items-center px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full truncate max-w-[120px]'
+        title={tag.name}
+      >
+        <span className='w-1.5 h-1.5 rounded-full bg-pink-400 mr-1'></span>
+        {tag.name}
+      </span>
+    )
 
     return (
       <div className='bg-white rounded-lg shadow-md overflow-hidden'>
@@ -198,11 +211,43 @@ const CommunityPage = () => {
           {/* Post tags */}
           {displayTags.length > 0 && (
             <div className='mt-2 flex flex-wrap gap-1'>
-              {displayTags.map((tag) => (
-                <span key={tag.id} className='inline-block px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full'>
-                  {tag.name}
-                </span>
-              ))}
+              {displayTags.length <= 3 || showAllTags ? (
+                // Show all tags if there are 3 or fewer or if showAllTags is true
+                <>
+                  {displayTags.map(renderTag)}
+                  {showAllTags && displayTags.length > 3 && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowAllTags(false)
+                      }}
+                      className='inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full hover:bg-gray-200'
+                    >
+                      Show less
+                    </button>
+                  )}
+                </>
+              ) : (
+                // Show first 2 tags and a count for the rest
+                <>
+                  {displayTags.slice(0, 2).map(renderTag)}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setShowAllTags(true)
+                    }}
+                    className='inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full hover:bg-gray-200'
+                    title={displayTags
+                      .slice(2)
+                      .map((tag) => tag.name)
+                      .join(', ')}
+                  >
+                    +{displayTags.length - 2} more
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

@@ -60,6 +60,7 @@ const CommunityCommentDetails = () => {
   const [submitting, setSubmitting] = useState(false)
   const [showAllReplies, setShowAllReplies] = useState<Record<string, boolean>>({})
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false)
+  const [showAllTags, setShowAllTags] = useState(false)
 
   // Create a ref for the reply input
   const replyInputRef = useRef<HTMLInputElement>(null)
@@ -373,6 +374,34 @@ const CommunityCommentDetails = () => {
     )
   }
 
+  // Tag component with hover effect
+  const Tag = ({ tag }: { tag: any }) => {
+    return (
+      <span
+        className='inline-flex items-center px-3 py-1 bg-pink-50 text-pink-600 text-sm rounded-full 
+          hover:bg-pink-100 transition-colors duration-200 cursor-default'
+        title={`Posts with "${tag.name}" tag`}
+      >
+        <span className='w-2 h-2 rounded-full bg-pink-400 mr-1.5'></span>
+        {tag.name}
+      </span>
+    )
+  }
+
+  // Modal tag component with smaller size
+  const ModalTag = ({ tag }: { tag: any }) => {
+    return (
+      <span
+        className='inline-flex items-center px-2 py-0.5 bg-pink-50 text-pink-600 text-xs rounded-full
+          hover:bg-pink-100 transition-colors duration-200 cursor-default'
+        title={`Posts with "${tag.name}" tag`}
+      >
+        <span className='w-1.5 h-1.5 rounded-full bg-pink-400 mr-1'></span>
+        {tag.name}
+      </span>
+    )
+  }
+
   return (
     <div className='p-4 bg-red-50 min-h-screen'>
       <div className='container mx-auto'>
@@ -410,14 +439,47 @@ const CommunityCommentDetails = () => {
           {/* Post title and content */}
           <h1 className='text-2xl font-bold mb-4'>{postDetail.pageTitle}</h1>
 
-          {/* Post tags */}
+          {/* Post tags - improved visual layout with expand/collapse capability */}
           {displayTags.length > 0 && (
-            <div className='mb-4 flex flex-wrap gap-2'>
-              {displayTags.map((tag) => (
-                <span key={tag.id} className='inline-block px-3 py-1 bg-pink-50 text-pink-600 text-sm rounded-full'>
-                  {tag.name}
-                </span>
-              ))}
+            <div className='mb-4'>
+              <div className='text-sm text-gray-500 mb-2'>Topics:</div>
+              <div className='flex flex-wrap gap-2'>
+                {displayTags.length <= 5 || showAllTags ? (
+                  // Show all tags if there are 5 or fewer or if showAllTags is true
+                  <>
+                    {displayTags.map((tag) => (
+                      <Tag key={tag.id} tag={tag} />
+                    ))}
+                    {showAllTags && displayTags.length > 5 && (
+                      <button
+                        onClick={() => setShowAllTags(false)}
+                        className='inline-flex items-center px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full
+                          hover:bg-gray-200 transition-colors duration-200'
+                      >
+                        Show less
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  // Show first 4 tags and a count for the rest
+                  <>
+                    {displayTags.slice(0, 4).map((tag) => (
+                      <Tag key={tag.id} tag={tag} />
+                    ))}
+                    <button
+                      onClick={() => setShowAllTags(true)}
+                      className='inline-flex items-center px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full
+                        hover:bg-gray-200 transition-colors duration-200'
+                      title={displayTags
+                        .slice(4)
+                        .map((tag) => tag.name)
+                        .join(', ')}
+                    >
+                      +{displayTags.length - 4} more
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -522,14 +584,15 @@ const CommunityCommentDetails = () => {
             </button>
           </div>
 
-          {/* Post tags in modal */}
+          {/* Post tags in modal - improved visual layout with expand/collapse capability */}
           {displayTags.length > 0 && (
-            <div className='p-3 border-b flex flex-wrap gap-1'>
-              {displayTags.map((tag) => (
-                <span key={tag.id} className='inline-block px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full'>
-                  {tag.name}
-                </span>
-              ))}
+            <div className='p-3 border-b'>
+              <div className='text-xs text-gray-500 mb-2'>Topics:</div>
+              <div className='flex flex-wrap gap-2'>
+                {displayTags.map((tag) => (
+                  <ModalTag key={tag.id} tag={tag} />
+                ))}
+              </div>
             </div>
           )}
 

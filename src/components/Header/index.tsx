@@ -9,7 +9,8 @@ import { Avatar, Button, Modal, Tooltip } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
 import { FaCheck, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMemberInfo, selectUserInfo } from '@store/modules/global/selector'
+import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@store/modules/global/selector'
+import { resetState } from '@store/modules/global/slice'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -164,6 +165,8 @@ const Wrapper = styled.div`
       font-size: 0.875rem;
       border-radius: 0.5rem;
       transition: all 0.2s;
+      width: 100%;
+      cursor: pointer;
 
       svg {
         margin-right: 0.75rem;
@@ -262,13 +265,16 @@ const AnimatedUpgradeButton = styled(Button)`
 `
 
 export default function Header() {
-  const [isDropDownOpen, setIsDropDownOpen] = useState(false)
+  const [isDropDownOpen, setIsDropDownOpen] = useState(true)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
-  const navigate = useNavigate()
-  const userInfor = useSelector(selectUserInfo)
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const memberInfo = useSelector(selectMemberInfo)
+  //Hooks
+  const navigate = useNavigate()
   const dispatch = useDispatch()
+  //Seclectors state
+  const userInfor = useSelector(selectUserInfo)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const memberInfo = useSelector(selectMemberInfo)
 
   useEffect(() => {
     fetchMembers()
@@ -299,6 +305,7 @@ export default function Header() {
 
   const handleLogout = () => {
     logout()
+    dispatch(resetState())
   }
   const handleNavClick = (path: string) => {
     if (userInfor?.role !== 'Member') {
@@ -347,7 +354,7 @@ export default function Header() {
         </button>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
-        {userInfor === null ? (
+        {!userInfor || !isAuthenticated ? (
           <>
             <Link to={ROUTES.REGISTER} className='border-red-400 border-2 bg-white text-red-500 rounded py-2 px-4'>
               Sign Up

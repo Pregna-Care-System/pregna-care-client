@@ -62,6 +62,13 @@ const editorSlice = createSlice({
     setBlogInfo(state, action: PayloadAction<any>) {
       state.blogInfo = action.payload
     },
+    resetState(state) {
+      // Keep isAuthenticated as false but reset everything else to initial values
+      return {
+        ...initialState,
+        isAuthenticated: false,
+        userInfo: {}
+      }
     setCurrentLoginUser(state, action: PayloadAction<any>) {
       state.currentLoginUser = action.payload
     }
@@ -88,6 +95,7 @@ export const {
   setMostUsedPlan,
   setTagsInfo,
   setBlogInfo,
+  resetState
   setCurrentLoginUser
 } = editorSlice.actions
 
