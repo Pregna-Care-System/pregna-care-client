@@ -265,7 +265,7 @@ const AnimatedUpgradeButton = styled(Button)`
 `
 
 export default function Header() {
-  const [isDropDownOpen, setIsDropDownOpen] = useState(true)
+  const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
   //Hooks
