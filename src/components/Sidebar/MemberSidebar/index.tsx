@@ -1,10 +1,12 @@
 import ROUTES from '@/utils/config/routes'
 import { LucideBaby } from 'lucide-react'
-import React, { useEffect, useMemo, useState } from 'react'
-import { FiBarChart2 } from 'react-icons/fi'
+import { useEffect, useMemo, useState } from 'react'
+import { FaCalendarAlt, FaPenNib } from 'react-icons/fa'
 import { GoPerson } from 'react-icons/go'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import useFeatureAccess from '@/hooks/useFeatureAccess'
+import { Modal } from 'antd'
 
 const SidebarWrapper = styled.div`
   height: 100%;
@@ -131,7 +133,103 @@ const MenuToggle = styled.button`
     justify-content: center;
   }
 `
+const StyledNotificationModal = styled(Modal)`
+  .ant-modal-content {
+    justify-content: center;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: 10px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: white !important;
+    padding-bottom: 10px;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+
+    p {
+      font-size: 16px;
+      color: #4c1d95;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+
+    .notification-icon {
+      width: 80%;
+      height: 120px;
+      margin: 0 auto 20px;
+      border-radius: 8px;
+    }
+  }
+
+  .ant-modal-close {
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 10px 24px 24px;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    margin-top: 10px;
+
+    .ant-btn {
+      height: 40px;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .ant-btn-default {
+      border-color: #8b5cf6;
+      color: #8b5cf6;
+      background: white;
+
+      &:hover {
+        color: #7c3aed;
+        border-color: #7c3aed;
+        background: #f5f3ff;
+        box-shadow: 0 2px 4px rgba(139, 92, 246, 0.1);
+      }
+    }
+
+    .ant-btn-primary {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      color: white;
+
+      &:hover {
+        background: #7c3aed;
+        border-color: #7c3aed;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+      }
+    }
+  }
+
+  &.ant-modal {
+    .ant-modal-content {
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+    }
+  }
+`
 interface MemberSidebarProps {
   isOpen: boolean
   onToggle: () => void
@@ -139,24 +237,36 @@ interface MemberSidebarProps {
 
 export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) {
   const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalContent, setModalContent] = useState('')
   const location = useLocation()
+  const { hasAccess } = useFeatureAccess()
 
   const menuItems = useMemo(
     () => [
       {
         title: 'Mother Information',
         icon: <GoPerson size={20} />,
-        path: ROUTES.MEMBER.DASHBOARD
+        path: ROUTES.MEMBER.DASHBOARD,
+        featureName: 'Tracking Pregnancy'
       },
       {
         title: 'Fetal Growth',
         icon: <LucideBaby size={20} />,
-        path: ROUTES.MEMBER.FETALGROWTHCHART
+        path: ROUTES.MEMBER.FETALGROWTHCHART,
+        featureName: 'Tracking Pregnancy'
       },
       {
-        title: 'Mother Status',
-        icon: <FiBarChart2 size={20} />,
-        path: ROUTES.MEMBER.MOTHERSTATUS
+        title: 'Your Schedule',
+        icon: <FaCalendarAlt size={20} />,
+        path: ROUTES.MEMBER.SCHEDULE,
+        featureName: 'Remider schedule'
+      },
+      {
+        title: 'Your Blog',
+        icon: <FaPenNib size={20} />,
+        path: ROUTES.MEMBER.YOUR_BLOG,
+        featureName: 'Blog'
       }
     ],
     []
@@ -180,11 +290,17 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
     navigate('/')
   }
 
-  const handleMenuItemClick = (title: string, path: string) => {
-    setActiveMenu(title)
-    navigate(path)
-    if (window.innerWidth < 1024) {
-      onToggle()
+  const handleMenuItemClick = (title: string, path: string, featureName: string) => {
+    console.log('featureName', featureName)
+    if (hasAccess(undefined, featureName)) {
+      setActiveMenu(title)
+      navigate(path)
+      if (window.innerWidth < 1024) {
+        onToggle()
+      }
+    } else {
+      setModalContent(`You need to upgrade membership plan to use the  "${featureName}".`)
+      setIsModalOpen(true)
     }
   }
 
@@ -237,7 +353,7 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
             {menuItems.map((item, index) => (
               <li key={index}>
                 <button
-                  onClick={() => handleMenuItemClick(item.title, item.path)}
+                  onClick={() => handleMenuItemClick(item.title, item.path, item.featureName)}
                   className={`nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out ${
                     activeMenu === item.title ? 'active' : ''
                   }`}
@@ -252,9 +368,29 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         </nav>
 
         <div className='footer text-center'>
-          <p>PregnaCare © 2024</p>
+          <p>PregnaCare © 2025</p>
         </div>
       </div>
+      <StyledNotificationModal
+        title='Upgrade Notification'
+        open={isModalOpen}
+        onOk={() => {
+          setIsModalOpen(false)
+          navigate(ROUTES.MEMBESHIP_PLANS)
+        }}
+        onCancel={() => setIsModalOpen(false)}
+        okText='Upgrade now'
+        cancelText='Cancel'
+      >
+        <div>
+          <img
+            src='https://res.cloudinary.com/dgzn2ix8w/image/upload/v1741944505/pregnaCare/bj5e3vtzer8wk3zpkkvx.jpg'
+            alt='Upgrade Notification'
+            className='notification-icon'
+          />
+          <p>{modalContent}</p>
+        </div>
+      </StyledNotificationModal>
     </SidebarWrapper>
   )
 }

@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { getAllFAQCategories } from '@/services/faqService'
+import { message } from 'antd'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -139,67 +141,49 @@ const AccordionContent = styled.div<{ isOpen: boolean }>`
   }
 `
 
-interface FAQItem {
-  question: string
-  answer: string
+interface FAQCategory {
+  id: string
+  name: string
+  description: string
+  displayOrder: number
+  items: FAQ[]
 }
 
-const popularQuestions: FAQItem[] = [
-  {
-    question: 'How accurate is the pregnancy tracking feature?',
-    answer:
-      'Our pregnancy tracking feature is highly accurate, using advanced algorithms and medical data. It calculates dates based on your last menstrual period or conception date, and allows for adjustments based on ultrasound results.'
-  },
-  {
-    question: 'Can I track multiple pregnancies?',
-    answer:
-      'Yes, you can track multiple pregnancies in your account. Each pregnancy can be tracked separately with its own timeline, measurements, and notes.'
-  },
-  {
-    question: 'How often should I update my pregnancy data?',
-    answer:
-      'We recommend updating your pregnancy data after each prenatal visit or at least once a week. Regular updates help maintain accurate tracking and provide better insights into your pregnancy journey.'
-  }
-]
+interface FAQ {
+  id: string
+  faqCategoryId: string
+  question: string
+  answer: string
+  displayOrder: string
+}
 
-const generalQuestions: FAQItem[] = [
-  {
-    question: 'What information can I track during my pregnancy?',
-    answer:
-      "You can track various aspects including weight, blood pressure, fetal movements, symptoms, mood, nutrition, medical appointments, and ultrasound images. The app also provides weekly updates about your baby's development."
-  },
-  {
-    question: 'Is my pregnancy data secure and private?',
-    answer:
-      'Yes, we take data security very seriously. All your personal and medical information is encrypted and stored securely. We comply with HIPAA guidelines and never share your data without your explicit consent.'
-  },
-  {
-    question: 'Can I share my pregnancy journey with family members?',
-    answer:
-      'Yes, you can choose to share specific information with family members through our secure sharing feature. You have full control over what information is shared and with whom.'
-  }
-]
 
-const featureQuestions: FAQItem[] = [
-  {
-    question: 'What special features are available for high-risk pregnancies?',
-    answer:
-      'For high-risk pregnancies, we offer additional tracking features including more frequent monitoring options, specialized alert systems, and detailed reporting for healthcare providers.'
-  },
-  {
-    question: 'Are there reminders for prenatal vitamins and appointments?',
-    answer:
-      'Yes, you can set up customized reminders for taking prenatal vitamins, upcoming appointments, and important pregnancy milestones. These can be synchronized with your calendar.'
-  },
-  {
-    question: 'Does the app provide nutritional guidance?',
-    answer:
-      'Yes, we offer comprehensive nutritional guidance including meal planning, food safety information, and dietary recommendations specific to each trimester of pregnancy.'
-  }
-]
 
 export default function FAQPage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({})
+  const [categories, setCategories] = useState<FAQCategory[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const response = await getAllFAQCategories()
+      if (response?.data.success && Array.isArray(response.data.response)) {
+        setCategories(response.data.response)
+      } else {
+        message.error('Failed to fetch FAQ categories')
+      }
+    } catch (error) {
+      message.error('Error fetching data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   const toggleItem = (question: string) => {
     setOpenItems((prev) => ({
@@ -208,9 +192,9 @@ export default function FAQPage() {
     }))
   }
 
-  const renderAccordion = (items: FAQItem[]) => {
-    return items.map((item, index) => (
-      <AccordionItem key={index}>
+  const renderAccordion = (items: FAQ[]) => {
+    return items.map((item) => (
+      <AccordionItem key={item.id}>
         <AccordionHeader isOpen={openItems[item.question] || false} onClick={() => toggleItem(item.question)}>
           <h3>{item.question}</h3>
           <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
@@ -230,36 +214,22 @@ export default function FAQPage() {
         <h1>Frequently Asked Questions</h1>
         <p>Find answers to common questions about pregnancy tracking and our features.</p>
       </Header>
-      <Section>
-        <h2>
-          <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-            <path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' />
-          </svg>
-          Popular Questions
-        </h2>
-        {renderAccordion(popularQuestions)}
-      </Section>
-
-      <Section>
-        <h2>
-          <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-            <circle cx='12' cy='12' r='10' />
-            <path d='M12 16v-4M12 8h.01' />
-          </svg>
-          General Questions
-        </h2>
-        {renderAccordion(generalQuestions)}
-      </Section>
-
-      <Section>
-        <h2>
-          <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-            <path d='M13 10V3L4 14h7v7l9-11h-7z' />
-          </svg>
-          Features & Usage
-        </h2>
-        {renderAccordion(featureQuestions)}
-      </Section>
+      {loading ? (
+        <p>Loading FAQs...</p>
+      ) : (
+        categories.map((category) => (
+          <Section key={category.id}>
+            <h2>
+              <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                <circle cx='12' cy='12' r='10' />
+                <path d='M12 16v-4M12 8h.01' />
+              </svg>
+              {category.name}
+            </h2>
+            {renderAccordion(category.items)}
+          </Section>
+        ))
+      )}
     </Container>
   )
 }

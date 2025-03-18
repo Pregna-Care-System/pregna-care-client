@@ -29,6 +29,7 @@ import { createPregnancyRecord, getAllPregnancyRecord, updatePregnancyRecord } f
 import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
 import {
   createMotherInfo,
+  getMemberInforWithPlanDetail,
   getMotherInfo,
   login,
   loginWithGG,
@@ -383,6 +384,20 @@ export function* getAllMemberAdmin(filterType?: string, name?: string): Generato
     } else {
       message.info('No members found!')
       yield put(setMemberInfo([])) // Cập nhật store với mảng rỗng nếu không có dữ liệu
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred, try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+//----------Member information-----------
+export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(getMemberInforWithPlanDetail, action.payload.userId)
+    console.log('Response', response.response)
+
+    if (response.response) {
+      yield put(setMemberInfo(response.response))
     }
   } catch (error: any) {
     message.error('An unexpected error occurred, try again later!')
@@ -768,6 +783,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_GROWTH_METRICS', getDataGrowthMetric)
   yield takeLatest('GET_FETAL_GROWTH_RECORDS', getFetalGrowthRecordsSaga)
   yield takeLatest('GET_ALL_MEMBERS', getAllMemberAdmin)
+  yield takeLatest('GET_MEMBER_WITH_PLAN_DETAIL', getMemberWithPlanDetail)
   yield takeLatest('GET_ALL_USER_MEMBERSHIP_PLANS', getAllUserTransactionAdmin)
   yield takeLatest('UPDATE_USER_INFORMATION', updateUserInformation)
   yield takeLatest('GET_ALL_REMINDER_INFORMATION', getAllReminderSaga)

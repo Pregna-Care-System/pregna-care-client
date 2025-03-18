@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { selectUserInfo } from '@store/modules/global/selector'
 
 export default function NotificationButton() {
   const [notificationTimer, setNotificationTimer] = useState<NodeJS.Timeout | null>(null)
@@ -15,13 +16,8 @@ export default function NotificationButton() {
   const [notifications, setNotifications] = useState(notificationInfo)
   const dispatch = useDispatch()
   const [visibleCount, setVisibleCount] = useState(5)
-  const token = localStorage.getItem('accessToken')
-  let user = null
-  try {
-    user = token ? jwtDecode(token) : null
-  } catch (error) {
-    console.error('Invalid token:', error)
-  }
+  const user = useSelector(selectUserInfo)
+
   useEffect(() => {
           dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
       }, [dispatch])
@@ -71,7 +67,7 @@ export default function NotificationButton() {
     setVisibleCount((prevCount) => prevCount + 5)
   }
   return (
-    <div className='relative ml-16'>
+    <div className='relative'>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className='relative p-2 bg-gray-100 rounded-full transition hover:bg-[#fff1f3] border border-[#f4d3d8]'

@@ -12,12 +12,14 @@ interface CarouselMembershipPlansProps {
   membershipPlans: MODEL.PlanResponse[]
   selectedPlan: MODEL.PlanResponse | null
   onSelectPlan: (plan: MODEL.PlanResponse) => void
+  currentPlanName: string
 }
 
 export default function CarouselMembershipPlans({
   membershipPlans,
   selectedPlan,
-  onSelectPlan
+  onSelectPlan,
+  currentPlanName
 }: CarouselMembershipPlansProps) {
   const renderMembershipPlans = membershipPlans.map((plan: MODEL.PlanResponse) => {
     return (
@@ -26,6 +28,7 @@ export default function CarouselMembershipPlans({
           plan={plan}
           isSelected={selectedPlan?.membershipPlanId === plan.membershipPlanId}
           onSelect={() => onSelectPlan(plan)}
+          currentPlanName={currentPlanName}
         />
       </SwiperSlide>
     )

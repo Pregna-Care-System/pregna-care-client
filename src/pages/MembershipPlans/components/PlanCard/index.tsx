@@ -10,12 +10,13 @@ interface PlanCardProps {
     imageUrl: string
     features: string[]
     recommended: boolean
+    currentPlanName: string
   }
   isSelected: boolean
   onSelect: () => void
 }
 
-export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
+export function PlanCard({ plan, isSelected, onSelect, currentPlanName }: PlanCardProps) {
   const navigate = useNavigate()
 
   const handleMoreClick = () => {
@@ -33,6 +34,7 @@ export function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
       title={
         <div className='flex justify-between items-center'>
           <span className='text-lg font-bold'>{plan.planName}</span>
+          {plan.planName === currentPlanName && <Tag color="green">Your Plan</Tag>}
           {plan.recommended && <Tag color='red'>Recommended</Tag>}
         </div>
       }

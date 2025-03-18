@@ -1,6 +1,7 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
 import {
+  FiAlertCircle,
   FiBell,
   // FiBarChart2,
   // FiBell,
@@ -178,7 +179,8 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         path: ROUTES.ADMIN.GROWTHMETRICS
       },
       { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE },
-      { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ },
+      { title: 'Feedback', icon: <FiAlertCircle size={20} />, path: ROUTES.ADMIN.FEEDBACK },
+      { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ }
     ],
     []
   )
@@ -273,7 +275,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         </nav>
 
         <div className='footer text-center'>
-          <p>PregnaCare © 2024</p>
+          <p>PregnaCare © 2025</p>
         </div>
       </div>
     </SidebarWrapper>
