@@ -363,7 +363,7 @@ const CommunityCommentDetails = () => {
                       !localReplyText.trim() || submitting ? 'text-blue-300' : 'text-blue-500'
                     }`}
                   >
-                    Đăng
+                    Reply
                   </button>
                 </div>
               </div>
