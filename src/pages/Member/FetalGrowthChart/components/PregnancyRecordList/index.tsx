@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom'
 import { HeartOutlined, EditOutlined, EyeOutlined, CalendarOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import ROUTES from '@/utils/config/routes'
-import { CreateModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 import styles from './styles.module.css'
 import { selectFetalGrowthRecord, selectGrowthMetricsOfWeek, selectUserInfo } from '@/store/modules/global/selector'
 import WeekDetailModal from '../WeekDetailModal'
+import { CreateModal } from '../Modal'
 
 interface PregnancyRecord {
   id: string
