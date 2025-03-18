@@ -1,61 +1,6 @@
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
-  services: [
-    {
-      id: 1,
-      title: 'Pregnancy Tracking',
-      description:
-        'Helps monitor fetal development, schedule checkups, track maternal health, provide tips, and ensure a healthy pregnancy'
-    },
-    {
-      id: 2,
-      title: 'Schedule Management',
-      description:
-        'Organizes integrates calendars, sets reminders, tracks time, and enhances productivity through efficient planning and collaboration'
-    },
-    {
-      id: 3,
-      title: 'Sharing and Community',
-      description:
-        'Fosters connection, collaboration, resource sharing, and support, empowering individuals and groups to achieve common goals'
-    }
-  ],
-  reason: [
-    {
-      id: 1,
-      title: 'Monitoring both maternal health and fetal development',
-      description: [
-        'Track weekly milestones for fetal growth with detailed updates.',
-        'Schedule and manage prenatal checkups with reminders for key appointments.',
-        'Access professional advice and tools tailored for every stage of pregnancy.',
-        'Record health metrics like weight, blood pressure, and activity levels.'
-      ],
-      image: 'https://res.cloudinary.com/drcj6f81i/image/upload/v1736848318/PregnaCare/oa3zuazyvqgi2y9ef7ec.png'
-    },
-    {
-      id: 2,
-      title: 'Schedule Management',
-      description: [
-        'Plan, prioritize, and allocate resources effectively to meet deadlines.',
-        'Use tools that integrate with calendars for streamlined scheduling.',
-        'Set reminders and notifications to stay on track with tasks and events.',
-        'Ongoing adjustments and professional scheduling tools ensure effective time management.'
-      ],
-      image: 'https://res.cloudinary.com/drcj6f81i/image/upload/v1737045412/PregnaCare/gliukls4rzhznryjgpju.png'
-    },
-    {
-      id: 3,
-      title: 'Building connections and sharing resources',
-      description: [
-        'Identify platforms where communities thrive and facilitate meaningful interactions.',
-        'Share knowledge, resources, and experiences to empower others.',
-        'Build a sense of belonging through collaboration and mutual support.',
-        'Professional services and tools are available to create and maintain thriving communities.'
-      ],
-      image: 'https://res.cloudinary.com/drcj6f81i/image/upload/v1737046142/PregnaCare/wutvenrgacglazpmntwp.png'
-    }
-  ],
   membershipPlans: [],
   pregnancyRecord: [],
   fetalGrowthRecord: [],

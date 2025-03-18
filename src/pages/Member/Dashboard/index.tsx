@@ -16,7 +16,8 @@ import {
   Typography,
   Tag,
   ConfigProvider,
-  Empty
+  Empty,
+  message
 } from 'antd'
 import { FaUser, FaCalendarAlt, FaHeartbeat, FaNotesMedical, FaFileAlt, FaBaby, FaEdit, FaPlus } from 'react-icons/fa'
 import { jwtDecode } from 'jwt-decode'
@@ -24,6 +25,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
 import styled from 'styled-components'
+import CloudinaryUpload from '@/components/CloudinaryUpload'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -365,22 +367,23 @@ export default function ProfilePage() {
                     </Tag>
                   )}
                   <div className='mt-4 space-x-2'>
-                    <Button
-                      type='primary'
-                      icon={<FaEdit className='mr-1' />}
-                      onClick={handleEditMotherProfile}
-                      className='rounded-md'
-                    >
-                      Edit Profile
-                    </Button>
-                    {!motherInfoData.id && (
+                    {motherInfoData.id ? (
                       <Button
-                        type='default'
+                        type='primary'
+                        icon={<FaEdit className='mr-1' />}
+                        onClick={handleEditMotherProfile}
+                        className='rounded-md'
+                      >
+                        Edit Profile
+                      </Button>
+                    ) : (
+                      <Button
+                        type='primary'
                         onClick={handleOpenMotherModal}
                         className='rounded-md'
-                        style={{ borderColor: '#ff6b81', color: '#ff6b81' }}
+                        style={{ borderColor: '#ff6b81', color: '#ff6b81', background: 'white' }}
                       >
-                        Create New
+                        Create New Profile
                       </Button>
                     )}
                   </div>
@@ -656,9 +659,6 @@ export default function ProfilePage() {
             </Form.Item>
             <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
               <Input.TextArea rows={4} />
-            </Form.Item>
-            <Form.Item name='imageUrl' label='Profile Image URL'>
-              <Input placeholder='Enter profile image URL' />
             </Form.Item>
             <Form.Item>
               <Button

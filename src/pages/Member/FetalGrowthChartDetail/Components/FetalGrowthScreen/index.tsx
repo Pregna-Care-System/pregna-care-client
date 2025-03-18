@@ -1,13 +1,12 @@
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { Breadcrumb, Card, Col, Layout, Row, Typography, Space, Spin } from 'antd'
+import { Breadcrumb, Card, Col, Layout, Row, Typography, Space, Spin, Alert, Button } from 'antd'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
-import { AlertCircle, Baby, Calendar, Clock } from 'lucide-react'
+import { AlertCircle, Baby, Calendar, Clock, ChevronRight } from 'lucide-react'
 import { CriticalAlert, StyledLayout } from '../../styles/styled-components'
 import ROUTES from '@/utils/config/routes'
 import GestationalAgeChart from '../Charts/GestationalAgeChart'
-import ScheduleCard from '../ScheduleCard'
 import FetalAlertsList from '../Alerts/FetalAlertList'
 import { fetalGrowthStats } from '@/services/pregnancyRecordService'
 import EnhancedFetalChart from '../Charts/EnhancedFetalChart'
@@ -24,7 +23,8 @@ interface FetalGrowthScreenProps {
 const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy }) => {
   const [loading, setLoading] = useState(true)
   const [fetalData, setFetalData] = useState([])
-  const [alertData, setAlertData] = useState([])
+  const [alertData, setAlertData] = useState<IFetalGrowth.FetalAlert[]>([])
+  const [alertsLoading, setAlertsLoading] = useState(true)
 
   const getFetalGrowthStats = async () => {
     try {
@@ -39,12 +39,18 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
 
   const getFetalAlerts = async () => {
     try {
+      setAlertsLoading(true)
       if (selectedPregnancy) {
         const res = await getFetalGrowthAlert(selectedPregnancy.id)
-        setAlertData(res.data.response)
+        const responseData = res.data.response || []
+        setAlertData(responseData as IFetalGrowth.FetalAlert[])
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error fetching alerts:', error)
+      // Fallback to mock data in case of error
+      setAlertData(mockFetalAlerts)
+    } finally {
+      setAlertsLoading(false)
     }
   }
 
@@ -56,10 +62,24 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
     }
   }, [selectedPregnancy])
 
-  // Filter critical alerts (this should be updated to use actual data when available)
-  const criticalAlerts = mockFetalAlerts.filter(
-    (alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved
-  )
+  // Filter critical alerts
+  const criticalAlerts =
+    alertData.length > 0
+      ? alertData.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
+      : mockFetalAlerts.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
+
+  const scrollToAlerts = () => {
+    const alertsSection = document.getElementById('alerts-section')
+    if (alertsSection) {
+      alertsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      // Set the tab to 'critical' to show only critical alerts
+      const criticalTab = document.querySelector('[data-tab-key="critical"]')
+      if (criticalTab && criticalTab instanceof HTMLElement) {
+        criticalTab.click()
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -92,29 +112,28 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
           </div>
         </div>
 
-        {/* Critical Alerts Section */}
+        {/* Critical Alerts Summary */}
         {criticalAlerts.length > 0 && (
-          <Space direction='vertical' className='w-full mb-6'>
-            {criticalAlerts.map((alert) => (
-              <CriticalAlert
-                key={alert.id}
-                message={
-                  <Space>
-                    <AlertCircle className='text-red-600' />
-                    <span className='font-medium'>Critical Alert - Week {alert.week}</span>
-                  </Space>
-                }
-                description={alert.issue}
-                type='error'
-                showIcon
-                action={
-                  <Link to='#alerts-section' className='alert-action'>
-                    View Details →
-                  </Link>
-                }
-              />
-            ))}
-          </Space>
+          <Alert
+            message={
+              <div className='flex items-center justify-between'>
+                <Space align='center'>
+                  <AlertCircle className='text-red-600' size={20} />
+                  <span className='font-medium'>
+                    You have {criticalAlerts.length} critical {criticalAlerts.length === 1 ? 'alert' : 'alerts'} that
+                    require your attention
+                  </span>
+                </Space>
+                <Button type='primary' danger onClick={scrollToAlerts} className='flex items-center'>
+                  View Details
+                  <ChevronRight className='ml-1' size={16} />
+                </Button>
+              </div>
+            }
+            type='error'
+            showIcon={false}
+            className='mb-6'
+          />
         )}
 
         {/* Main Content Grid */}
@@ -178,15 +197,10 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
           </Col>
 
           {/* Right Column - Schedule & Alerts */}
-          <Col xs={24} xl={8}>
+          <Col xs={24} xl={8} id='alerts-section'>
             <Space direction='vertical' size='large' className='w-full'>
-              <ScheduleCard pregnancyId={selectedPregnancy.id} />
+              <FetalAlertsList alerts={alertData} loading={alertsLoading} />
             </Space>
-          </Col>
-          <Col xs={24} xl={24}>
-            <div id='alerts-section'>
-              <FetalAlertsList alerts={alertData} />
-            </div>
           </Col>
         </Row>
       </Content>

@@ -138,10 +138,22 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({
 
   const beforeUpload = (file: File) => {
     // Check file type
-    const isAcceptedType = file.type.match(acceptedFileTypes.replace(/\*/g, '.*'))
-    if (!isAcceptedType) {
-      message.error(`${file.name} is not an accepted file type`)
-      return Upload.LIST_IGNORE
+    if (acceptedFileTypes) {
+      const acceptedTypes = acceptedFileTypes.split(',')
+      const isAcceptedType = acceptedTypes.some((type) => {
+        // For generic types like 'image/*'
+        if (type.includes('*')) {
+          const mainType = type.split('/')[0]
+          return file.type.startsWith(`${mainType}/`)
+        }
+        // For specific types
+        return type.trim() === file.type
+      })
+
+      if (!isAcceptedType) {
+        message.error(`${file.name} is not an accepted file type`)
+        return Upload.LIST_IGNORE
+      }
     }
 
     // Check file size

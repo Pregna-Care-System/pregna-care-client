@@ -115,8 +115,7 @@ export const updateAccount = async (
 }
 
 export const logout = (): void => {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('refreshToken')
+  localStorage.clear()
   window.location.href = ROUTES.LOGIN
 }
 

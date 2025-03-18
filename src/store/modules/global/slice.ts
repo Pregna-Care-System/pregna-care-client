@@ -53,14 +53,22 @@ const editorSlice = createSlice({
     setMotherInfo(state, action: PayloadAction<any>) {
       state.motherInfo = action.payload
     },
-    setMostUsedPlan(state, action: PayloadAction<any>){
+    setMostUsedPlan(state, action: PayloadAction<any>) {
       state.mostUsedPlan = action.payload
     },
-    setTagsInfo(state, action: PayloadAction<any>){
+    setTagsInfo(state, action: PayloadAction<any>) {
       state.tagInfo = action.payload
     },
-    setBlogInfo(state, action: PayloadAction<any>){
+    setBlogInfo(state, action: PayloadAction<any>) {
       state.blogInfo = action.payload
+    },
+    resetState(state) {
+      // Keep isAuthenticated as false but reset everything else to initial values
+      return {
+        ...initialState,
+        isAuthenticated: false,
+        userInfo: {}
+      }
     }
   }
 })
@@ -84,7 +92,8 @@ export const {
   setMotherInfo,
   setMostUsedPlan,
   setTagsInfo,
-  setBlogInfo
+  setBlogInfo,
+  resetState
 } = editorSlice.actions
 
 export default editorSlice.reducer
