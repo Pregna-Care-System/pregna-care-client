@@ -18,7 +18,8 @@ import {
   setNotifications,
   setMostUsedPlan,
   setTagsInfo,
-  setBlogInfo
+  setBlogInfo,
+  setCurrentLoginUser
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -134,7 +135,6 @@ export function* updateUserInformation(action: PayloadAction<any>): Generator<an
       action.payload.dateOfBirth,
       action.payload.imageUrl
     )
-    console.log('Response:', response)
     if (response.success) {
       message.success('Account updated successfully')
     } else {
@@ -770,6 +770,21 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
     console.error('Error in updateBlog saga:', error)
   }
 }
+
+export function* getCurrentLoginUser(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(getMemberInforWithPlanDetail, action.payload)
+    console.log('Response', response.response)
+
+    if (response.response) {
+      yield put(setCurrentLoginUser(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred, try again later!')
+    console.error('Fetch error:', error)
+  }
+}
+
 export function* watchEditorGlobalSaga() {
   yield takeLatest('USER_LOGIN', userLogin)
   yield takeLatest('USER_LOGIN_GG', userLoginGG)
@@ -816,4 +831,5 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('DELETE_BLOG', deleteBlogSaga)
   yield takeLatest('UPDATE_BLOG', updateBlogSaga)
   yield takeLatest('GET_ALL_BLOGS', getAllBlogSaga)
+  yield takeLatest('GET_CURRENT_LOGIN_USER', getCurrentLoginUser)
 }

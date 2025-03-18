@@ -1,13 +1,12 @@
+import { selectCurrentLoginUser } from '@/store/modules/global/selector'
+import request from '@/utils/axiosClient'
 import { UserOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Row, Col, DatePicker, Select, Upload, Modal, message } from 'antd'
-import { RcFile, UploadChangeParam } from 'antd/es/upload'
+import { Button, Col, DatePicker, Form, Input, Modal, Row, Select, Upload, message } from 'antd'
+import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
-import dayjs from 'dayjs'
-import { selectUserInfo } from '@/store/modules/global/selector'
-import request from '@/utils/axiosClient'
 const Wrapper = styled.div`
   .avatar_profile {
     transition:
@@ -86,9 +85,34 @@ const Wrapper = styled.div`
 export default function MainProfile() {
   const token = localStorage.getItem('accessToken')
   const user = token ? jwtDecode(token) : null
-  const [userImage, setUserImage] = useState<string | null>(user?.picture || null)
   const [form] = Form.useForm()
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch({
+      type: 'GET_CURRENT_LOGIN_USER',
+      payload: user?.id
+    })
+  }, [dispatch, user?.id])
+
+  const currentUserLogin = useSelector(selectCurrentLoginUser)
+  const [userImage, setUserImage] = useState('')
+  const [fullName, setFullName] = useState('')
+
+  useEffect(() => {
+    if (currentUserLogin) {
+      form.setFieldsValue({
+        fullName: currentUserLogin.fullName,
+        phoneNumber: currentUserLogin.phoneNumber,
+        address: currentUserLogin.address,
+        gender: currentUserLogin.gender,
+        dateOfBirth: currentUserLogin.dateOfBirth ? dayjs(currentUserLogin.dateOfBirth) : null
+      })
+
+      setFullName(currentUserLogin.fullName)
+      setUserImage(currentUserLogin.imageUrl)
+    }
+  }, [currentUserLogin, form])
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -107,21 +131,23 @@ export default function MainProfile() {
   }
 
   const handleSubmit = async (values: any) => {
+    setFullName(`${values.fullName}`)
     const userInfo = {
-      userId: user?.id,
+      userId: currentUserLogin?.id,
       fullName: values.fullName,
       phoneNumber: values.phoneNumber,
       address: values.address,
       gender: values.gender,
       dateOfBirth: values.dateOfBirth ? dayjs(values.dateOfBirth).format('YYYY-MM-DD') : null,
-      imageUrl: ''
+      imageUrl: userImage
     }
-    console.log('User infor', userInfo)
+
     dispatch({
       type: 'UPDATE_USER_INFORMATION',
       payload: userInfo
     })
   }
+
   const handleUpload = async (file) => {
     const formData = new FormData()
     formData.append('file', file)
@@ -141,6 +167,7 @@ export default function MainProfile() {
       console.error('Upload error details', error?.response.data || error.message)
     }
   }
+
   return (
     <Wrapper
       className='px-4 py-36 flex justify-center'
@@ -158,40 +185,48 @@ export default function MainProfile() {
               )}
             </div>
             <div className='profile_info'>
-              <h2>{user?.name}</h2>
-              <p>{user?.email}</p>
+              <h2>{fullName}</h2>
+              <p>{currentUserLogin?.email}</p>
             </div>
           </div>
           <div>
             <Form form={form} onFinish={handleSubmit} className='profile_form' layout='vertical'>
               <Row gutter={[20, 20]}>
                 <Col span={12}>
-                  <Form.Item label='Full Name' name='fullName' initialValue={user?.name}>
-                    <Input className='bg-gray-200' placeholder='Your full name' value={user?.name} />
+                  <Form.Item label='Full Name' name='fullName' initialValue={currentUserLogin?.fullName}>
+                    <Input className='bg-gray-200' placeholder='Your full name' value={currentUserLogin?.fullName} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Phone Number' name='phoneNumber' initialValue={user?.phone}>
-                    <Input className='bg-gray-200' placeholder='Your phone number' value={user?.phone} />
+                  <Form.Item label='Phone Number' name='phoneNumber' initialValue={currentUserLogin?.phoneNumber}>
+                    <Input
+                      className='bg-gray-200'
+                      placeholder='Your phone number'
+                      value={currentUserLogin?.phoneNumber}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Address' name='address' initialValue={user?.address}>
-                    <Input className='bg-gray-200' placeholder='Your address' value={user?.address} />
+                  <Form.Item label='Address' name='address' initialValue={currentUserLogin?.address}>
+                    <Input className='bg-gray-200' placeholder='Your address' value={currentUserLogin?.address} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label='Gender' name='gender' initialValue={user?.gender}>
-                    <Select options={genderOptions} placeholder='Your gender' value={user?.gender} />
+                  <Form.Item label='Gender' name='gender' initialValue={currentUserLogin?.gender}>
+                    <Select options={genderOptions} placeholder='Your gender' value={currentUserLogin?.gender} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
                     label='Date of Birth'
                     name='dateOfBirth'
-                    initialValue={user?.dateOfBirth ? dayjs(user.dateOfBirth) : null}
+                    initialValue={currentUserLogin?.dateOfBirth ? dayjs(currentUserLogin.dateOfBirth) : null}
                   >
-                    <DatePicker className='bg-gray-200' placeholder='Your date of birth' value={user?.dateOfBirth} />
+                    <DatePicker
+                      className='bg-gray-200'
+                      placeholder='Your date of birth'
+                      value={currentUserLogin?.dateOfBirth}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -250,15 +285,15 @@ export default function MainProfile() {
                 dispatch({
                   type: 'UPDATE_USER_INFORMATION',
                   payload: {
-                    userId: user?.id,
-                    fullName: form.getFieldValue('fullName') || user?.name || '',
-                    phoneNumber: form.getFieldValue('phoneNumber') || user?.phone || '',
-                    address: form.getFieldValue('address') || user?.address || '',
-                    gender: form.getFieldValue('gender') || user?.gender || '',
+                    userId: currentUserLogin?.id,
+                    fullName: form.getFieldValue('fullName') || currentUserLogin?.fullName || '',
+                    phoneNumber: form.getFieldValue('phoneNumber') || currentUserLogin?.phoneNumber || '',
+                    address: form.getFieldValue('address') || currentUserLogin?.address || '',
+                    gender: form.getFieldValue('gender') || currentUserLogin?.gender || '',
                     dateOfBirth: form.getFieldValue('dateOfBirth')
                       ? dayjs(form.getFieldValue('dateOfBirth')).format('YYYY-MM-DD')
-                      : user?.dateOfBirth || null,
-                    imageUrl: userImage || user?.image || ''
+                      : currentUserLogin?.dateOfBirth || null,
+                    imageUrl: userImage || currentUserLogin?.imageUrl || ''
                   }
                 })
                 handleCancel()
