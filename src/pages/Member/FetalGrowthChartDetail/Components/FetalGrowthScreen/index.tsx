@@ -41,7 +41,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
     try {
       if (selectedPregnancy) {
         const res = await getFetalGrowthAlert(selectedPregnancy.id)
-        setAlertData(res.response)
+        setAlertData(res.data.response)
       }
     } catch (error) {
       console.error('Error:', error)
@@ -172,7 +172,7 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
             {/* Growth Charts */}
             <Space direction='vertical' size='large' className='w-full'>
               <Card className='chart-card'>
-                <EnhancedFetalChart fetalData={fetalData} />
+                <EnhancedFetalChart fetalData={fetalData} sharing={true} />
               </Card>
             </Space>
           </Col>

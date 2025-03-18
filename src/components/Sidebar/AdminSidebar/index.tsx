@@ -5,8 +5,7 @@ import {
   FiBell,
   // FiBarChart2,
   // FiBell,
-  FiDollarSign,
-  FiHelpCircle,
+  FiDollarSign, FiHelpCircle,
   // FiHelpCircle,
   FiHome,
   FiPackage,
@@ -181,7 +180,6 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
       },
       { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE },
       { title: 'Feedback', icon: <FiAlertCircle size={20} />, path: ROUTES.ADMIN.FEEDBACK },
-
       { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ }
     ],
     []

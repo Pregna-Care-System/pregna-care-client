@@ -46,3 +46,6 @@ export const getFeatureById = async (featureId: string) => {
 export const updateFeature = async (data: any, id: string) => {
   return await request.put<MODEL.IResponseBase>(`/Feature/Update?id=${id}`, data)
 }
+
+//FAQ
+

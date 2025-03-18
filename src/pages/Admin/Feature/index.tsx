@@ -7,7 +7,7 @@ import { getAllFeature } from '@/services/featureService'
 import { TbEdit } from 'react-icons/tb'
 import { FiTrash2 } from 'react-icons/fi'
 
-export default function GrowthMetrics() {
+export default function FeatureAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isUpdateMode, setIsUpdateMode] = useState(false)
