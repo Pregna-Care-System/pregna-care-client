@@ -53,14 +53,17 @@ const editorSlice = createSlice({
     setMotherInfo(state, action: PayloadAction<any>) {
       state.motherInfo = action.payload
     },
-    setMostUsedPlan(state, action: PayloadAction<any>){
+    setMostUsedPlan(state, action: PayloadAction<any>) {
       state.mostUsedPlan = action.payload
     },
-    setTagsInfo(state, action: PayloadAction<any>){
+    setTagsInfo(state, action: PayloadAction<any>) {
       state.tagInfo = action.payload
     },
-    setBlogInfo(state, action: PayloadAction<any>){
+    setBlogInfo(state, action: PayloadAction<any>) {
       state.blogInfo = action.payload
+    },
+    setCurrentLoginUser(state, action: PayloadAction<any>) {
+      state.currentLoginUser = action.payload
     }
   }
 })
@@ -84,7 +87,8 @@ export const {
   setMotherInfo,
   setMostUsedPlan,
   setTagsInfo,
-  setBlogInfo
+  setBlogInfo,
+  setCurrentLoginUser
 } = editorSlice.actions
 
 export default editorSlice.reducer

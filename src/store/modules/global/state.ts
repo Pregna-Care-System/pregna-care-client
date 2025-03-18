@@ -1,6 +1,7 @@
 export const initialState = {
   isAuthenticated: localStorage.getItem('accessToken') !== null,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {},
+  currentLoginUser: {},
   services: [
     {
       id: 1,
@@ -254,9 +255,8 @@ export const initialState = {
       isIncrease: false
     }
   ],
-  notificationInfo: [
-  ],
-  mostUsedPlan:{},
+  notificationInfo: [],
+  mostUsedPlan: {},
   tagInfo: [],
   blogInfo: []
 }

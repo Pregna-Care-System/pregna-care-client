@@ -23,5 +23,4 @@ export const selectNotifications = (state: RootState) => state.global.notificati
 export const selectMostUsedPlan = (state: RootState) => state.global.mostUsedPlan
 export const selectTagInfo = (state: RootState) => state.global.tagInfo
 export const selectBlogInfo = (state: RootState) => state.global.blogInfo
-
-
+export const selectCurrentLoginUser = (state: RootState) => state.global.currentLoginUser
