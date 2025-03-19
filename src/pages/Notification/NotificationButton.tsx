@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { selectUserInfo } from '@store/modules/global/selector'
+import { SatelliteDishIcon } from 'lucide-react'
+import { MdEmail, MdOutlineMail, MdOutlineMailLock } from 'react-icons/md'
 
 export default function NotificationButton() {
   const [notificationTimer, setNotificationTimer] = useState<NodeJS.Timeout | null>(null)
@@ -93,17 +95,17 @@ export default function NotificationButton() {
         >
           <>
             <div className='flex justify-between items-center px-4 py-2 border-b border-border'>
-              <h1 className='font-bold text-lg '>Notifications</h1>
+              <h1 className='font-bold text-lg text-[#ff6b81]'>Notifications</h1>
               <div className='flex gap-2'>
                 <button
                   onClick={markAllAsRead}
-                  className='text-xs text-blue-600 hover:text-black transition-colors duration-200'
+                  className='text-xs text-black hover:text-red-300 transition-colors duration-200'
                 >
                   Mark all as read
                 </button>
                 <button
                   onClick={() => navigate(ROUTES.NOTIFICATION)}
-                  className='text-xs text-blue-600 hover:text-black transition-colors duration-200'
+                  className='text-xs text-black hover:text-red-300 transition-colors duration-200'
                 >
                   See all
                 </button>
@@ -156,7 +158,10 @@ export default function NotificationButton() {
                   </div>
                 ))
               ) : (
-                <p>No notifications</p>
+               <div>
+                 <h2 className='flex justify-center mt-5 text-2xl text-gray-600'>No notifications</h2>
+                <div className=' flex text-2xl justify-center'> <MdOutlineMail/></div>
+               </div>
               )}
               {visibleCount < notifications.length && (
                 <div className='flex justify-center'>

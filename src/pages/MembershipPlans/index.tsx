@@ -20,7 +20,7 @@ export default function MemberShipPlanPage() {
   const member = useSelector(selectMemberInfo)
   const currentPlanName = member?.planName || ''
   const [hasFreePlanState, setHasFreePlanState] = useState(false)
-
+  const recommendPlanId = plans.find((plan) => plan.planName === 'StandardPlan')?.membershipPlanId || null
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
   }, [dispatch])
@@ -90,13 +90,8 @@ export default function MemberShipPlanPage() {
       className='px-4 py-36 flex justify-center'
       style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}
     >
-      <div
-        className='border border-solid rounded-3xl w-11/12 lg:w-10/12 shadow-md py-6'
-        style={{
-          background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)'
-        }}
-      >
-        <h1 className='text-2xl lg:text-3xl font-bold mb-3 text-center'>Features and Pricing</h1>
+      <div className='border border-solid rounded-3xl w-11/12 lg:w-10/12 shadow-2xl py-6 bg-white'>
+        <h1 className='text-2xl lg:text-3xl text-[#ff6b81] font-bold mb-3 text-center'>Features and Pricing</h1>
         <h4 className='text-gray-500 mb-8 px-4 lg:px-8 text-center text-sm lg:text-base'>
           Whether your time-saving automation needs are large or small, we're here to help you scale.
         </h4>
@@ -108,17 +103,12 @@ export default function MemberShipPlanPage() {
               selectedPlan={selectedPlan}
               onSelectPlan={setSelectedPlan}
               currentPlanName={currentPlanName}
+              recommend={recommendPlanId}
             />
           </div>
         </div>
         <div className='text-center mb-4'>
-          <Button
-            type='primary'
-            size='large'
-            onClick={handleUpgrade}
-            danger
-            disabled={hasFreePlanState && selectedPlan?.planName === 'FreePlan'}
-          >
+          <Button type='primary' size='large' onClick={handleUpgrade} danger>
             Upgrade to {selectedPlan ? selectedPlan.planName : 'a plan'}
           </Button>
         </div>

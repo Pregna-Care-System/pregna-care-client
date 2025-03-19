@@ -86,7 +86,7 @@ const NotificationPage = () => {
           <h1 className='text-3xl font-bold text-[#ff6b81] flex items-center gap-2'>
             <Bell className='w-6 h-6 text-[#ff6b81]' /> Notifications
           </h1>
-          <button onClick={markAllAsRead} className='text-sm text-blue-500 hover:text-black'>
+          <button onClick={markAllAsRead} className='text-sm text-black hover:text-red-300'>
             Mark all as read
           </button>
         </div>

@@ -337,7 +337,7 @@ export default function Header() {
         <button onClick={() => handleNavClick(ROUTES.BLOG)} className='header_item'>
           Blog
         </button>
-        <button onClick={() => handleNavClick(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
+        <button onClick={() => navigate(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
           Pricing
         </button>
         <button onClick={() => handleNavClick(ROUTES.COMMUNITY)} className='header_item'>
