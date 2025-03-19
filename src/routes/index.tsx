@@ -13,6 +13,7 @@ import FAQPage from '@/pages/FAQ'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
 import BabyShopApp from '@/pages/Service/BabyShop/index '
+import ContactAdminPage from '@/pages/Admin/ContactSubscriber'
 
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
@@ -85,7 +86,9 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout },
   { path: ROUTES.ADMIN.FEATURE, component: Feature, layout: AdminLayout },
   { path: ROUTES.ADMIN.FAQ, component: FAQAdmin, layout: AdminLayout },
-  { path: ROUTES.ADMIN.FEEDBACK, component: FeedBack, layout: AdminLayout }
+  { path: ROUTES.ADMIN.FEEDBACK, component: FeedBack, layout: AdminLayout },
+  { path: ROUTES.ADMIN.CONTACT, component: ContactAdminPage, layout: AdminLayout }
+
 ]
 
 const memberRoutes = [

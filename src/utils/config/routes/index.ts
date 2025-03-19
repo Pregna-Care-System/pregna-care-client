@@ -33,7 +33,8 @@ const ROUTES = {
     GROWTHMETRICS: '/admin/growth-metrics',
     FEATURE: '/admin/feature',
     FAQ: '/admin/faq',
-    FEEDBACK: '/admin/feedback'
+    FEEDBACK: '/admin/feedback',
+    CONTACT:'/admin/contact'
   },
   MEMBER: {
     DASHBOARD: '/member',
