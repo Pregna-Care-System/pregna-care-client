@@ -15,6 +15,7 @@ import {
   // FiPackage,
   // FiUsers,
 } from 'react-icons/fi'
+import { MdEmail } from 'react-icons/md'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -182,6 +183,11 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
       },
       { title: 'Feature', icon: <FaTools size={20} />, path: ROUTES.ADMIN.FEATURE },
       { title: 'Feedback', icon: <FiAlertCircle size={20} />, path: ROUTES.ADMIN.FEEDBACK },
+      {
+        title: 'Contact Subscriber',
+        icon: <MdEmail size={20} />,
+        path: ROUTES.ADMIN.CONTACT
+      },
       { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ }
     ],
     []

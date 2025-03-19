@@ -14,10 +14,13 @@ import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
-import { Button, Input, message, Modal, Rate } from 'antd'
+import { Button, Form, Input, message, Modal, Rate } from 'antd'
 import { style } from '@/theme'
 import { createFeedBack, getAllFeedBack } from '@/services/feedbackService'
 import dayjs from 'dayjs'
+import { createContact } from '@/services/contactService'
+import { useForm } from 'antd/es/form/Form'
+import TextArea from 'antd/es/input/TextArea'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -385,11 +388,25 @@ export default function Home() {
       localStorage.setItem('hasSubmittedFeedback', 'true')
       setIsFeedbackModalOpen(false)
       message.success('Feedback create successfully')
-      getListFeedback() // Refresh danh sách feedback
+      getListFeedback()
     } catch (error) {
       console.error('Failed to submit feedback:', error)
     }
   }
+  //Contact
+  const [form] = useForm()
+
+  const handleCreate = async (values) => {
+    try {
+      await createContact(values.fullName, values.email, values.message)
+      message.success('Your message has been sent successfully!')
+      form.resetFields()
+    } catch (error) {
+      message.error('Failed to send your message. Please try again later.')
+      console.error('Error creating contact:', error)
+    }
+  }
+
   return (
     <div className='bg-white'>
       {/* --Background image */}
@@ -555,26 +572,42 @@ export default function Home() {
           <p className='m-0 font-light'>Please feel free to contact us.</p>
         </div>
         <div>
-          <form action='' className='flex flex-col gap-4'>
-            <label htmlFor='fullName' className='font-bold'>
-              Name*
-            </label>
-            <input type='text' name='fullName' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
-            <label htmlFor='email' className='font-bold'>
-              Email*
-            </label>
-            <input type='text' name='email' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
-            <label htmlFor='message' className='font-bold'>
-              Message*
-            </label>
-            <textarea
-              rows={'4'}
-              cols={'15'}
+          <Form form={form} onFinish={handleCreate} action='' className='flex flex-col gap-4' layout='vertical'>
+            <Form.Item
+              name='fullName'
+              label='Name'
+              className='font-bold'
+              rules={[{ required: true, message: 'Please enter your name!' }]}
+            >
+              <Input type='text' name='fullName' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
+            </Form.Item>
+            <Form.Item
+              name='email'
+              label='Email'
+              className='font-bold'
+              rules={[
+                { required: true, message: 'Please enter your email!' },
+                { type: 'email', message: 'Please enter a valid email!' }
+              ]}
+            >
+              <Input type='text' name='email' placeholder='' className='border border-gray-400 rounded-2xl p-1' />
+            </Form.Item>
+            <Form.Item
               name='message'
-              className='border border-gray-400 rounded-2xl p-1'
-            ></textarea>
-            <input type='submit' className='bg-red-500 px-4 py-2 rounded-2xl text-white font-bold' />
-          </form>
+              label='Message'
+              className='font-bold'
+              rules={[{ required: true, message: 'Please enter your message!' }]}
+            >
+              <TextArea
+                rows={'4'}
+                cols={'15'}
+                name='message'
+                className='border border-gray-400 rounded-2xl p-1'
+              ></TextArea>
+            </Form.Item>
+            <Button htmlType='submit' type='primary' className='bg-red-500 px-4 py-2 rounded-2xl text-white font-bold'> Send
+              </Button>
+          </Form>
         </div>
       </div>
 
