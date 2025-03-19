@@ -1,11 +1,13 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
+import { FaTools } from 'react-icons/fa'
 import {
   FiAlertCircle,
   FiBell,
   // FiBarChart2,
   // FiBell,
-  FiDollarSign, FiHelpCircle,
+  FiDollarSign,
+  FiHelpCircle,
   // FiHelpCircle,
   FiHome,
   FiPackage,
@@ -178,7 +180,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
         icon: <FiPackage size={20} />,
         path: ROUTES.ADMIN.GROWTHMETRICS
       },
-      { title: 'Feature', icon: <FiBell size={20} />, path: ROUTES.ADMIN.FEATURE },
+      { title: 'Feature', icon: <FaTools size={20} />, path: ROUTES.ADMIN.FEATURE },
       { title: 'Feedback', icon: <FiAlertCircle size={20} />, path: ROUTES.ADMIN.FEEDBACK },
       { title: 'FAQ', icon: <FiHelpCircle size={20} />, path: ROUTES.ADMIN.FAQ }
     ],

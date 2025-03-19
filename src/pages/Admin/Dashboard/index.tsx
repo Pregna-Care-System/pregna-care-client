@@ -161,7 +161,7 @@ const AdminDashboard = () => {
       },
       yaxis: {
         title: {
-          text: 'Revenue ($)'
+          text: 'Revenue (VNĐ)'
         }
       },
       legend: {
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
               <div className='flex items-start justify-between'>
                 <div>
                   <h2 className='text-2xl font-bold text-gray-800 mt-2'>
-                    {stat.formattedValue} {stat.title === 'Total Revenue' ? '$' : ''}
+                    {stat.formattedValue} {stat.title === 'Total Revenue' ? 'VNĐ' : ''}
                   </h2>
                   <p className='text-gray-600 text-sm font-medium'>{stat.title}</p>
                   <div className='flex items-center mt-2'>
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                           {transaction.membershipPlan}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                          {formatNumber(transaction.price)} $
+                          {formatNumber(transaction.price)} (VNĐ)
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
