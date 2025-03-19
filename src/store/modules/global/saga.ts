@@ -699,7 +699,7 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.shortDescription,
       action.payload.featuredImageUrl,
       action.payload.isVisible,
-      action.payload.type || null,
+      action.payload.type || 'blog',
       action.payload.status || '',
       action.payload.sharedChartData || null
     )

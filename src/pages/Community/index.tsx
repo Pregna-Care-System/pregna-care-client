@@ -9,6 +9,7 @@ import { MdMoreHoriz } from 'react-icons/md'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise } from 'react-icons/fa'
 import PostCreationModal from '@/components/PostCreationModal'
+import { getAllReactionByBlogId, createPostReaction } from '@/services/blogService'
 
 const { TabPane } = Tabs
 
@@ -31,6 +32,11 @@ interface BlogPost {
   tags?: Tag[]
   blogTags?: { tag: Tag }[]
   userReaction?: string
+  reactions?: {
+    type: string
+    count: number
+  }[]
+  reactionsCount?: number
 }
 
 interface Tag {
@@ -55,13 +61,6 @@ const CommunityPage = () => {
     dispatch({ type: 'GET_ALL_TAGS' })
     setLoading(false)
   }, [dispatch])
-
-  // For debugging - log the blog posts to see their structure
-  useEffect(() => {
-    if (blogPosts && blogPosts.length > 0) {
-      console.log('Blog posts with tags:', blogPosts)
-    }
-  }, [blogPosts])
 
   // Filter blog posts to get only chart posts with empty status and regular posts
   const discussionPosts = blogPosts.filter((post: BlogPost) => !post.type || post.type !== 'blog')
@@ -154,24 +153,124 @@ const CommunityPage = () => {
     // Extract tags from either tags or blogTags property
     const displayTags = post.tags || post.blogTags?.map((bt) => bt.tag) || []
     const [showAllTags, setShowAllTags] = useState(false)
-
-    // Render tag with small dot indicator
-    const renderTag = (tag: Tag) => (
-      <span
-        key={tag.id}
-        className='inline-flex items-center px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full truncate max-w-[120px]'
-        title={tag.name}
-      >
-        <span className='w-1.5 h-1.5 rounded-full bg-pink-400 mr-1'></span>
-        {tag.name}
-      </span>
-    )
-
-    // State for reaction hover panel
-    const [showReactions, setShowReactions] = useState(false)
+    // State for post reactions
+    const [postReactions, setPostReactions] = useState<any[]>([])
+    const [totalReactions, setTotalReactions] = useState(post.reactionsCount || post.likes || 0)
+    const [loadingReactions, setLoadingReactions] = useState(false)
     const [selectedReaction, setSelectedReaction] = useState<string>(post.userReaction || '')
-    const [reactionTimeout, setReactionTimeout] = useState<NodeJS.Timeout | null>(null)
-    const reactionRef = useRef<HTMLDivElement>(null)
+
+    // Get user's reaction if exists
+    useEffect(() => {
+      if (currentUser && postReactions.length > 0) {
+        // Check if userId format matches
+        const userReaction = postReactions.find((r) => {
+          return r.userId === currentUser.id
+        })
+
+        if (userReaction) {
+          setSelectedReaction(getReactionTypeFromNumber(userReaction.type.toString()))
+        } else {
+          setSelectedReaction('')
+        }
+      }
+    }, [postReactions, currentUser])
+
+    // Fetch post reactions when component mounts
+    useEffect(() => {
+      const fetchReactions = async () => {
+        try {
+          setLoadingReactions(true)
+
+          // Call API to get reactions
+          const response = await getAllReactionByBlogId(post.id)
+
+          if (response && response.success) {
+            if (response.response) {
+              let reactions = response.response
+
+              // Ensure we have an array of reactions
+              if (Array.isArray(reactions)) {
+                setPostReactions(reactions)
+                setTotalReactions(reactions.length)
+              } else if (typeof reactions === 'object') {
+                // Handle case where response might be an object with a nested reactions array
+                if (reactions.items && Array.isArray(reactions.items)) {
+                  setPostReactions(reactions.items)
+                  setTotalReactions(reactions.items.length)
+                } else {
+                  console.warn('Reactions is an object but not in expected format:', reactions)
+                  setPostReactions([])
+                  setTotalReactions(0)
+                }
+              } else {
+                console.warn('Unexpected reaction data format:', reactions)
+                setPostReactions([])
+                setTotalReactions(0)
+              }
+            } else {
+              setPostReactions([])
+              setTotalReactions(0)
+            }
+          } else {
+            console.warn('API returned unsuccessful response:', response)
+            setPostReactions([])
+            setTotalReactions(0)
+          }
+        } catch (error) {
+          console.error('Failed to fetch reactions:', error)
+          setPostReactions([])
+          setTotalReactions(0)
+        } finally {
+          setLoadingReactions(false)
+        }
+      }
+
+      fetchReactions()
+    }, [post.id])
+
+    // Map reaction type number to reaction name
+    const getReactionTypeFromNumber = (type: string) => {
+      const numberToReaction: Record<string, string> = {
+        '1': 'Like',
+        '2': 'Love',
+        '3': 'Haha',
+        '4': 'Wow',
+        '5': 'Sad',
+        '6': 'Angry'
+      }
+      return numberToReaction[type] || 'Like'
+    }
+
+    // Calculate reaction counts by type
+    const getReactionCounts = () => {
+      const counts: Record<string, number> = {}
+
+      if (!postReactions || !Array.isArray(postReactions) || postReactions.length === 0) {
+        return counts
+      }
+
+      try {
+        postReactions.forEach((reaction) => {
+          if (!reaction) return
+
+          // Handle different possible formats of reaction type data
+          let reactionType = '1' // Default to 'Like'
+
+          if (reaction.type !== undefined) {
+            reactionType = reaction.type.toString()
+          } else if (reaction.reactionType !== undefined) {
+            reactionType = reaction.reactionType.toString()
+          }
+
+          // Increment the count for this type
+          counts[reactionType] = (counts[reactionType] || 0) + 1
+        })
+      } catch (error) {
+        console.error('Error counting reactions:', error)
+      }
+
+      return counts
+    }
 
     // Reaction configuration
     const reactions = [
@@ -183,49 +282,121 @@ const CommunityPage = () => {
       { name: 'Angry', icon: <FaRegAngry size={20} className='text-orange-500' />, color: 'text-orange-500' }
     ]
 
+    // State for reaction hover panel
+    const [showReactions, setShowReactions] = useState(false)
+    const reactionRef = useRef<HTMLDivElement>(null)
+
     // Handler for hovering on the like button
     const handleLikeHover = () => {
-      // Clear any existing timeout to prevent unwanted state changes
-      if (reactionTimeout) {
-        clearTimeout(reactionTimeout)
-        setReactionTimeout(null)
-      }
+      setShowReactions(true)
+    }
+
+    // Keep reactions visible when hovering over them
+    const handleReactionsHover = () => {
       setShowReactions(true)
     }
 
     // Handler for leaving the like button or reactions area
     const handleMouseLeave = () => {
-      // Set a timeout to hide reactions with a small delay
-      // to allow moving mouse to the reactions panel
-      const timeout = setTimeout(() => {
+      setTimeout(() => {
         setShowReactions(false)
-      }, 300)
-      setReactionTimeout(timeout)
-    }
-
-    // Keep reactions visible when hovering over them
-    const handleReactionsHover = () => {
-      if (reactionTimeout) {
-        clearTimeout(reactionTimeout)
-        setReactionTimeout(null)
-      }
+      }, 1000)
     }
 
     // Handle reaction selection
-    const handleReaction = (reaction: string) => {
-      setSelectedReaction(reaction)
-      setShowReactions(false)
+    const handleReaction = async (reaction: string) => {
+      // If user is not logged in, show error message
+      if (!currentUser || !currentUser.id) {
+        message.error('Please login to react to posts')
+        return
+      }
 
-      // Here you would dispatch an action to update the reaction on the server
-      dispatch({
-        type: 'UPDATE_POST_REACTION',
-        payload: {
-          postId: post.id,
-          reaction: reaction
+      try {
+        // Check if user is toggling the same reaction (removing it)
+        const isRemovingReaction = reaction === selectedReaction
+
+        // Update local state immediately for UI responsiveness
+        setSelectedReaction(isRemovingReaction ? '' : reaction)
+        setShowReactions(false)
+
+        // Convert reaction name to numeric type
+        const reactionMap: Record<string, string> = {
+          Like: '1',
+          Love: '2',
+          Haha: '3',
+          Wow: '4',
+          Sad: '5',
+          Angry: '6'
         }
-      })
 
-      message.success(`Reacted with ${reaction}`)
+        // Set type value based on whether we're adding or removing a reaction
+        let type = '0'
+        if (!isRemovingReaction) {
+          type = reactionMap[reaction] || '1'
+        }
+
+        // Call the API
+        try {
+          const result = await createPostReaction(currentUser.id, post.id, type)
+
+          if (result && result.success) {
+            // Success message based on operation
+            if (isRemovingReaction) {
+              message.success('Reaction removed')
+
+              // Immediately update local reaction count
+              const updatedReactions = postReactions.filter((r) => r.userId !== currentUser.id)
+              setPostReactions(updatedReactions)
+              setTotalReactions((prevCount) => Math.max(0, prevCount - 1))
+            } else {
+              message.success(`Reacted with ${reaction}`)
+
+              // Check if the user had a previous reaction
+              const existingReaction = postReactions.find((r) => r.userId === currentUser.id)
+
+              if (existingReaction) {
+                // Update the existing reaction
+                const updatedReactions = postReactions.map((r) =>
+                  r.userId === currentUser.id ? { ...r, type: reactionMap[reaction] } : r
+                )
+                setPostReactions(updatedReactions)
+              } else {
+                // Add a new reaction
+                const newReaction = {
+                  userId: currentUser.id,
+                  type: reactionMap[reaction],
+                  blogId: post.id
+                }
+                setPostReactions([...postReactions, newReaction])
+                setTotalReactions((prevCount) => prevCount + 1)
+              }
+            }
+          } else {
+            throw new Error(result?.message || 'Failed to update reaction')
+          }
+        } catch (apiError) {
+          console.error('API error:', apiError)
+          message.error(`Failed to ${isRemovingReaction ? 'remove' : 'add'} reaction`)
+          // Revert local state on error
+          setSelectedReaction(isRemovingReaction ? reaction : '')
+          return
+        }
+
+        // Refresh the reactions for this post
+        const response = await getAllReactionByBlogId(post.id)
+        if (response && response.success && response.response) {
+          if (Array.isArray(response.response)) {
+            setPostReactions(response.response)
+            setTotalReactions(response.response.length)
+          }
+        }
+
+        // Manually refresh the posts after successful update
+        dispatch({ type: 'GET_ALL_BLOGS' })
+      } catch (error) {
+        console.error('Error updating reaction:', error)
+        message.error('Failed to update reaction')
+      }
     }
 
     // Get active reaction display
@@ -251,6 +422,49 @@ const CommunityPage = () => {
         <>
           {reaction.icon}
           <span className={`ml-2 ${reaction.color}`}>{reaction.name}</span>
+        </>
+      )
+    }
+
+    // Like count section (updated to use fetched reactions)
+    const renderReactionCounts = () => {
+      if (loadingReactions) {
+        return <span className='text-gray-400 text-xs'>Loading reactions...</span>
+      }
+
+      const reactionCounts = getReactionCounts()
+
+      const reactionTypes = Object.keys(reactionCounts)
+        .sort((a, b) => reactionCounts[b] - reactionCounts[a])
+        .slice(0, 3)
+
+      if (reactionTypes.length === 0) {
+        return <span className='text-gray-400 text-xs'>No reactions yet</span>
+      }
+
+      return (
+        <>
+          <div className='flex -space-x-1'>
+            {reactionTypes.map((type, index) => {
+              const reactionName = getReactionTypeFromNumber(type)
+              const reactionObj = reactions.find((r) => r.name === reactionName)
+              const count = reactionCounts[type]
+
+              return (
+                <Tooltip key={index} title={`${reactionName}: ${count}`} placement='top'>
+                  <span
+                    className='relative inline-block rounded-full bg-white border border-gray-100 shadow-sm'
+                    style={{ zIndex: 10 - index, marginLeft: index > 0 ? '-8px' : '0' }}
+                  >
+                    {reactionObj?.icon || (
+                      <AiOutlineLike size={16} className='bg-blue-500 text-white rounded-full p-1' />
+                    )}
+                  </span>
+                </Tooltip>
+              )
+            })}
+          </div>
+          <span className='text-gray-500 text-sm ml-2'>{totalReactions}</span>
         </>
       )
     }
@@ -304,7 +518,16 @@ const CommunityPage = () => {
               {displayTags.length <= 3 || showAllTags ? (
                 // Show all tags if there are 3 or fewer or if showAllTags is true
                 <>
-                  {displayTags.map(renderTag)}
+                  {displayTags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className='inline-flex items-center px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full truncate max-w-[120px]'
+                      title={tag.name}
+                    >
+                      <span className='w-1.5 h-1.5 rounded-full bg-pink-400 mr-1'></span>
+                      {tag.name}
+                    </span>
+                  ))}
                   {showAllTags && displayTags.length > 3 && (
                     <button
                       onClick={(e) => {
@@ -321,7 +544,16 @@ const CommunityPage = () => {
               ) : (
                 // Show first 2 tags and a count for the rest
                 <>
-                  {displayTags.slice(0, 2).map(renderTag)}
+                  {displayTags.slice(0, 2).map((tag) => (
+                    <span
+                      key={tag.id}
+                      className='inline-flex items-center px-2 py-1 bg-pink-50 text-pink-600 text-xs rounded-full truncate max-w-[120px]'
+                      title={tag.name}
+                    >
+                      <span className='w-1.5 h-1.5 rounded-full bg-pink-400 mr-1'></span>
+                      {tag.name}
+                    </span>
+                  ))}
                   <button
                     onClick={(e) => {
                       e.preventDefault()
@@ -366,14 +598,30 @@ const CommunityPage = () => {
         )}
 
         {/* Like count */}
-        {post.likes && post.likes > 0 && (
-          <div className='px-4 py-2 flex items-center border-t border-gray-100'>
-            <div className='bg-blue-500 text-white rounded-full p-1 text-xs'>
-              <AiOutlineLike size={12} />
-            </div>
-            <span className='text-gray-500 text-sm ml-2'>{post.likes}</span>
+        <div className='px-4 py-2 flex items-center border-t border-gray-100'>
+          <div className='flex'>
+            {/* Show post.likes as a fallback if no API-fetched reactions are available */}
+            {postReactions.length > 0 ? (
+              renderReactionCounts()
+            ) : post.likes && post.likes > 0 ? (
+              <>
+                <div className='bg-blue-500 text-white rounded-full p-1 text-xs'>
+                  <AiOutlineLike size={12} />
+                </div>
+                <span className='text-gray-500 text-sm ml-2'>{post.likes}</span>
+              </>
+            ) : post.reactionsCount && post.reactionsCount > 0 ? (
+              <>
+                <div className='bg-blue-500 text-white rounded-full p-1 text-xs'>
+                  <AiOutlineLike size={12} />
+                </div>
+                <span className='text-gray-500 text-sm ml-2'>{post.reactionsCount}</span>
+              </>
+            ) : (
+              <span className='text-gray-400 text-xs'>No reactions yet</span>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Action buttons */}
         <div className='px-2 py-1 flex justify-between border-t border-gray-100 relative'>
@@ -383,17 +631,17 @@ const CommunityPage = () => {
               ref={reactionRef}
               onMouseEnter={handleReactionsHover}
               onMouseLeave={handleMouseLeave}
-              className='absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg px-2 py-1 flex items-center space-x-2 z-10'
+              className='absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg px-2 py-1 flex items-center space-x-2 z-10 transition-all duration-300 ease-in-out'
               style={{
                 transform: 'translateY(-5px)',
-                transition: 'all 0.2s ease-in-out'
+                animation: 'fadeIn 0.2s ease-in-out'
               }}
             >
               {reactions.map((reaction) => (
                 <Tooltip key={reaction.name} title={reaction.name} placement='top'>
                   <div
                     onClick={() => handleReaction(reaction.name)}
-                    className='hover:bg-gray-100 p-2 rounded-full cursor-pointer transform transition-transform hover:scale-125'
+                    className={`hover:bg-gray-100 p-2 rounded-full cursor-pointer transform transition-transform hover:scale-125 ${selectedReaction === reaction.name ? 'bg-gray-100 scale-110' : ''}`}
                   >
                     {reaction.icon}
                   </div>

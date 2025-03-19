@@ -56,7 +56,7 @@ const BlogDashboard = () => {
       content: post.content || '',
       tagIds: post.tags?.map((tag) => tag.id) || [],
       featuredImageUrl: post.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f',
-      isVisible: post.isVisible
+      isVisible: post.isVisible,
     })
     setIsModalVisible(true)
   }
@@ -182,11 +182,7 @@ const BlogDashboard = () => {
                 <div className='flex flex-wrap gap-2 mb-4'>
                   {post.tags?.map((tag) => {
                     const tagData = tags.find((t) => t.name === tag.name)
-                    return (
-                      <Tag key={tag} color={tagData?.color}>
-                          
-                      </Tag>
-                    )
+                    return <Tag key={tag} color={tagData?.color}></Tag>
                   })}
                 </div>
                 <div className='flex justify-between items-center'>
