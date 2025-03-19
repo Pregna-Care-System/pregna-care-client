@@ -340,9 +340,6 @@ export default function Header() {
         <button onClick={() => handleNavClick(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
           Pricing
         </button>
-        <button onClick={() => handleNavClick(ROUTES.NUTRITION_AND_FITNESS)} className='header_item'>
-          Nutrition and Fitness
-        </button>
         <button onClick={() => handleNavClick(ROUTES.COMMUNITY)} className='header_item'>
           Community
         </button>

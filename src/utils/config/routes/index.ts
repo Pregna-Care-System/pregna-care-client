@@ -18,7 +18,6 @@ const ROUTES = {
   COMMUNITY: '/community',
   COMMUNITY_DETAILS: '/community/:id',
   SERVICES: '/services',
-  NUTRITION_AND_FITNESS: '/nutrition-and-fitness',
   BABY_NAME: '/baby-name',
   BABY_SHOP: '/baby-shop',
   MEMBESHIP_PLANS: '/membership-plans',
