@@ -123,7 +123,7 @@ const LayoutWrapper = styled.div`
       border-top: 1px solid #f0f0f0;
       margin-top: 0.5rem;
       color: #ff6b81;
-
+      cursor: pointer;
       &:hover {
         background-color: #fff1f3;
       }
@@ -206,14 +206,8 @@ export default function AdminLayout({ children }) {
                 <Link to={ROUTES.PROFILE}>
                   <FaUser /> My Profile
                 </Link>
-                <Link to={ROUTES.MEMBER.DASHBOARD}>
-                  <FaTachometerAlt /> Member Dashboard
-                </Link>
                 <Link to={ROUTES.PROFILE}>
                   <FaCog /> Settings
-                </Link>
-                <Link to={ROUTES.SCHEDULE}>
-                  <FaCalendarAlt /> My Schedule
                 </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

@@ -5,6 +5,7 @@ import { FileAddFilled, StarOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Form, Input, Modal, Row, Select, Space, Statistic, Table, Upload, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
+import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -267,19 +268,13 @@ export default function MemberShipPlanAdminPage() {
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Membership Plans</h1>
         <div className='flex space-x-4'>
           <button
-            onClick={handleModalClick}
-            className='flex items-center bg-white px-4 py-4 rounded-lg shadow-md hover:shadow-lg transition-all'
-          >
-            <FileAddFilled className='w-5 h-5 text-[#7aeecb] mr-2' />
-            <span className='text-[#7aeecb] font-semibold'>Create</span>
-          </button>
-          <button
-            className={`flex items-center bg-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+            className={`flex items-center h-1/3 bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleModalClick}
           >
-            <FiDownload className='w-5 h-5 text-red-500 mr-2' />
-            <span className='text-red-500 font-semibold'> Report</span>
+            <MdOutlineCreateNewFolder className='w-5 h-5 text-[#EE7A7A] mr-2' />
+            <span className='text-[#EE7A7A] font-semibold text-sm'>Create</span>
           </button>
         </div>
       </div>
