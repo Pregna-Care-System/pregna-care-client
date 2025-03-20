@@ -1,19 +1,21 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { FaHeart, FaComment, FaSearch, FaMagic, FaStar, FaBaby } from 'react-icons/fa'
+import { FaBaby, FaComment, FaHeart, FaMagic, FaSearch, FaStar } from 'react-icons/fa'
 
 const BabyNameApp = () => {
   const [newComment, setNewComment] = useState('')
   const [selectedName, setSelectedName] = useState<GeneratedName | null>(null)
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<{ 
-    name: string;
-    meaning: string;
-    popularity: string;
-    parentHopes: string;
-    similarNames: string[];
-    annualFrequency: string;
-  }[]>([]);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<
+    {
+      name: string
+      meaning: string
+      popularity: string
+      parentHopes: string
+      similarNames: string[]
+      annualFrequency: string
+    }[]
+  >([])
 
   const handleSearch = () => {
     const results = [
@@ -33,11 +35,24 @@ const BabyNameApp = () => {
         similarNames: ['Alex', 'Xander', 'Lex'],
         annualFrequency: '15,000'
       }
-    ];
+    ]
 
-    const filteredResults = results.filter(result => result.name.toLowerCase() === searchQuery.toLowerCase());
-    setSearchResults(filteredResults.length > 0 ? filteredResults : [{ name: 'No Information', meaning: '', popularity: '', parentHopes: '', similarNames: [], annualFrequency: '' }]);
-  };
+    const filteredResults = results.filter((result) => result.name.toLowerCase() === searchQuery.toLowerCase())
+    setSearchResults(
+      filteredResults.length > 0
+        ? filteredResults
+        : [
+            {
+              name: 'No Information',
+              meaning: '',
+              popularity: '',
+              parentHopes: '',
+              similarNames: [],
+              annualFrequency: ''
+            }
+          ]
+    )
+  }
 
   const [comments, setComments] = useState([
     {
@@ -568,8 +583,8 @@ const BabyNameApp = () => {
     </div>
   )
 
-  return ( 
-    <div className='min-h-screen bg-gradient-to-b from-pink-50 to-purple-50'> 
+  return (
+    <div className='min-h-screen bg-gradient-to-b from-pink-50 to-purple-50'>
       {/* Header Section */}
       <div className='relative h-[60vh] flex items-center justify-center overflow-hidden mt-14'>
         <div className='absolute inset-0'>
@@ -605,9 +620,9 @@ const BabyNameApp = () => {
           />
           <button
             onClick={() => {
-              handleSearch();
-              setSearchResults([]); // Reset animation on new search
-              setTimeout(handleSearch, 50);
+              handleSearch()
+              setSearchResults([]) // Reset animation on new search
+              setTimeout(handleSearch, 50)
             }}
             className='bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2'
           >
@@ -616,24 +631,38 @@ const BabyNameApp = () => {
         </div>
         <div className='mt-6'>
           {searchResults.map((result, index) => (
-            <motion.div 
-              key={index} 
-              className='border rounded-lg p-4 bg-white shadow-md mt-4' 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.div
+              key={index}
+              className='border rounded-lg p-4 bg-white shadow-md mt-4'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <h3 className='text-xl font-semibold text-purple-800 flex items-center gap-2'><FaBaby /> {result.name}</h3>
+              <h3 className='text-xl font-semibold text-purple-800 flex items-center gap-2'>
+                <FaBaby /> {result.name}
+              </h3>
               {result.name !== 'No Information' ? (
                 <>
-                  <p className='text-gray-700'><strong>Meaning:</strong> {result.meaning}</p>
-                  <p className='text-gray-700'><strong>Popularity:</strong> {result.popularity}</p>
-                  <p className='text-gray-700'><strong>Parent Hopes:</strong> {result.parentHopes}</p>
-                  <p className='text-gray-700'><strong>Similar Names:</strong> {result.similarNames.join(', ')}</p>
-                  <p className='text-gray-700'><strong>Annual Frequency:</strong> {result.annualFrequency}</p>
+                  <p className='text-gray-700'>
+                    <strong>Meaning:</strong> {result.meaning}
+                  </p>
+                  <p className='text-gray-700'>
+                    <strong>Popularity:</strong> {result.popularity}
+                  </p>
+                  <p className='text-gray-700'>
+                    <strong>Parent Hopes:</strong> {result.parentHopes}
+                  </p>
+                  <p className='text-gray-700'>
+                    <strong>Similar Names:</strong> {result.similarNames.join(', ')}
+                  </p>
+                  <p className='text-gray-700'>
+                    <strong>Annual Frequency:</strong> {result.annualFrequency}
+                  </p>
                 </>
               ) : (
-                <p className='text-gray-700 text-center text-lg'><FaStar /> Please choose another suitable name for more information!!! </p>
+                <p className='text-gray-700 text-center text-lg'>
+                  <FaStar /> Please choose another suitable name for more information!!!{' '}
+                </p>
               )}
             </motion.div>
           ))}
@@ -648,7 +677,7 @@ const BabyNameApp = () => {
               key={term}
               className='px-4 py-2 bg-white rounded-full shadow-md hover:bg-gradient-to-r from-purple-200 to-pink-200 transition-colors text-center'
               onClick={() => {
-                setSearchQuery(term);
+                setSearchQuery(term)
               }}
             >
               {term}

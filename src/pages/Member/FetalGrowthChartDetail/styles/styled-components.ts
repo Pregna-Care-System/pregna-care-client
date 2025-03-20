@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Layout, Card, Alert } from 'antd'
+import { Alert, Card, Layout } from 'antd'
 
 // Layout components
 export const StyledLayout = styled(Layout)`

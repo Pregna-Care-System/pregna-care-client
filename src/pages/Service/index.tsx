@@ -128,13 +128,14 @@ interface Feature {
   featureName: string
   description: string
 }
+
 const featureRoutes: { [key: string]: string } = {
   'Generate baby name': ROUTES.BABY_NAME,
   'Shoppe for mommy': ROUTES.BABY_SHOP,
-  'Blog': ROUTES.BLOG,
-  'Community': ROUTES.COMMUNITY,
+  Blog: ROUTES.BLOG,
+  Community: ROUTES.COMMUNITY,
   'Tracking Pregnancy': ROUTES.MEMBER.DASHBOARD,
-  'Remider schedule': ROUTES.MEMBER.SCHEDULE,
+  'Remider schedule': ROUTES.MEMBER.SCHEDULE
   // 'Entertainment Games': ROUTES.MEMBER.GAMES,
 }
 const MommyServicesPage = () => {

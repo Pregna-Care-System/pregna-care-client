@@ -1,7 +1,7 @@
 import type React from 'react'
-import { Modal, Form, Input, Button, Row, Col, Divider } from 'antd'
+import { Button, Col, Divider, Form, Input, Modal, Row } from 'antd'
 import type { FormInstance } from 'antd/lib/form'
-import { FaEdit, FaCalendarAlt } from 'react-icons/fa'
+import { FaCalendarAlt, FaEdit } from 'react-icons/fa'
 import styles from './styles.module.css'
 
 interface FormItem {

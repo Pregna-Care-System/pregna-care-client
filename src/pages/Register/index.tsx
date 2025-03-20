@@ -1,5 +1,5 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
 import { registerAccount } from '@/services/userService'

@@ -1,6 +1,5 @@
 import { selectIsAuthenticated } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
-import { useContext } from 'react'
 import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 

@@ -1,5 +1,5 @@
 import { selectTransactionInfo } from '@/store/modules/global/selector'
-import { Avatar, Button, Input, Select, Table } from 'antd'
+import { Button, Input, Select, Table } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -68,13 +68,13 @@ export default function TransactionPage() {
       <div className='flex justify-between mb-5'>
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Transaction</h1>
         <button
-            className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
-            <span className='text-[#EE7A7A] font-semibold'>Report</span>
-          </button>
+          className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
+          <span className='text-[#EE7A7A] font-semibold'>Report</span>
+        </button>
       </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>

@@ -4,9 +4,12 @@ This directory contains reusable components that can be used across the applicat
 
 ## Component Consolidation
 
-The chart sharing functionality has been consolidated into a single reusable component. The old `ShareChartModal` component in `src/pages/Member/FetalGrowthChartDetail/Components/ShareChartModal` has been replaced with the new `ChartShareModal` component in this directory.
+The chart sharing functionality has been consolidated into a single reusable component. The old `ShareChartModal`
+component in `src/pages/Member/FetalGrowthChartDetail/Components/ShareChartModal` has been replaced with the new
+`ChartShareModal` component in this directory.
 
-The `EnhancedFetalChart` component has been updated to use the new `ChartShareModal` component, ensuring consistent chart sharing functionality across the application.
+The `EnhancedFetalChart` component has been updated to use the new `ChartShareModal` component, ensuring consistent
+chart sharing functionality across the application.
 
 ## FroalaEditorWrapper
 

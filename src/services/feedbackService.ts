@@ -1,8 +1,8 @@
 import request from '@/utils/axiosClient'
 
 export const getAllFeedBack = async () => {
-    const res = await request.get('/FeedBack')
-    return res
+  const res = await request.get('/FeedBack')
+  return res
 }
 
 export const createFeedBack = async (userId: string, content: string, rating: number) => {

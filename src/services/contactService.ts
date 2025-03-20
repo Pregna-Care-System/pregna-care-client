@@ -8,10 +8,10 @@ export const createContact = async (fullName: string, email: string, message: st
   try {
     const apiCallerId = 'create Contact'
     await request.post<MODEL.IResponseBase>('/Contact', {
-        apiCallerId,
-        fullName,
-        email,
-        message
+      apiCallerId,
+      fullName,
+      email,
+      message
     })
   } catch (error) {
     console.log('Create failed', error)

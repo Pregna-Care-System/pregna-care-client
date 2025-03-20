@@ -15,6 +15,7 @@ interface CarouselMembershipPlansProps {
   currentPlanName: string
   recommend: string
 }
+
 export default function CarouselMembershipPlans({
   membershipPlans,
   selectedPlan,
@@ -22,7 +23,7 @@ export default function CarouselMembershipPlans({
   currentPlanName,
   recommend
 }: CarouselMembershipPlansProps) {
-console.log('hhh',recommend)
+  console.log('hhh', recommend)
   const renderMembershipPlans = membershipPlans.map((plan: MODEL.PlanResponse) => {
     console.log('huhu', plan.membershipPlanId)
     return (

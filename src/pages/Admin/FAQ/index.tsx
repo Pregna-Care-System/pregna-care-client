@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Modal, Form, Input, InputNumber, message, Space } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, DownCircleOutlined } from '@ant-design/icons'
+import { Button, Form, Input, InputNumber, message, Modal, Space, Table } from 'antd'
+import { DeleteOutlined, DownCircleOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import {
-  getAllFAQCategories,
   createFAQ,
-  updateFAQ,
-  deleteFAQ,
   createFAQCategory,
-  updateFAQCategory,
-  deleteFAQCategory
+  deleteFAQ,
+  deleteFAQCategory,
+  getAllFAQCategories,
+  updateFAQ,
+  updateFAQCategory
 } from '@/services/faqService'
 
 interface FAQCategory {

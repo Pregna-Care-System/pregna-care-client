@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Modal, Select, Input, Switch, Upload, message, Tag, Tooltip, Form, Button } from 'antd'
-import { FiEdit2, FiTrash2, FiImage, FiSearch, FiPlus } from 'react-icons/fi'
+import { useCallback, useEffect, useState } from 'react'
+import { Button, Form, Input, message, Modal, Select, Switch, Tag, Tooltip, Upload } from 'antd'
+import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { useDispatch, useSelector } from 'react-redux'
@@ -56,7 +56,7 @@ const BlogDashboard = () => {
       content: post.content || '',
       tagIds: post.tags?.map((tag) => tag.id) || [],
       featuredImageUrl: post.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f',
-      isVisible: post.isVisible,
+      isVisible: post.isVisible
     })
     setIsModalVisible(true)
   }

@@ -523,7 +523,9 @@ export default function Home() {
       {/* --FAQ */}
       <div className='container mx-auto p-8'>
         <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
-          <div className='bg-red-500 w-16 h-1'></div>FAQs<div className='bg-red-500 w-16 h-1'></div>
+          <div className='bg-red-500 w-16 h-1'></div>
+          FAQs
+          <div className='bg-red-500 w-16 h-1'></div>
         </h1>
         <div>
           <CollapseFAQ />
@@ -533,7 +535,9 @@ export default function Home() {
       {/* Testimonials */}
       <div className='bg-red-50 p-8 rounded-xl'>
         <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
-          <div className='bg-red-500 w-16 h-1'></div>Testimonials<div className='bg-red-500 w-16 h-1'></div>
+          <div className='bg-red-500 w-16 h-1'></div>
+          Testimonials
+          <div className='bg-red-500 w-16 h-1'></div>
         </h1>
         <CarouselTestimonials testimonials={feedbackList} />
       </div>
@@ -566,7 +570,9 @@ export default function Home() {
       <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>
         <div className='flex flex-col items-center'>
           <h1 className='font-bold text-5xl my-8 flex items-center gap-4'>
-            <div className='bg-red-500 w-16 h-1'></div>Contact Us<div className='bg-red-500 w-16 h-1'></div>
+            <div className='bg-red-500 w-16 h-1'></div>
+            Contact Us
+            <div className='bg-red-500 w-16 h-1'></div>
           </h1>
           <p className='font-light'>We are honoured to receive your comments and suggestions.</p>
           <p className='m-0 font-light'>Please feel free to contact us.</p>
@@ -605,8 +611,10 @@ export default function Home() {
                 className='border border-gray-400 rounded-2xl p-1'
               ></TextArea>
             </Form.Item>
-            <Button htmlType='submit' type='primary' className='bg-red-500 px-4 py-2 rounded-2xl text-white font-bold'> Send
-              </Button>
+            <Button htmlType='submit' type='primary' className='bg-red-500 px-4 py-2 rounded-2xl text-white font-bold'>
+              {' '}
+              Send
+            </Button>
           </Form>
         </div>
       </div>

@@ -10,7 +10,7 @@ export default function ContactPage() {
     try {
       await createContact(values.fullName, values.email, values.message)
       message.success('Your message has been sent successfully!')
-      form.resetFields() 
+      form.resetFields()
     } catch (error) {
       message.error('Failed to send your message. Please try again later.')
       console.error('Error creating contact:', error)

@@ -1,10 +1,10 @@
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router-dom'
 import MainLayout from '@layouts/MainLayout'
-import { Fragment, Suspense, useEffect } from 'react'
+import { Fragment, Suspense } from 'react'
 import { adminRoutes, memberRoutes, privateRoutes, publicRoutes } from './routes'
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { selectIsAuthenticated, selectUserInfo } from './store/modules/global/selector'
 
 function App() {

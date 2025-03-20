@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react'
-import { Upload, Button, message, Progress, Spin, Modal } from 'antd'
-import { UploadOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons'
+import React, { useRef, useState } from 'react'
+import { Button, message, Modal, Progress, Upload } from 'antd'
+import { UploadOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface'
 import axios from 'axios'
 

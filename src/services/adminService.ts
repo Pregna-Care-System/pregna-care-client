@@ -48,4 +48,3 @@ export const updateFeature = async (data: any, id: string) => {
 }
 
 //FAQ
-

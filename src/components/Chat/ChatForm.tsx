@@ -1,20 +1,20 @@
-import { Form, Input, Button, Row, Col } from 'antd'
+import { Button, Col, Form, Input, Row } from 'antd'
 import { SendIcon } from 'lucide-react'
 
-export default function ChatForm({chatHistory, setChatHistory , generateChatResponse }) {
+export default function ChatForm({ chatHistory, setChatHistory, generateChatResponse }) {
   const [form] = Form.useForm()
 
   const handleSubmit = (values: any) => {
     console.log('Form values:', values.message)
-    if(!values.message?.trim()) return
+    if (!values.message?.trim()) return
 
     setChatHistory((history) => [...history, { role: 'user', text: values.message }])
     form.resetFields()
 
-    setTimeout(() => setChatHistory((history) => [...history, { role: 'mode', text: "Thinking..."}]))
+    setTimeout(() => setChatHistory((history) => [...history, { role: 'mode', text: 'Thinking...' }]))
     form.resetFields()
 
-    generateChatResponse([...chatHistory, {role: "user", text: values.message}])
+    generateChatResponse([...chatHistory, { role: 'user', text: values.message }])
   }
   return (
     <div>

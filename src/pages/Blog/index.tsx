@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
 
