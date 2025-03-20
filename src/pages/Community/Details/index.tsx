@@ -7,15 +7,39 @@ import {
   FaRegComment,
   FaShare,
   FaRegHeart,
-  FaHeart
+  FaHeart,
+  FaEdit,
+  FaTrash
 } from 'react-icons/fa'
+import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaRegSurprise } from 'react-icons/fa'
+import { AiFillLike } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo } from '@/store/modules/global/selector'
 import EnhancedFetalChart from '@/pages/Member/FetalGrowthChartDetail/Components/Charts/EnhancedFetalChart'
-import { Spin, message, Modal } from 'antd'
-import { createComment, getAllCommentByBlogId, getBlogById } from '@/services/blogService'
+import { Spin, message, Modal, Dropdown, Menu, Popconfirm, Tabs } from 'antd'
+import {
+  createComment,
+  getAllCommentByBlogId,
+  getBlogById,
+  updateComment,
+  deleteComment,
+  convertHtmlToPlainText,
+  getAllReactionByBlogId
+} from '@/services/blogService'
 import ROUTES from '@/utils/config/routes'
-import { MdClose } from 'react-icons/md'
+import { MdClose, MdMoreVert } from 'react-icons/md'
+
+const { TabPane } = Tabs
+
+// Add new interface for reactions
+interface Reaction {
+  id: string
+  userId: string
+  userName: string
+  userAvatar: string
+  type: string
+  createdAt: string
+}
 
 interface Comment {
   id: string
@@ -47,6 +71,30 @@ interface BlogPost {
   blogTags?: { tag: { id: string; name: string } }[]
 }
 
+/**
+ * Converts HTML content to plain text
+ * @param htmlContent HTML string to convert
+ * @returns Plain text without HTML tags
+ */
+const convertHtmlToPlainText = (htmlContent: string): string => {
+  if (!htmlContent) return ''
+
+  // Create a temporary DOM element
+  const tempElement = document.createElement('div')
+  tempElement.innerHTML = htmlContent
+
+  // Get the text content (this preserves line breaks and spacing)
+  const plainText = tempElement.textContent || tempElement.innerText || ''
+
+  return plainText.trim()
+}
+
+// In your component
+const stripHtmlForDisplay = (content: string) => {
+  const plainText = convertHtmlToPlainText(content)
+  return plainText
+}
+
 const CommunityCommentDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -62,12 +110,96 @@ const CommunityCommentDetails = () => {
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false)
   const [showAllTags, setShowAllTags] = useState(false)
 
+  // Add states for reactions modal
+  const [isReactionModalVisible, setIsReactionModalVisible] = useState(false)
+  const [postReactions, setPostReactions] = useState<Reaction[]>([])
+  const [loadingReactions, setLoadingReactions] = useState(false)
+
   // Create a ref for the reply input
   const replyInputRef = useRef<HTMLInputElement>(null)
 
-  // Get user information (you'll need to adapt this to your auth system)
-  const currentUser = useSelector(selectUserInfo) // Replace with your actual user selector
+  // Get user information
+  const currentUser = useSelector(selectUserInfo)
 
+  // Function to fetch reactions - MOVED HERE BEFORE ANY CALLS TO IT
+  const fetchReactions = async () => {
+    if (!id) return
+
+    try {
+      setLoadingReactions(true)
+      const response = await getAllReactionByBlogId(id)
+
+      if (response && response.success && response.response) {
+        let reactions = response.response
+
+        // Handle different response formats
+        if (Array.isArray(reactions)) {
+          setPostReactions(reactions)
+        } else if (typeof reactions === 'object') {
+          // Handle case where response might be an object with a nested reactions array
+          if (reactions.items && Array.isArray(reactions.items)) {
+            setPostReactions(reactions.items)
+          } else {
+            console.warn('Reactions is an object but not in expected format:', reactions)
+            setPostReactions([])
+          }
+        } else {
+          console.warn('Unexpected reaction data format:', reactions)
+          setPostReactions([])
+        }
+      } else {
+        setPostReactions([])
+      }
+    } catch (error) {
+      console.error('Failed to fetch reactions:', error)
+      setPostReactions([])
+    } finally {
+      setLoadingReactions(false)
+    }
+  }
+
+  // Show reactions modal
+  const showReactionsModal = async () => {
+    await fetchReactions()
+    setIsReactionModalVisible(true)
+  }
+
+  // Map reaction type number to reaction name and icon
+  const getReactionInfo = (type: string) => {
+    const numberToReaction: Record<string, { name: string; icon: JSX.Element; color: string }> = {
+      '1': { name: 'Like', icon: <AiFillLike size={16} className='text-blue-500' />, color: 'text-blue-500' },
+      '2': { name: 'Love', icon: <FaHeart size={16} className='text-red-500' />, color: 'text-red-500' },
+      '3': { name: 'Haha', icon: <FaRegLaughBeam size={16} className='text-yellow-500' />, color: 'text-yellow-500' },
+      '4': { name: 'Wow', icon: <FaRegSurprise size={16} className='text-yellow-500' />, color: 'text-yellow-500' },
+      '5': { name: 'Sad', icon: <FaRegSadTear size={16} className='text-yellow-500' />, color: 'text-yellow-500' },
+      '6': { name: 'Angry', icon: <FaRegAngry size={16} className='text-orange-500' />, color: 'text-orange-500' }
+    }
+
+    return (
+      numberToReaction[type] || {
+        name: 'Like',
+        icon: <AiFillLike size={16} className='text-blue-500' />,
+        color: 'text-blue-500'
+      }
+    )
+  }
+
+  // Group reactions by type for the tabs
+  const getReactionsByType = () => {
+    const reactionsByType: Record<string, Reaction[]> = {}
+
+    postReactions.forEach((reaction) => {
+      const { name } = getReactionInfo(reaction.type)
+      if (!reactionsByType[name]) {
+        reactionsByType[name] = []
+      }
+      reactionsByType[name].push(reaction)
+    })
+
+    return reactionsByType
+  }
+
+  // Rest of your functions...
   const handleCommentSubmit = async () => {
     if (commentText.trim() === '' || !id) return
 
@@ -203,8 +335,11 @@ const CommunityCommentDetails = () => {
   const formatContent = (content: string) => {
     if (!content) return ''
 
-    // Replace hashtags with styled spans
-    const parts = content.split(/(#[a-zA-Z0-9_]+)/g)
+    // First convert HTML to plain text
+    const plainText = convertHtmlToPlainText(content)
+
+    // Then handle hashtags on the plain text
+    const parts = plainText.split(/(#[a-zA-Z0-9_]+)/g)
 
     return parts.map((part, index) => {
       if (part.startsWith('#')) {
@@ -235,6 +370,7 @@ const CommunityCommentDetails = () => {
     if (id) {
       fetchPostDetails()
       fetchComments()
+      fetchReactions() // This should now work with no errors
     }
   }, [id])
 
@@ -289,6 +425,13 @@ const CommunityCommentDetails = () => {
   const ModalCommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => {
     // Create a local state for this specific comment's reply text
     const [localReplyText, setLocalReplyText] = useState('')
+    const [isEditing, setIsEditing] = useState(false)
+    const [editText, setEditText] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+    const currentUser = useSelector(selectUserInfo)
+
+    // Check if current user is the comment author
+    const isCommentAuthor = currentUser && currentUser.id === comment.user.id
 
     // Handle local reply submission
     const handleLocalReplySubmit = async () => {
@@ -315,6 +458,61 @@ const CommunityCommentDetails = () => {
       }
     }
 
+    // Handle comment edit
+    const handleEditSubmit = async () => {
+      if (editText.trim() === '') return
+
+      try {
+        setSubmitting(true)
+        const success = await updateComment(comment.id, editText)
+
+        if (success) {
+          message.success('Comment updated successfully')
+          setIsEditing(false)
+          await fetchComments() // Refresh comments
+        } else {
+          message.error('Failed to update comment')
+        }
+      } catch (error) {
+        console.error('Error updating comment:', error)
+        message.error('An error occurred while updating the comment')
+      } finally {
+        setSubmitting(false)
+      }
+    }
+
+    // Handle comment delete
+    const handleDeleteComment = async () => {
+      try {
+        setIsDeleting(true)
+        const success = await deleteComment(comment.id)
+
+        if (success) {
+          message.success('Comment deleted successfully')
+          await fetchComments() // Refresh comments
+        } else {
+          message.error('Failed to delete comment')
+        }
+      } catch (error) {
+        console.error('Error deleting comment:', error)
+        message.error('An error occurred while deleting the comment')
+      } finally {
+        setIsDeleting(false)
+      }
+    }
+
+    // Start editing - initialize with current comment text
+    const startEditing = () => {
+      setEditText(comment.commentText)
+      setIsEditing(true)
+    }
+
+    // Cancel editing
+    const cancelEditing = () => {
+      setIsEditing(false)
+      setEditText('')
+    }
+
     return (
       <div className={`flex items-start space-x-3 py-2 ${isReply ? 'pl-10' : ''}`}>
         <img
@@ -323,28 +521,94 @@ const CommunityCommentDetails = () => {
           className='w-8 h-8 rounded-full object-cover'
         />
         <div className='flex-1'>
-          <div className='flex items-start'>
-            <div>
-              <span className='font-semibold text-sm mr-2'>{comment.user.fullName}</span>
-              <span className='text-sm'>{comment.commentText}</span>
+          {isEditing ? (
+            // Edit mode
+            <div className='flex flex-col'>
+              <input
+                type='text'
+                className='w-full p-2 border rounded-md bg-white focus:outline-none text-sm'
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                autoFocus
+              />
+              <div className='flex gap-2 mt-2'>
+                <button
+                  onClick={handleEditSubmit}
+                  disabled={!editText.trim() || submitting}
+                  className={`text-xs px-3 py-1 rounded-md font-medium ${
+                    !editText.trim() || submitting ? 'bg-gray-200 text-gray-500' : 'bg-blue-500 text-white'
+                  }`}
+                >
+                  Save
+                </button>
+                <button
+                  onClick={cancelEditing}
+                  className='text-xs px-3 py-1 rounded-md border border-gray-300 text-gray-500'
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-            <button className='ml-2 text-gray-400 hover:text-gray-600'>
-              <FaHeart size={12} />
-            </button>
-          </div>
+          ) : (
+            // View mode
+            <div className='flex items-start justify-between'>
+              <div>
+                <span className='font-semibold text-sm mr-2'>{comment.user.fullName}</span>
+                <span className='text-sm'>{comment.commentText}</span>
+              </div>
+              {isCommentAuthor && (
+                <div className='relative ml-2'>
+                  <Dropdown
+                    overlay={
+                      <Menu>
+                        <Menu.Item key='edit' onClick={startEditing} icon={<FaEdit size={12} />}>
+                          Edit
+                        </Menu.Item>
+                        <Menu.Item
+                          key='delete'
+                          danger
+                          onClick={() => {
+                            Modal.confirm({
+                              title: 'Delete Comment',
+                              content: 'Are you sure you want to delete this comment? This cannot be undone.',
+                              okText: 'Delete',
+                              okType: 'danger',
+                              cancelText: 'Cancel',
+                              onOk: handleDeleteComment
+                            })
+                          }}
+                          icon={<FaTrash size={12} />}
+                        >
+                          Delete
+                        </Menu.Item>
+                      </Menu>
+                    }
+                    trigger={['click']}
+                    placement='bottomRight'
+                  >
+                    <button className='text-gray-400 hover:text-gray-600'>
+                      <MdMoreVert size={16} />
+                    </button>
+                  </Dropdown>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className='flex items-center mt-1 text-xs text-gray-500 space-x-3'>
             <span>{comment.timeAgo}</span>
-            <button className='font-medium hover:underline'>Thích</button>
+            <button className='font-medium hover:underline'>Like</button>
 
-            {/* Reply button */}
-            <button onClick={() => handleShowReplyBox(comment.id)} className='font-medium hover:underline'>
-              Reply
-            </button>
+            {/* Only show reply button if not in edit mode */}
+            {!isEditing && (
+              <button onClick={() => handleShowReplyBox(comment.id)} className='font-medium hover:underline'>
+                Reply
+              </button>
+            )}
           </div>
 
           {/* Reply box */}
-          {showReplyBox === comment.id && (
+          {showReplyBox === comment.id && !isEditing && (
             <div className='mt-2 flex items-start'>
               <div className='flex-1'>
                 <div className='flex items-center'>
@@ -352,7 +616,7 @@ const CommunityCommentDetails = () => {
                     ref={replyInputRef}
                     type='text'
                     className='w-full p-2 border-none bg-transparent focus:outline-none text-sm'
-                    placeholder='Viết phản hồi...'
+                    placeholder='Write a reply...'
                     value={localReplyText}
                     onChange={(e) => setLocalReplyText(e.target.value)}
                   />
@@ -484,7 +748,9 @@ const CommunityCommentDetails = () => {
           )}
 
           <div className='prose max-w-none mb-6'>
-            <p className='text-gray-700 leading-relaxed'>{postDetail.content || postDetail.shortDescription}</p>
+            <p className='text-gray-700 leading-relaxed'>
+              {stripHtmlForDisplay(postDetail.content || postDetail.shortDescription || '')}
+            </p>
           </div>
 
           {/* Chart visualization if it's a chart post */}
@@ -539,14 +805,40 @@ const CommunityCommentDetails = () => {
 
           {/* Action buttons */}
           <div className='border-t border-gray-100 pt-4'>
-            <div className='flex items-center space-x-6'>
-              <button
-                onClick={showCommentModal}
-                className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors'
-              >
-                <FaRegCommentDots />
-                <span>View All Comments</span>
-              </button>
+            <div className='flex flex-col'>
+              {/* Reactions count */}
+              {postReactions.length > 0 && (
+                <button
+                  onClick={showReactionsModal}
+                  className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors mb-3 self-start'
+                >
+                  <div className='flex -space-x-1'>
+                    {Object.entries(getReactionsByType())
+                      .slice(0, 3)
+                      .map(([type, reactions]) => (
+                        <span
+                          key={type}
+                          className='w-6 h-6 rounded-full flex items-center justify-center bg-white border border-gray-200 shadow-sm'
+                        >
+                          {getReactionInfo(reactions[0].type).icon}
+                        </span>
+                      ))}
+                  </div>
+                  <span>
+                    {postReactions.length} {postReactions.length === 1 ? 'reaction' : 'reactions'}
+                  </span>
+                </button>
+              )}
+
+              <div className='flex items-center space-x-6'>
+                <button
+                  onClick={showCommentModal}
+                  className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors'
+                >
+                  <FaRegCommentDots />
+                  <span>View All Comments</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -618,23 +910,50 @@ const CommunityCommentDetails = () => {
 
           {/* Action buttons */}
           <div className='p-3 border-b'>
-            <div className='flex justify-between mb-2'>
-              <div className='flex space-x-4'>
-                <button className='text-2xl'>
-                  <FaRegHeart />
+            <div className='flex flex-col'>
+              {/* Reactions count */}
+              {postReactions.length > 0 && (
+                <button
+                  onClick={showReactionsModal}
+                  className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors mb-2 self-start'
+                >
+                  <div className='flex -space-x-1'>
+                    {Object.entries(getReactionsByType())
+                      .slice(0, 3)
+                      .map(([type, reactions]) => (
+                        <span
+                          key={type}
+                          className='w-5 h-5 rounded-full flex items-center justify-center bg-white border border-gray-200 shadow-sm'
+                        >
+                          {getReactionInfo(reactions[0].type).icon}
+                        </span>
+                      ))}
+                  </div>
+                  <span className='text-sm'>
+                    {postReactions.length} {postReactions.length === 1 ? 'reaction' : 'reactions'}
+                  </span>
                 </button>
-                <button className='text-2xl'>
-                  <FaRegComment />
-                </button>
-                <button className='text-2xl'>
-                  <FaShare />
-                </button>
+              )}
+
+              <div className='flex justify-between mb-2'>
+                <div className='flex space-x-4'>
+                  <button className='text-2xl' onClick={showReactionsModal}>
+                    <FaRegHeart />
+                  </button>
+                  <button className='text-2xl'>
+                    <FaRegComment />
+                  </button>
+                  <button className='text-2xl'>
+                    <FaShare />
+                  </button>
+                </div>
               </div>
+
+              {postDetail?.likes && postDetail.likes > 0 && (
+                <p className='font-semibold text-sm'>{postDetail.likes} likes</p>
+              )}
+              <p className='text-xs text-gray-500'>{postDetail?.timeAgo}</p>
             </div>
-            {postDetail?.likes && postDetail.likes > 0 && (
-              <p className='font-semibold text-sm'>{postDetail.likes} likes</p>
-            )}
-            <p className='text-xs text-gray-500'>{postDetail?.timeAgo}</p>
           </div>
 
           {/* Comments section */}
@@ -712,6 +1031,85 @@ const CommunityCommentDetails = () => {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* Reactions modal */}
+      <Modal
+        visible={isReactionModalVisible}
+        onCancel={() => setIsReactionModalVisible(false)}
+        footer={null}
+        title='Reactions'
+        width={400}
+        centered
+        bodyStyle={{ maxHeight: '60vh', overflow: 'auto' }}
+      >
+        {loadingReactions ? (
+          <div className='flex justify-center items-center h-32'>
+            <Spin size='small' />
+          </div>
+        ) : (
+          <>
+            {postReactions.length === 0 ? (
+              <div className='text-center py-8'>
+                <p className='text-gray-500'>No reactions yet</p>
+              </div>
+            ) : (
+              <>
+                <Tabs defaultActiveKey='All'>
+                  <TabPane tab='All' key='All'>
+                    {postReactions.map((reaction) => {
+                      const reactionInfo = getReactionInfo(reaction.type)
+                      return (
+                        <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
+                          <img
+                            src={reaction.userAvatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+                            alt={reaction.fullName}
+                            className='w-10 h-10 rounded-full mr-3 object-cover'
+                          />
+                          <div className='flex-1'>
+                            <p className='font-medium'>{reaction.fullName}</p>
+                          </div>
+                          <div className='flex items-center'>
+                            {reactionInfo.icon}
+                            <span className={`ml-1 ${reactionInfo.color}`}>{reactionInfo.name}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </TabPane>
+
+                  {/* Reaction type tabs */}
+                  {Object.entries(getReactionsByType()).map(([type, reactions]) => (
+                    <TabPane
+                      tab={
+                        <div className='flex items-center'>
+                          {getReactionInfo(reactions[0].type).icon}
+                          <span className='ml-1'>
+                            {type} ({reactions.length})
+                          </span>
+                        </div>
+                      }
+                      key={type}
+                    >
+                      {reactions.map((reaction) => (
+                        <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
+                          <img
+                            src={reaction.userAvatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+                            alt={reaction.userName}
+                            className='w-10 h-10 rounded-full mr-3 object-cover'
+                          />
+                          <div className='flex-1'>
+                            <p className='font-medium'>{reaction.fullName}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </TabPane>
+                  ))}
+                </Tabs>
+              </>
+            )}
+          </>
+        )}
       </Modal>
     </div>
   )

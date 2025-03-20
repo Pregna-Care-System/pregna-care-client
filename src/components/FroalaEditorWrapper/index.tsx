@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { message } from 'antd'
 
 // Import Froala Editor
@@ -9,116 +9,47 @@ import 'froala-editor/css/froala_editor.pkgd.min.css'
 // Import Font Awesome for Froala Editor icons
 import 'font-awesome/css/font-awesome.css'
 import 'froala-editor/js/plugins.pkgd.min.js'
+import 'froala-editor/js/third_party/embedly.min.js'
+import 'froala-editor/js/languages/vi.js'
 
-interface FroalaEditorWrapperProps {
-  content: string
-  onContentChange: (content: string) => void
-  placeholder?: string
-  minHeight?: number
-  maxHeight?: number
-  className?: string
-}
+const FroalaEditorWrapper = forwardRef(({ model, onModelChange, config }, ref) => {
+  const editorRef = useRef(null)
 
-const FroalaEditorWrapper = forwardRef<any, FroalaEditorWrapperProps>(
-  (
-    {
-      content,
-      onContentChange,
-      placeholder = 'What do you think right now?',
-      minHeight = 150,
-      maxHeight = 300,
-      className = ''
-    },
-    ref
-  ) => {
-    // Froala Editor configuration
-    const froalaConfig = {
-      placeholderText: placeholder,
-      toolbarButtons: [
-        'bold',
-        'italic',
-        'underline',
-        'strikeThrough',
-        '|',
-        'paragraphFormat',
-        'align',
-        '|',
-        'formatOL',
-        'formatUL',
-        '|',
-        'insertImage',
-        'insertLink',
-        'insertTable',
-        '|',
-        'emoticons',
-        'undo',
-        'redo'
-      ],
-      heightMin: minHeight,
-      heightMax: maxHeight,
-      charCounterCount: true,
-      charCounterMax: 1000,
-      // Configure Cloudinary image upload
-      imageUploadMethod: 'POST',
-      imageUploadURL: `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      imageUploadParams: {
-        upload_preset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-        api_key: import.meta.env.VITE_CLOUDINARY_API_KEY
-      },
-      imageUploadParam: 'file',
-      imageUploadRemoteUrls: true,
-      imageDefaultDisplay: 'block',
-      imageDefaultWidth: 'auto',
-      imageDefaultAlign: 'center',
-      // Image upload callbacks
-      events: {
-        'image.beforeUpload': function (images: any) {
-          // Show a message when upload starts
-          message.loading('Đang tải ảnh lên...', 0.5)
-          return images
-        },
-        'image.uploaded': function (response: any) {
-          // Handle successful upload
-          message.success('Tải ảnh lên thành công')
-          // Return the URL from Cloudinary response
-          return response.secure_url ? response.secure_url : response
-        },
-        'image.error': function (error: any, response: any) {
-          // Handle upload error
-          console.error('Froala image upload error:', error, response)
-          message.error('Tải ảnh lên thất bại. Vui lòng thử lại.')
-          return error
+  // Expose editor methods to parent component
+  useImperativeHandle(ref, () => ({
+    getEditor: () => (editorRef.current ? editorRef.current.editor : null),
+    getHTML: () => (editorRef.current ? editorRef.current.editor.html.get() : ''),
+    getModel: () => model
+  }))
+
+  // Handle cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Try to manually destroy the editor when component unmounts
+      if (editorRef.current && editorRef.current.editor) {
+        try {
+          editorRef.current.editor.destroy()
+        } catch (e) {
+          console.warn('Could not destroy Froala editor:', e)
         }
-      },
-      language: 'vi',
-      attribution: false, // Remove Froala branding
-      imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
-      pluginsEnabled: ['image', 'link', 'table', 'emoticons', 'url', 'colors', 'entities']
-    }
-
-    const handleModelChange = (model: string) => {
-      onContentChange(model)
-    }
-
-    // Function to trigger image upload dialog in Froala
-    const triggerImageUpload = () => {
-      if (ref && typeof ref !== 'function' && ref.current && ref.current.editor) {
-        ref.current.editor.image.showInsertPopup()
       }
     }
+  }, [])
 
-    return (
-      <div className={className}>
-        <FroalaEditor
-          tag='textarea'
-          config={froalaConfig}
-          model={content}
-          onModelChange={handleModelChange}
-          ref={ref}
-        />
-      </div>
-    )
-  }
-)
+  return (
+    <FroalaEditor
+      ref={editorRef}
+      model={model}
+      onModelChange={onModelChange}
+      config={{
+        placeholderText: 'Write something...',
+        heightMin: 200,
+        language: 'vi',
+        attribution: false,
+        ...config
+      }}
+    />
+  )
+})
 
 export default FroalaEditorWrapper

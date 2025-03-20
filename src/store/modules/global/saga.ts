@@ -753,7 +753,13 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.featuredImageUrl,
       action.payload.isVisible
     )
-    message.success('Blog update successfully')
+
+    // Execute the callback with success=true if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(true)
+    }
+
+    // Refresh blog posts
     const token = localStorage.getItem('accessToken')
     let user = null
     try {
@@ -766,8 +772,14 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
       yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     }
   } catch (error) {
+    // Error handling
     message.error('An unexpected error occurred while updating the blog.')
     console.error('Error in updateBlog saga:', error)
+
+    // Execute the callback with success=false if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(false, 'An unexpected error occurred while updating the blog.')
+    }
   }
 }
 

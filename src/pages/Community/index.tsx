@@ -3,13 +3,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
-import { Tabs, message, Tooltip } from 'antd'
+import { Tabs, message, Tooltip, Modal, Popconfirm } from 'antd'
 import { FaRegComment, FaShare } from 'react-icons/fa'
-import { MdMoreHoriz } from 'react-icons/md'
+import { MdMoreHoriz, MdEdit, MdDelete } from 'react-icons/md'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise } from 'react-icons/fa'
 import PostCreationModal from '@/components/PostCreationModal'
-import { getAllReactionByBlogId, createPostReaction } from '@/services/blogService'
+import { getAllReactionByBlogId, createPostReaction, postBlogView } from '@/services/blogService'
 
 const { TabPane } = Tabs
 
@@ -49,7 +49,13 @@ const CommunityPage = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
+  const [isReactionModalVisible, setIsReactionModalVisible] = useState(false)
+  const [currentReactionPost, setCurrentReactionPost] = useState<BlogPost | null>(null)
+  const [modalReactions, setModalReactions] = useState<any[]>([])
+  const [loadingModalReactions, setLoadingModalReactions] = useState(false)
 
   const dispatch = useDispatch()
   const blogPosts = useSelector(selectBlogInfo) || []
@@ -143,10 +149,101 @@ const CommunityPage = () => {
     })
   }
 
-  // Navigate to post detail page when clicking on comment
-  const navigateToPostDetail = (postId: string) => {
-    navigate(`${ROUTES.COMMUNITY}/${postId}`)
+  // Navigate to post detail page when clicking on comment or view more
+  const navigateToPostDetail = async (postId: string) => {
+    try {
+      // Call the postBlogView API when navigating to post details
+      await postBlogView(postId)
+      // Navigate to the post detail page
+      navigate(`${ROUTES.COMMUNITY}/${postId}`)
+    } catch (error) {
+      console.error('Error recording post view:', error)
+      // Still navigate even if view recording fails
+      navigate(`${ROUTES.COMMUNITY}/${postId}`)
+    }
   }
+
+  // Handle edit post submission
+  const handleEditPost = async (postData: {
+    content: string
+    images: string[]
+    tagIds: string[]
+    type?: string
+    chartData?: any
+  }): Promise<boolean> => {
+    if (!currentEditPost) return false
+
+    try {
+      setSubmitting(true)
+
+      // Extract hashtags from content (from text without HTML)
+      const textContent = postData.content.replace(/<[^>]*>/g, '').trim()
+      const hashtagRegex = /#[a-zA-Z0-9_]+/g
+      const hashtags = textContent.match(hashtagRegex) || []
+      // Use Promise to handle the async operation
+      return new Promise((resolve) => {
+        // Create the payload using the original post data and updating only what changed
+        dispatch({
+          type: 'UPDATE_BLOG',
+          payload: {
+            id: currentEditPost.id,
+            type: currentEditPost.type || 'community',
+            content: postData.content,
+            userId: currentUser.id,
+            hashtags: hashtags.map((tag) => tag.substring(1)),
+            featuredImageUrl: postData.images,
+            tagIds: postData.tagIds,
+            pageTitle: currentEditPost.pageTitle || '',
+            heading: currentEditPost.pageTitle || '',
+            shortDescription: currentEditPost.shortDescription || '',
+            isVisible: true
+          },
+          callback: (success: boolean, msg?: string) => {
+            setSubmitting(false)
+
+            if (success) {
+              message.success('Post updated successfully')
+              setIsEditModalVisible(false)
+              setCurrentEditPost(null)
+              dispatch({ type: 'GET_ALL_BLOGS' })
+              resolve(true)
+            } else {
+              message.error(msg || 'Failed to update post')
+              resolve(false)
+            }
+          }
+        })
+      })
+    } catch (error) {
+      console.error('Error updating post:', error)
+      message.error('An error occurred while updating the post')
+      setSubmitting(false)
+      return false
+    }
+  }
+
+  // Map reaction type number to reaction name
+  const getReactionTypeFromNumber = (type: string) => {
+    const numberToReaction: Record<string, string> = {
+      '1': 'Like',
+      '2': 'Love',
+      '3': 'Haha',
+      '4': 'Wow',
+      '5': 'Sad',
+      '6': 'Angry'
+    }
+    return numberToReaction[type]
+  }
+
+  // Reaction configuration
+  const reactions = [
+    { name: 'Like', icon: <AiFillLike size={20} className='text-blue-500' />, color: 'text-blue-500' },
+    { name: 'Love', icon: <FaHeart size={20} className='text-red-500' />, color: 'text-red-500' },
+    { name: 'Haha', icon: <FaRegLaughBeam size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+    { name: 'Wow', icon: <FaRegSurprise size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+    { name: 'Sad', icon: <FaRegSadTear size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
+    { name: 'Angry', icon: <FaRegAngry size={20} className='text-orange-500' />, color: 'text-orange-500' }
+  ]
 
   // Updated post card component with reaction feature
   const PostCard = ({ post }: { post: BlogPost }) => {
@@ -158,6 +255,10 @@ const CommunityPage = () => {
     const [totalReactions, setTotalReactions] = useState(post.reactionsCount || post.likes || 0)
     const [loadingReactions, setLoadingReactions] = useState(false)
     const [selectedReaction, setSelectedReaction] = useState<string>(post.userReaction || '')
+
+    // Add state for post menu
+    const [showPostMenu, setShowPostMenu] = useState(false)
+    const postMenuRef = useRef<HTMLDivElement>(null)
 
     // Get user's reaction if exists
     useEffect(() => {
@@ -228,19 +329,6 @@ const CommunityPage = () => {
       fetchReactions()
     }, [post.id])
 
-    // Map reaction type number to reaction name
-    const getReactionTypeFromNumber = (type: string) => {
-      const numberToReaction: Record<string, string> = {
-        '1': 'Like',
-        '2': 'Love',
-        '3': 'Haha',
-        '4': 'Wow',
-        '5': 'Sad',
-        '6': 'Angry'
-      }
-      return numberToReaction[type] || 'Like'
-    }
-
     // Calculate reaction counts by type
     const getReactionCounts = () => {
       const counts: Record<string, number> = {}
@@ -271,16 +359,6 @@ const CommunityPage = () => {
 
       return counts
     }
-
-    // Reaction configuration
-    const reactions = [
-      { name: 'Like', icon: <AiFillLike size={20} className='text-blue-500' />, color: 'text-blue-500' },
-      { name: 'Love', icon: <FaHeart size={20} className='text-red-500' />, color: 'text-red-500' },
-      { name: 'Haha', icon: <FaRegLaughBeam size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
-      { name: 'Wow', icon: <FaRegSurprise size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
-      { name: 'Sad', icon: <FaRegSadTear size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
-      { name: 'Angry', icon: <FaRegAngry size={20} className='text-orange-500' />, color: 'text-orange-500' }
-    ]
 
     // State for reaction hover panel
     const [showReactions, setShowReactions] = useState(false)
@@ -443,7 +521,10 @@ const CommunityPage = () => {
       }
 
       return (
-        <>
+        <button
+          onClick={(e) => showReactionsModal(post, e)}
+          className='flex items-center hover:bg-gray-100 px-2 py-1 rounded-full transition-colors duration-200'
+        >
           <div className='flex -space-x-1'>
             {reactionTypes.map((type, index) => {
               const reactionName = getReactionTypeFromNumber(type)
@@ -465,9 +546,74 @@ const CommunityPage = () => {
             })}
           </div>
           <span className='text-gray-500 text-sm ml-2'>{totalReactions}</span>
-        </>
+        </button>
       )
     }
+
+    // Determine if current user is the post creator
+    const isPostCreator = currentUser?.id === post.userId
+
+    // Handle post edit click
+    const openEditModal = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+
+      // Set the current post to edit
+      setCurrentEditPost(post)
+
+      // Open the edit modal
+      setIsEditModalVisible(true)
+
+      // Close the menu
+      setShowPostMenu(false)
+    }
+
+    // Handle post delete with the correct type signature
+    const handleDeletePost = (e?: React.MouseEvent<HTMLElement>) => {
+      if (e) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
+
+      // Dispatch delete action
+      dispatch({
+        type: 'DELETE_BLOG',
+        payload: post.id,
+        callback: (success: boolean, msg?: string) => {
+          if (success) {
+            message.success('Post deleted successfully')
+            // Refresh posts
+            dispatch({ type: 'GET_ALL_BLOGS' })
+          } else {
+            message.error(msg || 'Failed to delete post')
+          }
+        }
+      })
+
+      // Close the menu
+      setShowPostMenu(false)
+    }
+
+    // Handle clicking the more options button
+    const togglePostMenu = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setShowPostMenu(!showPostMenu)
+    }
+
+    // Close post menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (postMenuRef.current && !postMenuRef.current.contains(event.target as Node)) {
+          setShowPostMenu(false)
+        }
+      }
+
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }, [])
 
     return (
       <div className='bg-white rounded-lg shadow-md overflow-hidden'>
@@ -502,13 +648,47 @@ const CommunityPage = () => {
                 </div>
               </div>
             </div>
-            <button className='text-gray-500 hover:bg-gray-100 p-2 rounded-full'>
-              <MdMoreHoriz />
-            </button>
+            <div className='relative'>
+              <button className='text-gray-500 hover:bg-gray-100 p-2 rounded-full' onClick={togglePostMenu}>
+                <MdMoreHoriz />
+              </button>
+
+              {/* Post options menu */}
+              {showPostMenu && (
+                <div ref={postMenuRef} className='absolute right-0 mt-1 bg-white rounded-md shadow-lg z-20 w-48 py-1'>
+                  {isPostCreator && (
+                    <>
+                      <button
+                        onClick={openEditModal}
+                        className='flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      >
+                        <MdEdit className='mr-2' /> Edit Post
+                      </button>
+                      <Popconfirm
+                        title='Delete post'
+                        description='Are you sure you want to delete this post?'
+                        onConfirm={handleDeletePost}
+                        okText='Yes'
+                        cancelText='No'
+                      >
+                        <button className='flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100'>
+                          <MdDelete className='mr-2' /> Delete Post
+                        </button>
+                      </Popconfirm>
+                    </>
+                  )}
+                  {!isPostCreator && <div className='px-4 py-2 text-sm text-gray-500'>No actions available</div>}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Post content */}
-          <Link to={`${ROUTES.COMMUNITY}/${post.id}`} className='block hover:no-underline'>
+          <Link
+            to={`${ROUTES.COMMUNITY}/${post.id}`}
+            className='block hover:no-underline'
+            onClick={() => postBlogView(post.id)}
+          >
             <div className='mt-3 text-gray-800'>{formatContent(post.content || post.shortDescription || '')}</div>
           </Link>
 
@@ -576,7 +756,11 @@ const CommunityPage = () => {
 
         {/* Post images */}
         {post.images && post.images.length > 0 && (
-          <Link to={`${ROUTES.COMMUNITY}/${post.id}`} className='block hover:no-underline'>
+          <Link
+            to={`${ROUTES.COMMUNITY}/${post.id}`}
+            className='block hover:no-underline'
+            onClick={() => postBlogView(post.id)}
+          >
             <div
               className={`grid ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1`}
             >
@@ -666,13 +850,73 @@ const CommunityPage = () => {
             <FaRegComment className='mr-2' />
             <span>Comment</span>
           </button>
-          <button className='flex-1 flex items-center justify-center py-2 text-gray-500 hover:bg-gray-100 rounded-md'>
-            <FaShare className='mr-2' />
-            <span>Share</span>
-          </button>
         </div>
       </div>
     )
+  }
+
+  // Add this function to show the reactions modal
+  const showReactionsModal = async (post: BlogPost, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
+    // Set the current post
+    setCurrentReactionPost(post)
+
+    // Show loading state
+    setIsReactionModalVisible(true)
+    setLoadingModalReactions(true)
+
+    try {
+      // Fetch reactions for this post
+      const response = await getAllReactionByBlogId(post.id)
+
+      if (response && response.success && response.response) {
+        let reactions = response.response
+
+        // Ensure we have an array of reactions
+        if (Array.isArray(reactions)) {
+          setModalReactions(reactions)
+        } else if (typeof reactions === 'object') {
+          // Handle case where response might be an object with a nested reactions array
+          if (reactions.items && Array.isArray(reactions.items)) {
+            setModalReactions(reactions.items)
+          } else {
+            console.warn('Reactions is an object but not in expected format:', reactions)
+            setModalReactions([])
+          }
+        } else {
+          console.warn('Unexpected reaction data format:', reactions)
+          setModalReactions([])
+        }
+      } else {
+        setModalReactions([])
+      }
+    } catch (error) {
+      console.error('Failed to fetch reactions for modal:', error)
+      setModalReactions([])
+    } finally {
+      setLoadingModalReactions(false)
+    }
+  }
+
+  // Add this function to group reactions by type
+  const getModalReactionsByType = () => {
+    const reactionsByType: Record<string, any[]> = {}
+
+    modalReactions.forEach((reaction) => {
+      const reactionType = reaction.type?.toString() || '1'
+      const reactionName = getReactionTypeFromNumber(reactionType)
+
+      if (!reactionsByType[reactionName]) {
+        reactionsByType[reactionName] = []
+      }
+      reactionsByType[reactionName].push(reaction)
+    })
+
+    return reactionsByType
   }
 
   return (
@@ -758,6 +1002,131 @@ const CommunityPage = () => {
         tags={tags}
         submitting={submitting}
       />
+
+      {/* Edit Post Modal */}
+      <PostCreationModal
+        isVisible={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        onSubmit={handleEditPost}
+        currentUser={currentUser}
+        tags={tags}
+        submitting={submitting}
+        title='Edit Post'
+        initialData={
+          currentEditPost
+            ? {
+                content: currentEditPost.content || '',
+                images: currentEditPost.images || '',
+                tagIds: currentEditPost.tags?.map((tag) => tag.id) || [],
+                type: currentEditPost.type,
+                chartData: currentEditPost.sharedChartData
+              }
+            : undefined
+        }
+      />
+
+      {/* Add this to the end of your component's JSX, before the closing </div> */}
+      {/* Reactions Modal */}
+      <Modal
+        visible={isReactionModalVisible}
+        onCancel={() => setIsReactionModalVisible(false)}
+        footer={null}
+        title={
+          <div className='flex items-center'>
+            <span className='font-medium'>Reactions</span>
+            {currentReactionPost && (
+              <span className='text-gray-500 text-sm ml-2'>- {currentReactionPost.fullName}'s post</span>
+            )}
+          </div>
+        }
+        width={400}
+        centered
+        bodyStyle={{ maxHeight: '60vh', overflow: 'auto' }}
+      >
+        {loadingModalReactions ? (
+          <div className='flex justify-center items-center h-32'>
+            <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500'></div>
+          </div>
+        ) : (
+          <>
+            {modalReactions.length === 0 ? (
+              <div className='text-center py-8'>
+                <p className='text-gray-500'>No reactions yet</p>
+              </div>
+            ) : (
+              <>
+                <Tabs defaultActiveKey='All'>
+                  <TabPane tab={<span>All ({modalReactions.length})</span>} key='All'>
+                    {modalReactions.map((reaction) => {
+                      const reactionType = reaction.type?.toString() || '1'
+                      const reactionName = getReactionTypeFromNumber(reactionType)
+                      const reactionObj = reactions.find((r) => r.name === reactionName)
+
+                      return (
+                        <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
+                          <img
+                            src={
+                              reaction.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+                            }
+                            alt={reaction.fullName || 'User'}
+                            className='w-10 h-10 rounded-full mr-3 object-cover'
+                          />
+                          <div className='flex-1'>
+                            <p className='font-medium'>{reaction.fullName || 'User'}</p>
+                          </div>
+                          <div className='flex items-center'>
+                            {reactionObj?.icon || <AiOutlineLike size={16} className='text-blue-500' />}
+                            <span className={`ml-1 ${reactionObj?.color || 'text-blue-500'}`}>{reactionName}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </TabPane>
+
+                  {/* Reaction type tabs */}
+                  {Object.entries(getModalReactionsByType()).map(([type, reactionGroup]) => (
+                    <TabPane
+                      tab={
+                        <div className='flex items-center'>
+                          {(() => {
+                            // Find the reaction object that corresponds to this type
+                            const reactionObj = reactions.find((r) => r.name === type)
+                            // Return the icon if found, or a default icon
+                            return reactionObj ? (
+                              React.cloneElement(reactionObj.icon as React.ReactElement)
+                            ) : (
+                              <AiFillLike size={16} className='text-blue-500' />
+                            )
+                          })()}
+                          <span className='ml-1'>
+                            {type} ({reactionGroup.length})
+                          </span>
+                        </div>
+                      }
+                      key={type}
+                    >
+                      {reactionGroup.map((reaction) => (
+                        <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
+                          <img
+                            src={
+                              reaction.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+                            }
+                            alt={reaction.fullName || 'User'}
+                            className='w-10 h-10 rounded-full mr-3 object-cover'
+                          />
+                          <div className='flex-1'>
+                            <p className='font-medium'>{reaction.fullName || 'User'}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </TabPane>
+                  ))}
+                </Tabs>
+              </>
+            )}
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

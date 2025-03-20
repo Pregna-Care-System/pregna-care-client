@@ -100,6 +100,18 @@ export const getBlogById = async (id: string) => {
   }
 }
 
+export const postBlogView = async (blogId: string) => {
+  try {
+    const response = await request.post<MODEL.IResponseBase>(`/Blog/${blogId}/View`, {
+      blogId
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error posting blog view:', error)
+    throw error
+  }
+}
+
 // Function to create a comment
 export const createComment = async (
   apiCallerId: string,
@@ -123,12 +135,34 @@ export const createComment = async (
   }
 }
 
+export const updateComment = async (id: string, commentText: string) => {
+  try {
+    await request.put<MODEL.IResponseBase>(`/Comment/${id}`, {
+      commentText
+    })
+    return true
+  } catch (error) {
+    console.error('Update comment failed', error)
+    return false
+  }
+}
+
 export const getAllCommentByBlogId = async (blogId: string) => {
   try {
     const response = await request.get<MODEL.IResponseBase>(`/Comment/Blog/${blogId}`)
     return response.data
   } catch (error) {
     console.error('Error fetching comment by blog ID:', error)
+  }
+}
+
+export const deleteComment = async (id: string) => {
+  try {
+    await request.delete<MODEL.IResponseBase>(`/Comment/${id}`)
+    return true
+  } catch (error) {
+    console.error('Delete comment by id failed', error)
+    return false
   }
 }
 
