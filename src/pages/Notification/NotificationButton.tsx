@@ -1,13 +1,11 @@
 import { selectNotifications } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { BellFilled, BellOutlined, MoreOutlined } from '@ant-design/icons'
-import { jwtDecode } from 'jwt-decode'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { selectUserInfo } from '@store/modules/global/selector'
-import { SatelliteDishIcon } from 'lucide-react'
-import { MdEmail, MdOutlineMail, MdOutlineMailLock } from 'react-icons/md'
+import { MdOutlineMail } from 'react-icons/md'
 
 export default function NotificationButton() {
   const [notificationTimer, setNotificationTimer] = useState<NodeJS.Timeout | null>(null)
@@ -21,8 +19,8 @@ export default function NotificationButton() {
   const user = useSelector(selectUserInfo)
 
   useEffect(() => {
-          dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
-      }, [dispatch])
+    dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
+  }, [dispatch])
 
   useEffect(() => {
     if (notificationInfo !== null && notificationInfo.length > 0) {
@@ -158,10 +156,12 @@ export default function NotificationButton() {
                   </div>
                 ))
               ) : (
-               <div>
-                 <h2 className='flex justify-center mt-5 text-2xl text-gray-600'>No notifications</h2>
-                <div className=' flex text-2xl justify-center'> <MdOutlineMail/></div>
-               </div>
+                <div>
+                  <h2 className='flex justify-center mt-5 text-2xl text-gray-600'>No notifications</h2>
+                  <div className=' flex text-2xl justify-center'>
+                    <MdOutlineMail />
+                  </div>
+                </div>
               )}
               {visibleCount < notifications.length && (
                 <div className='flex justify-center'>

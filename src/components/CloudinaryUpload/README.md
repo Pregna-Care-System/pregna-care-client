@@ -1,6 +1,7 @@
 # CloudinaryUpload Component
 
-A reusable React component for uploading images to Cloudinary with progress tracking, preview functionality, and error handling.
+A reusable React component for uploading images to Cloudinary with progress tracking, preview functionality, and error
+handling.
 
 ## Features
 
@@ -135,7 +136,7 @@ const CreatePostForm = () => {
 ## Props
 
 | Prop                | Type                       | Default          | Description                                                     |
-| ------------------- | -------------------------- | ---------------- | --------------------------------------------------------------- |
+|---------------------|----------------------------|------------------|-----------------------------------------------------------------|
 | `onUploadComplete`  | `(urls: string[]) => void` | -                | Callback function that receives an array of uploaded image URLs |
 | `onUploadError`     | `(error: Error) => void`   | -                | Callback function that receives any error during upload         |
 | `maxFiles`          | `number`                   | `5`              | Maximum number of files that can be uploaded                    |
@@ -175,6 +176,7 @@ Error messages are displayed using Ant Design's message component.
 
 ## Notes
 
-- This component uses Cloudinary's upload API directly from the browser. For production applications with sensitive upload presets, consider implementing a server-side proxy.
+- This component uses Cloudinary's upload API directly from the browser. For production applications with sensitive
+  upload presets, consider implementing a server-side proxy.
 - Make sure your Cloudinary upload preset has the appropriate settings (signed/unsigned, folder restrictions, etc.).
 - For larger applications, consider implementing a more robust state management solution for tracking uploads.

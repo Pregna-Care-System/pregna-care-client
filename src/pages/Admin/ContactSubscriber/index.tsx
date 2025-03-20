@@ -72,10 +72,10 @@ export default function ContactAdminPage() {
       onOk: async () => {
         setLoading(true)
         try {
-            await deleteContact(email)
-            message.success('Delete successfully')
-            await getListContact()
-        }catch(error) {
+          await deleteContact(email)
+          message.success('Delete successfully')
+          await getListContact()
+        } catch (error) {
           message.error('Failed to delete')
         } finally {
           setLoading(false)

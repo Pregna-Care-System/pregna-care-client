@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react'
-import { Modal, Button, message, Select } from 'antd'
-import { FaTimes, FaImage, FaTags } from 'react-icons/fa'
+import React, { useRef, useState } from 'react'
+import { message, Modal, Select } from 'antd'
+import { FaImage, FaTags, FaTimes } from 'react-icons/fa'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import FroalaEditorWrapper from '@/components/FroalaEditorWrapper'
 

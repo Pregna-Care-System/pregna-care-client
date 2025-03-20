@@ -157,8 +157,6 @@ interface FAQ {
   displayOrder: string
 }
 
-
-
 export default function FAQPage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({})
   const [categories, setCategories] = useState<FAQCategory[]>([])
@@ -183,7 +181,6 @@ export default function FAQPage() {
       setLoading(false)
     }
   }
-
 
   const toggleItem = (question: string) => {
     setOpenItems((prev) => ({

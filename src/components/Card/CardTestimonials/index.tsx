@@ -60,7 +60,6 @@ export default function CardTestimonials(props: CardTestimonialsProps) {
         <div className='text-xs'>
           <p className='m-0'>{email}</p>
         </div>
-       
       </div>
     </CardContainer>
   )

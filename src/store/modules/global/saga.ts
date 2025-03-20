@@ -1,25 +1,25 @@
 import { call, put, takeLatest } from 'redux-saga/effects'
 import {
-  setLoginStatus,
-  setMembershipPlans,
-  setFeatures,
-  setPregnancyRecord,
-  setFetalGrowthRecord,
-  setUserInfo,
+  setBlogInfo,
+  setCurrentLoginUser,
   setDataGrowthMetric,
-  setMemberInfo,
-  setTransactionInfo,
-  setReminderInfo,
-  setReminderTypeInfo,
-  setReminderActiveInfo,
+  setFeatures,
+  setFetalGrowthRecord,
   setGrowthMetricsOfWeek,
-  setStatistics,
+  setLoginStatus,
+  setMemberInfo,
+  setMembershipPlans,
+  setMostUsedPlan,
   setMotherInfo,
   setNotifications,
-  setMostUsedPlan,
+  setPregnancyRecord,
+  setReminderActiveInfo,
+  setReminderInfo,
+  setReminderTypeInfo,
+  setStatistics,
   setTagsInfo,
-  setBlogInfo,
-  setCurrentLoginUser
+  setTransactionInfo,
+  setUserInfo
 } from './slice'
 import { message } from 'antd'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -92,6 +92,7 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
     }
   }
 }
+
 export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
   try {
     const response = yield call(loginWithGG, action.payload.email)
@@ -122,6 +123,7 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
     }
   }
 }
+
 //----------Update User information-----------
 export function* updateUserInformation(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -172,6 +174,7 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
     console.error('Fetch error:', error)
   }
 }
+
 //#endregion
 
 //----------Membership plan-----------
@@ -390,6 +393,7 @@ export function* getAllMemberAdmin(filterType?: string, name?: string): Generato
     console.error('Fetch error:', error)
   }
 }
+
 //----------Member information-----------
 export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -404,6 +408,7 @@ export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<
     console.error('Fetch error:', error)
   }
 }
+
 //----------User Transaction information-----------
 export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
   try {
@@ -417,6 +422,7 @@ export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Most used plan information-----------
 export function* getMostUsedPlanSaga(): Generator<any, void, any> {
   try {
@@ -429,6 +435,7 @@ export function* getMostUsedPlanSaga(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Reminder information-----------
 export function* getAllReminderSaga(): Generator<any, void, any> {
   try {
@@ -442,6 +449,7 @@ export function* getAllReminderSaga(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Reminder active information-----------
 export function* getAllReminderActiveSaga(): Generator<any, void, any> {
   try {
@@ -455,6 +463,7 @@ export function* getAllReminderActiveSaga(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Create reminder-----------
 export function* createReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -476,6 +485,7 @@ export function* createReminderSaga(action: PayloadAction<any>): Generator<any, 
     console.error('Fetch error:', error)
   }
 }
+
 //----------Update REMINDER-----------
 export function* updateReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -497,6 +507,7 @@ export function* updateReminderSaga(action: PayloadAction<any>): Generator<any, 
     console.error('Error in updateReminder saga:', error)
   }
 }
+
 //-------------------Delete Reminder-------------------
 export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
   console.log('DELETE_REMINDER action payload:', action.payload)
@@ -510,6 +521,7 @@ export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, 
     console.error('Error in deleteReminder saga:', error)
   }
 }
+
 //----------Reminder type information-----------
 export function* getAllReminderTypeSaga(): Generator<any, void, any> {
   try {
@@ -605,6 +617,7 @@ export function* updateNotificationSaga(action: PayloadAction<any>): Generator<a
     console.error('Error in updateNotification saga:', error)
   }
 }
+
 //----------Update All Notification-----------
 export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -626,6 +639,7 @@ export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any,
     console.error('Error in updateNotification saga:', error)
   }
 }
+
 //-------------------Delete Notification-------------------
 export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -648,6 +662,7 @@ export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<a
     console.error('Error in deleteNotification saga:', error)
   }
 }
+
 //----------Tag information-----------
 export function* getAllTagsSaga(): Generator<any, void, any> {
   try {
@@ -660,6 +675,7 @@ export function* getAllTagsSaga(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Blog information-----------
 export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -673,6 +689,7 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
     console.error('Fetch error:', error)
   }
 }
+
 //----------Blog information all-----------
 export function* getAllBlogSaga(): Generator<any, void, any> {
   try {
@@ -686,6 +703,7 @@ export function* getAllBlogSaga(): Generator<any, void, any> {
     console.error('Fetch error:', error)
   }
 }
+
 //----------Create blog-----------
 export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -715,6 +733,7 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     console.error('Fetch error:', error)
   }
 }
+
 //-------------------Delete Blog-------------------
 export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -737,6 +756,7 @@ export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void
     console.error('Error in deleteBlog saga:', error)
   }
 }
+
 //----------Update Blog-----------
 export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {

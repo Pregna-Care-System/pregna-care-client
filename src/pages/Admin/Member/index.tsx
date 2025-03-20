@@ -1,9 +1,9 @@
 import { selectMemberInfo } from '@/store/modules/global/selector'
-import { Button, Select, Space, Table, Input, Tooltip, Modal } from 'antd'
+import { Button, Input, Modal, Select, Space, Table, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
-import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineCustomerService, AiOutlineUser } from 'react-icons/ai'
+import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineUser } from 'react-icons/ai'
 
 export default function MemberPage() {
   const [searchName, setSearchName] = useState('')
@@ -69,7 +69,6 @@ export default function MemberPage() {
           {status ? (
             <AiOutlineCheckCircle className='text-green-500 text-xl' />
           ) : (
-           
             <AiOutlineCloseCircle className='text-red-500 text-xl' />
           )}
         </Tooltip>
@@ -94,13 +93,13 @@ export default function MemberPage() {
       <div className='flex justify-between items-center mb-6'>
         <h1 className='text-3xl font-bold text-gray-800'>Members</h1>
         <button
-            className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
-            <span className='text-[#EE7A7A] font-semibold'>Report</span>
-          </button>
+          className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
+          <span className='text-[#EE7A7A] font-semibold'>Report</span>
+        </button>
       </div>
       <div className='bg-white p-6 rounded-lg shadow-md'>
         <div className='flex justify-end items-center mb-4'>
@@ -170,7 +169,6 @@ export default function MemberPage() {
           </div>
         )}
       </Modal>
-
     </div>
   )
 }

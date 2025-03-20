@@ -1,18 +1,10 @@
-import { useEffect, useState, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import {
-  FaLongArrowAltLeft,
-  FaRegCommentDots,
-  FaThumbsUp,
-  FaRegComment,
-  FaShare,
-  FaRegHeart,
-  FaHeart
-} from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { FaHeart, FaLongArrowAltLeft, FaRegComment, FaRegCommentDots, FaRegHeart, FaShare } from 'react-icons/fa'
+import { useSelector } from 'react-redux'
+import { selectUserInfo } from '@/store/modules/global/selector'
 import EnhancedFetalChart from '@/pages/Member/FetalGrowthChartDetail/Components/Charts/EnhancedFetalChart'
-import { Spin, message, Modal } from 'antd'
+import { message, Modal, Spin } from 'antd'
 import { createComment, getAllCommentByBlogId, getBlogById } from '@/services/blogService'
 import ROUTES from '@/utils/config/routes'
 import { MdClose } from 'react-icons/md'

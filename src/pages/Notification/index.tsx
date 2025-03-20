@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectNotifications } from '../../store/modules/global/selector'
 import { Bell, MoreVertical } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
 import Loading from '@/components/Loading'
-import { useSelector } from 'react-redux'
 import { selectUserInfo } from '@store/modules/global/selector'
 
 const NotificationPage = () => {
@@ -152,7 +151,7 @@ const NotificationPage = () => {
             {visibleCount < notifications.length && (
               <div className='flex justify-center mt-10'>
                 <button
-                  onClick={loadMoreNotifications} 
+                  onClick={loadMoreNotifications}
                   className='text-lg p-2 border border-[#ff6b81] rounded-lg bg-[#ff6b81] text-white hover:bg-black hover:text-white'
                 >
                   More notifications

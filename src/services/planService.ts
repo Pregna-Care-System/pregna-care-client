@@ -106,9 +106,7 @@ export const createPlan = async (
   }
 }
 
-export const upgradeFreePlan = async (
-  userId: string
-) => {
+export const upgradeFreePlan = async (userId: string) => {
   try {
     await request.put<MODEL.PlanResponse>(`/MembershipPlan/${userId}`)
   } catch (error: any) {

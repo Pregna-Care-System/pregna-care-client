@@ -76,7 +76,6 @@ export const createFAQCategory = async (name: string, description: string, displ
   }
 }
 
-
 export const updateFAQCategory = async (
   faqCategoryId: string,
   name: string,

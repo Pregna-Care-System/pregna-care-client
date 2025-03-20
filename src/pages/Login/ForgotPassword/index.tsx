@@ -1,5 +1,5 @@
 import { forgotPassword } from '@/services/userService'
-import { Form, Input, Button, message } from 'antd'
+import { Button, Form, Input, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 const ForgotPassword = () => {

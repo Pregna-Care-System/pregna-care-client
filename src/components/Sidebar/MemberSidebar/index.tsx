@@ -230,6 +230,7 @@ const StyledNotificationModal = styled(Modal)`
     }
   }
 `
+
 interface MemberSidebarProps {
   isOpen: boolean
   onToggle: () => void

@@ -1,20 +1,7 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
 import { FaTools } from 'react-icons/fa'
-import {
-  FiAlertCircle,
-  FiBell,
-  // FiBarChart2,
-  // FiBell,
-  FiDollarSign,
-  FiHelpCircle,
-  // FiHelpCircle,
-  FiHome,
-  FiPackage,
-  FiUsers
-  // FiPackage,
-  // FiUsers,
-} from 'react-icons/fi'
+import { FiAlertCircle, FiDollarSign, FiHelpCircle, FiHome, FiPackage, FiUsers } from 'react-icons/fi'
 import { MdEmail } from 'react-icons/md'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'

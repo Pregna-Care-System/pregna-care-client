@@ -84,7 +84,7 @@ export default function ChatBot() {
             />
             <h3 className='font-bold text-lg'>Chat with us</h3>
             <button onClick={toggleChat} className='text-gray-500 hover:text-gray-700 ml-auto'>
-              ✕  
+              ✕
             </button>
           </div>
           <div ref={chatBodyRef} className='h-64 overflow-y-auto mb-4'>

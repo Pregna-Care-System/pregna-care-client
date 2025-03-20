@@ -2,13 +2,13 @@ import {
   fetchMembershipPlanStats,
   fetchRecentTransactionStats,
   fetchStatistics,
-  fetchTotalRevenueStats,
-  fetchTotalNewMembers
+  fetchTotalNewMembers,
+  fetchTotalRevenueStats
 } from '@/services/statisticsService'
 import { formatDateTime, formatNumber, generateRandomColor, getInitials } from '@/utils/helper'
 import { Avatar } from 'antd'
 import { ApexOptions } from 'apexcharts'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ApexCharts from 'react-apexcharts'
 import { FiArrowDown, FiArrowUp, FiDollarSign, FiDownload, FiPieChart, FiUserCheck, FiUsers } from 'react-icons/fi'
 

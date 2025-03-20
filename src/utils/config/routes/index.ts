@@ -1,5 +1,3 @@
-import { FileEdit } from "lucide-react"
-
 // define the Route
 const ROUTES = {
   GUEST_HOME: '/',
@@ -34,7 +32,7 @@ const ROUTES = {
     FEATURE: '/admin/feature',
     FAQ: '/admin/faq',
     FEEDBACK: '/admin/feedback',
-    CONTACT:'/admin/contact'
+    CONTACT: '/admin/contact'
   },
   MEMBER: {
     DASHBOARD: '/member',

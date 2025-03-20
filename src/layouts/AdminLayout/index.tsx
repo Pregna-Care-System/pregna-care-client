@@ -5,9 +5,9 @@ import { selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { Avatar } from 'antd'
 import { useState } from 'react'
-import { FaCalendarAlt, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaSignOutAlt, FaUser } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
-import { Link, Outlet } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 const LayoutWrapper = styled.div`

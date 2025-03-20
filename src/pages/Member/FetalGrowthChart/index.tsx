@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
-import { Breadcrumb, Layout, Spin, Typography, Result, Button } from 'antd'
+import { Breadcrumb, Button, Layout, Result } from 'antd'
 import PregnancyRecordList from './components/PregnancyRecordList'
 import ROUTES from '@/utils/config/routes'
 

@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
-import { Card, Select, Typography, Row, Col, Statistic, Tabs, Spin, Button, message } from 'antd'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Card, Col, message, Row, Select, Spin, Statistic, Tabs, Typography } from 'antd'
 import Chart from 'react-apexcharts'
 import { ShareAltOutlined } from '@ant-design/icons'
 import html2canvas from 'html2canvas'
 import ChartShareModal from '@/components/ChartShareModal'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
+import { selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 
 const { Title, Text } = Typography
 const { Option } = Select

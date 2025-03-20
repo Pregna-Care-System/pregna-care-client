@@ -1,12 +1,12 @@
 import { Button, Divider, Form, Input, message, Typography } from 'antd'
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import loginBg from '@/assets/register.jpg'
 import ROUTES from '@/utils/config/routes'
 import useAuth from '@/hooks/useAuth'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import React from 'react'
 
 export default function LoginPage() {

@@ -1,6 +1,6 @@
 import type React from 'react'
-import { Modal, Descriptions, Button, Empty, Tag, Divider } from 'antd'
-import { FaEdit, FaFileAlt, FaCheckCircle, FaHourglassHalf, FaClock } from 'react-icons/fa'
+import { Button, Descriptions, Divider, Empty, Modal, Tag } from 'antd'
+import { FaCheckCircle, FaClock, FaEdit, FaFileAlt, FaHourglassHalf } from 'react-icons/fa'
 import styles from './styles.module.css'
 
 interface WeekDetailModalProps {

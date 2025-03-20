@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { FaUser, FaCog, FaCalendarAlt, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa'
+import { FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 
 const LayoutWrapper = styled.div`
   min-height: 100vh;

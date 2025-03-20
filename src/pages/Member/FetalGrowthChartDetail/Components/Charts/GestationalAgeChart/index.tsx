@@ -1,6 +1,5 @@
 import type React from 'react'
 import Chart from 'react-apexcharts'
-import { ChartCard } from '../../../styles/styled-components'
 
 interface GestationalAgeChartProps {
   currentWeek: number

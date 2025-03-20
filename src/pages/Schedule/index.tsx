@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
 import {
-  format,
   addMonths,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
   eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  isToday,
-  startOfWeek,
+  endOfMonth,
   endOfWeek,
-  getWeek
+  format,
+  getWeek,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+  startOfWeek,
+  subMonths
 } from 'date-fns'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +20,7 @@ import { Button, DatePicker, Form, Modal, Select, TimePicker } from 'antd'
 import { ClockCircleOutlined, DeleteOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
+
 const VIEW_TYPES = {
   MONTH: 'month',
   WEEK: 'week'

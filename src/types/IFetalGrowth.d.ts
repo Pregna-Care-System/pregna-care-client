@@ -10,6 +10,7 @@ declare namespace IFetalGrowth {
     standardAC: number
     fl: number
     standardFL: number
+
     [key: string]: number
   }
 
@@ -43,6 +44,7 @@ declare namespace IFetalGrowth {
       days: number
       estimatedDueDate?: string
     }
+
     [key: string]: any
   }
 

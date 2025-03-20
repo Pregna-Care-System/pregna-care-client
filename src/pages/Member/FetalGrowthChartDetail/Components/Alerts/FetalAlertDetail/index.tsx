@@ -1,12 +1,12 @@
 import type React from 'react'
-import { Card, Typography, Tag, Space, Divider, Alert, Steps } from 'antd'
+import { Alert, Card, Divider, Space, Steps, Tag, Typography } from 'antd'
 import {
-  WarningOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
   AlertOutlined,
   CalendarOutlined,
-  InfoCircleOutlined
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  InfoCircleOutlined,
+  WarningOutlined
 } from '@ant-design/icons'
 import { formatDate, getSeverityColor, parseRecommendation } from '@/utils/helper'
 

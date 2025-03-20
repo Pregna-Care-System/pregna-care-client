@@ -4,28 +4,25 @@ import {
   Button,
   Card,
   Col,
+  ConfigProvider,
   DatePicker,
   Descriptions,
   Divider,
+  Empty,
   Form,
   Input,
   Modal,
   Row,
   Select,
   Tabs,
-  Typography,
   Tag,
-  ConfigProvider,
-  Empty,
-  message
+  Typography
 } from 'antd'
-import { FaUser, FaCalendarAlt, FaHeartbeat, FaNotesMedical, FaFileAlt, FaBaby, FaEdit, FaPlus } from 'react-icons/fa'
-import { jwtDecode } from 'jwt-decode'
+import { FaBaby, FaCalendarAlt, FaEdit, FaFileAlt, FaHeartbeat, FaNotesMedical, FaPlus, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
 import styled from 'styled-components'
-import CloudinaryUpload from '@/components/CloudinaryUpload'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs

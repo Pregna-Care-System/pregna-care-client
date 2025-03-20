@@ -61,7 +61,7 @@ export default function PlanDetail() {
       )
     }
   }
-const handleConfirmUpgrade = async () => {
+  const handleConfirmUpgrade = async () => {
     try {
       if (!userId) {
         message.error('User ID not found. Please log in again.')
