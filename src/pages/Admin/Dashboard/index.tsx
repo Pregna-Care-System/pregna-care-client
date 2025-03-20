@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import ApexCharts from 'react-apexcharts'
-import { FiArrowDown, FiArrowUp, FiDollarSign, FiDownload, FiPieChart, FiUserCheck, FiUsers } from 'react-icons/fi'
-import { ApexOptions } from 'apexcharts'
 import {
   fetchMembershipPlanStats,
   fetchRecentTransactionStats,
   fetchStatistics,
-  fetchTotalRevenueStats
+  fetchTotalRevenueStats,
+  fetchTotalNewMembers
 } from '@/services/statisticsService'
 import { formatDateTime, formatNumber, generateRandomColor, getInitials } from '@/utils/helper'
 import { Avatar } from 'antd'
+import { ApexOptions } from 'apexcharts'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import ApexCharts from 'react-apexcharts'
+import { FiArrowDown, FiArrowUp, FiDollarSign, FiDownload, FiPieChart, FiUserCheck, FiUsers } from 'react-icons/fi'
 
 const iconMap = {
   FiUserCheck: <FiUserCheck className='w-6 h-6 text-[#EE7A7A]' />,
@@ -25,53 +26,27 @@ const AdminDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState([])
   const [isHovered, setIsHovered] = useState(false)
   const [timeframe, setTimeframe] = useState('month')
+  const [newMembersData, setNewMembersData] = useState([])
   const [hasMore, setHasMore] = useState(true)
   const [isFetching, setIsFetching] = useState(false)
   const [offset, setOffset] = useState(0)
   const [limit] = useState(5)
-  const observer = useRef<IntersectionObserver | null>(null)
-  const lastTransactionRef = useRef<HTMLDivElement | null>(null)
 
-  const loadMoreTransactions = useCallback(async () => {
-    if (!hasMore || isFetching) return
-
+  const loadAllTransactions = useCallback(async () => {
     setIsFetching(true)
 
-    const nextOffset = offset + limit // Lưu giá trị offset mới
-    const response = await fetchRecentTransactionStats(offset, limit)
+    const response = await fetchRecentTransactionStats(0, 1000)
 
     if (response.success && response.response.transactions.length > 0) {
-      setRecentTransactions((prev) => [...prev, ...response.response.transactions])
-      setOffset(nextOffset)
-    } else {
-      setHasMore(false)
+      setRecentTransactions(response.response.transactions)
     }
 
     setIsFetching(false)
-  }, [limit, hasMore, isFetching])
+  }, [])
 
   useEffect(() => {
-    if (!lastTransactionRef.current) return
-
-    observer.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreTransactions()
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    if (lastTransactionRef.current) {
-      observer.current.observe(lastTransactionRef.current)
-    }
-
-    return () => {
-      if (observer.current) {
-        observer.current.disconnect()
-      }
-    }
-  }, [loadMoreTransactions])
+    loadAllTransactions()
+  }, [loadAllTransactions])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -171,14 +146,31 @@ const AdminDashboard = () => {
     }
   }
 
+  useEffect(() => {
+    const fetchNewMembersData = async () => {
+      try {
+        const response = await fetchTotalNewMembers(timeframe)
+        if (response.success) {
+          setNewMembersData(response.response.data)
+        }
+      } catch (error) {
+        console.error('Error fetching new members data:', error)
+      }
+    }
+
+    fetchNewMembersData()
+  }, [timeframe])
+
   const totalNewMembersData = {
     series: [
       {
         name: 'New Members',
         data:
-          timeframe === 'month'
-            ? [200, 300, 250, 150, 180, 220, 300, 350, 400, 450, 500, 550]
-            : [50, 60, 55, 40, 35, 70, 60, 80, 75, 100, 120, 130]
+          newMembersData.length > 0
+            ? newMembersData.map((item) => item.count)
+            : timeframe === 'month'
+              ? [200, 300, 250, 150, 180, 220, 300, 350, 400, 450, 500, 550]
+              : [50, 60, 55, 40, 35, 70, 60, 80, 75, 100, 120, 130]
       }
     ],
     options: {
@@ -188,9 +180,11 @@ const AdminDashboard = () => {
       },
       xaxis: {
         categories:
-          timeframe === 'month'
-            ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            : ['Week 1', 'Week 2', 'Week 3', 'Week 4']
+          newMembersData.length > 0
+            ? newMembersData.map((item) => item.period)
+            : timeframe === 'month'
+              ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+              : ['Week 1', 'Week 2', 'Week 3', 'Week 4']
       },
       yaxis: {
         title: {
@@ -283,9 +277,9 @@ const AdminDashboard = () => {
 
           <div className='bg-white rounded-lg shadow-lg p-6'>
             <h2 className='text-xl font-bold text-gray-800 mb-4'>Recent Transactions</h2>
-            <div className='overflow-x-auto'>
+            <div className='overflow-x-auto max-h-80 overflow-y-auto'>
               <table className='min-w-full divide-y divide-gray-200'>
-                <thead className='bg-gray-50'>
+                <thead className='bg-gray-50 sticky top-0 z-10'>
                   <tr>
                     <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                       User
@@ -338,7 +332,7 @@ const AdminDashboard = () => {
                           {transaction.membershipPlan}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                          {formatNumber(transaction.price)} (VNĐ)
+                          {formatNumber(transaction.price)} VNĐ
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
@@ -366,18 +360,6 @@ const AdminDashboard = () => {
                     </tr>
                   )}
                 </tbody>
-
-                <tfoot>
-                  <tr>
-                    <td colSpan={5} className='text-center py-4'>
-                      <div ref={lastTransactionRef} className='flex justify-center items-center h-10'>
-                        {hasMore && isFetching && (
-                          <div className='w-6 h-6 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin'></div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </div>

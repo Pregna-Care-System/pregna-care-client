@@ -94,3 +94,15 @@ export const fetchTotalRevenueStats = async () => {
     throw error
   }
 }
+
+export const fetchTotalNewMembers = async (timeFrame: 'month' | 'week' = 'month') => {
+  try {
+    const response = await request.get<MODEL.NewMembersAPIResponse>(
+      `${BASE_URL}/TotalNewMembers?timeFrame=${timeFrame}`
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error at API get TotalNewMembers', error)
+    throw error
+  }
+}

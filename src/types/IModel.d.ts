@@ -143,4 +143,18 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: unknown | null
   }
+
+  export interface NewMembersDataPointResponse {
+    date: string
+    count: number
+  }
+
+  export interface NewMembersResponse {
+    timeFrame: 'month' | 'week'
+    data: NewMembersDataPointResponse[]
+  }
+
+  export interface NewMembersAPIResponse extends IResponseBase {
+    response: NewMembersResponse
+  }
 }
