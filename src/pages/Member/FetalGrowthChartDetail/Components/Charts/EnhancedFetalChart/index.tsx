@@ -290,29 +290,6 @@ export default function EnhancedFetalChart({
     }
   }
 
-  // Function to capture chart as image for sharing
-  const captureChart = async () => {
-    if (chartRef.current) {
-      try {
-        setLoading(true)
-        const canvas = await html2canvas(chartRef.current)
-        const imageUrl = canvas.toDataURL('image/png')
-        setChartImageUrl(imageUrl)
-
-        // Prepare chart data for sharing
-        const chartDataForSharing = prepareChartDataForSharing()
-        setProcessedChartData(chartDataForSharing)
-
-        setIsShareModalOpen(true)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error capturing chart:', error)
-        message.error('Failed to capture chart for sharing')
-        setLoading(false)
-      }
-    }
-  }
-
   // Prepare chart data for sharing
   const prepareChartDataForSharing = () => {
     // Return the actual array instead of a JSON string
@@ -337,7 +314,7 @@ export default function EnhancedFetalChart({
           <Text type='secondary'>Track fetal development measurements over time</Text>
         </div>
         {sharing && (
-          <Button type='primary' icon={<ShareAltOutlined />} onClick={captureChart}>
+          <Button type='primary' icon={<ShareAltOutlined />}>
             Share Chart
           </Button>
         )}

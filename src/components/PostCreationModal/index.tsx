@@ -1,8 +1,10 @@
-import React, { useRef, useState } from 'react'
-import { message, Modal, Select } from 'antd'
-import { FaImage, FaTags, FaTimes } from 'react-icons/fa'
+import React, { useState, useRef, useEffect } from 'react'
+import { Modal, Button, message, Select } from 'antd'
+import { FaTimes, FaImage, FaTags } from 'react-icons/fa'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import FroalaEditorWrapper from '@/components/FroalaEditorWrapper'
+import 'froala-editor/css/froala_style.min.css'
+import 'froala-editor/css/froala_editor.pkgd.min.css'
 
 interface Tag {
   id: string
@@ -13,7 +15,14 @@ interface Tag {
 interface PostCreationModalProps {
   isVisible: boolean
   onCancel: () => void
-  onSubmit: (postData: { content: string; images: string[]; tagIds: string[]; type?: string; chartData?: any }) => void
+  onSubmit: (postData: {
+    content: string
+    images: string[] | string
+    featuredImageUrl?: string
+    tagIds: string[]
+    type?: string
+    chartData?: any
+  }) => Promise<boolean> | void // Make it accept Promise<boolean> or void return type
   currentUser: any
   tags: Tag[]
   submitting: boolean
@@ -21,6 +30,13 @@ interface PostCreationModalProps {
   type?: string
   chartData?: any
   children?: React.ReactNode
+  initialData?: {
+    content: string
+    images: string[] | string
+    tagIds: string[]
+    type?: string
+    chartData?: any
+  }
 }
 
 const PostCreationModal: React.FC<PostCreationModalProps> = ({
@@ -33,24 +49,68 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   title = 'New post',
   type = 'community',
   chartData,
-  children
+  children,
+  initialData
 }) => {
-  const [postContent, setPostContent] = useState('')
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [postContent, setPostContent] = useState(initialData?.content || '')
+  const [uploadedImages, setUploadedImages] = useState<string[] | string>(initialData?.images || [])
   const [showImageUploader, setShowImageUploader] = useState(false)
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialData?.tagIds || [])
   const editorRef = useRef<any>(null)
+  const [isEditorMounted, setIsEditorMounted] = useState(false)
+  const [localSubmitting, setLocalSubmitting] = useState(false) // Local submitting state
+
+  // Reset state when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setPostContent(initialData.content || '')
+      setUploadedImages(initialData.images || [])
+      setSelectedTags(initialData.tagIds || [])
+    }
+  }, [initialData])
+
+  // Update local submitting state when prop changes
+  useEffect(() => {
+    setLocalSubmitting(submitting)
+  }, [submitting])
+
+  useEffect(() => {
+    if (isVisible) {
+      if (initialData) {
+        setPostContent(initialData.content || '')
+        setUploadedImages(initialData.images || '')
+        setSelectedTags(initialData.tagIds || [])
+      }
+      // Delay mounting editor to ensure DOM is ready
+      setTimeout(() => {
+        setIsEditorMounted(true)
+      }, 100)
+    } else {
+      // Delay unmounting to ensure editor is properly destroyed
+      setTimeout(() => {
+        setIsEditorMounted(false)
+      }, 100)
+    }
+  }, [isVisible, initialData])
 
   const handleCancel = () => {
     setPostContent('')
-    setUploadedImages([])
+    setUploadedImages('')
     setShowImageUploader(false)
     setSelectedTags([])
-    onCancel()
+    setIsEditorMounted(false)
+    setTimeout(() => {
+      onCancel()
+    }, 50)
   }
 
   const handleUploadComplete = (urls: string[]) => {
-    setUploadedImages((prev) => [...prev, ...urls])
+    setUploadedImages((prev) => {
+      // If prev is a string, convert it to an array first
+      const prevArray = typeof prev === 'string' ? (prev ? prev.split(',').map((url) => url.trim()) : []) : prev
+
+      return [...prevArray, ...urls]
+    })
     message.success(`${urls.length} ảnh đã được tải lên thành công`)
   }
 
@@ -60,7 +120,15 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   }
 
   const removeImage = (index: number) => {
-    setUploadedImages((prev) => prev.filter((_, i) => i !== index))
+    setUploadedImages((prev) => {
+      if (typeof prev === 'string') {
+        const urlArray = prev.split(',').map((url) => url.trim())
+        urlArray.splice(index, 1)
+        return urlArray.join(',')
+      } else {
+        return prev.filter((_, i) => i !== index)
+      }
+    })
   }
 
   const toggleImageUploader = () => {
@@ -83,17 +151,60 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     }
 
     try {
-      // Submit post data to parent component
-      onSubmit({
+      // Set local submitting state to true
+      setLocalSubmitting(true)
+
+      // Format the images correctly based on the API requirements
+      let featuredImageUrl = ''
+
+      // If we have uploaded images, take the first one as the featured image
+      if (uploadedImages && uploadedImages.length > 0) {
+        // If uploadedImages is a string (as in your current state type), use the first item after splitting
+        if (typeof uploadedImages === 'string') {
+          // If it's a comma-separated string
+          if (uploadedImages.includes(',')) {
+            featuredImageUrl = uploadedImages.split(',')[0].trim()
+          } else {
+            featuredImageUrl = uploadedImages
+          }
+        }
+        // If it's already an array (after you fix the type)
+        else if (Array.isArray(uploadedImages) && uploadedImages.length > 0) {
+          featuredImageUrl = uploadedImages[0]
+        }
+      }
+
+      // Submit post data to parent component and wait for result
+      const result = await onSubmit({
         content: postContent,
+        featuredImageUrl: featuredImageUrl,
         images: uploadedImages,
         tagIds: selectedTags,
         type,
         chartData
       })
+
+      // If result is true or undefined (for backward compatibility), consider it successful
+      if (result === true || result === undefined) {
+        // Reset the form fields
+        setPostContent('')
+        setUploadedImages([])
+        setSelectedTags([])
+
+        // This is just a backup in case onSubmit doesn't handle closing
+        // The parent component should actually handle closing the modal
+        setTimeout(() => {
+          if (isVisible) {
+            handleCancel()
+          }
+        }, 500)
+      }
     } catch (error) {
       console.error('Error creating post:', error)
       message.error('Đã xảy ra lỗi khi đăng bài viết')
+    } finally {
+      // Reset local submitting state
+      setLocalSubmitting(false)
     }
   }
 
@@ -113,6 +224,8 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       width={800}
       centered
       closable={false}
+      destroyOnClose={true}
+      maskClosable={!localSubmitting} // Prevent closing when submitting
     >
       <div className='py-3'>
         <div className='flex items-center mb-4'>
@@ -130,9 +243,85 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
         {children}
 
         {/* Froala Editor */}
-        <div className='mb-4'>
-          <FroalaEditorWrapper content={postContent} onContentChange={setPostContent} ref={editorRef} />
-        </div>
+        {isVisible && isEditorMounted && (
+          <div key={`editor-${isVisible}-${initialData?.id || 'new'}`} className='mb-6'>
+            <FroalaEditorWrapper
+              ref={editorRef}
+              model={postContent}
+              onModelChange={setPostContent}
+              config={{
+                placeholderText: 'What do you want to share?',
+                charCounterCount: true,
+                toolbarButtons: {
+                  moreText: {
+                    buttons: [
+                      'bold',
+                      'italic',
+                      'underline',
+                      'strikeThrough',
+                      'subscript',
+                      'superscript',
+                      'fontFamily',
+                      'fontSize',
+                      'textColor',
+                      'backgroundColor',
+                      'clearFormatting'
+                    ],
+                    align: 'left',
+                    buttonsVisible: 3
+                  },
+                  moreParagraph: {
+                    buttons: [
+                      'alignLeft',
+                      'alignCenter',
+                      'alignRight',
+                      'alignJustify',
+                      'formatOL',
+                      'formatUL',
+                      'paragraphFormat',
+                      'paragraphStyle',
+                      'lineHeight',
+                      'indent',
+                      'outdent'
+                    ],
+                    align: 'left',
+                    buttonsVisible: 3
+                  },
+                  moreRich: {
+                    buttons: [
+                      'insertLink',
+                      'insertImage',
+                      'insertVideo',
+                      'insertTable',
+                      'emoticons',
+                      'specialCharacters',
+                      'embedly',
+                      'insertHR'
+                    ],
+                    align: 'left',
+                    buttonsVisible: 3
+                  },
+                  moreMisc: {
+                    buttons: ['undo', 'redo', 'fullscreen', 'html'],
+                    align: 'right',
+                    buttonsVisible: 2
+                  }
+                },
+                events: {
+                  initialized: function () {
+                    console.log('Froala Editor initialized successfully')
+                  },
+                  focus: function () {
+                    console.log('Froala Editor is focused')
+                  },
+                  blur: function () {
+                    console.log('Froala Editor lost focus')
+                  }
+                }
+              }}
+            />
+          </div>
+        )}
 
         {/* Tag selection */}
         <div className='mt-3'>
@@ -158,23 +347,29 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
         </div>
 
         {/* Display uploaded images */}
-        {uploadedImages.length > 0 && (
-          <div className='mt-3 border rounded-lg p-3'>
-            <div className='grid grid-cols-3 gap-2'>
-              {uploadedImages.map((image, index) => (
-                <div key={index} className='relative group'>
-                  <img src={image} alt={`Uploaded ${index}`} className='w-full h-24 object-cover rounded-lg' />
-                  <button
-                    onClick={() => removeImage(index)}
-                    className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                </div>
-              ))}
+        {uploadedImages &&
+          (typeof uploadedImages === 'string' ? uploadedImages.length > 0 : uploadedImages.length > 0) && (
+            <div className='mt-3 border rounded-lg p-3'>
+              <div className='grid grid-cols-3 gap-2'>
+                {(typeof uploadedImages === 'string'
+                  ? uploadedImages
+                    ? uploadedImages.split(',').map((url) => url.trim())
+                    : []
+                  : uploadedImages
+                ).map((image, index) => (
+                  <div key={index} className='relative group'>
+                    <img src={image} alt={`Uploaded ${index}`} className='w-full h-24 object-cover rounded-lg' />
+                    <button
+                      onClick={() => removeImage(index)}
+                      className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Image uploader */}
         {showImageUploader && (
@@ -182,7 +377,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
             <CloudinaryUpload
               onUploadComplete={handleUploadComplete}
               onUploadError={handleUploadError}
-              maxFiles={5}
+              maxFiles={1}
               maxSize={5}
               buttonText='Choose pictures'
               className='mb-2'
@@ -214,14 +409,22 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
 
         <button
           onClick={handleCreatePost}
-          disabled={(!postContent.trim() && uploadedImages.length === 0 && !chartData) || submitting}
+          disabled={
+            (!postContent.trim() &&
+              (typeof uploadedImages === 'string' ? !uploadedImages : uploadedImages.length === 0) &&
+              !chartData) ||
+            localSubmitting
+          }
           className={`w-full mt-3 py-2 rounded-lg font-medium ${
-            (!postContent.trim() && uploadedImages.length === 0 && !chartData) || submitting
+            (!postContent.trim() &&
+              (typeof uploadedImages === 'string' ? !uploadedImages : uploadedImages.length === 0) &&
+              !chartData) ||
+            localSubmitting
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
               : 'bg-pink-600 text-white hover:bg-pink-700'
           }`}
         >
-          {submitting ? 'Posting...' : 'Post'}
+          {localSubmitting ? 'Posting...' : 'Post'}
         </button>
       </div>
     </Modal>
