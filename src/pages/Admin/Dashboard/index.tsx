@@ -1,3 +1,4 @@
+import { getAdminReport } from '@/services/exportService'
 import {
   fetchMembershipPlanStats,
   fetchRecentTransactionStats,
@@ -6,7 +7,7 @@ import {
   fetchTotalRevenueStats
 } from '@/services/statisticsService'
 import { formatDateTime, formatNumber, generateRandomColor, getInitials } from '@/utils/helper'
-import { Avatar } from 'antd'
+import { Avatar, message } from 'antd'
 import { ApexOptions } from 'apexcharts'
 import { useCallback, useEffect, useState } from 'react'
 import ApexCharts from 'react-apexcharts'
@@ -31,6 +32,28 @@ const AdminDashboard = () => {
   const [isFetching, setIsFetching] = useState(false)
   const [offset, setOffset] = useState(0)
   const [limit] = useState(5)
+
+  const getExportFile = async () => {
+    try {
+      const res = await getAdminReport()
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'AdminReport.pdf')
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      if (error.response) {
+        message.error('Failed to fetch report.')
+      } else {
+        console.error(error)
+      }
+    }
+  }
 
   const loadAllTransactions = useCallback(async () => {
     setIsFetching(true)
@@ -210,6 +233,7 @@ const AdminDashboard = () => {
             className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={getExportFile}
           >
             <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
             <span className='text-[#EE7A7A] font-semibold'>Report</span>
