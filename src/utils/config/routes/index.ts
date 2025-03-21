@@ -33,7 +33,8 @@ const ROUTES = {
     FAQ: '/admin/faq',
     FEEDBACK: '/admin/feedback',
     CONTACT: '/admin/contact',
-    REMINDER_TYPE:'/admin/reminder-type'
+    REMINDER_TYPE:'/admin/reminder-type',
+    BLOG: '/admin/blog'
   },
   MEMBER: {
     DASHBOARD: '/member',
