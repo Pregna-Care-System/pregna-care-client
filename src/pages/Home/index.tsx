@@ -542,7 +542,7 @@ export default function Home() {
         <CarouselTestimonials testimonials={feedbackList} />
       </div>
 
-      <Modal
+      {/* <Modal
         title='Share your experience'
         open={isFeedbackModalOpen}
         onCancel={() => setIsFeedbackModalOpen(false)}
@@ -564,7 +564,7 @@ export default function Home() {
           value={feedback}
           style={{ marginTop: 10 }}
         />
-      </Modal>
+      </Modal> */}
 
       {/* --Contact */}
       <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>
