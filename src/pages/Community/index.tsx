@@ -72,14 +72,16 @@ const CommunityPage = () => {
   const tags = useSelector(selectTagInfo) || ([] as Tag[])
 
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_BLOGS' })
+    dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
     dispatch({ type: 'GET_ALL_TAGS' })
     setLoading(false)
   }, [dispatch])
 
   // Filter blog posts to get only chart posts with empty status and regular posts
-  const discussionPosts = blogPosts.filter((post: BlogPost) => !post.type || post.type !== 'blog')
+  const discussionPosts = blogPosts.filter((post: BlogPost) => !post.type || post.type.toLowerCase() === 'community')
   const myPosts = blogPosts.filter((post: BlogPost) => post.userId === currentUser?.id)
+
+  console.log(discussionPosts)
 
   const showModal = () => {
     setIsModalVisible(true)
@@ -132,7 +134,7 @@ const CommunityPage = () => {
             message.success('Đăng bài viết thành công')
             setIsModalVisible(false)
             // Refresh posts
-            dispatch({ type: 'GET_ALL_BLOGS' })
+            dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
           } else {
             message.error(msg || 'Đăng bài viết thất bại')
           }
@@ -226,7 +228,7 @@ const CommunityPage = () => {
               message.success('Post updated successfully')
               setIsEditModalVisible(false)
               setCurrentEditPost(null)
-              dispatch({ type: 'GET_ALL_BLOGS' })
+              dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
               resolve(true)
             } else {
               message.error(msg || 'Failed to update post')
@@ -624,7 +626,8 @@ const CommunityPage = () => {
           if (success) {
             message.success('Post deleted successfully')
             // Refresh the blog list after successful deletion
-            dispatch({ type: 'GET_ALL_BLOGS' })
+
+            dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
           } else {
             message.error(msg || 'Failed to delete post')
           }
@@ -734,7 +737,7 @@ const CommunityPage = () => {
           callback: (success: boolean, msg?: string) => {
             if (success) {
               message.success('Post deleted successfully')
-              dispatch({ type: 'GET_ALL_BLOGS' })
+              dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
             } else {
               message.error(msg || 'Failed to delete post')
             }
@@ -928,7 +931,7 @@ const CommunityPage = () => {
                             callback: (success: boolean, msg?: string) => {
                               if (success) {
                                 message.success('Post deleted successfully')
-                                dispatch({ type: 'GET_ALL_BLOGS' })
+                                dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
                               } else {
                                 message.error(msg || 'Failed to delete post')
                               }

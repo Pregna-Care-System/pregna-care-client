@@ -412,7 +412,7 @@ const BlogList = () => {
   const tagResponse = useSelector(selectTagInfo)
 
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_BLOGS' })
+    dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'blog' } })
     dispatch({ type: 'GET_ALL_TAGS' })
   }, [dispatch])
 
