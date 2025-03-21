@@ -729,9 +729,9 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
 }
 
 //----------Blog information all-----------
-export function* getAllBlogSaga(): Generator<any, void, any> {
+export function* getAllBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    const response = yield call(getAllBlog)
+    const response = yield call(getAllBlog, action.payload.type)
     if (response.response) {
       yield put(setBlogInfo(response.response))
     }
@@ -762,9 +762,11 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     const token = localStorage.getItem('accessToken')
     const user = token ? jwtDecode(token) : null
 
-    if (user?.id) {
-      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
-    }
+    yield put({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+
+    // if (user?.id) {
+    //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    // }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)

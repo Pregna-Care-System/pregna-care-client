@@ -8,8 +8,8 @@ export const getAllBlogByUserId = async (userId: string) => {
   const res = await request.get<MODEL.IResponseBase>(`/Blog/User/${userId}`)
   return res.data
 }
-export const getAllBlog = async () => {
-  const res = await request.get<MODEL.IResponseBase>(`/Blog`)
+export const getAllBlog = async (type: string) => {
+  const res = await request.get<MODEL.IResponseBase>(`/Blog?type=${type}`)
   return res.data
 }
 export const createBlog = async (
@@ -112,10 +112,7 @@ export const postBlogView = async (blogId: string) => {
   }
 }
 //Update status blog
-export const updateBlogStatus = async (
-  id: string,
-  status: string,
-) => {
+export const updateBlogStatus = async (id: string, status: string) => {
   try {
     await request.put<MODEL.IResponseBase>(`/Blog/${id}/Approve?status=${status}`)
     return true
@@ -150,7 +147,6 @@ export const createComment = async (
     throw error
   }
 }
-
 
 export const updateComment = async (id: string, commentText: string) => {
   try {
