@@ -86,7 +86,7 @@ const BlogDashboard = () => {
         } else {
           dispatch({
             type: 'CREATE_BLOG',
-            payload: { ...values, content: plainTextContent, userId: user?.id }
+            payload: { ...values, featuredImageUrl: userImage, content: plainTextContent, userId: user?.id }
           })
         }
 
@@ -97,7 +97,7 @@ const BlogDashboard = () => {
       })
   }
   const debouncedSearchTerm = useCallback(
-    debounce((value) => setSearchTerm(value), 500),
+    debounce((value) => setSearchTerm(value), 1000),
     []
   )
 
@@ -181,8 +181,7 @@ const BlogDashboard = () => {
                 />
                 <div className='flex flex-wrap gap-2 mb-4'>
                   {post.tags?.map((tag) => {
-                    const tagData = tags.find((t) => t.name === tag.name)
-                    return <Tag key={tag} color={tagData?.color}></Tag>
+                    return <Tag key={tag}>{tag.name}</Tag>
                   })}
                 </div>
                 <div className='flex justify-between items-center'>
@@ -257,6 +256,9 @@ const BlogDashboard = () => {
             <Form.Item name='content' rules={[{ required: true, message: 'Please input the blog content!' }]}>
               <ReactQuill className='h-64 mb-12' />
             </Form.Item>
+            <Form.Item name='status' initialValue='pending' hidden>
+              <Input rows={2} />
+            </Form.Item>
             <Form.Item name='featuredImageUrl'>
               <Upload
                 maxCount={1}
@@ -285,10 +287,7 @@ const BlogDashboard = () => {
                 </div>
               )}
             </Form.Item>
-            <Form.Item name='isVisible' valuePropName='checked' initialValue={true}>
-              <label className='block mb-2'>DRAFT</label>
-              <Switch />
-            </Form.Item>
+           
           </Form>
         </Modal>
       </div>

@@ -1,6 +1,6 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
-import { FaTools } from 'react-icons/fa'
+import { FaMicroblog, FaTools } from 'react-icons/fa'
 import { FiAlertCircle, FiDollarSign, FiHelpCircle, FiHome, FiPackage, FiType, FiUsers } from 'react-icons/fi'
 import { MdEmail } from 'react-icons/md'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -171,6 +171,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
       { title: 'Feature', icon: <FaTools size={20} />, path: ROUTES.ADMIN.FEATURE },
       { title: 'Reminder Type', icon: <FiType size={20} />, path: ROUTES.ADMIN.REMINDER_TYPE },
       { title: 'Feedback', icon: <FiAlertCircle size={20} />, path: ROUTES.ADMIN.FEEDBACK },
+      { title: 'Blog Management', icon: <FaMicroblog size={20} />, path: ROUTES.ADMIN.BLOG },
       {
         title: 'Contact Subscriber',
         icon: <MdEmail size={20} />,

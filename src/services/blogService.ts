@@ -111,7 +111,23 @@ export const postBlogView = async (blogId: string) => {
     throw error
   }
 }
-
+//Update status blog
+export const updateBlogStatus = async (
+  id: string,
+  status: string,
+) => {
+  try {
+    await request.put<MODEL.IResponseBase>(`/Blog/${id}/Approve?status=${status}`)
+    return true
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
+    return false
+  }
+}
 // Function to create a comment
 export const createComment = async (
   apiCallerId: string,
@@ -134,6 +150,7 @@ export const createComment = async (
     throw error
   }
 }
+
 
 export const updateComment = async (id: string, commentText: string) => {
   try {
