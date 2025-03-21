@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
-import { Tabs, message, Tooltip, Modal, Popconfirm } from 'antd'
-import { FaRegComment, FaShare } from 'react-icons/fa'
-import { MdMoreHoriz, MdEdit, MdDelete, MdClose } from 'react-icons/md'
+import { Tabs, message, Tooltip, Modal, Popconfirm, Dropdown, Menu } from 'antd'
+import { FaRegComment, FaShare, FaEdit, FaTrash } from 'react-icons/fa'
+import { MdMoreHoriz, MdEdit, MdDelete, MdClose, MdMoreVert } from 'react-icons/md'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise, FaRegHeart } from 'react-icons/fa'
 import PostCreationModal from '@/components/PostCreationModal'
@@ -15,7 +15,9 @@ import {
   postBlogView,
   deleteReaction,
   getAllCommentByBlogId,
-  createComment
+  createComment,
+  updateComment,
+  deleteComment
 } from '@/services/blogService'
 
 const { TabPane } = Tabs
@@ -263,6 +265,11 @@ const CommunityPage = () => {
     { name: 'Sad', icon: <FaRegSadTear size={20} className='text-yellow-500' />, color: 'text-yellow-500' },
     { name: 'Angry', icon: <FaRegAngry size={20} className='text-orange-500' />, color: 'text-orange-500' }
   ]
+
+  // Add these state variables
+  const [isEditing, setIsEditing] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [dropdownVisibleFor, setDropdownVisibleFor] = useState<string | null>(null)
 
   // Updated post card component with reaction feature
   const PostCard = ({ post }: { post: BlogPost }) => {
@@ -737,6 +744,129 @@ const CommunityPage = () => {
       }
     }
 
+    // Add state for reply box visibility and reply text
+    const [showReplyBox, setShowReplyBox] = useState<string | null>(null)
+    const [replyText, setReplyText] = useState('')
+    const [showAllReplies, setShowAllReplies] = useState<Record<string, boolean>>({})
+
+    // Add a function to handle reply submission
+    const handleReplySubmit = async (parentCommentId: string) => {
+      if (replyText.trim() === '' || !post.id) return
+
+      try {
+        setSubmittingComment(true)
+
+        const response = await createComment(
+          'postReply', // apiCallerId
+          post.id, // blogId
+          currentUser.id, // userId
+          replyText,
+          parentCommentId // parentCommentId for replies
+        )
+
+        if (response.success) {
+          setReplyText('')
+          setShowReplyBox(null)
+          await fetchComments()
+          message.success('Reply posted successfully')
+        } else {
+          message.error(response.message || 'Failed to post reply')
+        }
+      } catch (error) {
+        console.error('Failed to post reply:', error)
+        message.error('Failed to post reply')
+      } finally {
+        setSubmittingComment(false)
+      }
+    }
+
+    // Add a function to toggle showing all replies for a comment
+    const toggleShowAllReplies = (commentId: string) => {
+      setShowAllReplies((prevState) => ({
+        ...prevState,
+        [commentId]: !prevState[commentId]
+      }))
+    }
+
+    // Add a function to hide replies for a comment
+    const hideReplies = (commentId: string) => {
+      setShowAllReplies((prevState) => ({
+        ...prevState,
+        [commentId]: false
+      }))
+    }
+
+    // Add this function to handle edit initiation
+    const startEditing = (commentId: string, currentText: string) => {
+      setIsEditing(commentId)
+      setEditText(currentText)
+      // Close any open dropdowns
+      setDropdownVisibleFor(null)
+    }
+
+    // Add this function to handle edit submission
+    const handleEditSubmit = async (commentId: string) => {
+      if (editText.trim() === '') return
+
+      try {
+        setSubmittingComment(true)
+        const success = await updateComment(commentId, editText)
+
+        if (success) {
+          message.success('Comment updated successfully')
+          setIsEditing(null)
+          await fetchComments() // Refresh comments
+        } else {
+          message.error('Failed to update comment')
+        }
+      } catch (error) {
+        console.error('Error updating comment:', error)
+        message.error('An error occurred while updating the comment')
+      } finally {
+        setSubmittingComment(false)
+      }
+    }
+
+    // Add this function to cancel editing
+    const cancelEditing = () => {
+      setIsEditing(null)
+      setEditText('')
+    }
+
+    // Add this function to handle comment deletion
+    const handleDeleteComment = async (commentId: string) => {
+      try {
+        setSubmittingComment(true)
+        const success = await deleteComment(commentId)
+
+        if (success) {
+          message.success('Comment deleted successfully')
+          await fetchComments() // Refresh comments
+        } else {
+          message.error('Failed to delete comment')
+        }
+      } catch (error) {
+        console.error('Error deleting comment:', error)
+        message.error('An error occurred while deleting the comment')
+      } finally {
+        setSubmittingComment(false)
+        // Close any open dropdowns
+        setDropdownVisibleFor(null)
+      }
+    }
+
+    // Add function to toggle dropdown visibility
+    const toggleDropdown = (commentId: string, e: React.MouseEvent) => {
+      e.stopPropagation()
+      setDropdownVisibleFor(dropdownVisibleFor === commentId ? null : commentId)
+    }
+
+    // Add this to your PostCard component:
+    const handleDropdownClick = (e: React.MouseEvent) => {
+      // Stop event propagation to prevent modal from closing
+      e.stopPropagation()
+    }
+
     return (
       <div className='bg-white rounded-lg shadow-md overflow-hidden'>
         {/* Post header */}
@@ -1045,6 +1175,8 @@ const CommunityPage = () => {
           closable={false}
           bodyStyle={{ padding: 0 }}
           className='instagram-modal'
+          maskClosable={true}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className='flex flex-col h-[80vh]'>
             {/* Header */}
@@ -1191,32 +1323,271 @@ const CommunityPage = () => {
                     </div>
                   ) : (
                     postComments.map((comment) => (
-                      <div key={comment.id} className='flex items-start space-x-3 py-2'>
-                        <img
-                          src={comment.user.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-                          alt={comment.user.fullName}
-                          className='w-8 h-8 rounded-full object-cover'
-                        />
-                        <div className='flex-1'>
-                          <div>
-                            <span className='font-semibold text-sm mr-2'>{comment.user.fullName}</span>
-                            <span className='text-sm'>{comment.commentText}</span>
-                          </div>
-                          <div className='flex items-center mt-1 text-xs text-gray-500 space-x-3'>
-                            <span>{comment.timeAgo}</span>
-                            <button className='font-medium hover:underline'>Like</button>
-                            <button className='font-medium hover:underline'>Reply</button>
-                          </div>
+                      <div key={comment.id}>
+                        <div className='flex items-start space-x-3 py-2'>
+                          <img
+                            src={
+                              comment.user.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+                            }
+                            alt={comment.user.fullName}
+                            className='w-8 h-8 rounded-full object-cover'
+                          />
+                          <div className='flex-1'>
+                            {isEditing === comment.id ? (
+                              // Edit mode
+                              <div className='flex flex-col'>
+                                <input
+                                  type='text'
+                                  className='w-full p-2 border rounded-md bg-white focus:outline-none text-sm'
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  autoFocus
+                                />
+                                <div className='flex gap-2 mt-2'>
+                                  <button
+                                    onClick={() => handleEditSubmit(comment.id)}
+                                    disabled={!editText.trim() || submittingComment}
+                                    className={`text-xs px-3 py-1 rounded-md font-medium ${
+                                      !editText.trim() || submittingComment
+                                        ? 'bg-gray-200 text-gray-500'
+                                        : 'bg-blue-500 text-white'
+                                    }`}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={cancelEditing}
+                                    className='text-xs px-3 py-1 rounded-md border border-gray-300 text-gray-500'
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              // View mode
+                              <div className='flex items-start justify-between'>
+                                <div>
+                                  <span className='font-semibold text-sm mr-2'>{comment.user.fullName}</span>
+                                  <span className='text-sm'>{comment.commentText}</span>
+                                </div>
+                                {currentUser && currentUser.id === comment.user.id && (
+                                  <div className='relative ml-2'>
+                                    <Dropdown
+                                      overlay={
+                                        <Menu onClick={handleDropdownClick}>
+                                          <Menu.Item
+                                            key='edit'
+                                            onClick={(e) => {
+                                              e.domEvent.stopPropagation()
+                                              startEditing(comment.id, comment.commentText)
+                                            }}
+                                            icon={<FaEdit size={12} />}
+                                          >
+                                            Edit
+                                          </Menu.Item>
+                                          <Menu.Item
+                                            key='delete'
+                                            danger
+                                            onClick={(e) => {
+                                              e.domEvent.stopPropagation()
+                                              Modal.confirm({
+                                                title: 'Delete Comment',
+                                                content:
+                                                  'Are you sure you want to delete this comment? This cannot be undone.',
+                                                okText: 'Delete',
+                                                okType: 'danger',
+                                                cancelText: 'Cancel',
+                                                onOk: () => handleDeleteComment(comment.id)
+                                              })
+                                            }}
+                                            icon={<FaTrash size={12} />}
+                                          >
+                                            Delete
+                                          </Menu.Item>
+                                        </Menu>
+                                      }
+                                      trigger={['click']}
+                                      visible={dropdownVisibleFor === comment.id}
+                                      onVisibleChange={(visible) => {
+                                        if (visible) {
+                                          setDropdownVisibleFor(comment.id)
+                                        } else {
+                                          setDropdownVisibleFor(null)
+                                        }
+                                      }}
+                                      placement='bottomRight'
+                                    >
+                                      <button
+                                        className='text-gray-400 hover:text-gray-600'
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          toggleDropdown(comment.id, e)
+                                        }}
+                                      >
+                                        <MdMoreVert size={16} />
+                                      </button>
+                                    </Dropdown>
+                                  </div>
+                                )}
+                              </div>
+                            )}
 
-                          {/* Replies */}
-                          {comment.replies && comment.replies.length > 0 && (
-                            <div className='ml-8 mt-2'>
-                              <button className='text-xs text-blue-500 hover:underline mb-2'>
-                                View {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
-                              </button>
-                            </div>
-                          )}
+                            {!isEditing && (
+                              <div className='flex items-center mt-1 text-xs text-gray-500 space-x-3'>
+                                <span>{comment.timeAgo}</span>
+                                <button className='font-medium hover:underline'>Like</button>
+                                <button
+                                  className='font-medium hover:underline'
+                                  onClick={() => {
+                                    // Toggle reply box for this comment
+                                    setShowReplyBox((prevState) => (prevState === comment.id ? null : comment.id))
+                                    setReplyText('')
+                                  }}
+                                >
+                                  Reply
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Reply input box */}
+                            {showReplyBox === comment.id && !isEditing && (
+                              <div className='mt-2 flex items-start'>
+                                <div className='flex-1'>
+                                  <div className='flex items-center'>
+                                    <input
+                                      type='text'
+                                      className='w-full p-2 border-none bg-transparent focus:outline-none text-sm'
+                                      placeholder='Write a reply...'
+                                      value={replyText}
+                                      onChange={(e) => setReplyText(e.target.value)}
+                                    />
+                                    <button
+                                      onClick={() => handleReplySubmit(comment.id)}
+                                      disabled={!replyText.trim() || submittingComment}
+                                      className={`text-sm font-semibold ${
+                                        !replyText.trim() || submittingComment ? 'text-blue-300' : 'text-blue-500'
+                                      }`}
+                                    >
+                                      Reply
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Replies section remains the same */}
+                        {comment.replies && comment.replies.length > 0 && (
+                          <div className='ml-11'>
+                            {/* Show all replies toggle */}
+                            {!showAllReplies[comment.id] && (
+                              <button
+                                onClick={() => toggleShowAllReplies(comment.id)}
+                                className='text-sm text-gray-500 hover:underline flex items-center gap-1 mb-1'
+                              >
+                                View {comment.replies.length > 2 ? `all ${comment.replies.length}` : ''} replies
+                              </button>
+                            )}
+
+                            {/* Display replies only if showAllReplies is true for this comment */}
+                            {showAllReplies[comment.id] && (
+                              <>
+                                {comment.replies.map((reply) => (
+                                  <div key={reply.id} className='flex items-start space-x-3 py-2 pl-2'>
+                                    <img
+                                      src={
+                                        reply.user.avatarUrl ||
+                                        'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+                                      }
+                                      alt={reply.user.fullName}
+                                      className='w-8 h-8 rounded-full object-cover'
+                                    />
+                                    <div className='flex-1'>
+                                      <div className='flex items-start justify-between'>
+                                        <div>
+                                          <span className='font-semibold text-sm mr-2'>{reply.user.fullName}</span>
+                                          <span className='text-sm'>{reply.commentText}</span>
+                                        </div>
+                                        {currentUser && currentUser.id === reply.user.id && (
+                                          <div className='relative ml-2'>
+                                            <Dropdown
+                                              overlay={
+                                                <Menu onClick={handleDropdownClick}>
+                                                  <Menu.Item
+                                                    key='edit'
+                                                    onClick={(e) => {
+                                                      e.domEvent.stopPropagation()
+                                                      startEditing(reply.id, reply.commentText)
+                                                    }}
+                                                    icon={<FaEdit size={12} />}
+                                                  >
+                                                    Edit
+                                                  </Menu.Item>
+                                                  <Menu.Item
+                                                    key='delete'
+                                                    danger
+                                                    onClick={(e) => {
+                                                      e.domEvent.stopPropagation()
+                                                      Modal.confirm({
+                                                        title: 'Delete Reply',
+                                                        content:
+                                                          'Are you sure you want to delete this reply? This cannot be undone.',
+                                                        okText: 'Delete',
+                                                        okType: 'danger',
+                                                        cancelText: 'Cancel',
+                                                        onOk: () => handleDeleteComment(reply.id)
+                                                      })
+                                                    }}
+                                                    icon={<FaTrash size={12} />}
+                                                  >
+                                                    Delete
+                                                  </Menu.Item>
+                                                </Menu>
+                                              }
+                                              trigger={['click']}
+                                              visible={dropdownVisibleFor === reply.id}
+                                              onVisibleChange={(visible) => {
+                                                if (visible) {
+                                                  setDropdownVisibleFor(reply.id)
+                                                } else {
+                                                  setDropdownVisibleFor(null)
+                                                }
+                                              }}
+                                              placement='bottomRight'
+                                            >
+                                              <button
+                                                className='text-gray-400 hover:text-gray-600'
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  toggleDropdown(reply.id, e)
+                                                }}
+                                              >
+                                                <MdMoreVert size={16} />
+                                              </button>
+                                            </Dropdown>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className='flex items-center mt-1 text-xs text-gray-500 space-x-3'>
+                                        <span>{reply.timeAgo}</span>
+                                        <button className='font-medium hover:underline'>Like</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                {/* Hide replies button */}
+                                <button
+                                  onClick={() => hideReplies(comment.id)}
+                                  className='text-sm text-gray-500 hover:underline flex items-center gap-1 mt-1'
+                                >
+                                  Hide replies
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))
                   )}

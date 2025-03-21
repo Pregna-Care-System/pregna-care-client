@@ -222,8 +222,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }
 
   const WeekGrid: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    // const currentWeek = record.gestationalAgeResponse?.weeks || 0
-    const currentWeek = 9
+    const currentWeek = record.gestationalAgeResponse?.weeks || 0
     const totalWeeks = record.totalWeeks || 40
 
     // Calculate pagination

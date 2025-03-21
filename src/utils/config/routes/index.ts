@@ -12,7 +12,7 @@ const ROUTES = {
   CONTACT: '/contact',
   FAQ: '/faq',
   BLOG: '/blog',
-  BLOG_DETAILS: '/blog-details',
+  BLOG_DETAILS: '/blog/:id',
   COMMUNITY: '/community',
   COMMUNITY_DETAILS: '/community/:id',
   SERVICES: '/services',
@@ -33,7 +33,7 @@ const ROUTES = {
     FAQ: '/admin/faq',
     FEEDBACK: '/admin/feedback',
     CONTACT: '/admin/contact',
-    REMINDER_TYPE:'/admin/reminder-type',
+    REMINDER_TYPE: '/admin/reminder-type',
     BLOG: '/admin/blog'
   },
   MEMBER: {

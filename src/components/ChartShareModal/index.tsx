@@ -22,6 +22,7 @@ const ChartShareModal: React.FC<ChartShareModalProps> = (props) => {
     const enhancedPostData = {
       ...postData,
       type: 'community'
+      
     }
     onSubmit(enhancedPostData)
   }

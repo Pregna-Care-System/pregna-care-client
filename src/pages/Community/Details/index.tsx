@@ -1025,54 +1025,6 @@ const CommunityCommentDetails = () => {
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className='p-3 border-b'>
-            <div className='flex flex-col'>
-              {/* Reactions count */}
-              {postReactions.length > 0 && (
-                <button
-                  onClick={showReactionsModal}
-                  className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors mb-2 self-start'
-                >
-                  <div className='flex -space-x-1'>
-                    {Object.entries(getReactionsByType())
-                      .slice(0, 3)
-                      .map(([type, reactions]) => (
-                        <span
-                          key={type}
-                          className='w-5 h-5 rounded-full flex items-center justify-center bg-white border border-gray-200 shadow-sm'
-                        >
-                          {getReactionInfo(reactions[0].type).icon}
-                        </span>
-                      ))}
-                  </div>
-                  <span className='text-sm'>
-                    {postReactions.length} {postReactions.length === 1 ? 'reaction' : 'reactions'}
-                  </span>
-                </button>
-              )}
-
-              <div className='flex justify-between mb-2'>
-                <div className='flex space-x-4'>
-                  <button className='text-2xl' onClick={showReactionsModal}>
-                    <FaRegHeart />
-                  </button>
-                  <button className='text-2xl'>
-                    <FaRegComment />
-                  </button>
-                  <button className='text-2xl'>
-                    <FaShare />
-                  </button>
-                </div>
-              </div>
-
-              {postDetail?.likes && postDetail.likes > 0 && (
-                <p className='font-semibold text-sm'>{postDetail.likes} likes</p>
-              )}
-              <p className='text-xs text-gray-500'>{postDetail?.timeAgo}</p>
-            </div>
-          </div>
-
           {/* Comments section */}
           <div className='flex-1 overflow-y-auto p-3 border-b'>
             {/* Comments list */}

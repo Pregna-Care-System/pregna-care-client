@@ -753,7 +753,7 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.content,
       action.payload.shortDescription,
       action.payload.featuredImageUrl,
-      action.payload.isVisible,
+      action.payload.isVisible || true,
       action.payload.type || 'blog',
       action.payload.status || '',
       action.payload.sharedChartData || null
