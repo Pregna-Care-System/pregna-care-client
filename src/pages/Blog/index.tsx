@@ -1,88 +1,74 @@
-import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-import ROUTES from '@/utils/config/routes'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Input, Tag, Badge, Avatar, Empty } from 'antd'
+import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
+import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
+import ROUTES from '@/utils/config/routes'
 
-const Banner = styled.div`
-  position: relative;
+// Styled Components
+const PageWrapper = styled.div`
   width: 100%;
-  height: 400px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #d298e7 100%);
-  margin-bottom: 40px;
-  margin-top: 80px;
-  border-radius: 24px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0 24px;
+  background: #f4ecf6;
+  min-height: 100vh;
+  margin-top: 90px;
+`
 
-  &::before {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    top: -200px;
-    right: -100px;
-    filter: blur(60px);
+const Container = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
+  @media (min-width: 1200px) {
+    padding: 24px;
   }
-  &::after {
-    content: '';
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    bottom: -150px;
-    left: -50px;
-    filter: blur(60px);
+`
+
+const BannerWrapper = styled.div`
+  width: 100%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #d298e7 100%);
+  padding: 40px 20px;
+
+  @media (min-width: 768px) {
+    padding: 60px 20px;
   }
 `
 
 const BannerContent = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
   color: white;
-  position: relative;
-  z-index: 1;
-  margin-bottom: 24px;
 
   h1 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 600;
     margin-bottom: 12px;
+
+    @media (min-width: 768px) {
+      font-size: 32px;
+    }
   }
 
   p {
     font-size: 16px;
     opacity: 0.9;
+    margin-bottom: 24px;
   }
 `
 
 const SearchContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 600px;
-  z-index: 1;
-
-  svg {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    color: #6b7280;
-  }
+  max-width: 500px;
+  margin: 0 auto;
 `
 
-const SearchInput = styled.input`
+const StyledInput = styled(Input)`
   width: 100%;
-  padding: 16px 24px 16px 48px;
+  padding: 12px 20px 12px 40px;
   border: none;
   border-radius: 12px;
   font-size: 16px;
@@ -100,46 +86,35 @@ const SearchInput = styled.input`
   }
 `
 
-const Container = styled.div`
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 24px;
-  background: #f4ecf6;
-`
-
 const TagsContainer = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 24px;
   overflow-x: auto;
   padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
   }
 `
 
-const Tag = styled.button<{ active?: boolean }>`
+const StyledTag = styled(Tag)<{ $active?: boolean }>`
   padding: 6px 16px;
   border-radius: 16px;
-  border: 1px solid ${(props) => (props.active ? '#8b5cf6' : '#eaeaea')};
-  background: ${(props) => (props.active ? '#8b5cf6' : 'transparent')};
-  color: ${(props) => (props.active ? 'white' : '#666')};
+  border: 1px solid ${(props) => (props.$active ? '#8b5cf6' : '#eaeaea')};
+  background: ${(props) => (props.$active ? '#8b5cf6' : 'transparent')};
+  color: ${(props) => (props.$active ? 'white' : '#666')};
   font-size: 14px;
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-right: 0;
 
   &:hover {
     border-color: #8b5cf6;
-    color: ${(props) => (props.active ? 'white' : '#8b5cf6')};
+    color: ${(props) => (props.$active ? 'white' : '#8b5cf6')};
   }
-`
-
-const BlogGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1.8fr 1fr;
-  gap: 32px;
 `
 
 const MainContent = styled.div`
@@ -163,17 +138,27 @@ const MainContent = styled.div`
 `
 
 const FeaturedBlog = styled.div`
-  margin-bottom: 40px;
-  border: 1px solid #bda8a8;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 60px;
-  height: 80%;
+  padding: 24px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  @media (min-width: 768px) {
+    padding: 30px;
+  }
+
   .title {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 600;
     color: #111827;
     margin-bottom: 16px;
-    line-height: 1.2;
+    line-height: 1.3;
+
+    @media (min-width: 768px) {
+      font-size: 28px;
+    }
   }
 
   .meta {
@@ -182,7 +167,30 @@ const FeaturedBlog = styled.div`
     gap: 12px;
     color: #6b7280;
     font-size: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .read-more {
@@ -193,6 +201,7 @@ const FeaturedBlog = styled.div`
     font-weight: 500;
     font-size: 14px;
     padding: 8px 0;
+    transition: all 0.2s ease;
 
     &:hover {
       gap: 12px;
@@ -206,12 +215,38 @@ const FeaturedBlog = styled.div`
       transform: translateX(4px);
     }
   }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 30px;
+    }
+  }
+
+  .text-content {
+    flex: 1;
+  }
+
   .image-container {
-    width: 60%;
-    height: 380px;
+    width: 100%;
+    height: 200px;
     border-radius: 12px;
     overflow: hidden;
-    flex-shrink: 0;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 768px) {
+      width: 40%;
+      height: 240px;
+      flex-shrink: 0;
+    }
 
     img {
       width: 100%;
@@ -219,17 +254,33 @@ const FeaturedBlog = styled.div`
       object-fit: cover;
     }
   }
+
+  .short-description {
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `
 
 const RecentBlogs = styled.div`
   background: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
 
   .header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: #111827;
     font-weight: 600;
+    font-size: 18px;
   }
 `
 
@@ -251,6 +302,10 @@ const RecentBlogCard = styled.article`
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     img {
       width: 100%;
@@ -260,6 +315,8 @@ const RecentBlogCard = styled.article`
   }
 
   .content {
+    flex: 1;
+
     .title {
       font-size: 15px;
       font-weight: 500;
@@ -274,6 +331,28 @@ const RecentBlogCard = styled.article`
       gap: 8px;
       color: #6b7280;
       font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
     }
   }
 
@@ -284,109 +363,198 @@ const RecentBlogCard = styled.article`
   }
 `
 
-export default function BlogPage() {
-  const blogResponse = useSelector(selectBlogInfo)
-  const tagResponse = useSelector(selectTagInfo)
+const StatusBadge = styled(Badge)`
+  .ant-badge-status-dot {
+    width: 8px;
+    height: 8px;
+  }
+`
+
+const NoImagePlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  font-size: 14px;
+`
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Approved':
+      return 'success'
+    case 'Pending':
+      return 'warning'
+    case 'Rejected':
+      return 'error'
+    default:
+      return 'default'
+  }
+}
+
+const getInitials = (name: string) => {
+  if (!name) return 'U'
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2)
+}
+
+const BlogList = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTag, setActiveTag] = useState('all')
   const dispatch = useDispatch()
+  const blogResponse = useSelector(selectBlogInfo)
+  const tagResponse = useSelector(selectTagInfo)
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS' })
     dispatch({ type: 'GET_ALL_TAGS' })
   }, [dispatch])
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
+  const featuredBlog = blogResponse[0] || {
+    id: '1',
+    pageTitle: 'Loading...',
+    fullName: 'Author',
+    timeAgo: 'just now',
+    viewCount: 0,
+    status: 'Approved',
+    tags: [],
+    shortDescription: '',
+    featuredImageUrl: ''
   }
 
-  const featuredBlog = blogResponse[0]
-  const recentBlogs = blogResponse.slice(1)
+  const recentBlogs = blogResponse.slice(1) || []
+
+  const getPageTitle = (blog) => {
+    if (blog.pageTitle && blog.pageTitle.trim() !== '') {
+      return blog.pageTitle
+    }
+
+    // Extract first line from content if pageTitle is empty
+    if (blog.content) {
+      const contentText = blog.content.replace(/<[^>]*>/g, '')
+      const firstLine = contentText.split('.')[0]
+      return firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine
+    }
+
+    return 'Untitled Blog'
+  }
 
   return (
-    <Container>
-      <Banner>
+    <PageWrapper>
+      <BannerWrapper>
         <BannerContent>
           <h1>Discover Our Latest Blogs</h1>
-          <p>Stay updated with the newest design and development stories, case studies, and insights.</p>
+          <p>Stay updated with the newest pregnancy tips and insights.</p>
+          <SearchContainer>
+            <SearchOutlined
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                fontSize: '18px',
+                zIndex: 2
+              }}
+            />
+            <StyledInput
+              placeholder='What are you looking for?'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </SearchContainer>
         </BannerContent>
-        <SearchContainer>
-          <svg
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          >
-            <circle cx='11' cy='11' r='8' />
-            <line x1='21' y1='21' x2='16.65' y2='16.65' />
-          </svg>
-          <SearchInput
-            type='text'
-            placeholder='What are you looking for?'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </SearchContainer>
-      </Banner>
+      </BannerWrapper>
 
-      <BlogGrid>
-        <MainContent>
-          <TagsContainer>
-            <Tag active={activeTag === 'all'} onClick={() => setActiveTag('all')}>
-              All
-            </Tag>
-            {tagResponse.map((tag) => (
-              <Tag key={tag.id} active={activeTag === tag.id} onClick={() => setActiveTag(tag.id)}>
-                {tag.name}
-              </Tag>
-            ))}
-          </TagsContainer>
-          <FeaturedBlog>
-            <div className='best-of-week'>Best of the week</div>
-            <div className='flex justify-between'>
-              <Link to={`${ROUTES.BLOG_DETAILS}/${featuredBlog?.id}`}>
-                <h1 className='title'>{featuredBlog?.pageTitle}</h1>
-                <div className='meta'>
-                  <span>{formatDate(featuredBlog?.createdAt || new Date().toISOString())}</span>
-                </div>
-                <div className='read-more'>
-                  Read blog
-                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-                    <path d='M5 12h14M12 5l7 7-7 7' />
-                  </svg>
-                </div>
-              </Link>
-              <div className='image-container mr-0'>
-                <img src={featuredBlog?.featuredImageUrl} alt={featuredBlog?.pageTitle} />
-              </div>
-            </div>
-          </FeaturedBlog>
-        </MainContent>
-
-        <RecentBlogs>
-          <div className='header'>Recommended</div>
-          {recentBlogs.map((blog) => (
-            <Link to={`${ROUTES.BLOG_DETAILS}/${blog.id}`} key={blog.id}>
-              <RecentBlogCard>
-                <div className='image-container'>
-                  <img src={blog.featuredImageUrl} alt={blog.pageTitle} />
-                </div>
-                <div className='content'>
-                  <h3 className='title'>{blog.pageTitle}</h3>
-                  <div className='meta'>
-                    <span>{formatDate(blog.createdAt || new Date().toISOString())}</span>
-                  </div>
-                </div>
-              </RecentBlogCard>
-            </Link>
+      <Container>
+        <TagsContainer>
+          <StyledTag $active={activeTag === 'all'} onClick={() => setActiveTag('all')}>
+            All
+          </StyledTag>
+          {tagResponse.map((tag) => (
+            <StyledTag key={tag.id} $active={activeTag === tag.id} onClick={() => setActiveTag(tag.id)}>
+              {tag.name}
+            </StyledTag>
           ))}
-        </RecentBlogs>
-      </BlogGrid>
-    </Container>
+        </TagsContainer>
+
+        <MainContent>
+          {blogResponse.length > 0 ? (
+            <FeaturedBlog>
+              <div className='content-wrapper'>
+                <div className='text-content'>
+                  <Link to={`${ROUTES.BLOG}/${featuredBlog?.id}`}>
+                    <h1 className='title'>{getPageTitle(featuredBlog)}</h1>
+
+                    <div className='author'>
+                      <Avatar size={32} style={{ backgroundColor: '#8b5cf6' }}>
+                        {getInitials(featuredBlog.fullName)}
+                      </Avatar>
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{featuredBlog.fullName}</div>
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{featuredBlog.timeAgo}</div>
+                      </div>
+                    </div>
+
+                    {featuredBlog.shortDescription && (
+                      <div className='short-description'>{featuredBlog.shortDescription}</div>
+                    )}
+
+                    <div className='stats'>
+                      <div className='stat-item'>
+                        <EyeOutlined />
+                        <span>{featuredBlog.viewCount} views</span>
+                      </div>
+                    </div>
+
+                    <div className='meta'>
+                      {featuredBlog.tags &&
+                        featuredBlog.tags.map((tag) => (
+                          <Tag key={tag.id} color='purple'>
+                            {tag.name}
+                          </Tag>
+                        ))}
+                    </div>
+
+                    <div className='read-more'>
+                      Read blog
+                      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                        <path d='M5 12h14M12 5l7 7-7 7' />
+                      </svg>
+                    </div>
+                  </Link>
+                </div>
+                <div className='image-container'>
+                  {featuredBlog.featuredImageUrl ? (
+                    <img src={featuredBlog.featuredImageUrl || '/placeholder.svg'} alt={getPageTitle(featuredBlog)} />
+                  ) : (
+                    <NoImagePlaceholder>No image available</NoImagePlaceholder>
+                  )}
+                </div>
+              </div>
+            </FeaturedBlog>
+          ) : (
+            <Empty
+              description='No blogs found'
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              style={{
+                background: 'white',
+                padding: '30px',
+                borderRadius: '16px',
+                marginBottom: '30px'
+              }}
+            />
+          )}
+        </MainContent>
+      </Container>
+    </PageWrapper>
   )
 }
+
+export default BlogList
