@@ -116,3 +116,21 @@ export const getStatusText = (status: string): string => {
       return status
   }
 }
+
+/**
+ * Formats a percentage value to the xx.xx% format
+ * @param {number} value - The percentage value to format
+ * @returns {string} - The formatted percentage string in xx.xx% format
+ */
+export const formatPercentage = (value) => {
+  // Convert to number if it's a string
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  // Check if the value is a valid number
+  if (isNaN(numValue)) {
+    return 'Invalid input';
+  }
+  
+  // Format to 2 decimal places and add % symbol
+  return numValue.toFixed(2) + '%';
+}

@@ -6,7 +6,7 @@ import {
   fetchTotalNewMembers,
   fetchTotalRevenueStats
 } from '@/services/statisticsService'
-import { formatDateTime, formatNumber, generateRandomColor, getInitials } from '@/utils/helper'
+import { formatDateTime, formatNumber, formatPercentage, generateRandomColor, getInitials } from '@/utils/helper'
 import { Avatar, message } from 'antd'
 import { ApexOptions } from 'apexcharts'
 import { useCallback, useEffect, useState } from 'react'
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
                     ) : (
                       <FiArrowDown className='w-4 h-4 text-red-500 mr-1' />
                     )}
-                    <span className='text-gray-500 text-sm font-medium'>{stat.percentageChange} %</span>
+                    <span className='text-gray-500 text-sm font-medium'>{formatPercentage(stat.percentageChange)} %</span>
                     <span className='text-gray-500 text-xs ml-1'>{stat.description}</span>
                   </div>
                 </div>
