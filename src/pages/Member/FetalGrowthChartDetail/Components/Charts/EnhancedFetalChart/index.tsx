@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Col, message, Row, Select, Spin, Statistic, Tabs, Typography } from 'antd'
 import Chart from 'react-apexcharts'
 import { ShareAltOutlined } from '@ant-design/icons'
-import html2canvas from 'html2canvas'
 import ChartShareModal from '@/components/ChartShareModal'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
@@ -314,7 +313,16 @@ export default function EnhancedFetalChart({
           <Text type='secondary'>Track fetal development measurements over time</Text>
         </div>
         {sharing && (
-          <Button type='primary' icon={<ShareAltOutlined />}>
+          <Button
+            type='primary'
+            icon={<ShareAltOutlined />}
+            onClick={() => {
+              // Prepare chart data for sharing
+              setProcessedChartData(fetalData)
+              // Open the modal
+              setIsShareModalOpen(true)
+            }}
+          >
             Share Chart
           </Button>
         )}
@@ -403,7 +411,8 @@ export default function EnhancedFetalChart({
             payload: {
               ...postData,
               userId: currentUser?.id,
-              featuredImageUrl: chartImageUrl || '',
+              // Remove or set to empty string:
+              featuredImageUrl: '',
               type: 'community',
               sharedChartData: prepareChartDataForSharing()
             },

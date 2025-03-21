@@ -19,9 +19,18 @@ interface CreateModalProps {
   formItem: FormItem[]
   handleSubmit: (values: any) => void
   form: FormInstance
+  loading?: boolean
 }
 
-export const CreateModal: React.FC<CreateModalProps> = ({ isOpen, title, onClose, formItem, handleSubmit, form }) => {
+export const CreateModal: React.FC<CreateModalProps> = ({
+  isOpen,
+  title,
+  onClose,
+  formItem,
+  handleSubmit,
+  form,
+  loading = false
+}) => {
   const onFinish = (values: any) => {
     handleSubmit(values)
   }
@@ -79,12 +88,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({ isOpen, title, onClose
         </Row>
 
         <div className={styles.formActions}>
-          <Button onClick={onClose} className={styles.cancelButton}>
+          <Button onClick={onClose} className={styles.cancelButton} disabled={loading}>
             Cancel
           </Button>
           <Button
+            key={'submit'}
             type='primary'
-            htmlType='submit'
+            onClick={() => form.submit()}
+            loading={loading}
+            disabled={loading}
             className={styles.submitButton}
             style={{ background: primaryColor, borderColor: primaryColor }}
           >
