@@ -201,22 +201,24 @@ export const createPostReaction = async (userId: string, blogId: string, reactio
   }
 }
 
+export const updateReaction = async (id: string, type: string) => {
+  try {
+    await request.put<MODEL.IResponseBase>(`/Reaction/${id}`, {
+      type
+    })
+    return true
+  } catch (error) {
+    console.error('Update reaction failed', error)
+    return false
+  }
+}
+
 export const getAllReactionByBlogId = async (blogId: string) => {
   try {
-    console.log(`Calling API to get reactions for blog ID: ${blogId}`)
     const response = await request.get<MODEL.IResponseBase>(`/Blog/${blogId}/Reaction`)
-
-    console.log('Raw reaction API response:', response)
 
     // Check if response has the expected structure
     if (response && response.data) {
-      console.log('Reaction data structure:', {
-        success: response.data.success,
-        hasResponse: !!response.data.response,
-        responseType: typeof response.data.response,
-        isArray: Array.isArray(response.data.response)
-      })
-
       // If response is successful but empty, return an appropriate response
       if (response.data.success && !response.data.response) {
         return {
@@ -238,12 +240,16 @@ export const getAllReactionByBlogId = async (blogId: string) => {
   }
 }
 
-export const deleteReaction = async (id: string) => {
+// Add this function to delete a reaction
+export const deleteReaction = async (blogId: string) => {
   try {
-    await request.delete<MODEL.IResponseBase>(`/Reaction/${id}`)
-    return true
+    const response = await request.delete<MODEL.IResponseBase>(`/Reaction/${blogId}`)
+    return response.data
   } catch (error) {
-    console.error('Delete reaction by id failed', error)
-    return false
+    console.error('Delete reaction failed', error)
+    return {
+      success: false,
+      message: 'Failed to delete reaction'
+    }
   }
 }

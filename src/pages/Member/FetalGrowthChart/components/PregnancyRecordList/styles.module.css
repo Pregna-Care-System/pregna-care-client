@@ -352,3 +352,58 @@
   }
 }
 
+/* Add these new button styles */
+.addButton {
+  background-color: #FF6B81 !important;
+  border-color: #FF6B81 !important;
+  color: white !important;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.addButton:hover {
+  background-color: #FF8296 !important;
+  border-color: #FF8296 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
+}
+
+.editButton {
+  background-color: #FF6B81 !important;
+  border-color: #FF6B81 !important;
+  color: white !important;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.editButton:hover {
+  background-color: #FF8296 !important;
+  border-color: #FF8296 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
+}
+
+.detailsButton {
+  background-color: white;
+  border-color: #FF6B81;
+  color: #FF6B81;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.detailsButtonActive {
+  background-color: #FF6B81 !important;
+  border-color: #FF6B81 !important;
+  color: white !important;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.detailsButton:hover, .detailsButtonActive:hover {
+  background-color: #FFF1F3;
+  border-color: #FF6B81;
+  color: #FF6B81;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.2);
+}
+

@@ -33,6 +33,9 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   const [currentPage, setCurrentPage] = useState(1)
   const [form] = Form.useForm()
 
+  // Add a new state for tracking submission loading
+  const [submitting, setSubmitting] = useState(false)
+
   const pageSize = 10 // Number of weeks per page
   const growthMetrics = useSelector(selectGrowthMetricsOfWeek) || []
   const user = useSelector(selectUserInfo)
@@ -46,28 +49,139 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }, [activeCard, dispatch])
 
   const handleSubmit = (values: any) => {
-    const payload = {
-      pregnancyRecordId: activeCard,
-      fetalGrowthRecords: Object.entries(values)
-        .filter(([key]) => key !== 'userId' && key !== 'week')
-        .map(([key, value]) => ({
-          name: key,
-          value: value as string
-        })),
-      week: form.getFieldValue('week'),
-      userId: user.id
+    setSubmitting(true)
+
+    const week = form.getFieldValue('week')
+    const weekData = Array.isArray(fetalGrowthRecord) ? fetalGrowthRecord.filter((r: any) => r.week === week) : []
+
+    const hasExistingData = weekData.length > 0
+
+    if (hasExistingData) {
+      // Handle updates - create an array of update operations
+      const updatePromises = Object.entries(values)
+        .filter(([key]) => !key.includes('_id') && key !== 'week' && key !== 'userId')
+        .map(async ([key, value]) => {
+          // Get the ID of this particular record if it exists
+          const recordId = form.getFieldValue(`${key}_id`)
+          const existingRecord = weekData.find((r: any) => r.name === key)
+
+          if (existingRecord && recordId) {
+            // Update existing record
+            return dispatch({
+              type: 'UPDATE_FETAL_GROWTH_RECORD',
+              payload: {
+                apiCallerId: 'updateFetalGrowth',
+                fetalGrowthRecordId: recordId,
+                name: key,
+                value: value as string,
+                week: week,
+                unit: existingRecord.unit || '',
+                description: existingRecord.description || '',
+                note: ''
+              }
+            })
+          } else {
+            // Create new record
+            return dispatch({
+              type: 'CREATE_FETAL_GROWTH_RECORD',
+              payload: {
+                pregnancyRecordId: activeCard,
+                createFetalGrowthRecordEntities: [
+                  {
+                    name: key,
+                    value: value as string
+                  }
+                ],
+                week: week,
+                userId: user.id
+              }
+            })
+          }
+        })
+
+      // Execute all operations and handle the results
+      Promise.all(updatePromises)
+        .then(() => {
+          setSubmitting(false)
+          setIsModalOpen(false)
+
+          // Refresh data after all updates complete
+          dispatch({
+            type: 'GET_FETAL_GROWTH_RECORDS',
+            payload: { pregnancyRecordId: activeCard }
+          })
+        })
+        .catch((error) => {
+          console.error('Error updating records:', error)
+          setSubmitting(false)
+        })
+    } else {
+      // Handle new records - existing implementation
+      const payload = {
+        pregnancyRecordId: activeCard,
+        createFetalGrowthRecordEntities: Object.entries(values)
+          .filter(([key]) => !key.includes('_id') && key !== 'userId' && key !== 'week')
+          .map(([key, value]) => ({
+            name: key,
+            value: value as string
+          })),
+        week: week,
+        userId: user.id
+      }
+
+      dispatch({
+        type: 'CREATE_FETAL_GROWTH_RECORD',
+        payload,
+        callback: (success: boolean) => {
+          setSubmitting(false)
+          if (success) {
+            setIsModalOpen(false)
+            dispatch({
+              type: 'GET_FETAL_GROWTH_RECORDS',
+              payload: { pregnancyRecordId: activeCard }
+            })
+          }
+        }
+      })
     }
-    dispatch({ type: 'CREATE_FETAL_GROWTH_RECORD', payload })
-    setIsModalOpen(false)
   }
 
   const handleOpenModal = (week: number, e: React.MouseEvent) => {
     e.stopPropagation()
+
+    // Get metrics available for this week
     dispatch({
       type: 'GET_ALL_GROWTH_METRICS_OF_WEEK',
       payload: { week }
     })
+
+    // Set week in form
     form.setFieldValue('week', week)
+
+    // Check if we have existing data for this week
+    if (Array.isArray(fetalGrowthRecord)) {
+      const weekData = fetalGrowthRecord.filter((r: any) => r.week === week)
+
+      // Reset form first to clear previous values
+      form.resetFields(['week'])
+      form.setFieldValue('week', week)
+
+      // If we have data, populate the form fields
+      if (weekData.length > 0) {
+        const formValues: Record<string, string> = {}
+
+        // Create an object with values keyed by metric name
+        weekData.forEach((item: any) => {
+          formValues[item.name] = item.value
+          // Store record ID for updating
+          form.setFieldValue(`${item.name}_id`, item.id)
+        })
+
+        // Set all form values
+        form.setFieldsValue(formValues)
+      }
+    }
+
     setIsModalOpen(true)
   }
 
@@ -108,7 +222,8 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }
 
   const WeekGrid: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    const currentWeek = record.gestationalAgeResponse?.weeks || 0
+    // const currentWeek = record.gestationalAgeResponse?.weeks || 0
+    const currentWeek = 9
     const totalWeeks = record.totalWeeks || 40
 
     // Calculate pagination
@@ -121,7 +236,11 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
         <div className={`${styles.weekGrid} grid grid-cols-5 gap-4`}>
           {weeks.map((weekNumber) => {
             const status = getWeekStatus(currentWeek, weekNumber)
-            const weekData = fetalGrowthRecord.filter((r: any) => r.week === weekNumber)
+
+            // Check if fetalGrowthRecord is an array before using filter
+            const weekData = Array.isArray(fetalGrowthRecord)
+              ? fetalGrowthRecord.filter((r: any) => r.week === weekNumber)
+              : []
 
             return (
               <Card key={weekNumber} className={`${styles.weekCard} ${styles[status]}`} bordered={false}>
@@ -150,21 +269,32 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
                 </div>
 
                 <div className={styles.weekCardActions}>
-                  {status === 'process' && (
+                  {status === 'process' ? (
                     <Button
                       type='primary'
                       icon={<EditOutlined />}
                       onClick={(e) => handleOpenModal(weekNumber, e)}
-                      className={styles.actionButton}
+                      className={styles.addButton}
                     >
                       Add
                     </Button>
+                  ) : (
+                    weekData.length > 0 && (
+                      <Button
+                        type='primary'
+                        icon={<EditOutlined />}
+                        onClick={(e) => handleOpenModal(weekNumber, e)}
+                        className={styles.editButton}
+                      >
+                        Edit
+                      </Button>
+                    )
                   )}
                   <Button
-                    type={weekData.length > 0 ? 'primary' : 'default'}
+                    type='default'
                     icon={<EyeOutlined />}
                     onClick={(e) => handleOpenDetailModal(weekNumber, e)}
-                    className={styles.actionButton}
+                    className={weekData.length > 0 ? styles.detailsButtonActive : styles.detailsButton}
                   >
                     Details
                   </Button>
@@ -266,7 +396,12 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
       <CreateModal
         isOpen={isModalOpen}
         title='Add Weekly Record'
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          // Don't allow closing while submitting
+          if (!submitting) {
+            setIsModalOpen(false)
+          }
+        }}
         formItem={growthMetrics.map((item: any) => ({
           name: item.name,
           label: item.name,
@@ -274,13 +409,16 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
         }))}
         handleSubmit={handleSubmit}
         form={form}
+        loading={submitting} // Pass the submitting state to the modal
       />
 
       {selectedWeek && (
         <WeekDetailModal
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
-          weekData={fetalGrowthRecord.filter((r: any) => r.week === selectedWeek)}
+          weekData={
+            Array.isArray(fetalGrowthRecord) ? fetalGrowthRecord.filter((r: any) => r.week === selectedWeek) : []
+          }
           weekNumber={selectedWeek}
           onEdit={handleEditFromDetail}
           status={getWeekStatus(activeRecord?.gestationalAgeResponse?.weeks || 0, selectedWeek)}

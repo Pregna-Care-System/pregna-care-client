@@ -23,8 +23,9 @@ import {
   getBlogById,
   updateComment,
   deleteComment,
-  convertHtmlToPlainText,
-  getAllReactionByBlogId
+  getAllReactionByBlogId,
+  createPostReaction,
+  deleteReaction
 } from '@/services/blogService'
 import ROUTES from '@/utils/config/routes'
 import { MdClose, MdMoreVert } from 'react-icons/md'
@@ -121,6 +122,11 @@ const CommunityCommentDetails = () => {
   // Get user information
   const currentUser = useSelector(selectUserInfo)
 
+  // Add state for user reaction
+  const [userReaction, setUserReaction] = useState<string>('')
+  const [showReactionPanel, setShowReactionPanel] = useState(false)
+  const reactionPanelRef = useRef<HTMLDivElement>(null)
+
   // Function to fetch reactions - MOVED HERE BEFORE ANY CALLS TO IT
   const fetchReactions = async () => {
     if (!id) return
@@ -165,7 +171,16 @@ const CommunityCommentDetails = () => {
   }
 
   // Map reaction type number to reaction name and icon
-  const getReactionInfo = (type: string) => {
+  const getReactionInfo = (type: string | undefined) => {
+    // Ensure we have a valid type
+    if (!type) {
+      return {
+        name: 'Like',
+        icon: <AiFillLike size={16} className='text-blue-500' />,
+        color: 'text-blue-500'
+      }
+    }
+
     const numberToReaction: Record<string, { name: string; icon: JSX.Element; color: string }> = {
       '1': { name: 'Like', icon: <AiFillLike size={16} className='text-blue-500' />, color: 'text-blue-500' },
       '2': { name: 'Love', icon: <FaHeart size={16} className='text-red-500' />, color: 'text-red-500' },
@@ -366,6 +381,61 @@ const CommunityCommentDetails = () => {
     }, 50)
   }
 
+  const handleReactionHover = () => {
+    setShowReactionPanel(true)
+  }
+
+  const handleReactionPanelLeave = () => {
+    setTimeout(() => {
+      setShowReactionPanel(false)
+    }, 500)
+  }
+
+  const handleReaction = async (reactionType: string) => {
+    if (!currentUser || !currentUser.id) {
+      message.error('Please login to react')
+      return
+    }
+
+    try {
+      const isRemovingReaction = reactionType === userReaction
+
+      // Update UI optimistically
+      setUserReaction(isRemovingReaction ? '' : reactionType)
+
+      // Map reaction name to type number
+      const reactionMap: Record<string, string> = {
+        Like: '1',
+        Love: '2',
+        Haha: '3',
+        Wow: '4',
+        Sad: '5',
+        Angry: '6'
+      }
+
+      let result
+      if (isRemovingReaction) {
+        // Use the corrected deleteReaction API call with the right parameters
+        result = await deleteReaction(currentUser.id, id!)
+      } else {
+        const typeNumber = reactionMap[reactionType] || '1'
+        result = await createPostReaction(currentUser.id, id!, typeNumber)
+      }
+
+      if (result && result.success) {
+        message.success(isRemovingReaction ? 'Reaction removed' : `Reacted with ${reactionType}`)
+        await fetchReactions() // Refresh reactions
+      } else {
+        throw new Error(result?.message || 'Failed to update reaction')
+      }
+    } catch (error) {
+      console.error('Error handling reaction:', error)
+      message.error('Failed to update reaction')
+      // Revert UI state on error
+      setUserReaction(isRemovingReaction ? reactionType : '')
+    }
+  }
+
   useEffect(() => {
     if (id) {
       fetchPostDetails()
@@ -394,6 +464,18 @@ const CommunityCommentDetails = () => {
       }
     }
   }, [postDetail])
+
+  useEffect(() => {
+    if (currentUser && postReactions.length > 0) {
+      const userReaction = postReactions.find((r) => r.userId === currentUser.id && r.type !== undefined)
+      if (userReaction && userReaction.type) {
+        const reactionName = getReactionInfo(userReaction.type).name
+        setUserReaction(reactionName)
+      } else {
+        setUserReaction('')
+      }
+    }
+  }, [postReactions, currentUser])
 
   if (loading && !postDetail) {
     return (
@@ -838,6 +920,41 @@ const CommunityCommentDetails = () => {
                   <FaRegCommentDots />
                   <span>View All Comments</span>
                 </button>
+                <div className='flex-1 relative'>
+                  <button
+                    className='text-gray-500 hover:text-pink-600 transition-colors'
+                    onMouseEnter={handleReactionHover}
+                    onMouseLeave={handleReactionPanelLeave}
+                  >
+                    {!userReaction ? (
+                      <FaRegHeart size={24} />
+                    ) : (
+                      getReactionInfo(postReactions.find((r) => r.userId === currentUser.id)?.type || '1').icon
+                    )}
+                  </button>
+
+                  {showReactionPanel && (
+                    <div
+                      ref={reactionPanelRef}
+                      onMouseEnter={handleReactionHover}
+                      onMouseLeave={handleReactionPanelLeave}
+                      className='absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg px-3 py-2 flex items-center space-x-3 z-10'
+                    >
+                      {Object.values(getReactionInfo).map((reaction, index) => (
+                        <div
+                          key={index}
+                          onClick={() => handleReaction(reaction.name)}
+                          className={`hover:bg-gray-100 p-2 rounded-full cursor-pointer ${
+                            userReaction === reaction.name ? 'bg-gray-100 scale-110' : ''
+                          }`}
+                          title={reaction.name}
+                        >
+                          {reaction.icon}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

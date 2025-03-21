@@ -38,8 +38,6 @@ const WeekDetailModal: React.FC<WeekDetailModalProps> = ({ isOpen, onClose, week
     }
   }
 
-  console.log(weekData)
-
   return (
     <Modal
       open={isOpen}

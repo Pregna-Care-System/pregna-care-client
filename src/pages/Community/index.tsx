@@ -5,11 +5,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
 import { Tabs, message, Tooltip, Modal, Popconfirm } from 'antd'
 import { FaRegComment, FaShare } from 'react-icons/fa'
-import { MdMoreHoriz, MdEdit, MdDelete } from 'react-icons/md'
+import { MdMoreHoriz, MdEdit, MdDelete, MdClose } from 'react-icons/md'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
-import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise } from 'react-icons/fa'
+import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise, FaRegHeart } from 'react-icons/fa'
 import PostCreationModal from '@/components/PostCreationModal'
-import { getAllReactionByBlogId, createPostReaction, postBlogView } from '@/services/blogService'
+import {
+  getAllReactionByBlogId,
+  createPostReaction,
+  postBlogView,
+  deleteReaction,
+  getAllCommentByBlogId,
+  createComment
+} from '@/services/blogService'
 
 const { TabPane } = Tabs
 
@@ -82,7 +89,7 @@ const CommunityPage = () => {
 
   const handleCreatePost = async (postData: {
     content: string
-    images: string[]
+    images: string | string[] // Update type to handle both string and array
     tagIds: string[]
     type?: string
     chartData?: any
@@ -95,6 +102,18 @@ const CommunityPage = () => {
       const hashtagRegex = /#[a-zA-Z0-9_]+/g
       const hashtags = textContent.match(hashtagRegex) || []
 
+      // Fix the featuredImageUrl format issue
+      let featuredImageUrl = ''
+
+      // If images is a string, use it directly
+      if (typeof postData.images === 'string') {
+        featuredImageUrl = postData.images.trim()
+      }
+      // If images is an array, use the first image
+      else if (Array.isArray(postData.images) && postData.images.length > 0) {
+        featuredImageUrl = postData.images[0]
+      }
+
       // Create blog post through Redux action
       dispatch({
         type: 'CREATE_BLOG',
@@ -103,7 +122,7 @@ const CommunityPage = () => {
           content: postData.content, // Contains inline images from Froala
           userId: currentUser.id,
           hashtags: hashtags.map((tag) => tag.substring(1)), // Remove # from hashtags
-          featuredImageUrl: postData.images, // Separately uploaded images
+          featuredImageUrl: featuredImageUrl, // Use properly formatted featuredImageUrl
           tagIds: postData.tagIds
         },
         callback: (success: boolean, msg?: string) => {
@@ -260,15 +279,27 @@ const CommunityPage = () => {
     const [showPostMenu, setShowPostMenu] = useState(false)
     const postMenuRef = useRef<HTMLDivElement>(null)
 
+    // Add these state variables to the PostCard component:
+    const [isCommentModalVisible, setIsCommentModalVisible] = useState(false)
+    const [postComments, setPostComments] = useState<any[]>([])
+    const [loadingComments, setLoadingComments] = useState(false)
+    const [commentText, setCommentText] = useState('')
+    const [submittingComment, setSubmittingComment] = useState(false)
+    const commentInputRef = useRef<HTMLInputElement>(null)
+
+    // Thêm state này vào PostCard component
+    const [popconfirmVisible, setPopconfirmVisible] = useState(false)
+
     // Get user's reaction if exists
     useEffect(() => {
       if (currentUser && postReactions.length > 0) {
         // Check if userId format matches
         const userReaction = postReactions.find((r) => {
-          return r.userId === currentUser.id
+          // Add null check before accessing type
+          return r.userId === currentUser.id && r.type !== undefined
         })
 
-        if (userReaction) {
+        if (userReaction && userReaction.type !== undefined) {
           setSelectedReaction(getReactionTypeFromNumber(userReaction.type.toString()))
         } else {
           setSelectedReaction('')
@@ -383,15 +414,33 @@ const CommunityPage = () => {
 
     // Handle reaction selection
     const handleReaction = async (reaction: string) => {
-      // If user is not logged in, show error message
       if (!currentUser || !currentUser.id) {
-        message.error('Please login to react to posts')
+        message.error('Please login to react')
         return
       }
 
       try {
+        console.log('Current reaction:', selectedReaction, 'New reaction:', reaction)
+
         // Check if user is toggling the same reaction (removing it)
-        const isRemovingReaction = reaction === selectedReaction
+        // Khi reaction truyền vào rỗng (click vào nút reaction hiện tại) hoặc giống với reaction hiện tại
+        // thì cần xóa reaction
+        const isRemovingReaction = reaction === selectedReaction || reaction === ''
+
+        console.log('Is removing reaction:', isRemovingReaction)
+
+        // Find user's current reaction ID for deletion
+        let userReactionId = null
+        if (isRemovingReaction) {
+          // Tìm reaction ID của user hiện tại
+          const userReaction = postReactions.find((r) => r.userId === currentUser.id)
+
+          console.log('Found user reaction:', userReaction)
+
+          if (userReaction) {
+            userReactionId = userReaction.id
+          }
+        }
 
         // Update local state immediately for UI responsiveness
         setSelectedReaction(isRemovingReaction ? '' : reaction)
@@ -407,46 +456,41 @@ const CommunityPage = () => {
           Angry: '6'
         }
 
-        // Set type value based on whether we're adding or removing a reaction
-        let type = '0'
-        if (!isRemovingReaction) {
-          type = reactionMap[reaction] || '1'
-        }
-
-        // Call the API
         try {
-          const result = await createPostReaction(currentUser.id, post.id, type)
+          let result
+          if (isRemovingReaction) {
+            if (!userReactionId) {
+              console.error('Could not find user reaction ID for deletion')
+              return
+            }
+            console.log('Deleting reaction ID:', userReactionId)
+            // Use the reaction ID instead of post.id
+            result = await deleteReaction(userReactionId)
+          } else {
+            // Add or update the reaction
+            const type = reactionMap[reaction] || '1'
+            result = await createPostReaction(currentUser.id, post.id, type)
+          }
 
           if (result && result.success) {
-            // Success message based on operation
-            if (isRemovingReaction) {
-              message.success('Reaction removed')
+            // Refresh post reactions after successful action
+            const response = await getAllReactionByBlogId(post.id)
 
-              // Immediately update local reaction count
-              const updatedReactions = postReactions.filter((r) => r.userId !== currentUser.id)
-              setPostReactions(updatedReactions)
-              setTotalReactions((prevCount) => Math.max(0, prevCount - 1))
-            } else {
-              message.success(`Reacted with ${reaction}`)
+            if (response && response.success) {
+              if (response.response) {
+                let reactions = response.response
 
-              // Check if the user had a previous reaction
-              const existingReaction = postReactions.find((r) => r.userId === currentUser.id)
-
-              if (existingReaction) {
-                // Update the existing reaction
-                const updatedReactions = postReactions.map((r) =>
-                  r.userId === currentUser.id ? { ...r, type: reactionMap[reaction] } : r
-                )
-                setPostReactions(updatedReactions)
-              } else {
-                // Add a new reaction
-                const newReaction = {
-                  userId: currentUser.id,
-                  type: reactionMap[reaction],
-                  blogId: post.id
+                // Update the state with fresh data
+                if (Array.isArray(reactions)) {
+                  setPostReactions(reactions)
+                  setTotalReactions(reactions.length)
+                } else if (typeof reactions === 'object' && reactions.items) {
+                  setPostReactions(reactions.items)
+                  setTotalReactions(reactions.items.length)
                 }
-                setPostReactions([...postReactions, newReaction])
-                setTotalReactions((prevCount) => prevCount + 1)
+              } else {
+                setPostReactions([])
+                setTotalReactions(0)
               }
             }
           } else {
@@ -454,26 +498,13 @@ const CommunityPage = () => {
           }
         } catch (apiError) {
           console.error('API error:', apiError)
-          message.error(`Failed to ${isRemovingReaction ? 'remove' : 'add'} reaction`)
-          // Revert local state on error
+          // Revert UI state since API call failed
           setSelectedReaction(isRemovingReaction ? reaction : '')
-          return
+          message.error('Failed to update reaction')
         }
-
-        // Refresh the reactions for this post
-        const response = await getAllReactionByBlogId(post.id)
-        if (response && response.success && response.response) {
-          if (Array.isArray(response.response)) {
-            setPostReactions(response.response)
-            setTotalReactions(response.response.length)
-          }
-        }
-
-        // Manually refresh the posts after successful update
-        dispatch({ type: 'GET_ALL_BLOGS' })
       } catch (error) {
-        console.error('Error updating reaction:', error)
-        message.error('Failed to update reaction')
+        console.error('Error handling reaction:', error)
+        message.error('An error occurred')
       }
     }
 
@@ -488,6 +519,7 @@ const CommunityPage = () => {
         )
 
       const reaction = reactions.find((r) => r.name === selectedReaction)
+
       if (!reaction)
         return (
           <>
@@ -568,21 +600,23 @@ const CommunityPage = () => {
       setShowPostMenu(false)
     }
 
-    // Handle post delete with the correct type signature
+    // In the handleDeletePost function
     const handleDeletePost = (e?: React.MouseEvent<HTMLElement>) => {
+      debugger
+      // Remove debugger statement
       if (e) {
         e.stopPropagation()
         e.preventDefault()
       }
 
-      // Dispatch delete action
+      // Dispatch delete action with a callback for success
       dispatch({
         type: 'DELETE_BLOG',
         payload: post.id,
         callback: (success: boolean, msg?: string) => {
           if (success) {
             message.success('Post deleted successfully')
-            // Refresh posts
+            // Refresh the blog list after successful deletion
             dispatch({ type: 'GET_ALL_BLOGS' })
           } else {
             message.error(msg || 'Failed to delete post')
@@ -614,6 +648,94 @@ const CommunityPage = () => {
         document.removeEventListener('mousedown', handleClickOutside)
       }
     }, [])
+
+    // Add a function to fetch comments
+    const fetchComments = async () => {
+      if (!post.id) return
+
+      try {
+        setLoadingComments(true)
+        const response = await getAllCommentByBlogId(post.id)
+        if (response && response.success && response.response) {
+          setPostComments(response.response)
+        } else {
+          setPostComments([])
+        }
+      } catch (error) {
+        console.error('Failed to fetch comments:', error)
+        message.error('Failed to load comments')
+        setPostComments([])
+      } finally {
+        setLoadingComments(false)
+      }
+    }
+
+    // Add a function to handle comment submission
+    const handleCommentSubmit = async () => {
+      if (commentText.trim() === '' || !post.id) return
+
+      try {
+        setSubmittingComment(true)
+
+        const response = await createComment(
+          'postComment', // apiCallerId
+          post.id, // blogId
+          currentUser.id, // userId
+          commentText,
+          null // parentCommentId empty for top-level comments
+        )
+
+        if (response.success) {
+          setCommentText('')
+          await fetchComments()
+          message.success('Comment posted successfully')
+        } else {
+          message.error(response.message || 'Failed to post comment')
+        }
+      } catch (error) {
+        console.error('Failed to post comment:', error)
+        message.error('Failed to post comment')
+      } finally {
+        setSubmittingComment(false)
+      }
+    }
+
+    // Add a function to show the comment modal
+    const showCommentModal = async (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      setIsCommentModalVisible(true)
+      await fetchComments()
+
+      // Focus comment input after modal is shown
+      setTimeout(() => {
+        if (commentInputRef.current) {
+          commentInputRef.current.focus()
+        }
+      }, 3000)
+    }
+
+    // Create a function that returns another function
+    const createDeleteHandler = () => {
+      debugger
+      return () => {
+        // Call dispatch directly
+        dispatch({
+          type: 'DELETE_BLOG',
+          payload: post.id,
+          callback: (success: boolean, msg?: string) => {
+            if (success) {
+              message.success('Post deleted successfully')
+              dispatch({ type: 'GET_ALL_BLOGS' })
+            } else {
+              message.error(msg || 'Failed to delete post')
+            }
+          }
+        })
+        setShowPostMenu(false)
+      }
+    }
 
     return (
       <div className='bg-white rounded-lg shadow-md overflow-hidden'>
@@ -649,7 +771,7 @@ const CommunityPage = () => {
               </div>
             </div>
             <div className='relative'>
-              <button className='text-gray-500 hover:bg-gray-100 p-2 rounded-full' onClick={togglePostMenu}>
+              <button onClick={togglePostMenu}>
                 <MdMoreHoriz />
               </button>
 
@@ -667,11 +789,41 @@ const CommunityPage = () => {
                       <Popconfirm
                         title='Delete post'
                         description='Are you sure you want to delete this post?'
-                        onConfirm={handleDeletePost}
+                        open={popconfirmVisible}
+                        onConfirm={() => {
+                          // Gọi dispatch để xóa bài viết
+                          dispatch({
+                            type: 'DELETE_BLOG',
+                            payload: post.id,
+                            callback: (success: boolean, msg?: string) => {
+                              if (success) {
+                                message.success('Post deleted successfully')
+                                dispatch({ type: 'GET_ALL_BLOGS' })
+                              } else {
+                                message.error(msg || 'Failed to delete post')
+                              }
+                            }
+                          })
+                          // Đóng menu
+                          setShowPostMenu(false)
+                          // Đóng popconfirm
+                          setPopconfirmVisible(false)
+                        }}
                         okText='Yes'
                         cancelText='No'
+                        onCancel={() => {
+                          setPopconfirmVisible(false)
+                        }}
                       >
-                        <button className='flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100'>
+                        <button
+                          className='flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100'
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            // Khi bấm Delete Post, hiển thị Popconfirm
+                            setPopconfirmVisible(true)
+                          }}
+                        >
                           <MdDelete className='mr-2' /> Delete Post
                         </button>
                       </Popconfirm>
@@ -691,6 +843,33 @@ const CommunityPage = () => {
           >
             <div className='mt-3 text-gray-800'>{formatContent(post.content || post.shortDescription || '')}</div>
           </Link>
+
+          {post.type === 'chart' || post.sharedChartData ? (
+            <div className='mt-3 mb-2'>
+              <Link
+                to={`${ROUTES.COMMUNITY}/${post.id}`}
+                className='inline-flex items-center px-4 py-2 bg-pink-100 text-pink-600 rounded-lg hover:bg-pink-200 transition-colors'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  postBlogView(post.id)
+                }}
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-5 w-5 mr-2'
+                  viewBox='0 0 20 20'
+                  fill='currentColor'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M3 3a1 1 0 000 2h14a1 1 0 100-2H3zm0 6a1 1 0 000 2h9a1 1 0 100-2H3zm0 6a1 1 0 100 2h9a1 1 0 100-2H3z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+                View Chart
+              </Link>
+            </div>
+          ) : null}
 
           {/* Post tags */}
           {displayTags.length > 0 && (
@@ -838,19 +1017,238 @@ const CommunityPage = () => {
             className={`flex-1 flex items-center justify-center py-2 hover:bg-gray-100 rounded-md ${selectedReaction ? reactions.find((r) => r.name === selectedReaction)?.color : 'text-gray-500'}`}
             onMouseEnter={handleLikeHover}
             onMouseLeave={handleMouseLeave}
-            onClick={() => handleReaction(selectedReaction ? '' : 'Like')}
+            onClick={() => {
+              // Khi đã có reaction thì gửi chuỗi rỗng để xóa, ngược lại thì gửi "Like"
+              handleReaction(selectedReaction ? '' : 'Like')
+            }}
           >
             {getActiveReaction()}
           </button>
 
           <button
             className='flex-1 flex items-center justify-center py-2 text-gray-500 hover:bg-gray-100 rounded-md'
-            onClick={() => navigateToPostDetail(post.id)}
+            onClick={showCommentModal}
           >
             <FaRegComment className='mr-2' />
             <span>Comment</span>
           </button>
         </div>
+
+        {/* Add the Comment Modal component */}
+        {/* Add this at the end of the PostCard component's return, just before the closing </div>: */}
+        <Modal
+          visible={isCommentModalVisible}
+          onCancel={() => setIsCommentModalVisible(false)}
+          footer={null}
+          width={800}
+          centered
+          closable={false}
+          bodyStyle={{ padding: 0 }}
+          className='instagram-modal'
+        >
+          <div className='flex flex-col h-[80vh]'>
+            {/* Header */}
+            <div className='p-3 border-b flex items-center justify-between'>
+              <div className='flex items-center'>
+                <img
+                  src={post.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+                  alt='User'
+                  className='w-8 h-8 rounded-full mr-2 object-cover'
+                />
+                <div>
+                  <p className='font-semibold text-sm'>{post.fullName}</p>
+                  {post.location && <p className='text-xs text-gray-500'>{post.location}</p>}
+                </div>
+              </div>
+              <button onClick={() => setIsCommentModalVisible(false)} className='text-gray-500'>
+                <MdClose size={24} />
+              </button>
+            </div>
+
+            {/* Post content with image */}
+            <div className='p-3 border-b'>
+              <div className='flex items-start space-x-3'>
+                <img
+                  src={post.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+                  alt={post.fullName}
+                  className='w-8 h-8 rounded-full object-cover'
+                />
+                <div className='flex-1'>
+                  <div>
+                    <span className='font-semibold text-sm mr-2'>{post.fullName}</span>
+                    <span className='text-sm'>{formatContent(post.content || post.shortDescription || '')}</span>
+                  </div>
+                  <div className='text-xs text-gray-500 mt-1'>{post.timeAgo}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className='p-3 border-b'>
+              <div className='flex flex-col'>
+                {/* Reactions count */}
+                {postReactions.length > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      showReactionsModal(post, e)
+                    }}
+                    className='flex items-center space-x-2 text-gray-500 hover:text-pink-600 transition-colors mb-2 self-start'
+                  >
+                    <div className='flex -space-x-1'>
+                      {Object.entries(getReactionCounts())
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3)
+                        .map(([type, count], index) => {
+                          const reactionName = getReactionTypeFromNumber(type)
+                          const reactionObj = reactions.find((r) => r.name === reactionName)
+
+                          return (
+                            <span
+                              key={index}
+                              className='w-5 h-5 rounded-full flex items-center justify-center bg-white border border-gray-200 shadow-sm'
+                            >
+                              {reactionObj?.icon || <AiOutlineLike className='text-blue-500' />}
+                            </span>
+                          )
+                        })}
+                    </div>
+                    <span className='text-sm'>
+                      {totalReactions} {totalReactions === 1 ? 'reaction' : 'reactions'}
+                    </span>
+                  </button>
+                )}
+
+                <div className='flex justify-between mb-2'>
+                  <div className='flex space-x-4 relative'>
+                    {/* Reaction button with hover panel */}
+                    <div className='relative' onMouseEnter={handleLikeHover} onMouseLeave={handleMouseLeave}>
+                      <button className='text-2xl'>
+                        {!selectedReaction ? (
+                          <FaRegHeart className='text-gray-600' />
+                        ) : (
+                          reactions.find((r) => r.name === selectedReaction)?.icon || (
+                            <FaRegHeart className='text-gray-600' />
+                          )
+                        )}
+                      </button>
+
+                      {/* Reaction options panel */}
+                      {showReactions && (
+                        <div
+                          ref={reactionRef}
+                          onMouseEnter={handleReactionsHover}
+                          onMouseLeave={handleMouseLeave}
+                          className='absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg px-2 py-1 flex items-center space-x-2 z-10 transition-all duration-300 ease-in-out'
+                          style={{
+                            transform: 'translateY(-5px)',
+                            animation: 'fadeIn 0.2s ease-in-out'
+                          }}
+                        >
+                          {reactions.map((reaction) => (
+                            <div
+                              key={reaction.name}
+                              onClick={() => handleReaction(reaction.name)}
+                              className={`hover:bg-gray-100 p-2 rounded-full cursor-pointer transform transition-transform hover:scale-125 ${
+                                selectedReaction === reaction.name ? 'bg-gray-100 scale-110' : ''
+                              }`}
+                              title={reaction.name}
+                            >
+                              {reaction.icon}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <button className='text-2xl'>
+                      <FaRegComment />
+                    </button>
+                    <button className='text-2xl'>
+                      <FaShare />
+                    </button>
+                  </div>
+                </div>
+
+                {post.likes && post.likes > 0 && <p className='font-semibold text-sm'>{post.likes} likes</p>}
+                <p className='text-xs text-gray-500'>{post.timeAgo}</p>
+              </div>
+            </div>
+
+            {/* Comments section */}
+            <div className='flex-1 overflow-y-auto p-3 border-b'>
+              {/* Comments list */}
+              {loadingComments ? (
+                <div className='flex justify-center items-center h-32'>
+                  <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500'></div>
+                </div>
+              ) : (
+                <>
+                  {postComments.length === 0 ? (
+                    <div className='text-center py-8'>
+                      <p className='text-gray-500'>No comments yet</p>
+                      <p className='text-sm text-gray-400'>Be the first to comment</p>
+                    </div>
+                  ) : (
+                    postComments.map((comment) => (
+                      <div key={comment.id} className='flex items-start space-x-3 py-2'>
+                        <img
+                          src={comment.user.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+                          alt={comment.user.fullName}
+                          className='w-8 h-8 rounded-full object-cover'
+                        />
+                        <div className='flex-1'>
+                          <div>
+                            <span className='font-semibold text-sm mr-2'>{comment.user.fullName}</span>
+                            <span className='text-sm'>{comment.commentText}</span>
+                          </div>
+                          <div className='flex items-center mt-1 text-xs text-gray-500 space-x-3'>
+                            <span>{comment.timeAgo}</span>
+                            <button className='font-medium hover:underline'>Like</button>
+                            <button className='font-medium hover:underline'>Reply</button>
+                          </div>
+
+                          {/* Replies */}
+                          {comment.replies && comment.replies.length > 0 && (
+                            <div className='ml-8 mt-2'>
+                              <button className='text-xs text-blue-500 hover:underline mb-2'>
+                                View {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Comment input */}
+            <div className='p-3 flex items-center'>
+              <input
+                ref={commentInputRef}
+                type='text'
+                placeholder='Add a comment...'
+                className='flex-1 border-none focus:outline-none'
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !submittingComment) {
+                    handleCommentSubmit()
+                  }
+                }}
+              />
+              <button
+                onClick={handleCommentSubmit}
+                disabled={!commentText.trim() || submittingComment}
+                className={`font-semibold ${!commentText.trim() || submittingComment ? 'text-blue-300' : 'text-blue-500'}`}
+              >
+                Post
+              </button>
+            </div>
+          </div>
+        </Modal>
       </div>
     )
   }

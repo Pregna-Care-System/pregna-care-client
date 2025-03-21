@@ -27,7 +27,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createPlan, deletePlan, getAllPlan, getMostUsedPlan, updatePlan } from '@/services/planService'
 import { getAllFeature } from '@/services/featureService'
 import { createPregnancyRecord, getAllPregnancyRecord, updatePregnancyRecord } from '@/services/pregnancyRecordService'
-import { createFetalGrowth, getFetalGrowthRecords } from '@/services/fetalGrowthRecordService'
+import { createFetalGrowth, getFetalGrowthRecords, updateFetalGrowth } from '@/services/fetalGrowthRecordService'
 import {
   createMotherInfo,
   getMemberInforWithPlanDetail,
@@ -319,10 +319,49 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
     if (response) {
       message.success('Create fetal growth record successfully')
       yield put(setFetalGrowthRecord(response))
+
+      // Fetch the updated records after creation
+      yield put({
+        type: 'GET_FETAL_GROWTH_RECORDS',
+        payload: { pregnancyRecordId: action.payload.pregnancyRecordId }
+      })
+
+      // Execute callback with success=true if it exists
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
+
+    // Execute callback with success=false if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(false)
+    }
+  }
+}
+
+//----------Update fetal growth record-----------
+export function* updateFetalGrowthRecord(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    const response = yield call(updateFetalGrowth, action.payload)
+    if (response) {
+      message.success('Updated fetal growth record successfully')
+
+      // If there's a callback, call it with success=true
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred while updating record')
+    console.error('Error in updateFetalGrowthRecord saga:', error)
+
+    // If there's a callback, call it with success=false
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(false)
+    }
   }
 }
 
@@ -680,7 +719,6 @@ export function* getAllTagsSaga(): Generator<any, void, any> {
 export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getAllBlogByUserId, action.payload.id)
-    console.log('Response for call api blog', response)
     if (response.response) {
       yield put(setBlogInfo(response.response))
     }
@@ -694,7 +732,6 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
 export function* getAllBlogSaga(): Generator<any, void, any> {
   try {
     const response = yield call(getAllBlog)
-    console.log('Response for call api blog', response)
     if (response.response) {
       yield put(setBlogInfo(response.response))
     }
@@ -760,7 +797,6 @@ export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void
 //----------Update Blog-----------
 export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('UPDATE BLOG', action)
     yield call(
       updateBlog,
       action.payload.id,
@@ -825,7 +861,6 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('CREATE_MEMBERSHIP_PLANS', createMembershipPlan)
   yield takeLatest('UPDATE_MEMBERSHIP_PLANS', updateMembershipPlan)
   yield takeLatest('DELETE_MEMBERSHIP_PLANS', deleteMembershipPlan)
-  yield takeLatest('CREATE_FETAL_GROWTH_RECORD', createFetalGrowthRecord)
   yield takeLatest('PAYMENT_VNPAY', paymentVNPAYMethod)
   yield takeLatest('USER_MEMBERSHIP_PLAN', addUserMembershipPlan)
   yield takeLatest('CREATE_GROWTH_METRIC', addFieldGrowthMetric)
@@ -864,4 +899,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('UPDATE_BLOG', updateBlogSaga)
   yield takeLatest('GET_ALL_BLOGS', getAllBlogSaga)
   yield takeLatest('GET_CURRENT_LOGIN_USER', getCurrentLoginUser)
+  //Fetal Growth Record
+  yield takeLatest('UPDATE_FETAL_GROWTH_RECORD', updateFetalGrowthRecord)
+  yield takeLatest('CREATE_FETAL_GROWTH_RECORD', createFetalGrowthRecord)
 }
