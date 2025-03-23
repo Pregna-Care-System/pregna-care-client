@@ -2,13 +2,18 @@ import { useEffect, useState } from 'react'
 
 const BabyShopApp = () => {
   const [products, setProducts] = useState([])
+  const [category, setCategory] = useState('baby')
 
   useEffect(() => {
-    fetch('https://localhost:7081/api/v1/Shopping/products')
+    let apiUrl = category === 'baby'
+      ? 'https://localhost:7081/api/v1/Shopping/baby-products'
+      : 'https://localhost:7081/api/v1/Shopping/milk-products'
+
+    fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error('Error fetching products:', err))
-  }, [])
+  }, [category]) 
 
   return (
     <div className='min-h-screen mt-32 bg-gray-50'>
@@ -34,9 +39,31 @@ const BabyShopApp = () => {
         </div>
       </div>
 
+      {/* Category Selector */}
+      <div className='container mx-auto px-4 flex justify-center mt-10'>
+        <button
+          className={`px-6 py-2 mx-2 rounded-full ${
+            category === 'baby' ? 'bg-gradient-to-r from-[#A0D8EF] to-[#FFB6C1] text-white' : 'bg-gray-200'
+          }`}
+          onClick={() => setCategory('baby')}
+        >
+          Baby Products
+        </button>
+        <button
+          className={`px-6 py-2 mx-2 rounded-full ${
+            category === 'milk' ? 'bg-gradient-to-r from-[#A0D8EF] to-[#FFB6C1] text-white' : 'bg-gray-200'
+          }`}
+          onClick={() => setCategory('milk')}
+        >
+          Milk Products
+        </button>
+      </div>
+
       {/* Products Section */}
       <div className='container mx-auto px-4'>
-        <h1 className='text-3xl font-semibold mt-16 text-black my-8 text-center'>Products from Concung</h1>
+        <h1 className='text-3xl font-semibold mt-16 text-black my-8 text-center'>
+          {category === 'baby' ? 'Baby Products' : 'Milk Products'}
+        </h1>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
           {products.map((product, index) => (
             <div
