@@ -249,7 +249,6 @@ const featureRoutes: { [key: string]: string } = {
   Community: ROUTES.COMMUNITY,
   'Tracking Pregnancy': ROUTES.MEMBER.DASHBOARD,
   'Remider schedule': ROUTES.MEMBER.SCHEDULE
-  // 'Entertainment Games': ROUTES.MEMBER.GAMES,
 }
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
