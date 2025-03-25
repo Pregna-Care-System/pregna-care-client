@@ -12,6 +12,10 @@ export const getAllBlog = async (type: string) => {
   const res = await request.get<MODEL.IResponseBase>(`/Blog?type=${type}`)
   return res.data
 }
+export const getAllBlogAdmin = async (type: string) => {
+  const res = await request.get<MODEL.IResponseBase>(`/Blog/Admin?type=${type}`)
+  return res.data
+}
 export const createBlog = async (
   userId: string,
   tagIds: [],
