@@ -11,20 +11,11 @@ export default function ContactAdminPage() {
   const [filteredData, setFilteredData] = useState([])
 
   const getListContact = async () => {
-    setLoading(true)
-    try {
-      const res = await getAllContact()
-      if (res.status === 200) {
-        if (res.data.success && res.data.response) {
-          setContactList(res.data.response)
-        }
+    const res = await getAllContact()
+    if (res.status === 200) {
+      if (res.data.success && res.data.response) {
+        setContactList(res.data.response)
       }
-    } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.message || 'Failed to fetch contacts.')
-      }
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -81,7 +72,8 @@ export default function ContactAdminPage() {
         try {
           await deleteContact(email)
           message.success('Delete successfully')
-          await getListContact()
+          setContactList((prevList) => prevList.filter((item) => item.email !== email))
+          setFilteredData((prevList) => prevList.filter((item) => item.email !== email))
         } catch (error) {
           message.error('Failed to delete')
         } finally {
@@ -102,7 +94,7 @@ export default function ContactAdminPage() {
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Contact Subscriber</h1>
       </div>
       <div className='bg-white p-5 rounded-xl shadow-md'>
-      <div className='flex justify-end mb-5 '>
+        <div className='flex justify-end mb-5 '>
           <Input
             className='w-1/4 mr-4'
             value={searchQuery}
