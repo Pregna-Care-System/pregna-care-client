@@ -281,10 +281,12 @@ export default function Header() {
   }, [dispatch])
 
   const fetchMembers = () => {
-    dispatch({
-      type: 'GET_MEMBER_WITH_PLAN_DETAIL',
-      payload: { userId: userInfor.id }
-    })
+    if (userInfor) {
+      dispatch({
+        type: 'GET_MEMBER_WITH_PLAN_DETAIL',
+        payload: { userId: userInfor.id }
+      })
+    }
   }
 
   const handleMouseLeave = () => {
