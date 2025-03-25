@@ -12,6 +12,10 @@ export const getAllBlog = async (type: string) => {
   const res = await request.get<MODEL.IResponseBase>(`/Blog?type=${type}`)
   return res.data
 }
+export const getAllBlogAdmin = async (type: string) => {
+  const res = await request.get<MODEL.IResponseBase>(`/Blog/Admin?type=${type}`)
+  return res.data
+}
 export const createBlog = async (
   userId: string,
   tagIds: [],
@@ -57,6 +61,7 @@ export const deleteBlog = async (id: string) => {
 }
 export const updateBlog = async (
   id: string,
+  type: string,
   userId: string,
   tagIds: [],
   pageTitle: string,
@@ -70,6 +75,7 @@ export const updateBlog = async (
     const apiCallerId = 'updateBlog'
     await request.put<MODEL.IResponseBase>(`/Blog/${id}`, {
       apiCallerId,
+      type,
       userId,
       tagIds,
       pageTitle,

@@ -4,32 +4,69 @@ import { useEffect, useState } from 'react'
 import { FiDownload, FiTrash2 } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineUser } from 'react-icons/ai'
+import { FaSearch } from 'react-icons/fa'
 
 export default function MemberPage() {
-  const [searchName, setSearchName] = useState('')
-  const [filterType, setFilterType] = useState(null)
-  const [isHovered, setIsHovered] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [selectedMember, setSelectedMember] = useState(null)
   const dataSource = useSelector(selectMemberInfo)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
     fetchMembers()
   }, [dispatch])
 
+  useEffect(() => {
+    setFilteredData(dataSource)
+  }, [dataSource])
+
   const fetchMembers = () => {
-    dispatch({ type: 'GET_ALL_MEMBERS', payload: { filterType, name: searchName } })
+    dispatch({ type: 'GET_ALL_MEMBERS', payload: { filteredData, name: searchQuery } })
   }
 
-  const handleSearch = (value) => {
-    setSearchName(value)
-    fetchMembers()
-  }
+  const uniqueWeeks = Array.from(new Set(dataSource.map((item: any) => item.week)))
+    .sort((a, b) => a - b) // Sort by order
+    .map((week) => ({
+      value: week,
+      label: `Week ${week}`
+    }))
 
-  const handleFilterChange = (value) => {
-    setFilterType(value === 'select' ? null : value)
-    fetchMembers()
+  const handleSearch = () => {
+    const filtered = dataSource.filter(
+      (item: any) => item.email.toLowerCase().includes(searchQuery.toLowerCase()) // Filter by 'email'
+    )
+    setFilteredData(filtered)
+  }
+  const handleChange = (value: string) => {
+    const currentDate = new Date()
+    let filtered = []
+    if (value === 'week') {
+      const startOfWeek = new Date(currentDate)
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()) //(Sun)
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6) //(Sat)
+
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.planCreated)
+        return itemDate >= startOfWeek && itemDate <= endOfWeek
+      })
+    } else if (value === 'month') {
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.planCreated)
+        return itemDate.getMonth() === currentDate.getMonth() && itemDate.getFullYear() === currentDate.getFullYear()
+      })
+    } else if (value === 'year') {
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.planCreated)
+        return itemDate.getFullYear() === currentDate.getFullYear()
+      })
+    } else {
+      filtered = dataSource // Default: show all data
+    }
+
+    setFilteredData(filtered)
   }
   const handleViewDetail = (member) => {
     setSelectedMember(member)
@@ -92,30 +129,34 @@ export default function MemberPage() {
     <div className='p-6   min-h-screen'>
       <div className='flex justify-between items-center mb-6'>
         <h1 className='text-3xl font-bold text-gray-800'>Members</h1>
-        <button
-          className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <FiDownload className='w-5 h-5 text-[#EE7A7A] mr-2' />
-          <span className='text-[#EE7A7A] font-semibold'>Report</span>
-        </button>
       </div>
       <div className='bg-white p-6 rounded-lg shadow-md'>
         <div className='flex justify-end items-center mb-4'>
-          <Input.Search className='w-1/3 mr-4' placeholder='Search member...' allowClear onSearch={handleSearch} />
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
+          />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
           <Select
-            defaultValue='select'
-            className='w-40'
-            onChange={handleFilterChange}
+            defaultValue=''
+            style={{ width: 120 }}
+            onChange={handleChange}
             options={[
-              { value: 'select', label: 'Select Filter' },
-              { value: 'week', label: 'Week' },
-              { value: 'month', label: 'Month' }
+              { value: '', label: 'All' },
+              { value: 'week', label: 'This Week' },
+              { value: 'month', label: 'This Month' },
+              { value: 'year', label: 'This Year' }
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} bordered />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 8 }} bordered />
       </div>
 
       <Modal

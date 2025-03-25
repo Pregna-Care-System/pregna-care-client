@@ -118,7 +118,7 @@ export default function ReminderTypeAdminPage() {
   return (
     <>
       <div className='flex justify-between mb-5'>
-        <h1 className='text-3xl font-bold text-gray-800 mb-5'>Feature</h1>
+        <h1 className='text-3xl font-bold text-gray-800 mb-5'>Reminder Type</h1>
         <button
           className={`flex items-center h-1/3 bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
           onMouseEnter={() => setIsHovered(true)}
