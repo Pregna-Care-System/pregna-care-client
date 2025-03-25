@@ -414,8 +414,7 @@ export default function EnhancedFetalChart({
               // Remove or set to empty string:
               featuredImageUrl: '',
               type: 'community',
-              sharedChartData: prepareChartDataForSharing(),
-              isI
+              sharedChartData: prepareChartDataForSharing()
             },
             callback: (success: boolean) => {
               if (success) {
