@@ -4,11 +4,14 @@ import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectGrowthMetrics } from '@/store/modules/global/selector'
 import { CreateModal } from '@/components/Modal'
+import { FaSearch } from 'react-icons/fa'
 
 export default function GrowthMetrics() {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
   const dataSource = useSelector(selectGrowthMetrics)
   const [form] = Form.useForm()
   const dispatch = useDispatch()
@@ -16,6 +19,10 @@ export default function GrowthMetrics() {
   useEffect(() => {
     dispatch({ type: 'GET_ALL_GROWTH_METRICS' })
   }, [])
+
+  useEffect(() => {
+    setFilteredData(dataSource)
+  }, [dataSource])
 
   const columns = [
     {
@@ -89,8 +96,22 @@ export default function GrowthMetrics() {
     }
   ]
 
-  const handleChange = (value: any) => {
-    console.log(`selected ${value}`)
+  const uniqueWeeks = Array.from(new Set(dataSource.map((item: any) => item.week)))
+    .sort((a, b) => a - b) // Sort by order
+    .map((week) => ({
+      value: week,
+      label: `Week ${week}`
+    }))
+
+  const handleSearch = () => {
+    const filtered = dataSource.filter(
+      (item: any) => item.name.toLowerCase().includes(searchQuery.toLowerCase()) // Filter by 'name'
+    )
+    setFilteredData(filtered)
+  }
+  const handleChange = (value: string) => {
+    const filtered = dataSource.filter((item: any) => item.week === value)
+    setFilteredData(filtered)
   }
 
   const handleCreate = (values: any) => {
@@ -115,22 +136,26 @@ export default function GrowthMetrics() {
       </div>
       <div className='bg-white p-5 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
-          <Input.Search className='w-1/4 mr-4' allowClear placeholder='Search' />
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
+          />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
           <Select
-            defaultValue='1'
+            defaultValue=''
             style={{ width: 120 }}
             onChange={handleChange}
-            options={[
-              { value: '1', label: 'Week 6-12' },
-              { value: '2', label: 'Week 16-20' },
-              { value: '3', label: 'Week 24-28' },
-              { value: '4', label: 'Week 32-34' },
-              { value: '5', label: 'Week 36' },
-              { value: '6', label: 'Week 38-40' }
-            ]}
+            options={[{ value: '', label: 'All Weeks' }, ...uniqueWeeks]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
       <CreateModal
         isOpen={isOpen}

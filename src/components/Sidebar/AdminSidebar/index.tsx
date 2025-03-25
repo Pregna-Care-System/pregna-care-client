@@ -252,7 +252,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
           </div>
         </div>
 
-        <nav className='flex-1 overflow-y-auto py-4'>
+        <nav className='flex-1 overflow-y-auto py-4 overflow-y-auto scrollbar-custom'>
           <ul className='space-y-1 px-3'>
             {menuItems.map((item, index) => (
               <li key={index}>
