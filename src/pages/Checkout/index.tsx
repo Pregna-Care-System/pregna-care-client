@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Card, Steps, Button, Form, Input, Radio, Space, message } from 'antd'
+import { useLocation } from 'react-router-dom'
+import { Button, Card, Form, Input, message, Radio, Space, Steps } from 'antd'
 import { StyledRadioGroup, StyledSteps } from './Checkout.styled'
 import { jwtDecode } from 'jwt-decode'
 import { useDispatch } from 'react-redux'

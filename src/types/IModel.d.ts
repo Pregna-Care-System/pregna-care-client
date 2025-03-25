@@ -6,10 +6,12 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: DetailError[]
   }
+
   export interface TokenResponse {
     accessToken: string
     refreshToken: string
   }
+
   export interface LoginResponse {
     response: TokenResponse | null
     messageId: string
@@ -17,6 +19,7 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: DetailError[] | null | null
   }
+
   export interface ForgotPasswordResponse {
     response: unknown | null
     messageId: string
@@ -24,16 +27,19 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: DetailError[] | null | null
   }
+
   export interface DetailError {
     messageId: string
     message: string
     fieldName?: string
     value?: string
   }
+
   export interface LoginFormValues {
     email: string
     password: string
   }
+
   export interface RegisterResponse {
     response: unknown | null
     messageId: string
@@ -41,6 +47,7 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: unknown | null
   }
+
   export interface RegisterFormValues {
     fullName: string
     email: string
@@ -86,6 +93,7 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: unknown | null
   }
+
   export interface PlanValues {
     planName: string
     price: number
@@ -94,6 +102,7 @@ declare namespace MODEL {
     imageUrl: string
     features: string[]
   }
+
   export interface FeatureResponse {
     response: [
       {
@@ -106,6 +115,7 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: unknown | null
   }
+
   export interface PregnancyRecordResponse {
     response: [
       {
@@ -126,6 +136,7 @@ declare namespace MODEL {
     success: boolean
     detailErrorList: unknown | null
   }
+
   export interface MotherInformationResponse {
     response: [
       {
@@ -142,5 +153,19 @@ declare namespace MODEL {
     message: string
     success: boolean
     detailErrorList: unknown | null
+  }
+
+  export interface NewMembersDataPointResponse {
+    date: string
+    count: number
+  }
+
+  export interface NewMembersResponse {
+    timeFrame: 'month' | 'week'
+    data: NewMembersDataPointResponse[]
+  }
+
+  export interface NewMembersAPIResponse extends IResponseBase {
+    response: NewMembersResponse
   }
 }

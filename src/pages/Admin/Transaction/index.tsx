@@ -1,17 +1,22 @@
 import { selectTransactionInfo } from '@/store/modules/global/selector'
-import { Avatar, Button, Input, Select, Table } from 'antd'
+import { Button, Input, Select, Table } from 'antd'
 import { useEffect, useState } from 'react'
-import { FiDownload } from 'react-icons/fi'
+import { FaSearch } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 
 export default function TransactionPage() {
-  const [isHovered, setIsHovered] = useState(false)
   const dataSource = useSelector(selectTransactionInfo)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_USER_MEMBERSHIP_PLANS' })
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(dataSource)
+  }, [dataSource])
 
   const columns = [
     {
@@ -59,38 +64,76 @@ export default function TransactionPage() {
     }
   ]
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleChange = (value: any) => {
-    console.log(`selected ${value}`)
+  const handleSearch = () => {
+    const filtered = dataSource.filter(
+      (item: any) =>
+        item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.membershipPlanName.toLowerCase().includes(searchQuery.toLowerCase())
+    ) // search email or plan name
+    setFilteredData(filtered)
+  }
+  
+  const handleChange = (value: string) => {
+    const currentDate = new Date()
+    let filtered = []
+    if (value === 'week') {
+      const startOfWeek = new Date(currentDate)
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()) //(Sun)
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6) //(Sat)
+
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.activatedAt)
+        return itemDate >= startOfWeek && itemDate <= endOfWeek
+      })
+    } else if (value === 'month') {
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.activatedAt)
+        return itemDate.getMonth() === currentDate.getMonth() && itemDate.getFullYear() === currentDate.getFullYear()
+      })
+    } else if (value === 'year') {
+      filtered = dataSource.filter((item: any) => {
+        const itemDate = new Date(item.activatedAt)
+        return itemDate.getFullYear() === currentDate.getFullYear()
+      })
+    } else {
+      filtered = dataSource // Default: show all data
+    }
+
+    setFilteredData(filtered)
   }
   return (
     <>
       <div className='flex justify-between mb-5'>
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Transaction</h1>
-        <button
-          className={`flex items-center bg-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <FiDownload className='w-5 h-5 text-red-500 mr-2' />
-          <span className='text-red-500 font-semibold'> Report</span>
-        </button>
       </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5'>
-          <Input.Search className='w-1/3 mr-4' placeholder='Search' />
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
+          />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
           <Select
-            defaultValue='newest'
+            defaultValue=''
             style={{ width: 120 }}
             onChange={handleChange}
             options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'newest', label: 'Newest' },
-              { value: 'Yiminghe', label: 'yiminghe' }
+              { value: '', label: 'All' },
+              { value: 'week', label: 'This Week' },
+              { value: 'month', label: 'This Month' },
+              { value: 'year', label: 'This Year' }
             ]}
           />
         </div>
-        <Table dataSource={dataSource} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
     </>
   )

@@ -105,3 +105,19 @@ export const createPlan = async (
     throw error
   }
 }
+
+export const upgradeFreePlan = async (userId: string) => {
+  try {
+    await request.put<MODEL.PlanResponse>(`/MembershipPlan/${userId}`)
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data)
+    } else {
+      console.error('Request Error:', error.message)
+    }
+  }
+}
+export const hasFreePlan = async (userId: string) => {
+  const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/Has-free-plan/${userId}`)
+  return res
+}

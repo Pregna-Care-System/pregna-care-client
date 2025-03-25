@@ -12,20 +12,28 @@ interface CarouselMembershipPlansProps {
   membershipPlans: MODEL.PlanResponse[]
   selectedPlan: MODEL.PlanResponse | null
   onSelectPlan: (plan: MODEL.PlanResponse) => void
+  currentPlanName: string
+  recommend: string
 }
 
 export default function CarouselMembershipPlans({
   membershipPlans,
   selectedPlan,
-  onSelectPlan
+  onSelectPlan,
+  currentPlanName,
+  recommend
 }: CarouselMembershipPlansProps) {
+  console.log('hhh', recommend)
   const renderMembershipPlans = membershipPlans.map((plan: MODEL.PlanResponse) => {
+    console.log('huhu', plan.membershipPlanId)
     return (
       <SwiperSlide key={plan.membershipPlanId}>
         <PlanCard
           plan={plan}
           isSelected={selectedPlan?.membershipPlanId === plan.membershipPlanId}
           onSelect={() => onSelectPlan(plan)}
+          currentPlanName={currentPlanName}
+          isRecommended={recommend === plan.membershipPlanId}
         />
       </SwiperSlide>
     )

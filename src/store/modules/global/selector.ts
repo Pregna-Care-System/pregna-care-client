@@ -1,8 +1,6 @@
 import { RootState } from '@store/store'
 
 export const selectIsAuthenticated = (state: RootState) => state.global.isAuthenticated
-export const selectServices = (state: RootState) => state.global.services
-export const selectReasons = (state: RootState) => state.global.reason
 export const selectMembershipPlans = (state: RootState) => state.global.membershipPlans
 export const selectTestimonials = (state: RootState) => state.global.testimonials
 export const selectMotherInfo = (state: RootState) => state.global.motherInfo
@@ -23,5 +21,4 @@ export const selectNotifications = (state: RootState) => state.global.notificati
 export const selectMostUsedPlan = (state: RootState) => state.global.mostUsedPlan
 export const selectTagInfo = (state: RootState) => state.global.tagInfo
 export const selectBlogInfo = (state: RootState) => state.global.blogInfo
-
-
+export const selectCurrentLoginUser = (state: RootState) => state.global.currentLoginUser

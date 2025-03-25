@@ -1,12 +1,12 @@
 import type React from 'react'
-import { Card, Typography, Tag, Space, Divider, Alert, Steps } from 'antd'
+import { Alert, Card, Divider, Space, Steps, Tag, Typography } from 'antd'
 import {
-  WarningOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
   AlertOutlined,
   CalendarOutlined,
-  InfoCircleOutlined
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  InfoCircleOutlined,
+  WarningOutlined
 } from '@ant-design/icons'
 import { formatDate, getSeverityColor, parseRecommendation } from '@/utils/helper'
 
@@ -28,7 +28,7 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
             <Space>
               <WarningOutlined style={{ fontSize: '24px', color: getSeverityColor(alert.severity) }} />
               <Title level={4} style={{ margin: 0 }}>
-                Cảnh báo tuần thai {alert.week}
+                Alert week {alert.week}
               </Title>
             </Space>
             <Space>
@@ -44,7 +44,7 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
                 icon={alert.isResolved ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
                 className='px-3 py-1 rounded-full text-sm font-medium'
               >
-                {alert.isResolved ? 'Đã xử lý' : 'Chưa xử lý'}
+                {alert.isResolved ? 'Resolved' : 'Unresolved'}
               </Tag>
             </Space>
           </div>
@@ -58,23 +58,16 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
         <Space direction='vertical' size='middle' className='w-full'>
           <Title level={5}>
             <InfoCircleOutlined className='mr-2' />
-            Thông tin chi tiết
+            Detail
           </Title>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Text type='secondary' className='block'>
                 <CalendarOutlined className='mr-2' />
-                Ngày cảnh báo
+                Date alert
               </Text>
               <Text strong>{formatDate(alert.alertDate)}</Text>
-            </div>
-            <div className='space-y-2'>
-              <Text type='secondary' className='block'>
-                <InfoCircleOutlined className='mr-2' />
-                ID Cảnh báo
-              </Text>
-              <Text strong>{alert.id}</Text>
             </div>
           </div>
 
@@ -84,7 +77,7 @@ const FetalAlertDetail: React.FC<FetalAlertDetailProps> = ({ alert }) => {
           <div className='space-y-4'>
             <Title level={5}>
               <AlertOutlined className='mr-2' />
-              Khuyến nghị và hướng dẫn
+              Recommendations and guidelines
             </Title>
 
             <Steps

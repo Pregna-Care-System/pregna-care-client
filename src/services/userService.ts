@@ -1,4 +1,3 @@
-import { put } from 'redux-saga/effects'
 import * as request from '@/utils/axiosClient'
 import ROUTES from '@/utils/config/routes'
 
@@ -116,8 +115,7 @@ export const updateAccount = async (
 }
 
 export const logout = (): void => {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('refreshToken')
+  localStorage.clear()
   window.location.href = ROUTES.LOGIN
 }
 
@@ -158,21 +156,22 @@ export const getMotherInfo = async (userId: string) => {
   return await request.get<MODEL.IResponseBase>(`/User/${userId}/MotherInfo`)
 }
 
-// export const refreshToken = async (): Promise<string> => {
-//   try {
-//     const refreshToken = localStorage.getItem('refreshToken')
-//     if (!refreshToken) {
-//       throw new Error('No refresh token found')
-//     }
+export const createMotherInfo = async (data: any) => {
+  const apiCallerId = 'MotherInfo'
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, data)
+}
 
-//     const res = await request.post<{ accessToken: string }>(`/authentication/refresh`, {
-//       refreshToken: refreshToken
-//     })
-//     return res.accessToken
-//   } catch (error) {
-//     console.error('Refresh token failed:', error)
-//     localStorage.removeItem('accessToken')
-//     localStorage.removeItem('refreshToken')
-//     throw error
-//   }
-// }
+export const updateMotherInfo = async (data: any) => {
+  const apiCallerId = 'MotherInfo'
+  return await request.put<MODEL.IResponseBase>(`/${apiCallerId}/${data.motherInfoId}`, {
+    motherName: data.motherName,
+    bloodType: data.bloodType,
+    healhStatus: data.healhStatus,
+    notes: data.notes,
+    motherDateOfBirth: data.motherDateOfBirth
+  })
+}
+export const getMemberInforWithPlanDetail = async (id: string) => {
+  const res = await request.get<MODEL.IResponseBase>(`/Account/${id}`)
+  return res
+}

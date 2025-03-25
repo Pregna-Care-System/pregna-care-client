@@ -3,19 +3,19 @@ import React from 'react'
 //Utils
 import ROUTES from '@utils/config/routes'
 //Guard
-import GuestGuard from '@/guards/GuestGuard'
-import AuthGuard from '@/guards/AuthGuard'
-import AdminGuard from '@/guards/AdminGuard'
-import MemberGuard from '@/guards/MemberGuard'
 //Layout
-import MainLayout from '@/layouts/MainLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import MemberLayout from '@/layouts/MemberLayout'
-import Loading from '@/components/Loading'
 import NoHeaderLayout from '@/layouts/NoHeaderLayout'
+import FAQAdmin from '@/pages/Admin/FAQ'
+import FeedBack from '@/pages/Admin/FeedBack'
+import FAQPage from '@/pages/FAQ'
 import NotificationPage from '@/pages/Notification'
 import MommyServicesPage from '@/pages/Service'
 import BabyShopApp from '@/pages/Service/BabyShop/index '
+import ContactAdminPage from '@/pages/Admin/ContactSubscriber'
+import ReminderTypeAdminPage from '@/pages/Admin/ReminderType'
+import BlogAdmin from '@/pages/Admin/Blog'
 
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
@@ -39,13 +39,14 @@ const CommunityPage = React.lazy(() => import('@/pages/Community'))
 const Register = React.lazy(() => import('@pages/Register'))
 const Schedule = React.lazy(() => import('@pages/Schedule'))
 const Contact = React.lazy(() => import('@pages/Contact'))
-const NutritionFitnessPage = React.lazy(() => import('@pages/NutritionAndFitness/index'))
 //Pages-Admin
 const AdminDashboard = React.lazy(() => import('@/pages/Admin/Dashboard'))
 const TransactionPage = React.lazy(() => import('@/pages/Admin/Transaction'))
 const MemberPage = React.lazy(() => import('@/pages/Admin/Member'))
 const MemberShipPlanAdminPage = React.lazy(() => import('@/pages/Admin/MembershipPlan'))
 const GrowthMetrics = React.lazy(() => import('@/pages/Admin/GrowthMetrics'))
+const Feature = React.lazy(() => import('@/pages/Admin/Feature'))
+const FAQ = React.lazy(() => import('@/pages/Admin/FAQ'))
 //Pages-Member
 const Dashboard = React.lazy(() => import('@/pages/Member/Dashboard'))
 const FetalGrowthChart = React.lazy(() => import('@/pages/Member/FetalGrowthChart'))
@@ -57,7 +58,6 @@ const publicRoutes = [
   { path: ROUTES.BLOG, component: BlogPage },
   { path: ROUTES.BABY_NAME, component: babyNamePage },
   { path: ROUTES.BABY_SHOP, component: BabyShopApp },
-  { path: ROUTES.YOUR_BLOG, component: BlogDashboard },
   { path: ROUTES.BLOG_DETAILS, component: BlogDetailsPage },
   { path: ROUTES.COMMUNITY, component: CommunityPage },
   { path: ROUTES.COMMUNITY_DETAILS, component: CommunityDetailsPage },
@@ -69,10 +69,9 @@ const publicRoutes = [
   { path: ROUTES.CHECKOUT, component: CheckoutPage },
   { path: ROUTES.MEMBESHIP_PLANS, component: MemberShipPlanPage },
   { path: ROUTES.DETAIL_PLAN, component: PlanDetailPage },
-  { path: ROUTES.SCHEDULE, component: Schedule },
   { path: ROUTES.PAYMENTSTATUS, component: PaymentStatusPage },
   { path: ROUTES.CONTACT, component: Contact },
-  { path: ROUTES.NUTRITION_AND_FITNESS, component: NutritionFitnessPage },
+  { path: ROUTES.FAQ, component: FAQPage },
   { path: ROUTES.SERVICES, component: MommyServicesPage }
 ]
 
@@ -86,16 +85,24 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.TRANSACTION, component: TransactionPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBERSHIP_PLAN, component: MemberShipPlanAdminPage, layout: AdminLayout },
-  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout }
+  { path: ROUTES.ADMIN.GROWTHMETRICS, component: GrowthMetrics, layout: AdminLayout },
+  { path: ROUTES.ADMIN.FEATURE, component: Feature, layout: AdminLayout },
+  { path: ROUTES.ADMIN.FAQ, component: FAQAdmin, layout: AdminLayout },
+  { path: ROUTES.ADMIN.FEEDBACK, component: FeedBack, layout: AdminLayout },
+  { path: ROUTES.ADMIN.REMINDER_TYPE, component: ReminderTypeAdminPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.CONTACT, component: ContactAdminPage, layout: AdminLayout },
+  { path: ROUTES.ADMIN.BLOG, component: BlogAdmin, layout: AdminLayout }
 ]
 
 const memberRoutes = [
   { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout }
+  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
+  { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
+  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
 ]
 
-export { publicRoutes, adminRoutes, memberRoutes, privateRoutes }
+export { adminRoutes, memberRoutes, privateRoutes, publicRoutes }
 
 // export const router = createBrowserRouter([
 //   //Public Routes and Protected Routes

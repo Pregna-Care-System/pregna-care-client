@@ -2,17 +2,32 @@
 
 import type React from 'react'
 import { useState } from 'react'
-import { Table, Tag, Button, Input, Space, Modal, Card, Select, Statistic, Row, Col, Spin, Empty } from 'antd'
 import {
-  EyeOutlined,
-  SearchOutlined,
-  WarningOutlined,
+  Badge,
+  Button,
+  Card,
+  Col,
+  Empty,
+  Modal,
+  Pagination,
+  Row,
+  Select,
+  Spin,
+  Statistic,
+  Tabs,
+  Tag,
+  Timeline,
+  Typography
+} from 'antd'
+import {
   AlertOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  EyeOutlined,
+  WarningOutlined
 } from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import FetalAlertDetail from '../FetalAlertDetail'
@@ -20,7 +35,8 @@ import { getSeverityColor } from '@/utils/helper'
 
 dayjs.extend(relativeTime)
 
-const { Search } = Input
+const { Text, Title } = Typography
+const { TabPane } = Tabs
 
 interface FetalAlertsListProps {
   alerts: IFetalGrowth.FetalAlert[]
@@ -43,9 +59,11 @@ const getSeverityIcon = (severity: string) => {
 const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = false }) => {
   const [selectedAlert, setSelectedAlert] = useState<IFetalGrowth.FetalAlert | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
   const [severityFilter, setSeverityFilter] = useState<string>('all')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [weekFilter, setWeekFilter] = useState<number | 'all'>('all')
+  const [activeTab, setActiveTab] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 3 // Number of alerts per page
 
   const showModal = (alert: IFetalGrowth.FetalAlert) => {
     setSelectedAlert(alert)
@@ -57,216 +75,310 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
     setSelectedAlert(null)
   }
 
+  // Get unique weeks from alerts for the week filter
+  const weeks = Array.from(new Set(alerts.map((alert) => alert.week))).sort((a, b) => a - b)
+
   // Calculate statistics
   const totalAlerts = alerts.length
   const criticalAlerts = alerts.filter((a) => a.severity.toLowerCase() === 'critical').length
+  const warningAlerts = alerts.filter((a) => a.severity.toLowerCase() === 'warning').length
+  const infoAlerts = alerts.filter((a) => a.severity.toLowerCase() === 'info').length
   const unresolvedAlerts = alerts.filter((a) => !a.isResolved).length
   const resolvedAlerts = alerts.filter((a) => a.isResolved).length
 
-  const columns: ColumnsType<IFetalGrowth.FetalAlert> = [
-    {
-      title: 'Week',
-      dataIndex: 'week',
-      key: 'week',
-      sorter: (a, b) => a.week - b.week,
-      render: (week) => <div className='font-semibold'>{week}</div>,
-      width: 100
-    },
-    {
-      title: 'Alert Date',
-      dataIndex: 'alertDate',
-      key: 'alertDate',
-      render: (date) => (
-        <Space direction='vertical' size={0}>
-          <span>{dayjs(date).format('DD/MM/YYYY HH:mm')}</span>
-          <span className='text-xs text-gray-500'>{dayjs(date).fromNow()}</span>
-        </Space>
-      ),
-      sorter: (a, b) => dayjs(a.alertDate).unix() - dayjs(b.alertDate).unix(),
-      width: 180
-    },
-    {
-      title: 'Severity',
-      dataIndex: 'severity',
-      key: 'severity',
-      render: (severity) => (
-        <Tag
-          color={getSeverityColor(severity)}
-          icon={getSeverityIcon(severity)}
-          className='px-3 py-1 rounded-full text-sm font-medium'
-        >
-          {severity}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Critical', value: 'Critical' },
-        { text: 'Warning', value: 'Warning' },
-        { text: 'Info', value: 'Info' }
-      ],
-      onFilter: (value, record) => record.severity === value,
-      width: 120
-    },
-    {
-      title: 'Issue',
-      dataIndex: 'issue',
-      key: 'issue',
-      render: (text) => <div className='max-w-lg overflow-hidden text-ellipsis whitespace-nowrap'>{text}</div>
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isResolved',
-      key: 'isResolved',
-      render: (isResolved) => (
-        <Tag
-          icon={isResolved ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-          color={isResolved ? 'success' : 'default'}
-          className='px-3 py-1 rounded-full text-sm font-medium'
-        >
-          {isResolved ? 'Resolved' : 'Unresolved'}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Resolved', value: true },
-        { text: 'Unresolved', value: false }
-      ],
-      onFilter: (value, record) => record.isResolved === value,
-      width: 130
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Button type='primary' icon={<EyeOutlined />} onClick={() => showModal(record)} className='rounded-full'>
-          Details
-        </Button>
-      ),
-      width: 120,
-      fixed: 'right'
-    }
-  ]
-
   const filteredAlerts = alerts.filter((alert) => {
-    const matchesSearch =
-      alert.issue.toLowerCase().includes(searchText.toLowerCase()) ||
-      alert.recommendation.toLowerCase().includes(searchText.toLowerCase())
-    const matchesSeverity = severityFilter === 'all' || alert.severity.toLowerCase() === severityFilter.toLowerCase()
-    const matchesStatus = statusFilter === 'all' || (statusFilter === 'resolved' ? alert.isResolved : !alert.isResolved)
+    let matchesSeverity = true
+    if (severityFilter !== 'all') {
+      matchesSeverity = alert.severity.toLowerCase() === severityFilter.toLowerCase()
+    }
 
-    return matchesSearch && matchesSeverity && matchesStatus
+    let matchesWeek = true
+    if (weekFilter !== 'all') {
+      matchesWeek = alert.week === weekFilter
+    }
+
+    let matchesTab = true
+    if (activeTab !== 'all') {
+      matchesTab =
+        activeTab === 'critical'
+          ? alert.severity.toLowerCase() === 'critical'
+          : activeTab === 'unresolved'
+            ? !alert.isResolved
+            : alert.isResolved
+    }
+
+    return matchesSeverity && matchesTab && matchesWeek
   })
+
+  // Sort alerts - critical first, then by date (most recent first)
+  const sortedAlerts = [...filteredAlerts].sort((a, b) => {
+    // Critical alerts come first
+    if (a.severity.toLowerCase() === 'critical' && b.severity.toLowerCase() !== 'critical') return -1
+    if (a.severity.toLowerCase() !== 'critical' && b.severity.toLowerCase() === 'critical') return 1
+
+    // Then sort by date (most recent first)
+    return dayjs(b.alertDate).valueOf() - dayjs(a.alertDate).valueOf()
+  })
+
+  // Pagination
+  const paginatedAlerts = sortedAlerts.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // Scroll to top of the alert section when page changes
+    const alertsSection = document.getElementById('alerts-timeline')
+    if (alertsSection) {
+      alertsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const renderAlertCard = (alert: IFetalGrowth.FetalAlert) => {
+    const severityColor = getSeverityColor(alert.severity)
+
+    return (
+      <Card
+        key={alert.id}
+        className='mb-4 hover:shadow-md transition-all'
+        style={{ borderLeft: `4px solid ${severityColor}` }}
+      >
+        <div className='flex justify-between items-start'>
+          <div className='flex-1'>
+            <div className='flex items-center mb-2'>
+              <Badge
+                color={severityColor}
+                text={
+                  <Text strong>
+                    <span className='mr-2'>Week {alert.week}</span>
+                    <Tag
+                      color={severityColor}
+                      icon={getSeverityIcon(alert.severity)}
+                      className='px-2 py-0.5 rounded-full'
+                    >
+                      {alert.severity}
+                    </Tag>
+                    <Tag
+                      color={alert.isResolved ? 'success' : 'default'}
+                      icon={alert.isResolved ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
+                      className='px-2 py-0.5 rounded-full'
+                    >
+                      {alert.isResolved ? 'Resolved' : 'Unresolved'}
+                    </Tag>
+                  </Text>
+                }
+              />
+            </div>
+            <Typography.Paragraph
+              ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}
+              className='block mb-2 font-medium'
+            >
+              {alert.issue}
+            </Typography.Paragraph>
+            <div className='text-gray-500 text-sm'>
+              <CalendarOutlined className='mr-1' />
+              {dayjs(alert.alertDate).format('DD/MM/YYYY HH:mm')}
+              <span className='ml-2 text-xs'>({dayjs(alert.alertDate).fromNow()})</span>
+            </div>
+          </div>
+          <Button type='primary' icon={<EyeOutlined />} onClick={() => showModal(alert)} className='rounded-full ml-4'>
+            View
+          </Button>
+        </div>
+      </Card>
+    )
+  }
 
   return (
     <div className='space-y-6'>
       {/* Main Content Card */}
       <Card
-        className='shadow-sm hover:shadow-lg transition-shadow'
+        className='shadow-sm transition-shadow'
         title={
           <div className='flex items-center space-x-2'>
             <AlertOutlined className='text-primary' />
-            <span>Danh sách cảnh báo</span>
+            <span>Fetal Growth Alerts</span>
+            {criticalAlerts > 0 && <Badge count={criticalAlerts} style={{ backgroundColor: '#f5222d' }} />}
           </div>
         }
+        style={{ height: '60.75rem' }}
       >
-        <Row gutter={[16, 16]} className='mb-4'>
-          <Col xs={24} sm={12} md={6}>
-            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+        {/* Statistics Row */}
+        <Row gutter={[12, 12]} className='mb-4'>
+          <Col xs={12} sm={6} md={12} lg={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow text-center' size='small'>
               <Statistic
-                title='Total Alerts'
+                title='Total'
                 value={totalAlerts}
                 prefix={<AlertOutlined className='text-blue-500' />}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+          <Col xs={12} sm={6} md={12} lg={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow text-center' size='small'>
               <Statistic
-                title='Critical Alerts'
+                title='Critical'
                 value={criticalAlerts}
                 prefix={<ExclamationCircleOutlined className='text-red-500' />}
                 valueStyle={{ color: '#cf1322' }}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card className='h-full hover:shadow-lg transition-shadow bg-white'>
+          <Col xs={12} sm={6} md={12} lg={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow text-center' size='small'>
               <Statistic
-                title='Unresolved Alerts'
+                title='Unresolved'
                 value={unresolvedAlerts}
                 prefix={<ClockCircleOutlined className='text-orange-500' />}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card className='h-full hover:shadow-lg transition-shadow'>
+          <Col xs={12} sm={6} md={12} lg={6}>
+            <Card className='h-full hover:shadow-lg transition-shadow text-center' size='small'>
               <Statistic
-                title='Resolved Alerts'
+                title='Resolved'
                 value={resolvedAlerts}
                 prefix={<CheckCircleOutlined className='text-green-500' />}
               />
             </Card>
           </Col>
         </Row>
-        <Space direction='vertical' size='middle' className='w-full'>
-          {/* Filters */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <Space wrap>
-              <Search
-                placeholder='Tìm kiếm cảnh báo...'
-                allowClear
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 300 }}
-                className='rounded-full'
-                prefix={<SearchOutlined className='text-gray-400' />}
-              />
-              <Select
-                defaultValue='all'
-                style={{ width: 120 }}
-                onChange={(value) => setSeverityFilter(value)}
-                options={[
-                  { value: 'all', label: 'Tất cả' },
-                  { value: 'critical', label: 'Critical' },
-                  { value: 'warning', label: 'Warning' },
-                  { value: 'info', label: 'Info' }
-                ]}
-                className='rounded-full'
-              />
-              <Select
-                defaultValue='all'
-                style={{ width: 120 }}
-                onChange={(value) => setStatusFilter(value)}
-                options={[
-                  { value: 'all', label: 'Tất cả' },
-                  { value: 'resolved', label: 'Đã xử lý' },
-                  { value: 'unresolved', label: 'Chưa xử lý' }
-                ]}
-                className='rounded-full'
-              />
-            </Space>
-          </div>
 
-          {/* Table */}
-          <Spin spinning={loading}>
-            {filteredAlerts.length > 0 ? (
-              <Table
-                columns={columns}
-                dataSource={filteredAlerts}
-                rowKey='id'
-                pagination={{
-                  pageSize: 10,
-                  showSizeChanger: true,
-                  showTotal: (total) => `Total ${total} alerts`,
-                  className: 'rounded-full'
-                }}
-                className='shadow-sm'
-                scroll={{ x: 'max-content' }}
-                rowClassName={(record) => (record.severity.toLowerCase() === 'critical' ? 'bg-red-50' : '')}
-              />
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='Không tìm thấy cảnh báo nào' />
-            )}
-          </Spin>
-        </Space>
+        {/* Filters Row */}
+        <div className='flex flex-wrap items-center justify-between mb-3'>
+          <div className='flex items-center space-x-2 mb-2'>
+            <Text strong>Filter by Week:</Text>
+            <Select
+              style={{ width: 120 }}
+              value={weekFilter}
+              onChange={(value) => {
+                setWeekFilter(value)
+                setCurrentPage(1) // Reset to first page when filter changes
+              }}
+              options={[
+                { value: 'all', label: 'All Weeks' },
+                ...weeks.map((week) => ({ value: week, label: `Week ${week}` }))
+              ]}
+              className='rounded-full'
+            />
+          </div>
+          <div className='flex items-center space-x-2 mb-2'>
+            <Text strong>Severity:</Text>
+            <Select
+              value={severityFilter}
+              style={{ width: 120 }}
+              onChange={(value) => {
+                setSeverityFilter(value)
+                setCurrentPage(1) // Reset to first page when filter changes
+              }}
+              options={[
+                { value: 'all', label: 'All Types' },
+                { value: 'critical', label: 'Critical' },
+                { value: 'warning', label: 'Warning' },
+                { value: 'info', label: 'Info' }
+              ]}
+              className='rounded-full'
+            />
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => {
+            setActiveTab(key)
+            setCurrentPage(1) // Reset to first page when tab changes
+          }}
+          className='mb-3'
+          size='small'
+        >
+          <TabPane
+            tab={
+              <span className='px-1'>
+                <AlertOutlined /> All
+                <Badge count={totalAlerts} className='ml-1' size='small' />
+              </span>
+            }
+            key='all'
+            data-tab-key='all'
+          />
+          <TabPane
+            tab={
+              <span className='px-1'>
+                <ExclamationCircleOutlined /> Critical
+                <Badge count={criticalAlerts} className='ml-1' size='small' />
+              </span>
+            }
+            key='critical'
+            data-tab-key='critical'
+          />
+          <TabPane
+            tab={
+              <span className='px-1'>
+                <ClockCircleOutlined /> Unresolved
+                <Badge count={unresolvedAlerts} className='ml-1' size='small' />
+              </span>
+            }
+            key='unresolved'
+            data-tab-key='unresolved'
+          />
+          <TabPane
+            tab={
+              <span className='px-1'>
+                <CheckCircleOutlined /> Resolved
+                <Badge count={resolvedAlerts} className='ml-1' size='small' />
+              </span>
+            }
+            key='resolved'
+            data-tab-key='resolved'
+          />
+        </Tabs>
+
+        {/* Alert Cards with Pagination */}
+        <Spin spinning={loading}>
+          {sortedAlerts.length > 0 ? (
+            <>
+              <div id='alerts-timeline' className='alert-cards space-y-2 mb-3'>
+                <Timeline>
+                  {paginatedAlerts.map((alert) => (
+                    <Timeline.Item
+                      key={alert.id}
+                      color={getSeverityColor(alert.severity)}
+                      dot={getSeverityIcon(alert.severity)}
+                    >
+                      {renderAlertCard(alert)}
+                    </Timeline.Item>
+                  ))}
+                </Timeline>
+              </div>
+
+              {/* Pagination */}
+              {sortedAlerts.length > pageSize && (
+                <div className='flex justify-center mt-3'>
+                  <Pagination
+                    current={currentPage}
+                    total={sortedAlerts.length}
+                    pageSize={pageSize}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                    size='small'
+                    className='rounded-full'
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span>
+                  {weekFilter !== 'all'
+                    ? `No alerts found for Week ${weekFilter}`
+                    : 'No alerts found for the selected filters'}
+                </span>
+              }
+            />
+          )}
+        </Spin>
       </Card>
 
       {/* Detail Modal */}
@@ -274,7 +386,7 @@ const FetalAlertsList: React.FC<FetalAlertsListProps> = ({ alerts, loading = fal
         title={
           <div className='flex items-center space-x-2'>
             <AlertOutlined className='text-primary' />
-            <span>Chi tiết cảnh báo</span>
+            <span>Alert Details</span>
           </div>
         }
         open={isModalOpen}

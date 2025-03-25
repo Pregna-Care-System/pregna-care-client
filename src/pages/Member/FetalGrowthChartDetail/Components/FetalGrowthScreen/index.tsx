@@ -1,17 +1,17 @@
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { Breadcrumb, Card, Col, Layout, Row, Typography, Space, Spin } from 'antd'
+import { Alert, Breadcrumb, Button, Card, Col, Layout, Row, Space, Spin, Typography } from 'antd'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
-import { AlertCircle, Baby, Calendar, Clock } from 'lucide-react'
-import { mockFetalAlerts, mockWeightEstimation } from '@/utils/constants/mock-data'
-import { CriticalAlert, StyledLayout } from '../../styles/styled-components'
+import { AlertCircle, Baby, Calendar, ChevronRight, Clock } from 'lucide-react'
+import { StyledLayout } from '../../styles/styled-components'
 import ROUTES from '@/utils/config/routes'
-import GrowthChart from '../Charts/GrowthChart'
-import BarChart from '@/components/Chart/BarChart'
 import GestationalAgeChart from '../Charts/GestationalAgeChart'
-import ScheduleCard from '../ScheduleCard'
 import FetalAlertsList from '../Alerts/FetalAlertList'
+import { fetalGrowthStats } from '@/services/pregnancyRecordService'
+import EnhancedFetalChart from '../Charts/EnhancedFetalChart'
+import { getFetalGrowthAlert } from '@/services/fetalGrowthRecordService'
+import { mockFetalAlerts } from '@/utils/constants/mock-data'
 
 const { Content } = Layout
 const { Title, Text } = Typography
@@ -22,17 +22,64 @@ interface FetalGrowthScreenProps {
 
 const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy }) => {
   const [loading, setLoading] = useState(true)
+  const [fetalData, setFetalData] = useState([])
+  const [alertData, setAlertData] = useState<IFetalGrowth.FetalAlert[]>([])
+  const [alertsLoading, setAlertsLoading] = useState(true)
+
+  const getFetalGrowthStats = async () => {
+    try {
+      if (selectedPregnancy) {
+        const res = await fetalGrowthStats(selectedPregnancy.id)
+        setFetalData(res.response)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
+
+  const getFetalAlerts = async () => {
+    try {
+      setAlertsLoading(true)
+      if (selectedPregnancy) {
+        const res = await getFetalGrowthAlert(selectedPregnancy.id)
+        const responseData = res.data.response || []
+        setAlertData(responseData as IFetalGrowth.FetalAlert[])
+      }
+    } catch (error) {
+      console.error('Error fetching alerts:', error)
+      // Fallback to mock data in case of error
+      setAlertData(mockFetalAlerts)
+    } finally {
+      setAlertsLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (selectedPregnancy) {
+      getFetalGrowthStats()
+      getFetalAlerts()
       setLoading(false)
     }
   }, [selectedPregnancy])
 
-  // Filter critical alerts (this should be updated to use actual data when available)
-  const criticalAlerts = mockFetalAlerts.filter(
-    (alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved
-  )
+  // Filter critical alerts
+  const criticalAlerts =
+    alertData.length > 0
+      ? alertData.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
+      : mockFetalAlerts.filter((alert) => alert.severity.toLowerCase() === 'critical' && !alert.isResolved)
+
+  const scrollToAlerts = () => {
+    const alertsSection = document.getElementById('alerts-section')
+    if (alertsSection) {
+      alertsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      // Set the tab to 'critical' to show only critical alerts
+      const criticalTab = document.querySelector('[data-tab-key="critical"]')
+      if (criticalTab && criticalTab instanceof HTMLElement) {
+        criticalTab.click()
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -65,29 +112,28 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
           </div>
         </div>
 
-        {/* Critical Alerts Section */}
+        {/* Critical Alerts Summary */}
         {criticalAlerts.length > 0 && (
-          <Space direction='vertical' className='w-full mb-6'>
-            {criticalAlerts.map((alert) => (
-              <CriticalAlert
-                key={alert.id}
-                message={
-                  <Space>
-                    <AlertCircle className='text-red-600' />
-                    <span className='font-medium'>Critical Alert - Week {alert.week}</span>
-                  </Space>
-                }
-                description={alert.issue}
-                type='error'
-                showIcon
-                action={
-                  <Link to='#alerts-section' className='alert-action'>
-                    View Details →
-                  </Link>
-                }
-              />
-            ))}
-          </Space>
+          <Alert
+            message={
+              <div className='flex items-center justify-between'>
+                <Space align='center'>
+                  <AlertCircle className='text-red-600' size={20} />
+                  <span className='font-medium'>
+                    You have {criticalAlerts.length} critical {criticalAlerts.length === 1 ? 'alert' : 'alerts'} that
+                    require your attention
+                  </span>
+                </Space>
+                <Button type='primary' danger onClick={scrollToAlerts} className='flex items-center'>
+                  View Details
+                  <ChevronRight className='ml-1' size={16} />
+                </Button>
+              </div>
+            }
+            type='error'
+            showIcon={false}
+            className='mb-6'
+          />
         )}
 
         {/* Main Content Grid */}
@@ -145,35 +191,16 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
             {/* Growth Charts */}
             <Space direction='vertical' size='large' className='w-full'>
               <Card className='chart-card'>
-                <GrowthChart
-                  data={selectedPregnancy.growthData || []}
-                  title='Fetal Weight Growth'
-                  dataKey='weight'
-                  standardKey='standardWeight'
-                  yAxisLabel='Weight (grams)'
-                />
-              </Card>
-              <Card className='chart-card'>
-                <BarChart
-                  data={mockWeightEstimation}
-                  title='Estimated Fetal Weight'
-                  xaxisTitle='Gestational Age (weeks)'
-                  yaxisTitle='Weight (grams)'
-                />
+                <EnhancedFetalChart fetalData={fetalData} sharing={true} />
               </Card>
             </Space>
           </Col>
 
           {/* Right Column - Schedule & Alerts */}
-          <Col xs={24} xl={8}>
+          <Col xs={24} xl={8} id='alerts-section'>
             <Space direction='vertical' size='large' className='w-full'>
-              <ScheduleCard pregnancyId={selectedPregnancy.id} />
+              <FetalAlertsList alerts={alertData} loading={alertsLoading} />
             </Space>
-          </Col>
-          <Col xs={24} xl={24}>
-            <div id='alerts-section'>
-              <FetalAlertsList alerts={mockFetalAlerts} />
-            </div>
           </Col>
         </Row>
       </Content>

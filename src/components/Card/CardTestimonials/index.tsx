@@ -17,17 +17,12 @@ const CardContainer = styled(animated.div)`
 
 interface CardTestimonialsProps {
   rating: number
-  userInfo: {
-    name: string
-    profession: string
-    location: string
-    avatar: string
-  }
+  email: string
   content: string
 }
 
 export default function CardTestimonials(props: CardTestimonialsProps) {
-  const { rating, userInfo, content } = props
+  const { rating, email, content } = props
 
   // Fade in animation
   const fadeIn = useSpring({
@@ -63,20 +58,8 @@ export default function CardTestimonials(props: CardTestimonialsProps) {
       </div>
       <div className='flex justify-between'>
         <div className='text-xs'>
-          <p className='m-0'>{userInfo.name}</p>
-          <p className='m-0 font-light'>{userInfo.profession}</p>
-          <p className='m-0 font-light'>{userInfo.location}</p>
+          <p className='m-0'>{email}</p>
         </div>
-        <animated.img
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            transform: hover.scale.to((s) => `scale(${s})`)
-          }}
-          src={userInfo.avatar}
-          alt='avatar'
-        />
       </div>
     </CardContainer>
   )

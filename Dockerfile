@@ -1,17 +1,14 @@
-FROM node:20
+FROM node:20-slim AS build
 
-WORKDIR /app
+WORKDIR /app/swp391
 
 COPY package*.json ./
 
-RUN npm install -g npm@latest
-
-RUN rm -rf node_modules package-lock.json
-
-RUN npm ci --no-audit --no-fund || npm install --legacy-peer-deps
+RUN npm install --no-audit --no-fund && \
+    npm install -g vite typescript
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host"]

@@ -1,10 +1,12 @@
 import { getPlanById } from '@/services/planService'
 import { selectFeatureInfoInfo, selectMembershipPlans, selectMostUsedPlan } from '@/store/modules/global/selector'
 import request from '@/utils/axiosClient'
-import { FileAddFilled, StarOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Col, Form, Input, Modal, Row, Select, Space, Statistic, Table, Upload, message } from 'antd'
+import { StarOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Card, Col, Form, Input, message, Modal, Row, Select, Space, Statistic, Table, Upload } from 'antd'
 import { useEffect, useState } from 'react'
-import { FiDownload, FiTrash2 } from 'react-icons/fi'
+import { FaSearch } from 'react-icons/fa'
+import { FiTrash2 } from 'react-icons/fi'
+import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { TbEdit } from 'react-icons/tb'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -21,6 +23,8 @@ export default function MemberShipPlanAdminPage() {
   const plansResponse = useSelector(selectMembershipPlans)
   const mostPlanResponse = useSelector(selectMostUsedPlan)
   const featuresResponse = useSelector(selectFeatureInfoInfo)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -40,6 +44,10 @@ export default function MemberShipPlanAdminPage() {
       setMostPlan(mostPlanResponse)
     }
   }, [plansResponse, featuresResponse, mostPlanResponse])
+
+  useEffect(() => {
+    setFilteredData(plansResponse)
+  }, [plansResponse])
 
   const columns = [
     {
@@ -240,6 +248,7 @@ export default function MemberShipPlanAdminPage() {
       message.error('Failed to fetch plan details for update')
     }
   }
+
   const handleUpload = async (file) => {
     const formData = new FormData()
     formData.append('file', file)
@@ -260,25 +269,26 @@ export default function MemberShipPlanAdminPage() {
     }
   }
 
+  const handleSearch = () => {
+    const filtered = plansResponse.filter(
+      (item: any) => item.planName.toLowerCase().includes(searchQuery.toLowerCase()) // search by 'plan name'
+    )
+    setFilteredData(filtered)
+  }
+
   return (
     <>
       <div className='flex items-center justify-between mb-5'>
         <h1 className='text-3xl font-bold text-gray-800 mb-5'>Membership Plans</h1>
         <div className='flex space-x-4'>
           <button
-            onClick={handleModalClick}
-            className='flex items-center bg-white px-4 py-4 rounded-lg shadow-md hover:shadow-lg transition-all'
-          >
-            <FileAddFilled className='w-5 h-5 text-[#7aeecb] mr-2' />
-            <span className='text-[#7aeecb] font-semibold'>Create</span>
-          </button>
-          <button
-            className={`flex items-center bg-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+            className={`flex items-center h-1/3 bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleModalClick}
           >
-            <FiDownload className='w-5 h-5 text-red-500 mr-2' />
-            <span className='text-red-500 font-semibold'> Report</span>
+            <MdOutlineCreateNewFolder className='w-5 h-5 text-[#EE7A7A] mr-2' />
+            <span className='text-[#EE7A7A] font-semibold text-sm'>Create</span>
           </button>
         </div>
       </div>
@@ -308,18 +318,20 @@ export default function MemberShipPlanAdminPage() {
       </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5 '>
-          <Input.Search className='w-1/3 mr-4' placeholder='Search' />
-          <Select
-            defaultValue='newest'
-            style={{ width: 120 }}
-            options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'newest', label: 'Newest' },
-              { value: 'Yiminghe', label: 'Yiminghe' }
-            ]}
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
           />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
         </div>
-        <Table dataSource={plans} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal

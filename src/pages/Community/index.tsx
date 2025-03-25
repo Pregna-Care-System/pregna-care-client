@@ -1,168 +1,503 @@
-import ROUTES from '@/utils/config/routes'
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Tabs, message, Spin, Tooltip } from 'antd'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
+import styled from 'styled-components'
+import PostCreationModal from '@/components/PostCreationModal'
+import PostCard from './components/PostCard'
+import { PlusIcon } from 'lucide-react'
+
+interface BlogPost {
+  id: string
+  pageTitle?: string
+  content?: string
+  shortDescription?: string
+  type?: string
+  userId: string
+  fullName: string
+  userAvatarUrl?: string
+  timeAgo: string
+  location?: string
+  images?: string[]
+  likes?: number
+  comments?: number
+  hashtags?: string[]
+  sharedChartData?: string
+  tags?: { id: string; name: string }[]
+  blogTags?: { tag: { id: string; name: string } }[]
+  userReaction?: string
+  reactions?: {
+    type: string
+    count: number
+  }[]
+  reactionsCount?: number
+}
+
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f0f8ff, #f6e3e1);
+  margin-top: 1.5rem;
+`
+
+const ContentContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+`
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-top: 5rem;
+
+  @media (max-width: 768px) {
+    padding-top: 4rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+`
+
+const Title = styled.h1`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+  }
+`
+
+const CreateButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ef4444;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`
+
+const PostGrid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+`
+
+const StyledTabs = styled(Tabs)`
+  .ant-tabs-nav::before {
+    border-bottom-color: #f3f4f6;
+  }
+
+  .ant-tabs-tab {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+
+    &:hover {
+      color: #ef4444;
+    }
+  }
+
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #ef4444 !important;
+    font-weight: 600;
+  }
+
+  .ant-tabs-ink-bar {
+    background-color: #ef4444;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
+`
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20rem;
+
+  .ant-spin-dot-item {
+    background-color: #ef4444;
+  }
+`
+
+const EmptyStateContainer = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin: 2rem 0;
+`
+
+const EmptyStateTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+`
+
+const EmptyStateText = styled.p`
+  color: #6b7280;
+  font-size: 1rem;
+  max-width: 24rem;
+  margin: 0 auto;
+`
+
+const EmptyStateIcon = styled.div`
+  width: 4rem;
+  height: 4rem;
+  background-color: #fef2f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: #ef4444;
+`
 
 const CommunityPage = () => {
-  const [posts, setPosts] = useState<
-    {
-      id: number
-      author: string
-      avatar: string
-      content: string
-      category: string
-      likes: number
-      comments: number
-      timeAgo: string
-    }[]
-  >([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const blogPosts = useSelector(selectBlogInfo) || []
+  const currentUser = useSelector(selectUserInfo)
+  const tags = useSelector(selectTagInfo) || []
 
-  const dummyPosts = [
-    {
-      id: 1,
-      author: 'Sarah Johnson',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-      content: 'Just felt my baby kick for the first time! Such an amazing moment ❤️',
-      category: 'Second Trimester',
-      likes: 245,
-      comments: 56,
-      timeAgo: '2h ago'
-    },
-    {
-      id: 2,
-      author: 'Emily Davis',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-      content: 'Looking for advice on morning sickness remedies. What worked for you?',
-      category: 'First Trimester',
-      likes: 182,
-      comments: 89,
-      timeAgo: '4h ago'
-    },
-    {
-      id: 3,
-      author: 'Dr. Lisa Martinez',
-      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2',
-      content: 'Weekly Expert Tip: Stay hydrated! Aim for 8-10 glasses of water daily.',
-      category: 'Expert Advice',
-      likes: 456,
-      comments: 34,
-      timeAgo: '6h ago'
-    }
-  ]
+  const [loading, setLoading] = useState(true)
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
 
   useEffect(() => {
-    setPosts(dummyPosts)
-    setLoading(false)
-  }, [])
+    dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+    dispatch({ type: 'GET_ALL_TAGS' })
 
-  const PostCard: React.FC<{
-    post: {
-      id: number
-      author: string
-      avatar: string
-      content: string
-      category: string
-      likes: number
-      comments: number
-      timeAgo: string
+    // Simulate loading for demo purposes
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [dispatch])
+
+  // Filter blog posts to get only community posts
+  const discussionPosts = blogPosts.filter((post: BlogPost) => !post.type || post.type.toLowerCase() === 'community')
+
+  // Filter to get only the current user's posts
+  const myPosts = blogPosts.filter((post: BlogPost) => post.userId === currentUser?.id)
+
+  const showModal = () => {
+    setIsModalVisible(true)
+  }
+
+  const handleCancel = () => {
+    setIsModalVisible(false)
+  }
+
+  const handleCreatePost = async (postData: {
+    content: string
+    images: string | string[]
+    tagIds: string[]
+    type?: string
+    chartData?: any
+  }) => {
+    try {
+      setSubmitting(true)
+
+      // Extract hashtags from content (from text without HTML)
+      const textContent = postData.content.replace(/<[^>]*>/g, '').trim()
+      const hashtagRegex = /#[a-zA-Z0-9_]+/g
+      const hashtags = textContent.match(hashtagRegex) || []
+
+      // Fix the featuredImageUrl format issue
+      let featuredImageUrl = ''
+
+      // If images is a string, use it directly
+      if (typeof postData.images === 'string') {
+        featuredImageUrl = postData.images.trim()
+      }
+      // If images is an array, use the first image
+      else if (Array.isArray(postData.images) && postData.images.length > 0) {
+        featuredImageUrl = postData.images[0]
+      }
+
+      // Create blog post through Redux action
+      return new Promise((resolve) => {
+        dispatch({
+          type: 'CREATE_BLOG',
+          payload: {
+            type: 'community',
+            content: postData.content,
+            userId: currentUser.id,
+            hashtags: hashtags.map((tag) => tag.substring(1)),
+            featuredImageUrl: featuredImageUrl,
+            tagIds: postData.tagIds
+          },
+          callback: (success: boolean, msg?: string) => {
+            if (success) {
+              setIsModalVisible(false)
+              // Refresh posts
+              dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+              message.success('Post created successfully')
+              resolve(true)
+            } else {
+              message.error(msg || 'Failed to create post')
+              resolve(false)
+            }
+            setSubmitting(false)
+          }
+        })
+      })
+    } catch (error) {
+      console.error('Error creating post:', error)
+      message.error('An error occurred while creating the post')
+      setSubmitting(false)
+      return false
     }
-  }> = ({ post }) => (
-    <Link to={ROUTES.COMMUNITY_DETAILS} className='block hover:no-underline'>
-      <div className='bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300'>
-        <div className='flex items-center mb-4'>
-          <img
-            src={post.avatar}
-            alt={`${post.author}'s avatar`}
-            className='w-12 h-12 rounded-full object-cover'
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.onerror = null
-              target.src = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-            }}
-          />
-          <div className='ml-4'>
-            <h3 className='font-semibold text-lg'>{post.author}</h3>
-            <span className='text-gray-500 text-sm'>{post.timeAgo}</span>
-          </div>
-        </div>
-        <p className='text-gray-700 mb-4'>{post.content}</p>
-        <div className='flex items-center justify-between'>
-          <span className='bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm'>{post.category}</span>
-          <div className='flex space-x-4'>
-            <span className='flex items-center text-gray-600'>❤️ {post.likes}</span>
-            <span className='flex items-center text-gray-600'>💬 {post.comments}</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
+  }
+
+  const handleEditPost = async (postData: {
+    content: string
+    images: string[]
+    tagIds: string[]
+    type?: string
+    chartData?: any
+  }) => {
+    if (!currentEditPost) return false
+
+    try {
+      setSubmitting(true)
+
+      // Extract hashtags from content (from text without HTML)
+      const textContent = postData.content.replace(/<[^>]*>/g, '').trim()
+      const hashtagRegex = /#[a-zA-Z0-9_]+/g
+      const hashtags = textContent.match(hashtagRegex) || []
+
+      // Use Promise to handle the async operation
+      return new Promise((resolve) => {
+        dispatch({
+          type: 'UPDATE_BLOG',
+          payload: {
+            id: currentEditPost.id,
+            type: currentEditPost.type || 'community',
+            content: postData.content,
+            userId: currentUser.id,
+            hashtags: hashtags.map((tag) => tag.substring(1)),
+            featuredImageUrl: postData.images,
+            tagIds: postData.tagIds,
+            pageTitle: currentEditPost.pageTitle || '',
+            heading: currentEditPost.pageTitle || '',
+            shortDescription: currentEditPost.shortDescription || '',
+            isVisible: true
+          },
+          callback: (success: boolean, msg?: string) => {
+            setSubmitting(false)
+            if (success) {
+              message.success('Post updated successfully')
+              setIsEditModalVisible(false)
+              setCurrentEditPost(null)
+              dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+              resolve(true)
+            } else {
+              message.error(msg || 'Failed to update post')
+              resolve(false)
+            }
+          }
+        })
+      })
+    } catch (error) {
+      console.error('Error updating post:', error)
+      message.error('An error occurred while updating the post')
+      setSubmitting(false)
+      return false
+    }
+  }
+
+  const handleDeletePost = (postId: string) => {
+    dispatch({
+      type: 'DELETE_BLOG',
+      payload: postId,
+      callback: (success: boolean, msg?: string) => {
+        if (success) {
+          message.success('Post deleted successfully')
+          dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+        } else {
+          message.error(msg || 'Failed to delete post')
+        }
+      }
+    })
+  }
+
+  const renderEmptyState = (type: 'discussions' | 'my-posts') => {
+    return (
+      <EmptyStateContainer>
+        <EmptyStateIcon>
+          {type === 'discussions' ? (
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='32'
+              height='32'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'></path>
+            </svg>
+          ) : (
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='32'
+              height='32'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path>
+              <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path>
+            </svg>
+          )}
+        </EmptyStateIcon>
+        <EmptyStateTitle>
+          {type === 'discussions' ? 'No discussions yet' : "You haven't created any posts yet"}
+        </EmptyStateTitle>
+        <EmptyStateText>
+          {type === 'discussions'
+            ? 'Be the first to start a conversation with the community!'
+            : 'Share your thoughts, experiences or charts with the community!'}
+        </EmptyStateText>
+      </EmptyStateContainer>
+    )
+  }
 
   return (
-    <div className='min-h-screen bg-gray-50 mt-12'>
-      {/* Main Content */}
-      <main className='container mx-auto px-4 py-8'>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mt-14'>
-          {/* Community Feed */}
-          <div className='lg:col-span-2'>
-            <div className='flex justify-between items-center mb-6'>
-              <h2 className='text-2xl font-semibold text-gray-800'>Community Feed</h2>
-              <button className='bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition-colors duration-300'>
+    <PageContainer>
+      <ContentContainer>
+        <Header>
+          <Title>Community Feed</Title>
+          {currentUser && (
+            <Tooltip title='Create a new post'>
+              <CreateButton onClick={showModal}>
+                <PlusIcon size={18} />
                 Create Post
-              </button>
-            </div>
+              </CreateButton>
+            </Tooltip>
+          )}
+        </Header>
+
+        <StyledTabs defaultActiveKey='1'>
+          <Tabs.TabPane tab='Discussions' key='1'>
             {loading ? (
-              <div className='flex justify-center items-center h-64'>
-                <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500'></div>
-              </div>
+              <LoadingContainer>
+                <Spin size='large' />
+              </LoadingContainer>
             ) : (
-              <div className='space-y-6'>
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
+              <PostGrid>
+                {discussionPosts.length > 0
+                  ? discussionPosts.map((post: BlogPost) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        currentUser={currentUser}
+                        onEdit={(post) => {
+                          setCurrentEditPost(post)
+                          setIsEditModalVisible(true)
+                        }}
+                        onDelete={handleDeletePost}
+                      />
+                    ))
+                  : renderEmptyState('discussions')}
+              </PostGrid>
             )}
-          </div>
+          </Tabs.TabPane>
 
-          {/* Sidebar */}
-          <div className='lg:col-span-1'>
-            <div className='bg-white rounded-lg shadow-md p-6 mb-6'>
-              <h3 className='text-xl font-semibold mb-4'>Trending Topics</h3>
-              <div className='space-y-4'>
-                <button className='block w-full text-left px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition-colors duration-300'>
-                  #MorningWellness
-                </button>
-                <button className='block w-full text-left px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition-colors duration-300'>
-                  #PregnancyDiet
-                </button>
-                <button className='block w-full text-left px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition-colors duration-300'>
-                  #BabyKicks
-                </button>
-              </div>
-            </div>
+          <Tabs.TabPane tab='My Posts' key='2'>
+            {loading ? (
+              <LoadingContainer>
+                <Spin size='large' />
+              </LoadingContainer>
+            ) : (
+              <PostGrid>
+                {myPosts.length > 0
+                  ? myPosts.map((post: BlogPost) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        currentUser={currentUser}
+                        onEdit={(post) => {
+                          setCurrentEditPost(post)
+                          setIsEditModalVisible(true)
+                        }}
+                        onDelete={handleDeletePost}
+                      />
+                    ))
+                  : renderEmptyState('my-posts')}
+              </PostGrid>
+            )}
+          </Tabs.TabPane>
+        </StyledTabs>
+      </ContentContainer>
 
-            <div className='bg-white rounded-lg shadow-md p-6'>
-              <h3 className='text-xl font-semibold mb-4'>Weekly Resources</h3>
-              <div className='space-y-4'>
-                <a
-                  href='#'
-                  className='block p-4 rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors duration-300'
-                >
-                  <h4 className='font-medium text-pink-800'>Pregnancy Exercise Guide</h4>
-                  <p className='text-sm text-gray-600 mt-1'>Safe workouts for each trimester</p>
-                </a>
-                <a
-                  href='#'
-                  className='block p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors duration-300'
-                >
-                  <h4 className='font-medium text-purple-800'>Nutrition Tips</h4>
-                  <p className='text-sm text-gray-600 mt-1'>Essential nutrients for you and baby</p>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+      {/* Post Creation Modal */}
+      <PostCreationModal
+        isVisible={isModalVisible}
+        onCancel={handleCancel}
+        onSubmit={handleCreatePost}
+        currentUser={currentUser}
+        tags={tags}
+        submitting={submitting}
+      />
+
+      {/* Edit Post Modal */}
+      <PostCreationModal
+        isVisible={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        onSubmit={handleEditPost}
+        currentUser={currentUser}
+        tags={tags}
+        submitting={submitting}
+        title='Edit Post'
+        initialData={
+          currentEditPost
+            ? {
+                content: currentEditPost.content || '',
+                images: currentEditPost.images || '',
+                tagIds: currentEditPost.tags?.map((tag) => tag.id) || [],
+                type: currentEditPost.type,
+                chartData: currentEditPost.sharedChartData
+              }
+            : undefined
+        }
+      />
+    </PageContainer>
   )
 }
 

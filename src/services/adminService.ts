@@ -29,3 +29,22 @@ export const getAllUserMembershipPlan = async () => {
   const res = await request.get<MODEL.IResponseBase>('/UserMembershipPlan')
   return res
 }
+
+//Feature
+export const createFeature = async (data: any) => {
+  return await request.post<MODEL.IResponseBase>(`/Feature/Create`, data)
+}
+
+export const deleteFeature = async (featureId: string) => {
+  return await request.delete<MODEL.IResponseBase>(`/Feature/Delete?id=${featureId}`)
+}
+
+export const getFeatureById = async (featureId: string) => {
+  return await request.get<MODEL.IResponseBase>(`/Feature/GetById?id=${featureId}`)
+}
+
+export const updateFeature = async (data: any, id: string) => {
+  return await request.put<MODEL.IResponseBase>(`/Feature/Update?id=${id}`, data)
+}
+
+//FAQ

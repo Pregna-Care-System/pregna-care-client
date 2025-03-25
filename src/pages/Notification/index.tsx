@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectNotifications } from '../../store/modules/global/selector'
 import { Bell, MoreVertical } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
 import Loading from '@/components/Loading'
+import { selectUserInfo } from '@store/modules/global/selector'
 
 const NotificationPage = () => {
   const notificationResponse = useSelector(selectNotifications)
@@ -17,14 +17,8 @@ const NotificationPage = () => {
   const [visibleCount, setVisibleCount] = useState(5)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const user = useSelector(selectUserInfo)
 
-  const token = localStorage.getItem('accessToken')
-  let user = null
-  try {
-    user = token ? jwtDecode(token) : null
-  } catch (error) {
-    console.error('Invalid token:', error)
-  }
   useEffect(() => {
     if (user?.id) {
       dispatch({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
@@ -91,7 +85,7 @@ const NotificationPage = () => {
           <h1 className='text-3xl font-bold text-[#ff6b81] flex items-center gap-2'>
             <Bell className='w-6 h-6 text-[#ff6b81]' /> Notifications
           </h1>
-          <button onClick={markAllAsRead} className='text-sm text-blue-500 hover:text-black'>
+          <button onClick={markAllAsRead} className='text-sm text-black hover:text-red-300'>
             Mark all as read
           </button>
         </div>
@@ -157,7 +151,7 @@ const NotificationPage = () => {
             {visibleCount < notifications.length && (
               <div className='flex justify-center mt-10'>
                 <button
-                  onClick={loadMoreNotifications} 
+                  onClick={loadMoreNotifications}
                   className='text-lg p-2 border border-[#ff6b81] rounded-lg bg-[#ff6b81] text-white hover:bg-black hover:text-white'
                 >
                   More notifications

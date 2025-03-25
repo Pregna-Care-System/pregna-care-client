@@ -4,22 +4,21 @@ import {
   Button,
   Card,
   Col,
+  ConfigProvider,
   DatePicker,
   Descriptions,
   Divider,
+  Empty,
   Form,
   Input,
   Modal,
   Row,
   Select,
   Tabs,
-  Typography,
   Tag,
-  ConfigProvider,
-  Empty
+  Typography
 } from 'antd'
-import { FaUser, FaCalendarAlt, FaHeartbeat, FaNotesMedical, FaFileAlt, FaBaby, FaEdit, FaPlus } from 'react-icons/fa'
-import { jwtDecode } from 'jwt-decode'
+import { FaBaby, FaCalendarAlt, FaEdit, FaFileAlt, FaHeartbeat, FaNotesMedical, FaPlus, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
@@ -105,14 +104,25 @@ export default function ProfilePage() {
   const motherInfo = useSelector(selectMotherInfo)
   const userInfo = useSelector(selectUserInfo)
   const pregnancyRecords = useSelector(selectPregnancyRecord) || []
-  const currentProfile = motherInfo?.[0] || {}
+  const [motherInfoData, setMotherInfoData] = useState(motherInfo?.[0] || {})
 
   useEffect(() => {
     if (userInfo.id) {
       dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
-      dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: userInfo.id } })
+      setMotherInfoData(motherInfo?.[0] || {})
     }
   }, [dispatch, userInfo.id])
+
+  useEffect(() => {
+    if (motherInfo?.length > 0) {
+      const currentMotherInfo = motherInfo[0]
+      setMotherInfoData(currentMotherInfo)
+      // Use the current motherInfo directly instead of relying on the state that hasn't updated yet
+      if (currentMotherInfo?.id) {
+        dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: currentMotherInfo.id } })
+      }
+    }
+  }, [motherInfo, dispatch])
 
   useEffect(() => {
     if (pregnancyRecords.length > 0 && !selectedPregnancy) {
@@ -121,17 +131,17 @@ export default function ProfilePage() {
   }, [pregnancyRecords]) // Removed setSelectedPregnancy from dependencies
 
   useEffect(() => {
-    if (currentProfile && editMode) {
+    if (motherInfoData && editMode) {
       motherForm.setFieldsValue({
-        motherName: currentProfile.motherName,
-        motherDateOfBirth: currentProfile.dateOfBirth ? dayjs(currentProfile.dateOfBirth) : null,
-        bloodType: currentProfile.bloodType,
-        healhStatus: currentProfile.healthStatus,
-        notes: currentProfile.notes,
-        imageUrl: currentProfile.imageUrl
+        motherName: motherInfoData.motherName,
+        motherDateOfBirth: motherInfoData.dateOfBirth ? dayjs(motherInfoData.dateOfBirth) : null,
+        bloodType: motherInfoData.bloodType,
+        healhStatus: motherInfoData.healthStatus,
+        notes: motherInfoData.notes,
+        imageUrl: motherInfoData.imageUrl
       })
     }
-  }, [currentProfile, motherForm, editMode])
+  }, [motherInfoData, motherForm, editMode])
 
   useEffect(() => {
     if (selectedPregnancy && editMode) {
@@ -168,11 +178,9 @@ export default function ProfilePage() {
 
   const handleSubmitMotherInfo = (values) => {
     setLoading(true)
-    const token = localStorage.getItem('accessToken')
-    const user = token ? jwtDecode(token) : null
 
     const payload = {
-      userId: user?.id,
+      userId: userInfo.id,
       motherName: values.motherName,
       bloodType: values.bloodType,
       healhStatus: values.healhStatus,
@@ -181,12 +189,16 @@ export default function ProfilePage() {
       motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD')
     }
 
-    if (editMode && currentProfile.id) {
+    if (editMode && motherInfoData.id) {
       dispatch({
         type: 'UPDATE_MOTHER_INFO',
         payload: {
-          ...payload,
-          id: currentProfile.id
+          motherName: payload.motherName,
+          bloodType: payload.bloodType,
+          healhStatus: payload.healhStatus,
+          notes: payload.notes,
+          motherDateOfBirth: payload.motherDateOfBirth,
+          motherInfoId: motherInfoData.id
         }
       })
     } else {
@@ -203,12 +215,9 @@ export default function ProfilePage() {
 
   const handleSubmitBabyInfo = (values) => {
     setLoading(true)
-    const token = localStorage.getItem('accessToken')
-    const user = token ? jwtDecode(token) : null
 
     const payload = {
-      userId: user?.id,
-      motherId: currentProfile.id,
+      motherInfoId: motherInfoData.id,
       babyName: values.babyName,
       babyGender: values.babyGender,
       pregnancyStartDate: values.pregnancyStartDate.format('YYYY-MM-DD'),
@@ -219,12 +228,15 @@ export default function ProfilePage() {
       dispatch({
         type: 'UPDATE_PREGNANCY_RECORD',
         payload: {
-          ...payload,
-          id: selectedPregnancy.id
+          babyName: payload.babyName,
+          babyGender: payload.babyGender,
+          pregnancyStartDate: payload.pregnancyStartDate,
+          expectedDueDate: payload.expectedDueDate,
+          pregnancyRecordId: selectedPregnancy.id
         }
       })
     } else {
-      if (currentProfile.id) {
+      if (motherInfoData.id) {
         dispatch({
           type: 'CREATE_PREGNANCY_RECORD',
           payload
@@ -286,7 +298,7 @@ export default function ProfilePage() {
           image={<FaBaby className='text-6xl text-[#ff6b81]' />}
           description={<Text type='secondary'>No pregnancy records found</Text>}
         >
-          <Button type='primary' icon={<FaPlus />} onClick={handleOpenBabyModal} disabled={!currentProfile.id}>
+          <Button type='primary' icon={<FaPlus />} onClick={handleOpenBabyModal} disabled={!motherInfoData.id}>
             Add Pregnancy Record
           </Button>
         </Empty>
@@ -333,7 +345,7 @@ export default function ProfilePage() {
                 <div className='text-center mb-6'>
                   <Avatar
                     size={120}
-                    src={currentProfile.imageUrl}
+                    src={motherInfoData.imageUrl}
                     icon={<FaUser />}
                     style={{
                       marginBottom: '16px',
@@ -341,33 +353,34 @@ export default function ProfilePage() {
                     }}
                   />
                   <Title level={3} style={{ color: '#333', marginBottom: '8px' }}>
-                    {currentProfile.motherName || 'Your Name'}
+                    {motherInfoData.motherName || 'Your Name'}
                   </Title>
-                  {currentProfile.healthStatus && (
+                  {motherInfoData.healthStatus && (
                     <Tag
-                      color={getHealthStatusColor(currentProfile.healthStatus)}
+                      color={getHealthStatusColor(motherInfoData.healthStatus)}
                       style={{ borderRadius: '12px', padding: '0 12px' }}
                     >
-                      {currentProfile.healthStatus?.replace('_', ' ').toUpperCase()}
+                      {motherInfoData.healthStatus?.replace('_', ' ').toUpperCase()}
                     </Tag>
                   )}
                   <div className='mt-4 space-x-2'>
-                    <Button
-                      type='primary'
-                      icon={<FaEdit className='mr-1' />}
-                      onClick={handleEditMotherProfile}
-                      className='rounded-md'
-                    >
-                      Edit Profile
-                    </Button>
-                    {!currentProfile.id && (
+                    {motherInfoData.id ? (
                       <Button
-                        type='default'
+                        type='primary'
+                        icon={<FaEdit className='mr-1' />}
+                        onClick={handleEditMotherProfile}
+                        className='rounded-md'
+                      >
+                        Edit Profile
+                      </Button>
+                    ) : (
+                      <Button
+                        type='primary'
                         onClick={handleOpenMotherModal}
                         className='rounded-md'
-                        style={{ borderColor: '#ff6b81', color: '#ff6b81' }}
+                        style={{ borderColor: '#ff6b81', color: '#ff6b81', background: 'white' }}
                       >
-                        Create New
+                        Create New Profile
                       </Button>
                     )}
                   </div>
@@ -384,7 +397,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {currentProfile.dateOfBirth || 'Not set'}
+                    {motherInfoData.dateOfBirth || 'Not set'}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -394,7 +407,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {currentProfile.bloodType || 'Not set'}
+                    {motherInfoData.bloodType || 'Not set'}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -404,7 +417,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {currentProfile.healthStatus?.replace('_', ' ') || 'Not set'}
+                    {motherInfoData.healthStatus?.replace('_', ' ') || 'Not set'}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -414,7 +427,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {currentProfile.notes || 'No notes'}
+                    {motherInfoData.notes || 'No notes'}
                   </Descriptions.Item>
                 </Descriptions>
 
@@ -514,7 +527,7 @@ export default function ProfilePage() {
                         </Title>
                         <Text type='secondary'>Select a pregnancy record or create a new one</Text>
                         <div className='mt-4'>
-                          {currentProfile.id ? (
+                          {motherInfoData.id ? (
                             <Button
                               type='primary'
                               onClick={handleOpenBabyModal}
@@ -643,9 +656,6 @@ export default function ProfilePage() {
             </Form.Item>
             <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
               <Input.TextArea rows={4} />
-            </Form.Item>
-            <Form.Item name='imageUrl' label='Profile Image URL'>
-              <Input placeholder='Enter profile image URL' />
             </Form.Item>
             <Form.Item>
               <Button

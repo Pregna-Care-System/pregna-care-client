@@ -1,94 +1,226 @@
+import { getAllFeature } from '@/services/featureService'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Skeleton } from 'antd'
+import { FaBaby } from 'react-icons/fa'
+import styled from 'styled-components'
 import ROUTES from '@/utils/config/routes'
-import { useState } from 'react'
-import { FaBabyCarriage, FaHeart, FaShoppingCart, FaChartLine, FaMoon, FaSun } from 'react-icons/fa'
-import { MdLocalLibrary, MdShare } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 
-const MommyServicesPage = () => {
-  const [activeTab, setActiveTab] = useState('babyNames')
-  const navigate = useNavigate()
-  const handleClick =(path)=> {
-    navigate(path)
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffffff, #f3e8ff);
+  transition: colors 0.3s ease;
+`
+
+const ContentContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+`
+
+const HeaderSection = styled(motion.header)`
+  position: relative;
+  height: 400px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  background: linear-gradient(to right, #b57bec, #ed84b9);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+`
+
+const HeaderOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+`
+
+const HeaderContent = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 0 1rem;
+`
+
+const HeaderTitle = styled(motion.h1)`
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: bold;
+  margin-bottom: 1rem;
+`
+
+const HeaderSubtitle = styled(motion.p)`
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  opacity: 0.9;
+`
+
+const ServicesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
   }
-  const services = [
-    {
-      id: 'babyname',
-      title: 'Baby Name Generator',
-      icon: <FaBabyCarriage className='text-3xl' />,
-      description:
-        'Discover meaningful names from different cultures, origins, and meanings. Get personalized suggestions based on your preferences.',
-      image: 'https://res.cloudinary.com/dgzn2ix8w/image/upload/v1740464887/pregnaCare/vltpltxtbz4kg2bxiirc.jpg',
-      gradient: 'from-pink-400/70 to-transparent',
-      path: ROUTES.BABY_NAME
-    },
-    {
-      id: 'entertainment',
-      title: 'Mom Entertainment',
-      icon: <MdLocalLibrary className='text-3xl' />,
-      description:
-        'Access a world of podcasts, articles, and videos created specifically for mothers. Stay informed and entertained during your journey.',
-      image: 'https://res.cloudinary.com/dgzn2ix8w/image/upload/v1740465510/pregnaCare/fxxqzwxqdgk1ywi2wt0r.webp',
-      gradient: 'from-purple-400/70 to-transparent'
-    },
-    {
-      id: 'shopping',
-      title: 'Baby Shopping',
-      icon: <FaShoppingCart className='text-3xl' />,
-      description:
-        'Explore curated collections of baby essentials, compare prices, and read authentic reviews from other moms. Get the best value for your money.',
-      image: 'https://res.cloudinary.com/dgzn2ix8w/image/upload/v1740464997/pregnaCare/rmh7lqtgura0cakywrtx.jpg',
-      gradient: 'from-blue-400/70 to-transparent',
-      path: ROUTES.BABY_SHOP
-    },
-    {
-      id: 'tracking',
-      title: 'Pregnancy Tracking',
-      icon: <FaChartLine className='text-3xl' />,
-      description:
-        "Track your pregnancy milestones, baby's growth, and health metrics. Get weekly updates and personalized insights for a healthy pregnancy.",
-      image: 'https://res.cloudinary.com/dgzn2ix8w/image/upload/v1740465340/pregnaCare/gpv5daup9ttchjp54kch.webp',
-      gradient: 'from-green-400/70 to-transparent'
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`
+
+const ServiceCard = styled(motion.button)`
+  width: 100%;
+  text-align: left;
+`
+
+const CardContent = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+`
+
+const ServiceIcon = styled.div`
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #a855f7;
+`
+
+const ServiceTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+`
+
+const ServiceDescription = styled.p`
+  font-size: 0.875rem;
+  color: #4b5563;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`
+
+interface Feature {
+  id: string
+  featureName: string
+  description: string
+}
+
+const featureRoutes: { [key: string]: string } = {
+  'Generate baby name': ROUTES.BABY_NAME,
+  'Shoppe for mommy': ROUTES.BABY_SHOP,
+  Blog: ROUTES.BLOG,
+  Community: ROUTES.COMMUNITY,
+  'Tracking Pregnancy': ROUTES.MEMBER.DASHBOARD,
+  'Remider schedule': ROUTES.MEMBER.SCHEDULE
+}
+const MommyServicesPage = () => {
+  const [featureList, setFeatureList] = useState<Feature[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
+
+  const getListFeature = async () => {
+    try {
+      setIsLoading(true)
+      const res = await getAllFeature()
+      if (res.status === 200) {
+        setFeatureList(res.data.response)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
     }
-  ]
+  }
+
+  useEffect(() => {
+    getListFeature()
+  }, [])
+
+  const getIcon = (index: number) => {
+    const icons = [FaBaby]
+    const Icon = icons[index % icons.length]
+    return <Icon />
+  }
+  const handleFeatureClick = (feature: Feature) => {
+    const route =
+      featureRoutes[feature.featureName] || `/service/${feature.featureName.toLowerCase().replace(/\s+/g, '-')}`
+    navigate(route)
+  }
 
   return (
-    <div className={'min-h-screen transition-colors duration-300'}>
-      <div className='container mx-auto px-4 py-8'>
-        <header className='relative h-[400px] rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-purple-200 to-pink-200'>
-          <div className='absolute inset-0 flex flex-col justify-center items-center text-white'>
-            <h1 className='text-6xl font-bold animate-fade-in mb-4'>Mommy Services</h1>
-            <p className='text-xl opacity-90'>Comprehensive care for every mom</p>
-          </div>
-        </header>
-
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12'>
-          {services.map((service) => (
-            <button
-              key={service.id}
-              onClick={() => {
-                setActiveTab(service.id)
-                handleClick(service.path)
-              }}
-              className={`relative p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300 overflow-hidden ${
-                activeTab === service.id
-                  ? 'bg-primary text-white transform scale-105'
-                  : 'bg-white hover:bg-primary/5 dark:bg-dark-card'
-              }`}
+    <PageContainer>
+      <ContentContainer>
+        <HeaderSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <HeaderOverlay />
+          <HeaderContent>
+            <HeaderTitle
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
             >
-              <div className='absolute inset-0 z-0'>
-                <img src={service.image} alt={service.title} className='w-full h-full object-cover opacity-20' />
-                <div className={`absolute inset-0 bg-gradient-to-t ${service.gradient}`} />
-              </div>
-              <div className='relative z-0'>
-                <div className='text-4xl mb-4'>{service.icon}</div>
-                <h3 className='text-xl font-bold mb-2'>{service.title}</h3>
-                <p className='text-sm opacity-80 line-clamp-3'>{service.description}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+              Mommy Services
+            </HeaderTitle>
+            <HeaderSubtitle
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              Comprehensive care for every stage of your motherhood journey
+            </HeaderSubtitle>
+          </HeaderContent>
+        </HeaderSection>
+
+        <ServicesGrid>
+          {isLoading
+            ? [...Array(3)].map((_, index) => (
+                <CardContent key={index}>
+                  <Skeleton active avatar paragraph={{ rows: 2 }} />
+                </CardContent>
+              ))
+            : featureList.map((feature, index) => (
+                <ServiceCard
+                  key={feature.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleFeatureClick(feature)}
+                >
+                  <CardContent>
+                    <ServiceIcon>{getIcon(index)}</ServiceIcon>
+                    <ServiceTitle>{feature.featureName}</ServiceTitle>
+                    <ServiceDescription>{feature.description}</ServiceDescription>
+                  </CardContent>
+                </ServiceCard>
+              ))}
+        </ServicesGrid>
+      </ContentContainer>
+    </PageContainer>
   )
 }
 

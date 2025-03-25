@@ -1,370 +1,560 @@
-//--Library
-import styled from 'styled-components'
-import { useInView } from 'react-intersection-observer'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Input, Tag, Badge, Avatar, Empty } from 'antd'
+import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
+import styled from 'styled-components'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
-import { useState, useEffect, useRef } from "react";
 
-//--Styled Components
-const Container = styled.div`
-  margin: auto;
+// Styled Components
+const PageWrapper = styled.div`
+  width: 100%;
+  background: #f4ecf6;
+  min-height: 100vh;
+  margin-top: 90px;
 `
 
+const Container = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 
-const CategoryContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-  gap: 55px;
-`;
+  @media (min-width: 1200px) {
+    padding: 24px;
+  }
+`
 
+const BannerWrapper = styled.div`
+  width: 100%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #d298e7 100%);
+  padding: 40px 20px;
 
-const DropdownButton = styled.button`
-  background: #007bff;
+  @media (min-width: 768px) {
+    padding: 60px 20px;
+  }
+`
+
+const BannerContent = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
   color: white;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+
+    @media (min-width: 768px) {
+      font-size: 32px;
+    }
+  }
+
+  p {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 24px;
+  }
+`
+
+const SearchContainer = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+`
+
+const StyledInput = styled(Input)`
+  width: 100%;
+  padding: 12px 20px 12px 40px;
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-  &:hover {
-    background: #0056b3;
+  border-radius: 12px;
+  font-size: 16px;
+  outline: none;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #9ca3af;
   }
-`;
 
+  &:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+`
 
-const CategoryDropdown = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const DropdownContent = ({ isOpen, children, closeDropdown }: { isOpen: boolean; children: React.ReactNode; closeDropdown: () => void }) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        closeDropdown(); // Đóng dropdown nếu click bên ngoài
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, closeDropdown]);
-
-  return (
-    <div
-      ref={dropdownRef}
-      style={{
-        display: isOpen ? "block" : "none",
-        position: "absolute",
-        background: "white",
-        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        minWidth: "160px",
-        zIndex: 1,
-        borderRadius: "5px",
-        overflow: "hidden",
-        padding: "10px",
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-
-const SearchBar = styled.div`
+const TagsContainer = styled.div`
   display: flex;
-  justify-content: center;
-  margin: 20px 0;
+  gap: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
 
-  input {
-    width: 200px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  &::-webkit-scrollbar {
+    display: none;
   }
-  button {
-    margin-left: 8px;
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-    &:hover {
-      background: #0056b3;
+`
+
+const StyledTag = styled(Tag)<{ $active?: boolean }>`
+  padding: 6px 16px;
+  border-radius: 16px;
+  border: 1px solid ${(props) => (props.$active ? '#8b5cf6' : '#eaeaea')};
+  background: ${(props) => (props.$active ? '#8b5cf6' : 'transparent')};
+  color: ${(props) => (props.$active ? 'white' : '#666')};
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0;
+
+  &:hover {
+    border-color: #8b5cf6;
+    color: ${(props) => (props.$active ? 'white' : '#8b5cf6')};
+  }
+`
+
+const MainContent = styled.div`
+  .best-of-week {
+    color: #8b5cf6;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: #8b5cf6;
+      border-radius: 50%;
     }
   }
-`;
+`
 
+const FeaturedBlog = styled.div`
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 
+  @media (min-width: 768px) {
+    padding: 30px;
+  }
 
-const HeaderImage = styled.div`
-  position: relative;
-  width: 90%; /* Giới hạn chiều rộng */
-  max-width: 1200px; /* Chiều rộng tối đa */
-  height: 400px;
-  margin: 0 auto; /* Căn giữa */
-  align-items: center;
-  border-radius: 8px;
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 16px;
+    line-height: 1.3;
+
+    @media (min-width: 768px) {
+      font-size: 28px;
+    }
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #8b5cf6;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      gap: 12px;
+    }
+
+    svg {
+      transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+      transform: translateX(4px);
+    }
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 30px;
+    }
+  }
+
+  .text-content {
+    flex: 1;
+  }
 
   .image-container {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    transition:
-      transform 0.5s ease-in-out,
-      opacity 0.5s ease-in-out;
-    transform: translateX(0);
-    opacity: 1;
-
-    &.slide-left {
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-
-    &.slide-right {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-  }
-
-  .next-image {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    width: 100%;
-    height: 100%;
-    transition: opacity 0.5s ease-in-out;
-    opacity: 0;
-
-    &.active {
-      left: 0;
-      opacity: 1;
-    }
-  }
-`
-
-const BlogContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 khung trên 1 hàng */
-  gap: 20px; /* Khoảng cách giữa các khung */
-  margin: 0 auto;
-  padding: 40px 10px;
-  max-width: 1200px; /* Giới hạn chiều rộng */
-
-  .blog-card {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.5s ease-in-out;
-
-    &.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    background: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 200px;
+    border-radius: 12px;
     overflow: hidden;
-    cursor: pointer;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 768px) {
+      width: 40%;
+      height: 240px;
+      flex-shrink: 0;
+    }
 
     img {
       width: 100%;
-      height: 180px;
+      height: 100%;
       object-fit: cover;
     }
+  }
 
-    .content {
-      padding: 15px;
+  .short-description {
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+`
 
-      .title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 8px;
-      }
+const RecentBlogs = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 
-      .description {
-        font-size: 14px;
-        color: #555;
-        line-height: 1.6;
-      }
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+    color: #111827;
+    font-weight: 600;
+    font-size: 18px;
+  }
+`
+
+const RecentBlogCard = styled.article`
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .image-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .content {
+    flex: 1;
+
+    .title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #111827;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+  }
+
+  &:hover {
+    .title {
+      color: #8b5cf6;
     }
   }
 `
 
-const images = ['src/assets/OYH_newborn-holding.jpg']
+const StatusBadge = styled(Badge)`
+  .ant-badge-status-dot {
+    width: 8px;
+    height: 8px;
+  }
+`
 
-//--Data
-const blogData = [
-  { id: 1, title: 'The Importance of Sleep for Moms and Babies', image: 'src/assets/tải xuống (5).jpg', category: 'Sleep' },
-  { id: 2, title: '5 Simple Prenatal Yoga Poses', image: 'src/assets/images (1).jpg', category: 'Yoga' },
-  { id: 3, title: 'Pregnancy Warning Signs', image: 'src/assets/images (2).jpg', category: 'Pregnancy' },
-  { id: 4, title: 'Top 10 Foods for Pregnant Moms', image: 'src/assets/1-3-Month-pregnancy-diet-chart-preview-1200x675.jpg', category: 'Nutrition' },
-  { id: 5, title: 'Guide to Babyproofing Your Home', image: 'src/assets/baby-girl-smiling-babyproofing-checklist.jpg', category: 'Baby Care' },
-  { id: 6, title: 'Common Newborn Health Issues', image: 'src/assets/OYH_newborn-holding.jpg', category: 'Baby Care' }
-];
+const NoImagePlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  font-size: 14px;
+`
 
-//--Component
-export default function BlogPage() {
-  const [currentPage] = useState(0)
-  const [animationDirection] = useState('')
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Approved':
+      return 'success'
+    case 'Pending':
+      return 'warning'
+    case 'Rejected':
+      return 'error'
+    default:
+      return 'default'
+  }
+}
 
+const getInitials = (name: string) => {
+  if (!name) return 'U'
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2)
+}
 
+const BlogList = () => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [activeTag, setActiveTag] = useState('all')
+  const dispatch = useDispatch()
+  const blogResponse = useSelector(selectBlogInfo)
+  const tagResponse = useSelector(selectTagInfo)
 
-  const mainCategories = ['Sleep', 'Yoga', 'Pregnancy', 'Nutrition', 'Baby Care', 'Mental Health', 'Parenting Tips', 'Mental Health', 'Parenting Tips', 'Breastfeeding', 'Exercise', 'Newborn Care'];
+  useEffect(() => {
+    dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'blog' } })
+    dispatch({ type: 'GET_ALL_TAGS' })
+  }, [dispatch])
 
-  const getBlogDescription = (title: string) => {
-    switch (title) {
-      case 'The Importance of Sleep for Moms and Babies: Tips to Rest Better':
-        return "Create a conducive environment for the baby to improve the baby's and the mother's sleep quality[..]"
-      case '5 Simple Prenatal Yoga Poses to Reduce Stress and Boost Energy':
-        return 'Discover easy yoga poses that help reduce stress and rejuvenate energy for moms-to-be[..]'
-      case 'Pregnancy Warning Signs You Should Never Ignore':
-        return 'Stay informed about critical health signs during pregnancy to ensure safety and well-being[..]'
-      case 'Top 10 Foods Every Pregnant Mom Should Include in HerDiet':
-        return 'While you’re pregnant, you’ll want to eat extra protein, calcium, iron, and essential vitamins[..]'
-      case 'The Ultimate Guide to Babyproofing Your Home':
-        return 'Learn how to create a safe and welcoming environment for your baby to explore and grow[..]'
-      case 'Common Newborn Health Issues and How to Handle Them':
-        return 'Understand common newborn health concerns and practical solutions for every parent[..]'
-      default:
-        return 'Explore helpful tips and resources to improve parenting and baby care experiences[..]'
+  const featuredBlog = blogResponse[0] || {
+    id: '1',
+    pageTitle: 'Loading...',
+    fullName: 'Author',
+    timeAgo: 'just now',
+    viewCount: 0,
+    status: 'Approved',
+    tags: [],
+    shortDescription: '',
+    featuredImageUrl: ''
+  }
+
+  const recentBlogs = blogResponse.slice(1) || []
+
+  const getPageTitle = (blog) => {
+    if (blog.pageTitle && blog.pageTitle.trim() !== '') {
+      return blog.pageTitle
     }
+
+    // Extract first line from content if pageTitle is empty
+    if (blog.content) {
+      const contentText = blog.content.replace(/<[^>]*>/g, '')
+      const firstLine = contentText.split('.')[0]
+      return firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine
+    }
+
+    return 'Untitled Blog'
   }
 
   return (
-    <Container className='overflow-hidden'>
-      <div className="opacity-0 mt-10">
-        Comment!!!
-      </div>
-      {/* Dropdown Categories */}
-      <CategoryContainer>
-        <CategoryDropdown>
-          <DropdownButton onClick={() => setDropdownOpen(!isDropdownOpen)}>
-            More Categories ▼
-          </DropdownButton>
-          <DropdownContent isOpen={isDropdownOpen} closeDropdown={() => setDropdownOpen(false)}>
-        {mainCategories.map((category) => (
-          <a key={category} href="#" className="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-            {category}
-          </a>
-        ))}
-      </DropdownContent>
-        </CategoryDropdown>
-        {mainCategories.slice(0, 6).map((category) => (
-        <button key={category} onClick={() => console.log(category)}>
-          {category}
-        </button>
-      ))}
-        <SearchBar>
-          <input
-            type='text'
-            placeholder='Search for a blog...'
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-          <button>🔍</button>
-        </SearchBar>
-      </CategoryContainer>
+    <PageWrapper>
+      <BannerWrapper>
+        <BannerContent>
+          <h1>Discover Our Latest Blogs</h1>
+          <p>Stay updated with the newest pregnancy tips and insights.</p>
+          <SearchContainer>
+            <SearchOutlined
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                fontSize: '18px',
+                zIndex: 2
+              }}
+            />
+            <StyledInput
+              placeholder='What are you looking for?'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </SearchContainer>
+        </BannerContent>
+      </BannerWrapper>
 
-      <HeaderImage className=' mt-1 cursor-pointer'>
-        {/* Hiển thị ảnh chính */}
-        <div
-          className={`image-container ${animationDirection === 'slide-left' ? 'slide-left' : ''} ${animationDirection === 'slide-right' ? 'slide-right' : ''
-            }`}
-        >
-          <img
-            src={images[currentPage]}
-            alt={`Slide ${currentPage}`}
-            className='w-full h-full object-cover
-           '
-          />
-        </div>
-      </HeaderImage>
+      <Container>
+        <TagsContainer>
+          <StyledTag $active={activeTag === 'all'} onClick={() => setActiveTag('all')}>
+            All
+          </StyledTag>
+          {tagResponse.map((tag) => (
+            <StyledTag key={tag.id} $active={activeTag === tag.id} onClick={() => setActiveTag(tag.id)}>
+              {tag.name}
+            </StyledTag>
+          ))}
+        </TagsContainer>
 
-      {/* Blog List */}
-      <BlogContainer>
-        {blogData.map((blog) => {
-          const { ref, inView } = useInView({
-            threshold: 0.1
-          })
+        <MainContent>
+          {blogResponse.length > 0 ? (
+            <FeaturedBlog>
+              <div className='content-wrapper'>
+                <div className='text-content'>
+                  <Link to={`${ROUTES.BLOG}/${featuredBlog?.id}`}>
+                    <h1 className='title'>{getPageTitle(featuredBlog)}</h1>
 
-          return (
-            <div ref={ref} className={`blog-card ${inView ? 'visible' : ''}`} key={blog.id}>
-              <Link to={ROUTES.BLOG_DETAILS}>
-                <img src={blog.image} alt={blog.title} />
-                <div className='content'>
-                  <h3 className='title'>{blog.title}</h3>
-                  <h3 className='description'>{getBlogDescription(blog.title)}</h3>
-                  <h3 className='text-blue-500 mt-2'>Read More →</h3>
+                    <div className='author'>
+                      <Avatar size={32} style={{ backgroundColor: '#8b5cf6' }}>
+                        {getInitials(featuredBlog.fullName)}
+                      </Avatar>
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{featuredBlog.fullName}</div>
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{featuredBlog.timeAgo}</div>
+                      </div>
+                    </div>
+
+                    {featuredBlog.shortDescription && (
+                      <div className='short-description'>{featuredBlog.shortDescription}</div>
+                    )}
+
+                    <div className='stats'>
+                      <div className='stat-item'>
+                        <EyeOutlined />
+                        <span>{featuredBlog.viewCount} views</span>
+                      </div>
+                    </div>
+
+                    <div className='meta'>
+                      {featuredBlog.tags &&
+                        featuredBlog.tags.map((tag) => (
+                          <Tag key={tag.id} color='purple'>
+                            {tag.name}
+                          </Tag>
+                        ))}
+                    </div>
+
+                    <div className='read-more'>
+                      Read blog
+                      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                        <path d='M5 12h14M12 5l7 7-7 7' />
+                      </svg>
+                    </div>
+                  </Link>
                 </div>
-              </Link>
-            </div>
-          )
-        })}
-      </BlogContainer>
-
-      {/* Pagination */}
-
-      <div className='flex items-center justify-center mb-6 space-x-2'>
-        <button
-          className='page-item bg-gray-200 border border-gray-300 rounded-md px-3 py-2 text-sm leading flex items-center justify-center hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed'
-          disabled
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke-width='1.5'
-            stroke='currentColor'
-            className='w-4 h-4'
-          >
-            <path stroke-linecap='round' stroke-linejoin='round' d='M15.75 19.5L8.25 12l7.5-7.5' />
-          </svg>
-        </button>
-
-        <button className='page-item active bg-blue-500 text-white rounded-md px-3 py-2 text-sm leading hover:bg-blue-600'>
-          1
-        </button>
-        <button className='page-item bg-gray-200 border border-gray-300 rounded-md px-3 py-2 text-sm leading hover:bg-gray-300'>
-          2
-        </button>
-        <button className='page-item bg-gray-200 border border-gray-300 rounded-md px-3 py-2 text-sm leading hover:bg-gray-300'>
-          3
-        </button>
-        <span className='text-gray-500 px-2'>...</span>
-        <button className='page-item bg-gray-200 border border-gray-300 rounded-md px-3 py-2 text-sm leading hover:bg-gray-300'>
-          40
-        </button>
-
-        <button className='page-item bg-gray-200 border border-gray-300 rounded-md px-3 py-2 text-sm leading flex items-center justify-center hover:bg-gray-300'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke-width='1.5'
-            stroke='currentColor'
-            className='w-4 h-4'
-          >
-            <path stroke-linecap='round' stroke-linejoin='round' d='M8.25 4.5L15.75 12l-7.5 7.5' />
-          </svg>
-        </button>
-      </div>
-    </Container>
+                <div className='image-container'>
+                  {featuredBlog.featuredImageUrl ? (
+                    <img src={featuredBlog.featuredImageUrl || '/placeholder.svg'} alt={getPageTitle(featuredBlog)} />
+                  ) : (
+                    <NoImagePlaceholder>No image available</NoImagePlaceholder>
+                  )}
+                </div>
+              </div>
+            </FeaturedBlog>
+          ) : (
+            <Empty
+              description='No blogs found'
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              style={{
+                background: 'white',
+                padding: '30px',
+                borderRadius: '16px',
+                marginBottom: '30px'
+              }}
+            />
+          )}
+        </MainContent>
+      </Container>
+    </PageWrapper>
   )
 }
+
+export default BlogList
