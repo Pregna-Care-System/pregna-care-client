@@ -4,6 +4,7 @@ import request from '@/utils/axiosClient'
 import { StarOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Form, Input, message, Modal, Row, Select, Space, Statistic, Table, Upload } from 'antd'
 import { useEffect, useState } from 'react'
+import { FaSearch } from 'react-icons/fa'
 import { FiTrash2 } from 'react-icons/fi'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { TbEdit } from 'react-icons/tb'
@@ -22,6 +23,8 @@ export default function MemberShipPlanAdminPage() {
   const plansResponse = useSelector(selectMembershipPlans)
   const mostPlanResponse = useSelector(selectMostUsedPlan)
   const featuresResponse = useSelector(selectFeatureInfoInfo)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -41,6 +44,10 @@ export default function MemberShipPlanAdminPage() {
       setMostPlan(mostPlanResponse)
     }
   }, [plansResponse, featuresResponse, mostPlanResponse])
+
+  useEffect(() => {
+    setFilteredData(plansResponse)
+  }, [plansResponse])
 
   const columns = [
     {
@@ -262,6 +269,13 @@ export default function MemberShipPlanAdminPage() {
     }
   }
 
+  const handleSearch = () => {
+    const filtered = plansResponse.filter(
+      (item: any) => item.planName.toLowerCase().includes(searchQuery.toLowerCase()) // search by 'plan name'
+    )
+    setFilteredData(filtered)
+  }
+
   return (
     <>
       <div className='flex items-center justify-between mb-5'>
@@ -304,18 +318,20 @@ export default function MemberShipPlanAdminPage() {
       </div>
       <div className='bg-white p-10 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5 '>
-          <Input.Search className='w-1/3 mr-4' placeholder='Search' />
-          <Select
-            defaultValue='newest'
-            style={{ width: 120 }}
-            options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'newest', label: 'Newest' },
-              { value: 'Yiminghe', label: 'Yiminghe' }
-            ]}
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
           />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
         </div>
-        <Table dataSource={plans} columns={columns} pagination={{ pageSize: 8 }} />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 8 }} />
       </div>
 
       <Modal

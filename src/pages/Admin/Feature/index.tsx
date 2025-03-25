@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Form, message, Modal, Table } from 'antd'
+import { Button, Form, Input, message, Modal, Table } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { CreateModal } from '@/components/Modal'
 import { createFeature, deleteFeature, getFeatureById, updateFeature } from '@/services/adminService'
 import { getAllFeature } from '@/services/featureService'
 import { TbEdit } from 'react-icons/tb'
 import { FiTrash2 } from 'react-icons/fi'
+import { FaSearch } from 'react-icons/fa'
 
 export default function FeatureAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
@@ -16,6 +17,8 @@ export default function FeatureAdminPage() {
   const [selectedFeature, setSelectedFeature] = useState<any>('')
   const [form] = Form.useForm()
   const memoizedDataSource = useMemo(() => featureList, [featureList])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
 
   const getListFeature = async () => {
     try {
@@ -32,6 +35,10 @@ export default function FeatureAdminPage() {
     getListFeature()
   }, [])
 
+  useEffect(() => {
+    setFilteredData(memoizedDataSource)
+  }, [memoizedDataSource])
+  
   const columns = [
     {
       title: 'Feature Name',
@@ -155,6 +162,12 @@ export default function FeatureAdminPage() {
     }
   }
 
+  const handleSearch = () => {
+    const filtered = memoizedDataSource.filter(
+      (item: any) => item.featureName.toLowerCase().includes(searchQuery.toLowerCase()) // search by 'email'
+    )
+    setFilteredData(filtered)
+  }
   return (
     <>
       <div className='flex justify-between mb-5'>
@@ -170,7 +183,21 @@ export default function FeatureAdminPage() {
         </button>
       </div>
       <div className='bg-white p-5 rounded-xl shadow-md'>
-        <Table dataSource={memoizedDataSource} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
+        <div className='flex justify-end mb-5 '>
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
+          />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
+        </div>
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
       <CreateModal
         isOpen={isOpen}

@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, Input, message, Modal, Table } from 'antd'
 import { FiTrash2 } from 'react-icons/fi'
 import { deleteFeedBack, getAllFeedBack } from '@/services/feedbackService'
+import { FaSearch } from 'react-icons/fa'
 
 export default function FeedBack() {
   const [loading, setLoading] = useState(false)
   const [feedbackList, setFeedbackList] = useState([])
   const memoizedDataSource = useMemo(() => feedbackList, [feedbackList])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredData, setFilteredData] = useState([])
 
   // Fetch Feedback List
   const getListFeedback = async () => {
@@ -23,6 +26,10 @@ export default function FeedBack() {
   useEffect(() => {
     getListFeedback()
   }, [])
+
+  useEffect(() => {
+    setFilteredData(memoizedDataSource)
+  }, [memoizedDataSource])
 
   const columns = [
     {
@@ -100,6 +107,12 @@ export default function FeedBack() {
     })
   }
 
+  const handleSearch = () => {
+    const filtered = memoizedDataSource.filter(
+      (item: any) => item.email.toLowerCase().includes(searchQuery.toLowerCase()) // search by 'email'
+    )
+    setFilteredData(filtered)
+  }
   return (
     <>
       <div className='flex justify-between mb-5'>
@@ -107,9 +120,20 @@ export default function FeedBack() {
       </div>
       <div className='bg-white p-5 rounded-xl shadow-md'>
         <div className='flex justify-end mb-5 '>
-          <Input.Search className='w-1/3 mr-4' placeholder='Search' />
+          <Input
+            className='w-1/4 mr-4'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+            }}
+            allowClear
+            placeholder='Search'
+          />
+          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
+            <FaSearch />
+          </button>
         </div>
-        <Table dataSource={memoizedDataSource} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
+        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
     </>
   )
