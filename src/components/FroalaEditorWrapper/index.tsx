@@ -1,5 +1,4 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
-import { message } from 'antd'
 
 // Import Froala Editor
 import FroalaEditor from 'react-froala-wysiwyg'

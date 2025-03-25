@@ -58,7 +58,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   const [selectedTags, setSelectedTags] = useState<string[]>(initialData?.tagIds || [])
   const editorRef = useRef<any>(null)
   const [isEditorMounted, setIsEditorMounted] = useState(false)
-  const [localSubmitting, setLocalSubmitting] = useState(false) // Local submitting state
 
   // Reset state when initialData changes
   useEffect(() => {
@@ -68,11 +67,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       setSelectedTags(initialData.tagIds || [])
     }
   }, [initialData])
-
-  // Update local submitting state when prop changes
-  useEffect(() => {
-    setLocalSubmitting(submitting)
-  }, [submitting])
 
   useEffect(() => {
     if (isVisible) {
@@ -151,9 +145,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     }
 
     try {
-      // Set local submitting state to true
-      setLocalSubmitting(true)
-
       // Format the images correctly based on the API requirements
       let featuredImageUrl = ''
 
@@ -203,8 +194,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       console.error('Error creating post:', error)
       message.error('Đã xảy ra lỗi khi đăng bài viết')
     } finally {
-      // Reset local submitting state
-      setLocalSubmitting(false)
     }
   }
 
@@ -225,7 +214,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       centered
       closable={false}
       destroyOnClose={true}
-      maskClosable={!localSubmitting} // Prevent closing when submitting
     >
       <div className='py-3'>
         <div className='flex items-center mb-4'>
@@ -413,18 +401,18 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
             (!postContent.trim() &&
               (typeof uploadedImages === 'string' ? !uploadedImages : uploadedImages.length === 0) &&
               !chartData) ||
-            localSubmitting
+            submitting
           }
           className={`w-full mt-3 py-2 rounded-lg font-medium ${
             (!postContent.trim() &&
               (typeof uploadedImages === 'string' ? !uploadedImages : uploadedImages.length === 0) &&
               !chartData) ||
-            localSubmitting
+            submitting
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
               : 'bg-pink-600 text-white hover:bg-pink-700'
           }`}
         >
-          {localSubmitting ? 'Posting...' : 'Post'}
+          {submitting ? 'Posting...' : 'Post'}
         </button>
       </div>
     </Modal>

@@ -442,10 +442,7 @@ export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<
     if (response.response) {
       yield put(setMemberInfo(response.response))
     }
-  } catch (error: any) {
-    message.error('An unexpected error occurred, try again later!')
-    console.error('Fetch error:', error)
-  }
+  } catch (error: any) {}
 }
 
 //----------User Transaction information-----------
@@ -759,10 +756,15 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.sharedChartData || null
     )
     message.success('Create blog successfully')
-    const token = localStorage.getItem('accessToken')
-    const user = token ? jwtDecode(token) : null
+    // const token = localStorage.getItem('accessToken')
+    // const user = token ? jwtDecode(token) : null
 
-    yield put({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+    // yield put({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+
+    // Execute the callback with success=true if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(true)
+    }
 
     // if (user?.id) {
     //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
@@ -776,7 +778,6 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
 //-------------------Delete Blog-------------------
 export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('DELETE BLOG', action)
     yield call(deleteBlog, action.payload)
     message.success('Blog deleted successfully')
     const token = localStorage.getItem('accessToken')
@@ -787,9 +788,11 @@ export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void
       console.error('Invalid token:', error)
     }
 
-    if (user?.id) {
-      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
-    }
+    yield put({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+
+    // if (user?.id) {
+    //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    // }
   } catch (error) {
     message.error('An unexpected error occurred while deleting the blog.')
     console.error('Error in deleteBlog saga:', error)
@@ -802,6 +805,7 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
     yield call(
       updateBlog,
       action.payload.id,
+      action.payload.type,
       action.payload.userId,
       action.payload.tagIds,
       action.payload.pageTitle,
@@ -818,17 +822,17 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
     }
 
     // Refresh blog posts
-    const token = localStorage.getItem('accessToken')
-    let user = null
-    try {
-      user = token ? jwtDecode(token) : null
-    } catch (error) {
-      console.error('Invalid token:', error)
-    }
+    // const token = localStorage.getItem('accessToken')
+    // let user = null
+    // try {
+    //   user = token ? jwtDecode(token) : null
+    // } catch (error) {
+    //   console.error('Invalid token:', error)
+    // }
 
-    if (user?.id) {
-      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
-    }
+    // if (user?.id) {
+    //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    // }
   } catch (error) {
     // Error handling
     message.error('An unexpected error occurred while updating the blog.')

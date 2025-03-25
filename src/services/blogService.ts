@@ -57,6 +57,7 @@ export const deleteBlog = async (id: string) => {
 }
 export const updateBlog = async (
   id: string,
+  type: string,
   userId: string,
   tagIds: [],
   pageTitle: string,
@@ -70,6 +71,7 @@ export const updateBlog = async (
     const apiCallerId = 'updateBlog'
     await request.put<MODEL.IResponseBase>(`/Blog/${id}`, {
       apiCallerId,
+      type,
       userId,
       tagIds,
       pageTitle,
