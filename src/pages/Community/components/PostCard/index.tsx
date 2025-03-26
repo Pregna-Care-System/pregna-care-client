@@ -326,7 +326,7 @@ const PostCard = ({ post, currentUser, onEdit, onDelete, className }: PostCardPr
         <UserInfo>
           <UserProfile>
             <Avatar
-              src={post.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+              src={post.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
               alt={`${post.fullName}'s avatar`}
               onError={(e) => {
                 const target = e.target as HTMLImageElement
