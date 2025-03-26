@@ -108,7 +108,9 @@ export default function MemberShipPlanPage() {
           </div>
         </div>
         <div className='text-center mb-4'>
-          <Button type='primary' size='large' onClick={handleUpgrade} danger>
+          <Button type='primary' size='large' onClick={handleUpgrade} danger
+          disabled ={selectedPlan && selectedPlan.price < (member?.planPrice || 0)}
+          >
             Upgrade to {selectedPlan ? selectedPlan.planName : 'a plan'}
           </Button>
         </div>

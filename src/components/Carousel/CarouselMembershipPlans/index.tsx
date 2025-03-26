@@ -23,9 +23,7 @@ export default function CarouselMembershipPlans({
   currentPlanName,
   recommend
 }: CarouselMembershipPlansProps) {
-  console.log('hhh', recommend)
   const renderMembershipPlans = membershipPlans.map((plan: MODEL.PlanResponse) => {
-    console.log('huhu', plan.membershipPlanId)
     return (
       <SwiperSlide key={plan.membershipPlanId}>
         <PlanCard
