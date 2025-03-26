@@ -5,6 +5,7 @@ import { CheckCircleOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '
 import { getPlanByName, hasFreePlan, upgradeFreePlan } from '@/services/planService'
 import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
 import { useSelector } from 'react-redux'
+import { FiArrowDownLeft, FiArrowLeft } from 'react-icons/fi'
 
 export default function PlanDetail() {
   const { planName } = useParams()
@@ -81,6 +82,13 @@ export default function PlanDetail() {
         background: 'linear-gradient(135deg, #fce7e7 0%, #e9f3ff 100%)'
       }}
     >
+      <button
+        onClick={() => navigate(-1)}
+        className='flex mt-24 text-gray-600 hover:text-rose-500 transition-colors mb-4'
+      >
+        <FiArrowLeft />
+        Back
+      </button>
       <div className='container mx-auto max-w-6xl'>
         <div
           className='mt-20 mb-20 overflow-hidden bg-white rounded-3xl shadow-xl transform transition-all duration-300 hover:shadow-2xl'
@@ -116,16 +124,24 @@ export default function PlanDetail() {
                 <Button
                   type='primary'
                   size='large'
-                  className='w-full md:w-auto transition-all duration-300 hover:scale-105'
+                  className={`w-full md:w-auto transition-all duration-300 hover:scale-105 ${
+                    planDetail && planDetail.price < (member?.planPrice || 0) ? 'disabled-button' : ''
+                  }`}
                   style={{
-                    background: 'linear-gradient(135deg, #ff9a9e 0%, #f87171 100%)',
+                    background:
+                      planDetail && planDetail.price < (member?.planPrice || 0)
+                        ? '#e5e7eb'
+                        : 'linear-gradient(135deg, #ff9a9e 0%, #f87171 100%)',
                     border: 'none',
                     height: '50px',
                     fontSize: '1.1rem',
                     paddingLeft: '2rem',
-                    paddingRight: '2rem'
+                    paddingRight: '2rem',
+                    color: planDetail && planDetail.price < (member?.planPrice || 0) ? '#6b7280' : 'white'
                   }}
                   onClick={handleUpgrade}
+                  danger={!(planDetail && planDetail.price < (member?.planPrice || 0))}
+                  disabled={planDetail && planDetail.price < (member?.planPrice || 0)}
                 >
                   Upgrade to {planDetail.planName}
                 </Button>

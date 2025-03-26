@@ -20,6 +20,9 @@ import { Button, DatePicker, Form, Modal, Select, TimePicker } from 'antd'
 import { ClockCircleOutlined, DeleteOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+
+dayjs.extend(isSameOrAfter)
 
 const VIEW_TYPES = {
   MONTH: 'month',
@@ -44,34 +47,14 @@ const SchedulePage = () => {
   const [moreEventsDate, setMoreEventsDate] = useState(null)
   const [isCreateButtonMode, setIsCreateButtonMode] = useState(false)
 
-  const getDaysInMonth = (date) => {
-    const start = startOfWeek(startOfMonth(date))
-    const end = endOfWeek(endOfMonth(date))
-    return eachDayOfInterval({ start, end })
-  }
 
-  const navigateMonth = (direction) => {
-    setCurrentDate(direction === 'next' ? addMonths(currentDate, 1) : subMonths(currentDate, 1))
-  }
-
-  const goToToday = () => {
-    setCurrentDate(new Date())
-    setSelectedDate(new Date())
-  }
-
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const days = getDaysInMonth(currentDate)
-
-  const handleDateClickSmall = (date) => {
-    setSelectedDate(date)
-  }
-
-  const handleKeyDown = (e, date) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      setSelectedDate(date)
+  const range = (start, end) => {
+    const result = []
+    for (let i = start; i < end; i++) {
+      result.push(i)
     }
+    return result
   }
-
   useEffect(() => {
     dispatch({ type: 'GET_ALL_REMINDER_INFORMATION' })
     dispatch({ type: 'GET_ALL_REMINDER_TYPE_INFORMATION' })
@@ -111,6 +94,7 @@ const SchedulePage = () => {
     setSelectedDate(date)
     const eventOnDate = events.find((event) => isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), date))
 
+    // if have reminder -> permit edit
     if (eventOnDate) {
       setCurrentEvent(eventOnDate)
       form.setFieldsValue({
@@ -122,21 +106,30 @@ const SchedulePage = () => {
         description: eventOnDate.description,
         status: eventOnDate.status
       })
-    } else {
+      setIsCreateButtonMode(false)
+      setShowEventModal(true)
+    }
+    // if the past =>  Cannot create new
+    else if (dayjs(date).isBefore(dayjs(), 'day')) {
+      Modal.warning({
+        title: 'Cannot Select Past Date',
+        content: 'You cannot select past dates.'
+      })
+    }
+    // if future => create new
+    else {
       setCurrentEvent(null)
       form.resetFields()
-
       form.setFieldsValue({
         reminderDate: dayjs(date)
       })
+      setIsCreateButtonMode(false)
+      setShowEventModal(true)
     }
-    setIsCreateButtonMode(false)
-    setShowEventModal(true)
   }
 
   const handleAddEvent = () => {
     form.validateFields().then((values) => {
-      console.log('SELECT DATE', values)
       const { reminderType, title, startTime, endTime, description, reminderDate, status } = values
       const newEventItem = {
         userId: user.id,
@@ -172,6 +165,7 @@ const SchedulePage = () => {
   }
   const handleEditEvent = (event) => {
     setCurrentEvent(event)
+    setSelectedDate(dayjs(event.reminderDate).toDate())
     form.setFieldsValue({
       title: event.title,
       reminderType: event.reminderTypeId,
@@ -185,7 +179,6 @@ const SchedulePage = () => {
     setShowEventModal(true)
   }
   const handleDeleteEvent = (id) => {
-    console.log('ID', id)
     Modal.confirm({
       title: 'Are you sure you want to delete this reminder?',
       content: 'Once deleted, this action cannot be undone.',
@@ -200,111 +193,206 @@ const SchedulePage = () => {
       }
     })
   }
-  const EventModal = () => (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md'>
-        <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
-          <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
-            {isCreateButtonMode
-              ? 'Create Event'
-              : currentEvent
-                ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
-                : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
-          </h1>
-          <div>
-            <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
-              <input
-                type='text'
-                placeholder='Event Title'
-                className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
-              />
-            </Form.Item>
-          </div>
+  const EventModal = () => {
+    // Validate date not in past
+    const validateDate = (_, value) => {
+      if (value && value.isBefore(dayjs(), 'day')) {
+        return Promise.reject('Date cannot be in the past!')
+      }
+      return Promise.resolve()
+    }
 
-          <div>
-            <Form.Item
-              name='reminderType'
-              label='Event type'
-              rules={[{ required: true, message: 'Please select one event type!' }]}
-            >
-              <Select
-                placeholder='Select event type'
-                options={typeList.map((type) => ({ label: type.typeName, value: type.id }))}
-              />
-            </Form.Item>
-          </div>
+    // Validate time not in past (for the selected date)
+    const validateTime = (fieldName) => (_, value) => {
+      if (!value) return Promise.resolve()
 
-          {isCreateButtonMode && (
-            <Form.Item
-              label='Event Date'
-              name='reminderDate'
-              rules={[{ required: true, message: 'Please select event date!' }]}
-            >
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-          )}
+      const selectedDate = form.getFieldValue('reminderDate')
+      const currentDateTime = dayjs()
 
-          <div className='grid grid-cols-2 gap-4'>
+      // If date is today, check time
+      if (selectedDate && selectedDate.isSame(currentDate, 'day')) {
+        if (value.isBefore(currentDateTime, 'minute')) {
+          return Promise.reject(`${fieldName} cannot be in the past!`)
+        }
+      }
+      return Promise.resolve()
+    }
+    return (
+      <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+        <div className='bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md'>
+          <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
+            <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
+              {isCreateButtonMode
+                ? 'Create Event'
+                : currentEvent
+                  ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
+                  : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
+            </h1>
             <div>
-              <Form.Item
-                label='Start Time'
-                name='startTime'
-                rules={[{ required: true, message: 'Please select start time!' }]}
-              >
-                <TimePicker format={'HH:mm:ss'} placeholder='Start Time' style={{ width: '100%' }} />
+              <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
+                <input
+                  type='text'
+                  placeholder='Event Title'
+                  className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
+                />
               </Form.Item>
             </div>
+
             <div>
               <Form.Item
-                label='End Time'
-                name='endTime'
-                rules={[{ required: true, message: 'Please select end time!' }]}
+                name='reminderType'
+                label='Event type'
+                rules={[{ required: true, message: 'Please select one event type!' }]}
               >
-                <TimePicker placeholder='End Time' style={{ width: '100%' }} />
+                <Select
+                  placeholder='Select event type'
+                  options={typeList.map((type) => ({ label: type.typeName, value: type.id }))}
+                />
               </Form.Item>
             </div>
-          </div>
-          <div>
-            <Form.Item name='status' label='Status'>
-              <Select>
-                <Select.Option value='Active'>🔵 Active</Select.Option>
-                <Select.Option value='Done'>🟢 Done</Select.Option>
-              </Select>
-            </Form.Item>
-          </div>
 
-          <div>
-            <Form.Item label='Description' name='description'>
-              <textarea
-                placeholder='Event description'
-                className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
-              />
-            </Form.Item>
-          </div>
-          {!isCreateButtonMode && (
-            <Form.Item name='reminderDate' hidden>
-              <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
-            </Form.Item>
-          )}
-          <div className='flex justify-end gap-2'>
-            <button
-              type='button'
-              onClick={() => setShowEventModal(false)}
-              className='px-4 py-2 rounded-md bg-secondary dark:bg-dark-secondary text-secondary-foreground dark:text-dark-secondary-foreground'
-            >
-              Cancel
-            </button>
-            <button
-              type='submit'
-              className='bg-black text-[#ff6b81] px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
-            >
-              {currentEvent ? 'Update Event' : 'Add Event'}
-            </button>
-          </div>
-        </Form>
+            {isCreateButtonMode && (
+              <Form.Item
+                label='Event Date'
+                name='reminderDate'
+                rules={[{ required: true, message: 'Please select event date!' }, { validator: validateDate }]}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  disabledDate={(current) => current && current < dayjs().startOf('day')}
+                />
+              </Form.Item>
+            )}
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Form.Item
+                  label='Start Time'
+                  name='startTime'
+                  rules={[
+                    { required: true, message: 'Please select start time!' },
+                    { validator: validateTime('Start time') },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!getFieldValue('endTime') || !value) {
+                          return Promise.resolve()
+                        }
+                        if (dayjs(value).isAfter(dayjs(getFieldValue('endTime')))) {
+                          return Promise.reject('Start time cannot be after end time!')
+                        }
+                        return Promise.resolve()
+                      }
+                    })
+                  ]}
+                >
+                  <TimePicker
+                    format={'HH:mm:ss'}
+                    placeholder='Start Time'
+                    style={{ width: '100%' }}
+                    disabledTime={(current) => {
+                      if (form.getFieldValue('reminderDate')?.isSame(dayjs(), 'day')) {
+                        return {
+                          disabledHours: () => range(0, dayjs().hour()),
+                          disabledMinutes: (selectedHour) => {
+                            if (selectedHour === dayjs().hour()) {
+                              return range(0, dayjs().minute())
+                            }
+                            return []
+                          }
+                        }
+                      }
+                      return {}
+                    }}
+                  />
+                </Form.Item>
+              </div>
+              <div>
+                <Form.Item
+                  label='End Time'
+                  name='endTime'
+                  dependencies={['startTime']}
+                  rules={[
+                    { required: true, message: 'Please select end time!' },
+                    { validator: validateTime('End time') },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || !getFieldValue('startTime')) {
+                          return Promise.resolve()
+                        }
+                        if (value.isBefore(getFieldValue('startTime'))) {
+                          return Promise.reject('End time cannot be before start time!')
+                        }
+                        return Promise.resolve()
+                      }
+                    })
+                  ]}
+                >
+                  <TimePicker
+                    placeholder='End Time'
+                    style={{ width: '100%' }}
+                    disabledTime={(current) => {
+                      const startTime = form.getFieldValue('startTime')
+                      if (!startTime) return {}
+
+                      if (form.getFieldValue('reminderDate')?.isSame(dayjs(), 'day')) {
+                        return {
+                          disabledHours: () => range(0, startTime.hour()),
+                          disabledMinutes: (selectedHour) => {
+                            if (selectedHour === startTime.hour()) {
+                              return range(0, startTime.minute())
+                            }
+                            return []
+                          }
+                        }
+                      }
+                      return {}
+                    }}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <div>
+              <Form.Item name='status' label='Status' rules={[{ required: true, message: 'Please select status!' }]}>
+                <Select>
+                  <Select.Option value='Active'>🔵 Active</Select.Option>
+                  <Select.Option value='Done'>🟢 Done</Select.Option>
+                </Select>
+              </Form.Item>
+            </div>
+
+            <div>
+              <Form.Item label='Description' name='description'>
+                <textarea
+                  placeholder='Event description'
+                  className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
+                />
+              </Form.Item>
+            </div>
+            {!isCreateButtonMode && (
+              <Form.Item name='reminderDate' hidden>
+                <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
+              </Form.Item>
+            )}
+            <div className='flex justify-end gap-2'>
+              <button
+                type='button'
+                onClick={() => setShowEventModal(false)}
+                className='px-4 py-2 rounded-md bg-secondary dark:bg-dark-secondary text-secondary-foreground dark:text-dark-secondary-foreground'
+              >
+                Cancel
+              </button>
+              <button
+                type='submit'
+                className='bg-black text-[#ff6b81] px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
+              >
+                {currentEvent ? 'Update Event' : 'Add Event'}
+              </button>
+            </div>
+          </Form>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const handleShowMoreEvents = (date) => {
     setMoreEventsDate(date)
@@ -336,7 +424,7 @@ const SchedulePage = () => {
                   <h3 className='text-lg font-semibold'>{event.title}</h3>
                   <p className='text-sm text-muted-foreground'>{event.description}</p>
                 </div>
-                {event.status === 'DONE' && <span className='text-green-500 font-bold'>🟢</span>}
+                {event.status === 'Done' && <span className='text-green-500 font-bold'>🟢</span>}
               </div>
               <div className='text-sm text-muted-foreground mt-2'>
                 <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')} {event.startTime} -{' '}
@@ -348,104 +436,51 @@ const SchedulePage = () => {
       </Modal>
     )
   }
-
   return (
     <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
       <div className='flex justify-around'>
         <div>
-          <div className='max-w-md mx-auto bg-card p-4 rounded-lg shadow-lg'>
-            <div className='flex items-center justify-between mb-4'>
-              <h2 className='text-xl font-semibold text-foreground'>{format(currentDate, 'MMMM yyyy')}</h2>
-              <div className='flex items-center space-x-2'>
-                <button
-                  onClick={goToToday}
-                  className='px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-opacity-90 transition-colors'
-                >
-                  Today
-                </button>
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className='p-2 hover:bg-secondary rounded-full transition-colors'
-                >
-                  <FiChevronLeft className='w-5 h-5' />
-                </button>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className='p-2 hover:bg-secondary rounded-full transition-colors'
-                >
-                  <FiChevronRight className='w-5 h-5' />
-                </button>
-              </div>
-            </div>
-
-            <div className='grid grid-cols-7 gap-1'>
-              {daysOfWeek.map((day) => (
-                <div key={day} className='text-center py-2 text-sm font-semibold text-muted-foreground'>
-                  {day}
-                </div>
-              ))}
-
-              {days.map((day, index) => {
-                const isCurrentMonth = isSameMonth(day, currentDate)
-                const isTodayDate = isToday(day)
-                const isSelected = isSameDay(day, selectedDate)
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleDateClickSmall(day)}
-                    onKeyDown={(e) => handleKeyDown(e, day)}
-                    className={`
-                p-2 text-center text-sm rounded-full transition-all
-                hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
-                ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
-                ${isTodayDate ? 'bg-blue-500 text-white' : ''}
-                ${isSelected ? 'bg-primary text-primary-foreground' : ''}
-              `}
-                    tabIndex={0}
-                    aria-label={format(day, 'PPPP')}
-                  >
-                    {format(day, 'd')}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
           <h1 style={{ fontSize: '25px', marginTop: '30px' }}>Upcoming Events</h1>
           <div className='max-h-[550px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 bg-white'>
-            {dataSource.length > 0 ? (
-              dataSource.map((event) => {
-                const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
-                return (
-                  <div
-                    className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
-                      event.status === 'DONE' ? 'border-green-300' : 'border-red-200'
-                    } bg-white`}
-                    key={event.id}
-                  >
-                    <div className='flex justify-between'>
-                      <strong>{event.title}</strong>
-                      {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
-                    </div>
-                    <div style={{ fontSize: '14px', color: 'gray' }}>
-                      <ClockCircleOutlined /> {formattedDate} {event.startTime}
-                    </div>
+            {(() => {
+              const upcomingEvents = dataSource.filter((event) =>
+                dayjs(event.reminderDate).isSameOrAfter(dayjs(), 'day')
+              )
 
-                    <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
-                      View Details
-                    </Button>
-                    <Button
-                      className='border-red-200 text-red-500'
-                      type='danger'
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleDeleteEvent(event.id)}
-                    ></Button>
-                  </div>
-                )
-              })
-            ) : (
-              <p>No upcoming events.</p>
-            )}
+              return upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event) => {
+                  const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
+                  return (
+                    <div
+                      className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
+                        event.status === 'Done' ? 'border-green-300' : 'border-red-200'
+                      } bg-white`}
+                      key={event.id}
+                    >
+                      <div className='flex justify-between'>
+                        <strong>{event.title}</strong>
+                        {event.status === 'Done' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
+                      </div>
+                      <div style={{ fontSize: '14px', color: 'gray' }}>
+                        <ClockCircleOutlined /> {formattedDate} {event.startTime}
+                      </div>
+
+                      <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
+                        View Details
+                      </Button>
+                      <Button
+                        className='border-red-200 text-red-500'
+                        type='danger'
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDeleteEvent(event.id)}
+                      ></Button>
+                    </div>
+                  )
+                })
+              ) : (
+                <p>No upcoming events.</p>
+              )
+            })()}
           </div>
         </div>
         <div className='w-2/3 h-2/3 p-2 bg-gray-50'>
@@ -535,7 +570,7 @@ const SchedulePage = () => {
                             className='border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
                           >
                             {event.title}
-                            {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
+                            {event.status === 'Done' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
                           </div>
                         ))}
                         {dayEvents.length > maxEventsToShow && (
