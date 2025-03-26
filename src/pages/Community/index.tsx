@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Tabs, message, Spin, Tooltip } from 'antd'
+import { Tabs, message, Spin, Tooltip, Pagination } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
 import styled from 'styled-components'
@@ -103,7 +103,7 @@ const CreateButton = styled.button`
 const PostGrid = styled.div`
   display: grid;
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `
 
 const StyledTabs = styled(Tabs)`
@@ -179,6 +179,34 @@ const EmptyStateIcon = styled.div`
   color: #ef4444;
 `
 
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+
+  .ant-pagination-item-active {
+    border-color: #ef4444;
+
+    a {
+      color: #ef4444;
+    }
+  }
+
+  .ant-pagination-item:hover {
+    border-color: #ef4444;
+
+    a {
+      color: #ef4444;
+    }
+  }
+
+  .ant-pagination-prev:hover .ant-pagination-item-link,
+  .ant-pagination-next:hover .ant-pagination-item-link {
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+`
+
 const CommunityPage = () => {
   const dispatch = useDispatch()
   const blogPosts = useSelector(selectBlogInfo) || []
@@ -190,6 +218,11 @@ const CommunityPage = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
+
+  // Pagination states
+  const [currentDiscussionsPage, setCurrentDiscussionsPage] = useState(1)
+  const [currentMyPostsPage, setCurrentMyPostsPage] = useState(1)
+  const postsPerPage = 5
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
@@ -208,6 +241,38 @@ const CommunityPage = () => {
 
   // Filter to get only the current user's posts
   const myPosts = blogPosts.filter((post: BlogPost) => post.userId === currentUser?.id)
+
+  // Get current posts for pagination
+  const indexOfLastDiscussionPost = currentDiscussionsPage * postsPerPage
+  const indexOfFirstDiscussionPost = indexOfLastDiscussionPost - postsPerPage
+  const currentDiscussionPosts = discussionPosts.slice(indexOfFirstDiscussionPost, indexOfLastDiscussionPost)
+
+  const indexOfLastMyPost = currentMyPostsPage * postsPerPage
+  const indexOfFirstMyPost = indexOfLastMyPost - postsPerPage
+  const currentMyPosts = myPosts.slice(indexOfFirstMyPost, indexOfLastMyPost)
+
+  // Change page handlers
+  const handleDiscussionsPageChange = (page: number) => {
+    setCurrentDiscussionsPage(page)
+    // Scroll to top of the posts section
+    window.scrollTo({
+      top: document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top
+        ? window.scrollY + (document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top || 0) - 100
+        : 0,
+      behavior: 'smooth'
+    })
+  }
+
+  const handleMyPostsPageChange = (page: number) => {
+    setCurrentMyPostsPage(page)
+    // Scroll to top of the posts section
+    window.scrollTo({
+      top: document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top
+        ? window.scrollY + (document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top || 0) - 100
+        : 0,
+      behavior: 'smooth'
+    })
+  }
 
   const showModal = () => {
     setIsModalVisible(true)
@@ -262,6 +327,9 @@ const CommunityPage = () => {
               // Refresh posts
               dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
               message.success('Post created successfully')
+              // Reset to first page after creating a new post
+              setCurrentDiscussionsPage(1)
+              setCurrentMyPostsPage(1)
               resolve(true)
             } else {
               message.error(msg || 'Failed to create post')
@@ -344,6 +412,15 @@ const CommunityPage = () => {
         if (success) {
           message.success('Post deleted successfully')
           dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+
+          // If we're on a page with only one post and we delete it, go back to the previous page
+          if (currentDiscussionPosts.length === 1 && currentDiscussionsPage > 1) {
+            setCurrentDiscussionsPage(currentDiscussionsPage - 1)
+          }
+
+          if (currentMyPosts.length === 1 && currentMyPostsPage > 1) {
+            setCurrentMyPostsPage(currentMyPostsPage - 1)
+          }
         } else {
           message.error(msg || 'Failed to delete post')
         }
@@ -420,22 +497,36 @@ const CommunityPage = () => {
                 <Spin size='large' />
               </LoadingContainer>
             ) : (
-              <PostGrid>
-                {discussionPosts.length > 0
-                  ? discussionPosts.map((post: BlogPost) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        currentUser={currentUser}
-                        onEdit={(post) => {
-                          setCurrentEditPost(post)
-                          setIsEditModalVisible(true)
-                        }}
-                        onDelete={handleDeletePost}
-                      />
-                    ))
-                  : renderEmptyState('discussions')}
-              </PostGrid>
+              <>
+                <PostGrid>
+                  {currentDiscussionPosts.length > 0
+                    ? currentDiscussionPosts.map((post: BlogPost) => (
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          currentUser={currentUser}
+                          onEdit={(post) => {
+                            setCurrentEditPost(post)
+                            setIsEditModalVisible(true)
+                          }}
+                          onDelete={handleDeletePost}
+                        />
+                      ))
+                    : renderEmptyState('discussions')}
+                </PostGrid>
+
+                {discussionPosts.length > postsPerPage && (
+                  <PaginationContainer>
+                    <Pagination
+                      current={currentDiscussionsPage}
+                      onChange={handleDiscussionsPageChange}
+                      total={discussionPosts.length}
+                      pageSize={postsPerPage}
+                      showSizeChanger={false}
+                    />
+                  </PaginationContainer>
+                )}
+              </>
             )}
           </Tabs.TabPane>
 
@@ -445,22 +536,36 @@ const CommunityPage = () => {
                 <Spin size='large' />
               </LoadingContainer>
             ) : (
-              <PostGrid>
-                {myPosts.length > 0
-                  ? myPosts.map((post: BlogPost) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        currentUser={currentUser}
-                        onEdit={(post) => {
-                          setCurrentEditPost(post)
-                          setIsEditModalVisible(true)
-                        }}
-                        onDelete={handleDeletePost}
-                      />
-                    ))
-                  : renderEmptyState('my-posts')}
-              </PostGrid>
+              <>
+                <PostGrid>
+                  {currentMyPosts.length > 0
+                    ? currentMyPosts.map((post: BlogPost) => (
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          currentUser={currentUser}
+                          onEdit={(post) => {
+                            setCurrentEditPost(post)
+                            setIsEditModalVisible(true)
+                          }}
+                          onDelete={handleDeletePost}
+                        />
+                      ))
+                    : renderEmptyState('my-posts')}
+                </PostGrid>
+
+                {myPosts.length > postsPerPage && (
+                  <PaginationContainer>
+                    <Pagination
+                      current={currentMyPostsPage}
+                      onChange={handleMyPostsPageChange}
+                      total={myPosts.length}
+                      pageSize={postsPerPage}
+                      showSizeChanger={false}
+                    />
+                  </PaginationContainer>
+                )}
+              </>
             )}
           </Tabs.TabPane>
         </StyledTabs>
