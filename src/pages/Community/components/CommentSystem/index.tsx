@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
-import { Modal, message } from 'antd'
+import { Modal, Popconfirm, message } from 'antd'
 import { FaEdit, FaTrash } from 'react-icons/fa'
 import { MdMoreVert, MdClose } from 'react-icons/md'
 import { getAllCommentByBlogId, createComment, updateComment, deleteComment } from '@/services/blogService'
@@ -310,6 +310,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false)
   const [dropdownVisibleFor, setDropdownVisibleFor] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+  const [popconfirmVisible, setPopconfirmVisible] = useState<string | null>(null)
 
   const commentInputRef = useRef<HTMLInputElement>(null)
   const replyInputRef = useRef<HTMLInputElement>(null)
@@ -449,6 +450,15 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     setDropdownVisibleFor(null)
   }
 
+  //Confirm delete comment
+  const confirmDeleteComment = (commentId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    setPopconfirmVisible(commentId)
+  }
+
   // Handle comment deletion
   const handleDeleteComment = async (commentId: string, e?: React.MouseEvent) => {
     if (e) {
@@ -541,15 +551,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     }, 50)
   }
 
-  // Show comment modal
-  const showCommentModal = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      setIsModalVisible(true)
-    }
-  }
-
   // Effect to fetch comments on mount
   useEffect(() => {
     fetchComments()
@@ -622,7 +623,17 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                       <ActionButton onClick={() => startEditing(comment.id, comment.commentText)}>Edit</ActionButton>
                     )}
                     {!isEditing && isCommentAuthor && (
-                      <ActionButton onClick={() => handleDeleteComment(comment.id)}>Delete</ActionButton>
+                      <Popconfirm
+                        title='Delete the task'
+                        description='Are you sure to delete this task?'
+                        onConfirm={() => handleDeleteComment(comment.id)}
+                        onCancel={() => setPopconfirmVisible(null)}
+                        open={popconfirmVisible === comment.id}
+                        okText='Yes'
+                        cancelText='No'
+                      >
+                        <ActionButton onClick={() => confirmDeleteComment(comment.id)}>Delete</ActionButton>
+                      </Popconfirm>
                     )}
                   </CommentActions>
                 </div>

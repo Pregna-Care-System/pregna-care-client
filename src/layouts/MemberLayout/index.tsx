@@ -192,7 +192,7 @@ export default function MemberLayout({ children }) {
               <Avatar
                 size={45}
                 src={
-                  user.image ||
+                  user.picture ||
                   'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
                 }
                 style={{
