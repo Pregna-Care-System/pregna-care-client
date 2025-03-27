@@ -304,8 +304,8 @@ export default function Home() {
     const hasSubmittedFeedback = localStorage.getItem('hasSubmittedFeedback')
     if (hasSubmittedFeedback) return
 
-    if (member?.createdAt) {
-      const createdDate = dayjs(member.createdAt)
+    if (member?.planCreated) {
+      const createdDate = dayjs(member.planCreated)
       const currentDate = dayjs()
       const diffInDays = currentDate.diff(createdDate, 'day')
 
@@ -316,7 +316,7 @@ export default function Home() {
         setTimeout(() => setIsFeedbackModalOpen(true), timeLeft)
       }
     }
-  }, [member?.createdAt])
+  }, [member?.planCreated])
 
   useEffect(() => {
     setServicesToDisplay(featureList.slice(0, visibleServices))
@@ -541,7 +541,7 @@ export default function Home() {
         <CarouselTestimonials testimonials={feedbackList} />
       </div>
 
-      {/* <Modal
+      <Modal
         title='Share your experience'
         open={isFeedbackModalOpen}
         onCancel={() => setIsFeedbackModalOpen(false)}
@@ -563,7 +563,7 @@ export default function Home() {
           value={feedback}
           style={{ marginTop: 10 }}
         />
-      </Modal> */}
+      </Modal>
 
       {/* --Contact */}
       <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>

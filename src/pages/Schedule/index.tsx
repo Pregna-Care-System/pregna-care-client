@@ -16,8 +16,8 @@ import {
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
-import { Button, DatePicker, Form, Modal, Select, TimePicker } from 'antd'
-import { ClockCircleOutlined, DeleteOutlined, PlusCircleFilled } from '@ant-design/icons'
+import { Button, Checkbox, DatePicker, Dropdown, Form, Menu, Modal, Select, TimePicker } from 'antd'
+import { ClockCircleOutlined, DeleteOutlined, EllipsisOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
@@ -46,8 +46,46 @@ const SchedulePage = () => {
   const [showMoreEventsModal, setShowMoreEventsModal] = useState(false)
   const [moreEventsDate, setMoreEventsDate] = useState(null)
   const [isCreateButtonMode, setIsCreateButtonMode] = useState(false)
+  const [selectedTypeEvents, setSelectedTypeEvents] = useState([])
+  const [selectedTypeName, setSelectedTypeName] = useState()
 
+  const getEventColor = (typeName) => {
+    const typeColors = {
+      'Prenatal Checkup Reminder': 'bg-blue-100 border-blue-500 text-blue-800',
+      'Medical Test Reminder': 'bg-green-100 border-green-500 text-green-800',
+      'Supplement Intake Reminder': 'bg-orange-100 border-yellow-500 text-yellow-800',
+      default: 'bg-gray-100 border-gray-500 text-gray-800'
+    }
+    return typeColors[typeName] || typeColors['default']
+  }
 
+  const getDaysInMonth = (date) => {
+    const start = startOfWeek(startOfMonth(date))
+    const end = endOfWeek(endOfMonth(date))
+    return eachDayOfInterval({ start, end })
+  }
+
+  const navigateMonth = (direction) => {
+    setCurrentDate(direction === 'next' ? addMonths(currentDate, 1) : subMonths(currentDate, 1))
+  }
+
+  const goToToday = () => {
+    setCurrentDate(new Date())
+    setSelectedDate(new Date())
+  }
+
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const days = getDaysInMonth(currentDate)
+
+  const handleDateClickSmall = (date) => {
+    setSelectedDate(date)
+  }
+
+  const handleKeyDown = (e, date) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      setSelectedDate(date)
+    }
+  }
   const range = (start, end) => {
     const result = []
     for (let i = start; i < end; i++) {
@@ -178,6 +216,13 @@ const SchedulePage = () => {
     setShowMoreEventsModal(false)
     setShowEventModal(true)
   }
+  const handleTypeClick = (type) => {
+    const typeEvents = events.filter((event) => event.reminderTypeId === type.id) || []
+    setMoreEventsDate(null)
+    setSelectedTypeEvents(typeEvents)
+    setSelectedTypeName(type.typeName)
+    setShowMoreEventsModal(true)
+  }
   const handleDeleteEvent = (id) => {
     Modal.confirm({
       title: 'Are you sure you want to delete this reminder?',
@@ -223,10 +268,10 @@ const SchedulePage = () => {
           <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
             <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
               {isCreateButtonMode
-                ? 'Create Event'
+                ? 'Create Reminder'
                 : currentEvent
-                  ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
-                  : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
+                  ? `Edit Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`
+                  : `Add Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`}
             </h1>
             <div>
               <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
@@ -241,7 +286,7 @@ const SchedulePage = () => {
             <div>
               <Form.Item
                 name='reminderType'
-                label='Event type'
+                label='Reminder type'
                 rules={[{ required: true, message: 'Please select one event type!' }]}
               >
                 <Select
@@ -363,7 +408,7 @@ const SchedulePage = () => {
             <div>
               <Form.Item label='Description' name='description'>
                 <textarea
-                  placeholder='Event description'
+                  placeholder='Reminder description'
                   className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
                 />
               </Form.Item>
@@ -400,38 +445,51 @@ const SchedulePage = () => {
   }
 
   const MoreEventsModal = () => {
-    const dayEvents = events.filter((event) =>
-      isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), moreEventsDate)
-    )
+    const displayEvents = moreEventsDate
+      ? events.filter((event) => isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), moreEventsDate)) || []
+      : selectedTypeEvents || []
+
+    const modalTitle = moreEventsDate
+      ? `Events on ${format(moreEventsDate, 'MMMM d, yyyy')}`
+      : `${selectedTypeName || 'Selected'} Reminders`
 
     return (
       <Modal
         visible={showMoreEventsModal}
         onCancel={() => setShowMoreEventsModal(false)}
         footer={null}
-        title={<span className='text-[#ff6b81] text-lg'>{`Events on ${format(moreEventsDate, 'MMMM d, yyyy')}`}</span>}
+        title={<span className='text-[#ff6b81] text-lg'>{modalTitle}</span>}
         className='custom-modal'
       >
         <div className='space-y-4'>
-          {dayEvents.map((event, i) => (
-            <div
-              key={i}
-              className='border border-solid border-red-200 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded-xl p-2 shadow-md cursor-pointer hover:bg-red-50 dark:hover:bg-dark-primary-light transition-all'
-              onClick={() => handleEditEvent(event)}
-            >
-              <div className='flex justify-between items-center'>
-                <div>
-                  <h3 className='text-lg font-semibold'>{event.title}</h3>
-                  <p className='text-sm text-muted-foreground'>{event.description}</p>
+          {displayEvents.length > 0 ? (
+            displayEvents.map((event, i) => {
+              const eventType = typeList.find((t) => t.id === event.reminderTypeId)
+              const colorClass = eventType ? getEventColor(eventType.typeName) : getEventColor('default')
+
+              return (
+                <div
+                  key={`${event.id}-${i}`}
+                  className={`border border-solid rounded-xl p-2 shadow-md cursor-pointer ${colorClass}`}
+                  onClick={() => handleEditEvent(event)}
+                >
+                  <div className='flex justify-between items-center'>
+                    <div>
+                      <h3 className='text-lg font-semibold'>{event.title}</h3>
+                      <p className='text-sm text-muted-foreground'>{event.description}</p>
+                    </div>
+                    {event.status === 'Done' && <span className='text-green-500 font-bold'>🟢</span>}
+                  </div>
+                  <div className='text-sm text-muted-foreground mt-2'>
+                    <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')}{' '}
+                    {event.startTime} - {event.endTime}
+                  </div>
                 </div>
-                {event.status === 'Done' && <span className='text-green-500 font-bold'>🟢</span>}
-              </div>
-              <div className='text-sm text-muted-foreground mt-2'>
-                <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')} {event.startTime} -{' '}
-                {event.endTime}
-              </div>
-            </div>
-          ))}
+              )
+            })
+          ) : (
+            <p>No events found.</p>
+          )}
         </div>
       </Modal>
     )
@@ -439,9 +497,67 @@ const SchedulePage = () => {
   return (
     <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
       <div className='flex justify-around'>
-        <div>
-          <h1 style={{ fontSize: '25px', marginTop: '30px' }}>Upcoming Events</h1>
-          <div className='max-h-[550px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 bg-white'>
+        <div className='h-full'>
+          <div className='max-w-md mx-auto bg-card p-4 rounded-lg shadow-lg'>
+            <div className='flex items-center justify-between mb-4'>
+              <h2 className='text-xl font-semibold text-foreground'>{format(currentDate, 'MMMM yyyy')}</h2>
+              <div className='flex items-center space-x-2'>
+                <button
+                  onClick={goToToday}
+                  className='px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-opacity-90 transition-colors'
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => navigateMonth('prev')}
+                  className='p-2 hover:bg-secondary rounded-full transition-colors'
+                >
+                  <FiChevronLeft className='w-5 h-5' />
+                </button>
+                <button
+                  onClick={() => navigateMonth('next')}
+                  className='p-2 hover:bg-secondary rounded-full transition-colors'
+                >
+                  <FiChevronRight className='w-5 h-5' />
+                </button>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-7 gap-1'>
+              {daysOfWeek.map((day) => (
+                <div key={day} className='text-center py-2 text-sm font-semibold text-muted-foreground'>
+                  {day}
+                </div>
+              ))}
+
+              {days.map((day, index) => {
+                const isCurrentMonth = isSameMonth(day, currentDate)
+                const isTodayDate = isToday(day)
+                const isSelected = isSameDay(day, selectedDate)
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleDateClickSmall(day)}
+                    onKeyDown={(e) => handleKeyDown(e, day)}
+                    className={`
+                  p-2 text-center text-sm rounded-full transition-all
+                  hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
+                  ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
+                  ${isTodayDate ? 'bg-blue-500 text-white' : ''}
+                  ${isSelected ? 'bg-primary text-primary-foreground' : ''}
+                `}
+                    tabIndex={0}
+                    aria-label={format(day, 'PPPP')}
+                  >
+                    {format(day, 'd')}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <div className='max-h-[180px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 transition'>
+            <h1 className='text-[#ff6b81] font-semibold text-lg'>Upcoming Reminders</h1>
+
             {(() => {
               const upcomingEvents = dataSource.filter((event) =>
                 dayjs(event.reminderDate).isSameOrAfter(dayjs(), 'day')
@@ -459,31 +575,66 @@ const SchedulePage = () => {
                     >
                       <div className='flex justify-between'>
                         <strong>{event.title}</strong>
-                        {event.status === 'Done' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
+                        <Dropdown
+                          overlay={
+                            <Menu>
+                              <Menu.Item key='view' onClick={() => handleEditEvent(event)}>
+                                View Details
+                              </Menu.Item>
+                              <Menu.Item key='delete' danger onClick={() => handleDeleteEvent(event.id)}>
+                                Delete
+                              </Menu.Item>
+                            </Menu>
+                          }
+                          trigger={['click']}
+                          placement='bottomRight'
+                        >
+                          <Button type='text' icon={<EllipsisOutlined />} className='ml-2' />
+                        </Dropdown>
                       </div>
                       <div style={{ fontSize: '14px', color: 'gray' }}>
                         <ClockCircleOutlined /> {formattedDate} {event.startTime}
                       </div>
-
-                      <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
-                        View Details
-                      </Button>
-                      <Button
-                        className='border-red-200 text-red-500'
-                        type='danger'
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDeleteEvent(event.id)}
-                      ></Button>
                     </div>
                   )
                 })
               ) : (
-                <p>No upcoming events.</p>
+                <p>No upcoming reminders.</p>
               )
             })()}
           </div>
+          <div className=' max-h-[250px] transition mt-5 p-4 rounded-lg shadow-md overflow-y-auto scrollbar-custom'>
+            <h1 className='text-[#ff6b81] text-lg font-semibold mb-3'>Reminder Types</h1>
+            <div className='space-y-2'>
+              {typeList.map((type) => {
+                const isSelected = selectedTypeEvents.includes(type.id)
+                const colorClass = getEventColor(type.typeName)
+                return (
+                  <div
+                    key={type.id}
+                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all
+                      ${colorClass} border ${isSelected ? 'ring-2 ring-[#ff6b81]' : 'hover:shadow-md'}`}
+                    onClick={() => handleTypeClick(type)}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation()
+                        handleTypeToggle(type.id)
+                      }}
+                      className='mr-3'
+                    />
+                    <span className='font-medium'>{type.typeName}</span>
+                    <span className='ml-auto text-sm text-gray-500'>
+                      ({events.filter((e) => e.reminderTypeId === type.id).length})
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
-        <div className='w-2/3 h-2/3 p-2 bg-gray-50'>
+        <div className='w-2/3 h-full p-2 bg-gray-50'>
           <div className='flex items-center justify-between mb-4'>
             <div className='flex gap-2'>
               <button
@@ -564,15 +715,17 @@ const SchedulePage = () => {
                     <span className='text-sm'>{format(date, 'd')}</span>
                     {dayEvents.length > 0 && (
                       <div className='mt-1 space-y-1 overflow-hidden'>
-                        {dayEvents.slice(0, maxEventsToShow).map((event, i) => (
-                          <div
-                            key={i}
-                            className='border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
-                          >
-                            {event.title}
-                            {event.status === 'Done' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
-                          </div>
-                        ))}
+                        {dayEvents.slice(0, maxEventsToShow).map((event, i) => {
+                          const eventType = typeList.find((t) => t.id === event.reminderTypeId)
+                          const colorClass = eventType ? getEventColor(eventType.typeName) : getEventColor('default')
+
+                          return (
+                            <div key={i} className={`border text-xs p-1 rounded truncate ${colorClass}`}>
+                              {event.title}
+                              {event.status === 'Done' && <span className='text-green-500 font-bold'> 🟢</span>}
+                            </div>
+                          )
+                        })}
                         {dayEvents.length > maxEventsToShow && (
                           <button
                             onClick={(e) => {
