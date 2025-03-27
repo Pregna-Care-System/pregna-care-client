@@ -20,8 +20,7 @@ export default function CarouselMembershipPlans({
   membershipPlans,
   selectedPlan,
   onSelectPlan,
-  currentPlanName,
-  recommend
+  currentPlanName
 }: CarouselMembershipPlansProps) {
   const renderMembershipPlans = membershipPlans.map((plan: MODEL.PlanResponse) => {
     return (
@@ -31,7 +30,7 @@ export default function CarouselMembershipPlans({
           isSelected={selectedPlan?.membershipPlanId === plan.membershipPlanId}
           onSelect={() => onSelectPlan(plan)}
           currentPlanName={currentPlanName}
-          isRecommended={recommend === plan.membershipPlanId}
+          isRecommended={plan.planName === 'StandardPlan'}
         />
       </SwiperSlide>
     )

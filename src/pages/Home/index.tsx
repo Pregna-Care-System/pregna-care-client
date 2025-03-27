@@ -300,23 +300,20 @@ export default function Home() {
     getListFeedback()
   }, [])
 
+  // check 1 day
+  const isOneDayPassed = (planCreated: string | Date) => {
+    const createdDate = new Date(planCreated)
+    const now = new Date()
+    const oneDayMs = 24 * 60 * 60 * 1000
+    return now.getTime() - createdDate.getTime() >= oneDayMs
+  }
+
+  // open modal feedback
   useEffect(() => {
-    const hasSubmittedFeedback = localStorage.getItem('hasSubmittedFeedback')
-    if (hasSubmittedFeedback) return
-
-    if (member?.planCreated) {
-      const createdDate = dayjs(member.planCreated)
-      const currentDate = dayjs()
-      const diffInDays = currentDate.diff(createdDate, 'day')
-
-      if (diffInDays >= 1) {
-        setTimeout(() => setIsFeedbackModalOpen(true), 500)
-      } else {
-        const timeLeft = createdDate.add(1, 'day').diff(currentDate)
-        setTimeout(() => setIsFeedbackModalOpen(true), timeLeft)
-      }
+    if (member && !member.isFeedback && isOneDayPassed(member.planCreated)) {
+      setIsFeedbackModalOpen(true)
     }
-  }, [member?.planCreated])
+  }, [member])
 
   useEffect(() => {
     setServicesToDisplay(featureList.slice(0, visibleServices))

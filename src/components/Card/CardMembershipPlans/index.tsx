@@ -152,14 +152,14 @@ interface PlanCardProps {
     duration: number
     imageUrl: string
     features: Feature[]
-    recommended: boolean
+    isRecommended: boolean
   }
   isSelected: boolean
   onSelect: () => void
   currentPlanName: string
 }
 
-export default function PlanCard({ plan, isSelected, onSelect, currentPlanName }: PlanCardProps) {
+export default function PlanCard({ plan, isSelected, onSelect, currentPlanName, isRecommended }: PlanCardProps) {
   const navigate = useNavigate()
 
   const handleMoreClick = (e: React.MouseEvent, planName: string) => {
@@ -173,10 +173,15 @@ export default function PlanCard({ plan, isSelected, onSelect, currentPlanName }
       <StyledCard isSelected={isSelected} onClick={onSelect}>
         <CardHeader>
           <div className='flex items-center gap-2'>
+           
             <PlanName>{plan.planName}</PlanName>
             {plan.planName === currentPlanName && <StyledTag color='success'>Your current Plan</StyledTag>}
+            {isRecommended && (
+              <Tag color='red' className='absolute top-2 right-2 rounded-xl'>
+                Recommend
+              </Tag>
+            )}
           </div>
-          {plan.recommended && <StyledTag color='error'>Recommended</StyledTag>}
         </CardHeader>
 
         <PriceSection>
