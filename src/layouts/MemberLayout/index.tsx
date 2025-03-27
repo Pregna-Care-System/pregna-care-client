@@ -186,7 +186,7 @@ export default function MemberLayout({ children }) {
         <div className='main-content'>
           <div className='header'>
             <h4 className='welcome-text'>
-              Hello, <strong>{user.name}</strong>
+              Hello, <strong className='capitalize'>{user.name}</strong>
             </h4>
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
               <Avatar
