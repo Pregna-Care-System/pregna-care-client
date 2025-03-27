@@ -306,10 +306,7 @@ export function* getAllPregnancyRecords(action: PayloadAction<{ userId: string }
     if (res.success) {
       yield put(setPregnancyRecord(res.response))
     }
-  } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
-    console.error('Fetch error:', error)
-  }
+  } catch (error: any) {}
 }
 
 //----------Create fetal growth record-----------
@@ -600,6 +597,10 @@ export function* createMotherInfoSaga(action: PayloadAction<any>): Generator<any
     if (response.success) {
       message.success('Mother information created successfully')
       yield put(setMotherInfo(response.response))
+      // Execute the callback with success=true if it exists
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
     }
   } catch (error: any) {
     message.error('Failed to create mother information. Please try again!')
@@ -612,6 +613,9 @@ export function* updateMotherInfoSaga(action: PayloadAction<any>): Generator<any
     if (response.success) {
       message.success('Mother information updated successfully')
       yield put(setMotherInfo(response.response))
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
     }
   } catch (error: any) {
     message.error('Failed to update mother information. Please try again!')

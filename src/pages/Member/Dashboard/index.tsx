@@ -133,8 +133,6 @@ export default function ProfilePage() {
   useEffect(() => {
     if (motherInfoData && editMode) {
       motherForm.setFieldsValue({
-        motherName: motherInfoData.motherName,
-        motherDateOfBirth: motherInfoData.dateOfBirth ? dayjs(motherInfoData.dateOfBirth) : null,
         bloodType: motherInfoData.bloodType,
         healhStatus: motherInfoData.healthStatus,
         notes: motherInfoData.notes,
@@ -181,30 +179,36 @@ export default function ProfilePage() {
 
     const payload = {
       userId: userInfo.id,
-      motherName: values.motherName,
       bloodType: values.bloodType,
       healhStatus: values.healhStatus,
       notes: values.notes,
-      imageUrl: values.imageUrl,
-      motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD')
+      imageUrl: values.imageUrl
     }
 
     if (editMode && motherInfoData.id) {
       dispatch({
         type: 'UPDATE_MOTHER_INFO',
         payload: {
-          motherName: payload.motherName,
           bloodType: payload.bloodType,
           healhStatus: payload.healhStatus,
           notes: payload.notes,
-          motherDateOfBirth: payload.motherDateOfBirth,
           motherInfoId: motherInfoData.id
+        },
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
+          }
         }
       })
     } else {
       dispatch({
         type: 'CREATE_MOTHER_INFO',
-        payload
+        payload,
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
+          }
+        }
       })
     }
 
@@ -352,8 +356,8 @@ export default function ProfilePage() {
                       border: '4px solid #ff6b81'
                     }}
                   />
-                  <Title level={3} style={{ color: '#333', marginBottom: '8px' }}>
-                    {motherInfoData.motherName || 'Your Name'}
+                  <Title level={3} style={{ color: '#333', marginBottom: '8px' }} className='capitalize'>
+                    {userInfo.name || 'Your Name'}
                   </Title>
                   {motherInfoData.healthStatus && (
                     <Tag
@@ -397,7 +401,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {motherInfoData.dateOfBirth || 'Not set'}
+                    {userInfo.dateOfBirth || 'Not set'}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -546,7 +550,7 @@ export default function ProfilePage() {
                     )}
                   </TabPane>
 
-                  <TabPane
+                  {/* <TabPane
                     tab={
                       <span className='flex items-center'>
                         <FaNotesMedical className='mr-2' />
@@ -580,7 +584,7 @@ export default function ProfilePage() {
                       </Title>
                       <Text type='secondary'>Your scheduled appointments will be displayed here</Text>
                     </div>
-                  </TabPane>
+                  </TabPane> */}
                 </Tabs>
               </Card>
             </Col>
@@ -607,26 +611,11 @@ export default function ProfilePage() {
             onFinish={handleSubmitMotherInfo}
             layout='vertical'
             initialValues={{
-              motherName: '',
               bloodType: '',
               healhStatus: '',
               notes: ''
             }}
           >
-            <Form.Item
-              name='motherName'
-              label='Mother Name'
-              rules={[{ required: true, message: 'Please enter your mother name' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name='motherDateOfBirth'
-              label='Date Of Birth'
-              rules={[{ required: true, message: 'Please enter your date of birth' }]}
-            >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
-            </Form.Item>
             <Form.Item
               name='bloodType'
               label='Blood Type'
