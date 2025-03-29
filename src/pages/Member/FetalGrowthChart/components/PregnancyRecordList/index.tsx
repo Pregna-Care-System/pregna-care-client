@@ -26,7 +26,7 @@ interface PregnancyRecord {
 const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [activeCard, setActiveCard] = useState(records[0]?.id)
+  const [activeCard, setActiveCard] = useState(records[0].id)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
@@ -46,7 +46,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
     if (activeCard) {
       dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeCard } })
     }
-  }, [activeCard, dispatch])
+  }, [activeCard])
 
   const handleSubmit = (values: any) => {
     setSubmitting(true)
@@ -324,9 +324,6 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }
 
   const activeRecord = records.find((record) => record.id === activeCard)
-  const progressPercent = activeRecord
-    ? Math.round((activeRecord.gestationalAgeResponse?.weeks / activeRecord.totalWeeks) * 100)
-    : 0
 
   return (
     <div className={styles.container}>
