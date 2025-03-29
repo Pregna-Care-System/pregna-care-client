@@ -278,7 +278,9 @@ export function* createBabyInfoSaga(action: PayloadAction<any>): Generator<any, 
     if (response) {
       message.success('Create pregnancyRecord successfully')
       yield put(setPregnancyRecord(response))
-      yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -292,7 +294,9 @@ export function* updateBabyInfoSaga(action: PayloadAction<any>): Generator<any, 
     if (response) {
       message.success('Update pregnancyRecord successfully')
       yield put(setPregnancyRecord(response))
-      yield put({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: action.payload.userId } })
+      if (action.callback && typeof action.callback === 'function') {
+        action.callback(true)
+      }
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -369,8 +373,9 @@ export function* getFetalGrowthRecordsSaga(action: PayloadAction<any>): Generato
       yield put(setFetalGrowthRecord(res.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
-    console.error('Fetch error:', error)
+    if (error.status === 404) {
+      yield put(setFetalGrowthRecord([]))
+    }
   }
 }
 

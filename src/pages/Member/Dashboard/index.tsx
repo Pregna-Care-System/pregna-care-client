@@ -237,13 +237,23 @@ export default function ProfilePage() {
           pregnancyStartDate: payload.pregnancyStartDate,
           expectedDueDate: payload.expectedDueDate,
           pregnancyRecordId: selectedPregnancy.id
+        },
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+          }
         }
       })
     } else {
       if (motherInfoData.id) {
         dispatch({
           type: 'CREATE_PREGNANCY_RECORD',
-          payload
+          payload,
+          callback: (success: boolean) => {
+            if (success) {
+              dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+            }
+          }
         })
       } else {
         alert('Please create mother information first')
