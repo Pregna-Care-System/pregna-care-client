@@ -333,16 +333,16 @@ export default function Header() {
         <button className='header_item' onClick={() => navigate(ROUTES.GUEST_HOME)}>
           Home
         </button>
-        <button onClick={() => handleNavClick(ROUTES.SERVICES)} className='header_item'>
+        <button onClick={() => navigate(ROUTES.SERVICES)} className='header_item'>
           Services
         </button>
-        <button onClick={() => handleNavClick(ROUTES.BLOG)} className='header_item'>
+        <button onClick={() => navigate(ROUTES.BLOG)} className='header_item'>
           Blog
         </button>
         <button onClick={() => navigate(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
           Pricing
         </button>
-        <button onClick={() => handleNavClick(ROUTES.COMMUNITY)} className='header_item'>
+        <button onClick={() => navigate(ROUTES.COMMUNITY)} className='header_item'>
           Community
         </button>
         <button onClick={() => navigate(ROUTES.CONTACT)} className='header_item'>

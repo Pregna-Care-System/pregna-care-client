@@ -15,11 +15,10 @@ import {
 } from 'date-fns'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
+import { selectReminderInfo, selectReminderTypeInfo, selectUserInfo } from '@/store/modules/global/selector'
 import { Button, Checkbox, DatePicker, Dropdown, Form, Menu, Modal, Select, TimePicker } from 'antd'
 import { ClockCircleOutlined, DeleteOutlined, EllipsisOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { jwtDecode } from 'jwt-decode'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 
 dayjs.extend(isSameOrAfter)
@@ -41,8 +40,7 @@ const SchedulePage = () => {
   const dispatch = useDispatch()
   const [currentEvent, setCurrentEvent] = useState(null)
   const [form] = Form.useForm()
-  const token = localStorage.getItem('accessToken')
-  const user = jwtDecode(token || '')
+  const user = useSelector(selectUserInfo)
   const [showMoreEventsModal, setShowMoreEventsModal] = useState(false)
   const [moreEventsDate, setMoreEventsDate] = useState(null)
   const [isCreateButtonMode, setIsCreateButtonMode] = useState(false)
@@ -94,7 +92,7 @@ const SchedulePage = () => {
     return result
   }
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    dispatch({ type: 'GET_ALL_REMINDER_INFORMATION_BY_USER_iD', payload: user.id })
     dispatch({ type: 'GET_ALL_REMINDER_TYPE_INFORMATION' })
   }, [dispatch])
 

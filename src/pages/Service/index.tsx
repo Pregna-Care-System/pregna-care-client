@@ -1,11 +1,14 @@
 import { getAllFeature } from '@/services/featureService'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Skeleton } from 'antd'
+import { Button, Modal, Skeleton } from 'antd'
 import { FaBaby } from 'react-icons/fa'
 import styled from 'styled-components'
 import ROUTES from '@/utils/config/routes'
 import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { selectUserInfo } from '@/store/modules/global/selector'
+import { style } from '@/theme'
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -59,7 +62,98 @@ const HeaderSubtitle = styled(motion.p)`
   font-size: clamp(1rem, 3vw, 1.25rem);
   opacity: 0.9;
 `
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -139,7 +233,9 @@ const featureRoutes: { [key: string]: string } = {
 }
 const MommyServicesPage = () => {
   const [featureList, setFeatureList] = useState<Feature[]>([])
+  const [isModalVisible, setIsModalVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const userInfor = useSelector(selectUserInfo)
   const navigate = useNavigate()
 
   const getListFeature = async () => {
@@ -165,12 +261,16 @@ const MommyServicesPage = () => {
     const Icon = icons[index % icons.length]
     return <Icon />
   }
+
   const handleFeatureClick = (feature: Feature) => {
-    const route =
+    if (userInfor?.role !== 'Member') {
+      setIsModalVisible(true)
+    } else {
+      const route =
       featureRoutes[feature.featureName] || `/service/${feature.featureName.toLowerCase().replace(/\s+/g, '-')}`
     navigate(route)
+    }
   }
-
   return (
     <PageContainer>
       <ContentContainer>
@@ -220,6 +320,36 @@ const MommyServicesPage = () => {
               ))}
         </ServicesGrid>
       </ContentContainer>
+      <StyledModal
+        title='Become a PregnaCare Member'
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsModalVisible(false)}>
+            Later
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            onClick={() => {
+              setIsModalVisible(false)
+              navigate(ROUTES.MEMBESHIP_PLANS)
+            }}
+          >
+            View Membership Plans
+          </Button>
+        ]}
+      >
+        <div className='membership-content'>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+            alt='Membership'
+            className='membership-image'
+          />
+
+          <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+        </div>
+      </StyledModal>
     </PageContainer>
   )
 }

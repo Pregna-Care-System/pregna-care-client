@@ -9,6 +9,15 @@ export const getAllReminder = async () => {
     throw error
   }
 }
+export const getAllReminderByUserId = async (userId: string) => {
+  try {
+    const response = await request.get<MODEL.IResponseBase>(`/User/${userId}/Reminder`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reminders:', error)
+    throw error
+  }
+}
 export const getAllReminderActive = async () => {
   try {
     const response = await request.get<MODEL.IResponseBase>('/Reminder/Available')

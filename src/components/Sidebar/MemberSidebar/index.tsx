@@ -258,12 +258,6 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         featureName: 'Tracking Pregnancy'
       },
       {
-        title: 'Your Schedule',
-        icon: <FaCalendarAlt size={20} />,
-        path: ROUTES.MEMBER.SCHEDULE,
-        featureName: 'Remider schedule'
-      },
-      {
         title: 'Your Blog',
         icon: <FaPenNib size={20} />,
         path: ROUTES.MEMBER.YOUR_BLOG,
