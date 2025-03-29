@@ -86,7 +86,12 @@ const BlogDashboard = () => {
         } else {
           dispatch({
             type: 'CREATE_BLOG',
-            payload: { ...values, featuredImageUrl: userImage, content: plainTextContent, userId: user?.id }
+            payload: { 
+              ...values, 
+              content: plainTextContent, 
+              userId: user?.id,
+              featuredImageUrl: values.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f'
+            }
           })
         }
 
@@ -127,170 +132,240 @@ const BlogDashboard = () => {
     }
   }
   return (
-    <div
-      className='flex min-h-screen bg-background p-6 mt-20'
-      style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}
-    >
-      <div className='w-1/6 p-4 bg-white shadow-md rounded-xl'>
-        <h2 className='text-lg font-semibold mb-4'>Tag</h2>
-        <div className='space-y-2'>
-          {tags.map((tag) => (
-            <Tag
-              key={tag.id}
-              className={`block w-full text-center py-2 cursor-pointer rounded-md transition-all ${selectedTag === tag.name ? ' bg-red-200' : 'hover:bg-gray-100 hover:border-red-200'}`}
-              onClick={() => setSelectedTag(tag.name === selectedTag ? null : tag.name)}
-            >
-              {tag.name}
-            </Tag>
-          ))}
-        </div>
-      </div>
-      <div className='w-5/6 ml-6'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='font-bold text-3xl'>My Blog</h1>
-          <button
-            onClick={handleCreatePost}
-            className='bg-[#f68999] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-black transition-colors'
-          >
-            <FiPlus /> New Blog
-          </button>
-        </div>
+    <div className='min-h-screen bg-gradient-to-br from-[#fff5f6] via-white to-[#fff5f6] p-8 mt-20'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='flex gap-8'>
+          {/* Sidebar */}
+          <div className='w-64 bg-white rounded-2xl shadow-lg p-6 h-fit sticky top-24'>
+            <h2 className='text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200'>Tags</h2>
+            <div className='space-y-3'>
+              {tags.map((tag) => (
+                <Tag
+                  key={tag.id}
+                  className={`block w-full text-center py-2.5 cursor-pointer rounded-lg transition-all duration-200 ${
+                    selectedTag === tag.name
+                      ? 'bg-[#ff6b81] text-white border-[#ff6b81] shadow-sm'
+                      : 'hover:bg-[#fff5f6] hover:border-[#ff6b81] text-gray-600'
+                  }`}
+                  onClick={() => setSelectedTag(tag.name === selectedTag ? null : tag.name)}
+                >
+                  {tag.name}
+                </Tag>
+              ))}
+            </div>
+          </div>
 
-        <div className='mb-6'>
-          <Input
-            prefix={<FiSearch className='text-gray-400' />}
-            placeholder='Search blogs...'
-            onChange={handleSearchChange}
-            className='max-w-md'
-          />
-        </div>
-
-        {filteredBlogs.length > 0 ? (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {filteredBlogs.map((post) => (
-              <div
-                key={post.id}
-                className='bg-gray-50 border border-red-200 shadow-2xl rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer'
-              >
-                <h2 className='text-xl font-semibold mb-2'>{post.pageTitle}</h2>
-                <h3 className='mb-2'>{post.shortDescription}</h3>
-                <img
-                  src={post.featuredImageUrl}
-                  alt={post.title}
-                  className='w-full h-48 object-cover rounded-md mb-4'
-                />
-                <div className='flex flex-wrap gap-2 mb-4'>
-                  {post.tags?.map((tag) => {
-                    return <Tag key={tag}>{tag.name}</Tag>
-                  })}
-                </div>
-                <div className='flex justify-between items-center'>
-                  <div className='flex gap-2'>
-                    <Tooltip title='Edit post'>
-                      <button
-                        onClick={() => handleEditPost(post)}
-                        className='p-2 bg-gray-100 text-blue-500 border border-blue-300 rounded-md hover:bg-gray-200'
-                      >
-                        <FiEdit2 />
-                      </button>
-                    </Tooltip>
-                    <Tooltip title='Delete post'>
-                      <button
-                        onClick={() => handleDeletePost(post.id)}
-                        className='p-2 bg-red-200 text-red-500 border border-red-300 rounded-md hover:bg-gray-200'
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </Tooltip>
-                  </div>
-                  {!post.isVisible && <Tag color='gray'>Draft</Tag>}
-                </div>
+          {/* Main Content */}
+          <div className='flex-1'>
+            <div className='flex justify-between items-center mb-8'>
+              <div>
+                <h1 className='text-4xl font-bold text-gray-800 mb-2'>My Blog</h1>
+                <p className='text-gray-600'>Manage and create your blog posts</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className='text-center text-gray-500 text-lg mt-10'>
-            There are not blogs. Please create new your blog.
-          </div>
-        )}
+              <button
+                onClick={handleCreatePost}
+                className='bg-[#ff6b81] text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-[#ff5268] transition-all duration-200 shadow-lg hover:shadow-xl'
+              >
+                <FiPlus className='text-lg' /> New Blog
+              </button>
+            </div>
 
-        <Modal
-          title={currentPost ? 'Edit Blog' : 'Create New Blog'}
-          open={isModalVisible}
-          onOk={handleSubmit}
-          onCancel={() => {
-            setIsModalVisible(false)
-            form.resetFields()
-          }}
-          width={800}
-        >
-          <Form form={form} layout='vertical'>
-            <Form.Item
-              name='tagIds'
-              rules={[{ required: true, message: 'Please select at least one tag!' }]}
-              initialValue={[]}
-            >
-              <label className='block mb-2'>Tags</label>
-              <Select
-                mode='tags'
-                placeholder='Select tags'
-                className='w-full'
-                onChange={(value) => form.setFieldsValue({ tagIds: value || [] })}
-              >
-                {tags.map((tag) => (
-                  <Select.Option key={tag.id} value={tag.id}>
-                    {tag.name}
-                  </Select.Option>
+            <div className='mb-8'>
+              <Input
+                prefix={<FiSearch className='text-gray-400' />}
+                placeholder='Search your blogs...'
+                onChange={handleSearchChange}
+                className='max-w-md rounded-xl'
+                size='large'
+              />
+            </div>
+
+            {filteredBlogs.length > 0 ? (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                {filteredBlogs.map((post) => (
+                  <div
+                    key={post.id}
+                    className='bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group'
+                  >
+                    <div className='relative h-48 overflow-hidden'>
+                      <img
+                        src={post.featuredImageUrl}
+                        alt={post.title}
+                        className='w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300'
+                      />
+                      <div className='absolute top-4 right-4 flex gap-2'>
+                        <Tooltip title='Edit post'>
+                          <button
+                            onClick={() => handleEditPost(post)}
+                            className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
+                          >
+                            <FiEdit2 />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title='Delete post'>
+                          <button
+                            onClick={() => handleDeletePost(post.id)}
+                            className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                    <div className='p-6'>
+                      <h2 className='text-xl font-semibold text-gray-800 mb-2 line-clamp-2'>{post.pageTitle}</h2>
+                      <p className='text-gray-600 mb-4 line-clamp-2'>{post.shortDescription}</p>
+                      <div className='flex flex-wrap gap-2 mb-4'>
+                        {post.tags?.map((tag) => (
+                          <Tag
+                            key={tag.id}
+                            className='bg-[#fff5f6] text-[#ff6b81] border-[#ff6b81] rounded-full px-3 py-1'
+                          >
+                            {tag.name}
+                          </Tag>
+                        ))}
+                      </div>
+                      <div className='flex justify-between items-center'>
+                        <div className='text-sm text-gray-500'>{post.timeAgo}</div>
+                        {!post.isVisible && (
+                          <Tag color='geekblue-inverse' className='rounded-full px-3 py-1'>
+                            Draft
+                          </Tag>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </Select>
-            </Form.Item>
-            <Form.Item name='pageTitle' rules={[{ required: true, message: 'Please input the blog title!' }]}>
-              <Input placeholder='Blog title' />
-            </Form.Item>
-            <Form.Item name='heading'>
-              <Input placeholder='Heading' />
-            </Form.Item>
-            <Form.Item name='shortDescription'>
-              <Input.TextArea placeholder='Short description' rows={2} />
-            </Form.Item>
-            <Form.Item name='content' rules={[{ required: true, message: 'Please input the blog content!' }]}>
-              <ReactQuill className='h-64 mb-12' />
-            </Form.Item>
-            <Form.Item name='status' initialValue='pending' hidden>
-              <Input rows={2} />
-            </Form.Item>
-            <Form.Item name='featuredImageUrl'>
-              <Upload
-                maxCount={1}
-                beforeUpload={(file) => {
-                  return new Promise((resolve, reject) => {
-                    if (file.size > 900000) {
-                      reject('File size exceeded')
-                      message.error('File size exceeded')
-                    } else {
-                      resolve('Success')
-                    }
-                  })
-                }}
-                customRequest={({ file, onSuccess, onError }) => {
-                  handleUpload(file)
-                    .then(() => onSuccess('ok'))
-                    .catch(onError)
-                }}
-                showUploadList={false}
-              >
-                <Button>Upload image</Button>
-              </Upload>
-              {userImage && (
-                <div className='mt-4'>
-                  <img src={userImage} alt='Uploaded' className='w-full h-48 object-cover rounded-md' />
+              </div>
+            ) : (
+              <div className='text-center py-12 bg-white rounded-2xl shadow-lg'>
+                <div className='text-[#ff6b81] mb-4'>
+                  <FiPlus className='w-16 h-16 mx-auto' />
                 </div>
-              )}
-            </Form.Item>
-           
-          </Form>
-        </Modal>
+                <h3 className='text-xl font-semibold text-gray-700 mb-2'>No blogs yet</h3>
+                <p className='text-gray-500 mb-6'>Start creating your first blog post to share your thoughts</p>
+                <button
+                  onClick={handleCreatePost}
+                  className='bg-[#ff6b81] text-white px-6 py-3 rounded-xl hover:bg-[#ff5268] transition-all duration-200'
+                >
+                  Create Your First Blog
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      <Modal
+        title={currentPost ? 'Edit Blog' : 'Create New Blog'}
+        open={isModalVisible}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalVisible(false)
+          form.resetFields()
+        }}
+        width={800}
+        className='rounded-2xl'
+        footer={[
+          <Button
+            key='cancel'
+            onClick={() => {
+              setIsModalVisible(false)
+              form.resetFields()
+            }}
+            className='rounded-lg'
+          >
+            Cancel
+          </Button>,
+          <Button key='submit' onClick={handleSubmit} className='bg-[#ff6b81] text-white rounded-lg hover:bg-[#ff5268]'>
+            {currentPost ? 'Update' : 'Create'}
+          </Button>
+        ]}
+      >
+        <Form form={form} layout='vertical' className='mt-4'>
+          <Form.Item
+            name='tagIds'
+            rules={[{ required: true, message: 'Please select at least one tag!' }]}
+            initialValue={[]}
+          >
+            <label className='block mb-2 text-gray-700 font-medium'>Tags</label>
+            <Select
+              mode='tags'
+              placeholder='Select tags'
+              className='w-full rounded-lg'
+              onChange={(value) => form.setFieldsValue({ tagIds: value || [] })}
+            >
+              {tags.map((tag) => (
+                <Select.Option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name='pageTitle' rules={[{ required: true, message: 'Please input the blog title!' }]}>
+            <Input placeholder='Blog title' className='rounded-lg' />
+          </Form.Item>
+          <Form.Item name='heading'>
+            <Input placeholder='Heading' className='rounded-lg' />
+          </Form.Item>
+          <Form.Item name='shortDescription'>
+            <Input.TextArea placeholder='Short description' rows={2} className='rounded-lg' />
+          </Form.Item>
+          <Form.Item name='content' rules={[{ required: true, message: 'Please input the blog content!' }]}>
+            <ReactQuill className='h-64 mb-12 rounded-lg' />
+          </Form.Item>
+          <Form.Item 
+            name='isVisible' 
+            label='Visibility' 
+            valuePropName='checked' 
+            initialValue={true} 
+            className='mb-4'
+          >
+            <Switch 
+              className='bg-gray-300'
+              checkedChildren='Published'
+              unCheckedChildren='Draft'
+              onChange={(checked) => {
+                form.setFieldsValue({ isVisible: checked })
+                if (!checked) {
+                  message.info('Blog will be saved as draft')
+                }
+              }}
+            />
+          </Form.Item>
+          <Form.Item name='status' initialValue='pending' hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item name='featuredImageUrl'>
+            <Upload
+              maxCount={1}
+              beforeUpload={(file) => {
+                return new Promise((resolve, reject) => {
+                  if (file.size > 900000) {
+                    reject('File size exceeded')
+                    message.error('File size exceeded')
+                  } else {
+                    resolve('Success')
+                  }
+                })
+              }}
+              customRequest={({ file, onSuccess, onError }) => {
+                handleUpload(file)
+                  .then(() => onSuccess('ok'))
+                  .catch(onError)
+              }}
+              showUploadList={false}
+            >
+              <Button className='rounded-lg bg-[#ff6b81] text-white hover:bg-[#ff5268]'>Upload image</Button>
+            </Upload>
+            {userImage && (
+              <div className='mt-4'>
+                <img src={userImage} alt='Uploaded' className='w-full h-48 object-cover rounded-lg' />
+              </div>
+            )}
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }

@@ -28,7 +28,7 @@ const HeaderSection = styled(motion.header)`
   border-radius: 24px;
   overflow: hidden;
   margin-bottom: 3rem;
-  background: linear-gradient(to right, #b57bec, #ed84b9);
+  background: linear-gradient(to right, #ff6b81, #ff8e9e);
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -198,7 +198,7 @@ const CardContent = styled.div`
 const ServiceIcon = styled.div`
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: #a855f7;
+  color: #ff6b81;
 `
 
 const ServiceTitle = styled.h3`

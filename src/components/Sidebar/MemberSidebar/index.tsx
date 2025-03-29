@@ -256,12 +256,6 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         icon: <LucideBaby size={20} />,
         path: ROUTES.MEMBER.FETALGROWTHCHART,
         featureName: 'Tracking Pregnancy'
-      },
-      {
-        title: 'Your Blog',
-        icon: <FaPenNib size={20} />,
-        path: ROUTES.MEMBER.YOUR_BLOG,
-        featureName: 'Blog'
       }
     ],
     []
