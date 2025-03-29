@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Form, Input, message, Modal, Select, Switch, Tag, Tooltip, Upload } from 'antd'
+import { Button, Form, Input, message, Modal, Select, Switch, Tag, Tooltip, Upload, Pagination } from 'antd'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 import { jwtDecode } from 'jwt-decode'
 import { convert } from 'html-to-text'
 import debounce from 'lodash/debounce'
@@ -13,8 +13,9 @@ import request from '@/utils/axiosClient'
 const BlogDashboard = () => {
   const [blogs, setBlogs] = useState([])
   const [tags, setTags] = useState([])
-  const token = localStorage.getItem('accessToken')
-  const user = jwtDecode(token) ?? null
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(6)
+  const user = useSelector(selectUserInfo)
   const dispatch = useDispatch()
   const tagResponse = useSelector(selectTagInfo)
   const blogResponse = useSelector(selectBlogInfo)
@@ -83,6 +84,9 @@ const BlogDashboard = () => {
             type: 'UPDATE_BLOG',
             payload: { ...values, content: plainTextContent, userId: user?.id, id: currentPost.id }
           })
+          if (values.isVisible) {
+            message.info('Your blog post has been updated and is pending admin approval before it can be viewed by others.')
+          }
         } else {
           dispatch({
             type: 'CREATE_BLOG',
@@ -93,6 +97,9 @@ const BlogDashboard = () => {
               featuredImageUrl: values.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f'
             }
           })
+          if (values.isVisible) {
+            message.info('Your blog post has been created and is pending admin approval before it can be viewed by others.')
+          }
         }
 
         setIsModalVisible(false)
@@ -131,6 +138,14 @@ const BlogDashboard = () => {
       console.error('Upload error details', error?.response.data || error.message)
     }
   }
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page)
+    setPageSize(size)
+  }
+
+  const paginatedBlogs = filteredBlogs.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-[#fff5f6] via-white to-[#fff5f6] p-8 mt-20'>
       <div className='max-w-7xl mx-auto'>
@@ -181,62 +196,76 @@ const BlogDashboard = () => {
             </div>
 
             {filteredBlogs.length > 0 ? (
-              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                {filteredBlogs.map((post) => (
-                  <div
-                    key={post.id}
-                    className='bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group'
-                  >
-                    <div className='relative h-48 overflow-hidden'>
-                      <img
-                        src={post.featuredImageUrl}
-                        alt={post.title}
-                        className='w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300'
-                      />
-                      <div className='absolute top-4 right-4 flex gap-2'>
-                        <Tooltip title='Edit post'>
-                          <button
-                            onClick={() => handleEditPost(post)}
-                            className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
-                          >
-                            <FiEdit2 />
-                          </button>
-                        </Tooltip>
-                        <Tooltip title='Delete post'>
-                          <button
-                            onClick={() => handleDeletePost(post.id)}
-                            className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </Tooltip>
+              <>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                  {paginatedBlogs.map((post) => (
+                    <div
+                      key={post.id}
+                      className='bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group'
+                    >
+                      <div className='relative h-48 overflow-hidden'>
+                        <img
+                          src={post.featuredImageUrl}
+                          alt={post.title}
+                          className='w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300'
+                        />
+                        <div className='absolute top-4 right-4 flex gap-2'>
+                          <Tooltip title='Edit post'>
+                            <button
+                              onClick={() => handleEditPost(post)}
+                              className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
+                            >
+                              <FiEdit2 />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title='Delete post'>
+                            <button
+                              onClick={() => handleDeletePost(post.id)}
+                              className='p-2 bg-white/90 text-[#ff6b81] rounded-lg hover:bg-white transition-colors shadow-md'
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </Tooltip>
+                        </div>
+                      </div>
+                      <div className='p-6'>
+                        <h2 className='text-xl font-semibold text-gray-800 mb-2 line-clamp-2'>{post.pageTitle}</h2>
+                        <p className='text-gray-600 mb-4 line-clamp-2'>{post.shortDescription}</p>
+                        <div className='flex flex-wrap gap-2 mb-4'>
+                          {post.tags?.map((tag) => (
+                            <Tag
+                              key={tag.id}
+                              className='bg-[#fff5f6] text-[#ff6b81] border-[#ff6b81] rounded-full px-3 py-1'
+                            >
+                              {tag.name}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className='flex justify-between items-center'>
+                          <div className='text-sm text-gray-500'>{post.timeAgo}</div>
+                          {!post.isVisible && (
+                            <Tag color='geekblue-inverse' className='rounded-full px-3 py-1'>
+                              Draft
+                            </Tag>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className='p-6'>
-                      <h2 className='text-xl font-semibold text-gray-800 mb-2 line-clamp-2'>{post.pageTitle}</h2>
-                      <p className='text-gray-600 mb-4 line-clamp-2'>{post.shortDescription}</p>
-                      <div className='flex flex-wrap gap-2 mb-4'>
-                        {post.tags?.map((tag) => (
-                          <Tag
-                            key={tag.id}
-                            className='bg-[#fff5f6] text-[#ff6b81] border-[#ff6b81] rounded-full px-3 py-1'
-                          >
-                            {tag.name}
-                          </Tag>
-                        ))}
-                      </div>
-                      <div className='flex justify-between items-center'>
-                        <div className='text-sm text-gray-500'>{post.timeAgo}</div>
-                        {!post.isVisible && (
-                          <Tag color='geekblue-inverse' className='rounded-full px-3 py-1'>
-                            Draft
-                          </Tag>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                <div className='mt-8 flex justify-center'>
+                  <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={filteredBlogs.length}
+                    onChange={handlePageChange}
+                    showSizeChanger
+                    showQuickJumper
+                    showTotal={(total) => `Total ${total} items`}
+                    className='rounded-lg'
+                  />
+                </div>
+              </>
             ) : (
               <div className='text-center py-12 bg-white rounded-2xl shadow-lg'>
                 <div className='text-[#ff6b81] mb-4'>

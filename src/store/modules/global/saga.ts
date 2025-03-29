@@ -64,7 +64,7 @@ import {
   updateAllIsRead,
   updateNotification
 } from '@/services/notificationService'
-import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, updateBlog } from '@/services/blogService'
+import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, getBlogById, updateBlog } from '@/services/blogService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -746,6 +746,19 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
     console.error('Fetch error:', error)
   }
 }
+//----------Blog detail information-----------
+export function* getDetailByBlogIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    console.log('ID', action.payload)
+    const response = yield call(getBlogById, action.payload)
+    if (response.response) {
+      yield put(setBlogInfo(response.response))
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
 
 //----------Blog information all-----------
 export function* getAllBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
@@ -923,6 +936,7 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_MOST_USED_PLAN', getMostUsedPlanSaga)
   yield takeLatest('GET_ALL_TAGS', getAllTagsSaga)
   yield takeLatest('GET_ALL_BLOGS_BY_USERID', getAllBlogByUserIdSaga)
+  yield takeLatest('GET_BLOG_BY_BLOG_ID', getDetailByBlogIdSaga)
   yield takeLatest('CREATE_BLOG', createBlogSaga)
   yield takeLatest('DELETE_BLOG', deleteBlogSaga)
   yield takeLatest('UPDATE_BLOG', updateBlogSaga)
