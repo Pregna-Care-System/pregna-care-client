@@ -16,6 +16,7 @@ import BabyShopApp from '@/pages/Service/BabyShop/index '
 import ContactAdminPage from '@/pages/Admin/ContactSubscriber'
 import ReminderTypeAdminPage from '@/pages/Admin/ReminderType'
 import BlogAdmin from '@/pages/Admin/Blog'
+import HistoryTransaction from '@/pages/HistoryTransaction'
 
 //Pages
 const HomePage = React.lazy(() => import('@pages/Home'))
@@ -99,7 +100,8 @@ const memberRoutes = [
   { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
   { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
   { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
-  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard }
+  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard },
+  { path: ROUTES.MEMBER.HISTORY_TRANSACTION, component: HistoryTransaction }
 ]
 
 export { adminRoutes, memberRoutes, privateRoutes, publicRoutes }

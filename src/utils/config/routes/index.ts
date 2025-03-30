@@ -42,7 +42,8 @@ const ROUTES = {
     FETALGROWTHCHART: '/member/fetal-growth-chart',
     FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId',
     SCHEDULE: '/schedule',
-    YOUR_BLOG: '/your-blog'
+    YOUR_BLOG: '/your-blog',
+    HISTORY_TRANSACTION: '/member/transaction-history'
   },
   NOT_FOUND: '*'
 }

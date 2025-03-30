@@ -121,3 +121,13 @@ export const hasFreePlan = async (userId: string) => {
   const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/Has-free-plan/${userId}`)
   return res
 }
+export const getUserTransaction = async (userId: string) => {
+  try {
+    const res = await request.get<MODEL.IResponseBase>(`/UserMembershipPlan/${userId}`)
+    if (res.data.success) {
+      return res.data.response
+    }
+  } catch (error: unknown) {
+    console.error('Get user membership plan failed', error)
+  }
+}

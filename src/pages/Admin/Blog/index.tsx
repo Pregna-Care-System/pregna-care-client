@@ -52,7 +52,10 @@ export default function BlogAdmin() {
     {
       title: 'Content',
       dataIndex: 'content',
-      key: 'content'
+      key: 'content',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'ShortDescription',

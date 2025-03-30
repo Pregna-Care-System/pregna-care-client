@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Avatar, Button, Modal, Tooltip } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
-import { FaCheck, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCheck, FaHistory, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@store/modules/global/selector'
 import { resetState } from '@store/modules/global/slice'
@@ -410,8 +410,8 @@ export default function Header() {
                 <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.DASHBOARD)}>
                   <FaTachometerAlt /> Member Dashboard
                 </button>
-                <button className='dropdown_item' onClick={() => navigate(ROUTES.PROFILE)}>
-                  <FaCog /> Settings
+                <button className='dropdown_item' onClick={() => navigate(ROUTES.MEMBER.HISTORY_TRANSACTION)}>
+                  <FaHistory /> History Transaction
                 </button>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

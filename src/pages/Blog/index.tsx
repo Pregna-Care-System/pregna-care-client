@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Input, Tag, Badge, Avatar, Empty } from 'antd'
+import { Link, useNavigate } from 'react-router-dom'
+import { Input, Tag, Avatar, Empty, Button, Modal } from 'antd'
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectTagInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
+import { style } from '@/theme'
 
 interface Tag {
   id: string
@@ -103,7 +104,98 @@ const SearchContainer = styled.div`
   max-width: 600px;
   margin: 0 auto;
 `
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const StyledInput = styled(Input)`
   width: 100%;
   padding: 16px 24px 16px 48px;
@@ -372,12 +464,22 @@ const BlogList = () => {
   const dispatch = useDispatch()
   const blogResponse = useSelector(selectBlogInfo) as Blog[]
   const tagResponse = useSelector(selectTagInfo) as Tag[]
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const navigate = useNavigate()
+  const userInfor = useSelector(selectUserInfo)
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'blog' } })
     dispatch({ type: 'GET_ALL_TAGS' })
   }, [dispatch])
 
+  const filteredBlogs = blogResponse.filter((blog) => {
+    const matchesSearch = searchTerm === '' || blog.pageTitle.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesTag = activeTag === 'all' || blog.tags.some((tag) => tag.id === activeTag)
+
+    return matchesSearch && matchesTag
+  })
 
   const getPageTitle = (blog: Blog) => {
     if (blog.pageTitle && blog.pageTitle.trim() !== '') {
@@ -392,7 +494,13 @@ const BlogList = () => {
 
     return 'Untitled Blog'
   }
-
+  const handleNavClick = () => {
+    if (userInfor?.role !== 'Member') {
+      setIsModalVisible(true)
+    } else {
+      navigate(ROUTES.MEMBER.YOUR_BLOG)
+    }
+  }
   return (
     <PageWrapper>
       <BannerWrapper>
@@ -437,18 +545,18 @@ const BlogList = () => {
             <BlogActionSection>
               <h2>Your Blog Space</h2>
               <p>View and manage your blog posts, create new content, and connect with your readers.</p>
-              <Link to={ROUTES.MEMBER.YOUR_BLOG} className='blog-button'>
+              <button onClick={handleNavClick} className='blog-button'>
                 <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
                   <path d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15' />
                 </svg>
                 Go to Your Blog
-              </Link>
+              </button>
             </BlogActionSection>
           </ActionSection>
 
-          {blogResponse.length > 0 ? (
+          {filteredBlogs.length > 0 ? (
             <BlogGrid>
-              {blogResponse.map((blog) => (
+              {filteredBlogs.map((blog) => (
                 <BlogCard key={blog.id}>
                   <Link to={`${ROUTES.BLOG}/${blog.id}`}>
                     <div className='image-container'>
@@ -461,15 +569,18 @@ const BlogList = () => {
                     <div className='content'>
                       <h2 className='title'>{getPageTitle(blog)}</h2>
                       <div className='author'>
-                        <Avatar size={32} style={{ border: 'solid 1px #ff6b81' }} src={blog.avatarUrl} alt={blog.fullName}/>
+                        <Avatar
+                          size={32}
+                          style={{ border: 'solid 1px #ff6b81' }}
+                          src={blog.avatarUrl}
+                          alt={blog.fullName}
+                        />
                         <div>
                           <div style={{ fontWeight: 500, fontSize: '14px', color: '#2f3542' }}>{blog.fullName}</div>
                           <div style={{ fontSize: '12px', color: '#57606f' }}>{blog.timeAgo}</div>
                         </div>
                       </div>
-                      {blog.shortDescription && (
-                        <div className='short-description'>{blog.shortDescription}</div>
-                      )}
+                      {blog.shortDescription && <div className='short-description'>{blog.shortDescription}</div>}
                       <div className='meta'>
                         {blog.tags &&
                           blog.tags.map((tag) => (
@@ -486,7 +597,14 @@ const BlogList = () => {
                       </div>
                       <div className='read-more'>
                         Read blog
-                        <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                        <svg
+                          width='16'
+                          height='16'
+                          viewBox='0 0 24 24'
+                          fill='none'
+                          stroke='currentColor'
+                          strokeWidth='2'
+                        >
                           <path d='M5 12h14M12 5l7 7-7 7' />
                         </svg>
                       </div>
@@ -508,6 +626,36 @@ const BlogList = () => {
             />
           )}
         </MainContent>
+        <StyledModal
+          title='Become a PregnaCare Member'
+          open={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={[
+            <Button key='cancel' onClick={() => setIsModalVisible(false)}>
+              Later
+            </Button>,
+            <Button
+              key='submit'
+              type='primary'
+              onClick={() => {
+                setIsModalVisible(false)
+                navigate(ROUTES.MEMBESHIP_PLANS)
+              }}
+            >
+              View Membership Plans
+            </Button>
+          ]}
+        >
+          <div className='membership-content'>
+            <img
+              src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+              alt='Membership'
+              className='membership-image'
+            />
+
+            <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+          </div>
+        </StyledModal>
       </Container>
     </PageWrapper>
   )

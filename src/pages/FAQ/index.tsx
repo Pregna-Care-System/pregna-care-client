@@ -35,7 +35,7 @@ const Header = styled.div`
     font-weight: 800;
     color: #1a1a1a;
     margin-bottom: 20px;
-    background: linear-gradient(120deg, #8b5cf6, #6366f1);
+    background: linear-gradient(120deg, #ff6b81, #ff8e9e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -76,7 +76,7 @@ const Section = styled.div`
     svg {
       width: 28px;
       height: 28px;
-      color: #8b5cf6;
+      color: #ff6b81;
     }
   }
 `

@@ -52,7 +52,7 @@ export default function BlogDetailsPage() {
   }
 
   return (
-    <div className='bg-gray-50 min-h-screen text-gray-800 mt-12'>
+    <div className='bg-gray-50 min-h-screen text-gray-800 mt-20'>
       <main className='container mx-auto py-8 px-4'>
         <div className='flex items-center gap-4 mb-4'>
           <img 

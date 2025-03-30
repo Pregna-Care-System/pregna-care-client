@@ -809,7 +809,38 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     console.error('Fetch error:', error)
   }
 }
+export function* createUserBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(
+      createBlog,
+      action.payload.userId,
+      action.payload.tagIds,
+      action.payload.pageTitle,
+      action.payload.heading,
+      action.payload.content,
+      action.payload.shortDescription,
+      action.payload.featuredImageUrl,
+      action.payload.isVisible,
+      action.payload.type || 'blog',
+      action.payload.status || '',
+      action.payload.sharedChartData || null
+    )
+    message.success('Create blog successfully')
+    const token = localStorage.getItem('accessToken')
+    const user = token ? jwtDecode(token) : null
 
+    // Execute the callback with success=true if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(true)
+    }
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error: any) {
+    message.error('An unexpected error occurred try again later!')
+    console.error('Fetch error:', error)
+  }
+}
 //-------------------Delete Blog-------------------
 export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
@@ -828,6 +859,26 @@ export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void
     // if (user?.id) {
     //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     // }
+  } catch (error) {
+    message.error('An unexpected error occurred while deleting the blog.')
+    console.error('Error in deleteBlog saga:', error)
+  }
+}
+
+export function* deleteUserBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(deleteBlog, action.payload)
+    message.success('Blog deleted successfully')
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
   } catch (error) {
     message.error('An unexpected error occurred while deleting the blog.')
     console.error('Error in deleteBlog saga:', error)
@@ -879,7 +930,48 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
     }
   }
 }
+export function* updateUserBlogSaga(action: PayloadAction<any>): Generator<any, void, any> {
+  try {
+    yield call(
+      updateBlog,
+      action.payload.id,
+      action.payload.type,
+      action.payload.userId,
+      action.payload.tagIds,
+      action.payload.pageTitle,
+      action.payload.heading,
+      action.payload.content,
+      action.payload.shortDescription,
+      action.payload.featuredImageUrl,
+      action.payload.isVisible
+    )
 
+    // Execute the callback with success=true if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(true)
+    }
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+
+    if (user?.id) {
+      yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
+    }
+  } catch (error) {
+    // Error handling
+    message.error('An unexpected error occurred while updating the blog.')
+    console.error('Error in updateBlog saga:', error)
+
+    // Execute the callback with success=false if it exists
+    if (action.callback && typeof action.callback === 'function') {
+      action.callback(false, 'An unexpected error occurred while updating the blog.')
+    }
+  }
+}
 export function* getCurrentLoginUser(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getMemberInforWithPlanDetail, action.payload)
@@ -938,8 +1030,11 @@ export function* watchEditorGlobalSaga() {
   yield takeLatest('GET_ALL_BLOGS_BY_USERID', getAllBlogByUserIdSaga)
   yield takeLatest('GET_BLOG_BY_BLOG_ID', getDetailByBlogIdSaga)
   yield takeLatest('CREATE_BLOG', createBlogSaga)
+  yield takeLatest('CREATE_USER_BLOG', createUserBlogSaga)
   yield takeLatest('DELETE_BLOG', deleteBlogSaga)
   yield takeLatest('UPDATE_BLOG', updateBlogSaga)
+  yield takeLatest('UPDATE_USER_BLOG', updateUserBlogSaga)
+  yield takeLatest('DELETE_USER_BLOG', deleteUserBlogSaga)
   yield takeLatest('GET_ALL_BLOGS', getAllBlogSaga)
   yield takeLatest('GET_CURRENT_LOGIN_USER', getCurrentLoginUser)
   //Fetal Growth Record

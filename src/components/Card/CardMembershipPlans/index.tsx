@@ -186,7 +186,7 @@ export default function PlanCard({ plan, isSelected, onSelect, currentPlanName, 
 
         <PriceSection>
           <Price>
-            {plan.price.toLocaleString('vi-VN')}₫<span>/{plan.duration} days</span>
+            {plan.price.toLocaleString('vi-VN')} VND<span>/{plan.duration} days</span>
           </Price>
         </PriceSection>
 

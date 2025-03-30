@@ -5,7 +5,6 @@ import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
-import { jwtDecode } from 'jwt-decode'
 import { convert } from 'html-to-text'
 import debounce from 'lodash/debounce'
 import request from '@/utils/axiosClient'
@@ -48,8 +47,8 @@ const BlogDashboard = () => {
   }
 
   const handleEditPost = (post) => {
-    console.log('EDIT INPUT', post)
     setCurrentPost(post)
+    setUserImage(post.featuredImageUrl || null)
     form.setFieldsValue({
       pageTitle: post.pageTitle || '',
       heading: post.heading || '',
@@ -67,7 +66,7 @@ const BlogDashboard = () => {
       title: 'Are you sure you want to delete this blog?',
       content: 'This action cannot be undone.',
       onOk: () => {
-        dispatch({ type: 'DELETE_BLOG', payload: postId })
+        dispatch({ type: 'DELETE_USER_BLOG', payload: postId })
       }
     })
   }
@@ -77,28 +76,31 @@ const BlogDashboard = () => {
       .validateFields()
       .then((values) => {
         const plainTextContent = convert(values.content)
-        console.log('FORM VALUES', values)
-
         if (currentPost) {
           dispatch({
-            type: 'UPDATE_BLOG',
+            type: 'UPDATE_USER_BLOG',
             payload: { ...values, content: plainTextContent, userId: user?.id, id: currentPost.id }
           })
           if (values.isVisible) {
-            message.info('Your blog post has been updated and is pending admin approval before it can be viewed by others.')
+            message.info(
+              'Your blog post has been updated and is pending admin approval before it can be viewed by others.'
+            )
           }
         } else {
           dispatch({
-            type: 'CREATE_BLOG',
-            payload: { 
-              ...values, 
-              content: plainTextContent, 
+            type: 'CREATE_USER_BLOG',
+            payload: {
+              ...values,
+              content: plainTextContent,
               userId: user?.id,
-              featuredImageUrl: values.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f'
+              featuredImageUrl:
+                values.featuredImageUrl || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f'
             }
           })
           if (values.isVisible) {
-            message.info('Your blog post has been created and is pending admin approval before it can be viewed by others.')
+            message.info(
+              'Your blog post has been created and is pending admin approval before it can be viewed by others.'
+            )
           }
         }
 
@@ -117,7 +119,11 @@ const BlogDashboard = () => {
     debouncedSearchTerm(e.target.value)
   }
 
-  const filteredBlogs = blogs.filter((post) => post.pageTitle.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredBlogs = blogs.filter((post) => {
+    const matchesSearch = post.pageTitle.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesTag = !selectedTag || post.tags?.some(tag => tag.name === selectedTag)
+    return matchesSearch && matchesTag
+  })
 
   const handleUpload = async (file) => {
     const formData = new FormData()
@@ -128,7 +134,6 @@ const BlogDashboard = () => {
       const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      console.log('Upload response:', response.data)
       setUserImage(response.data.secure_url)
 
       form.setFieldsValue({ featuredImageUrl: response.data.secure_url })
@@ -316,8 +321,8 @@ const BlogDashboard = () => {
             name='tagIds'
             rules={[{ required: true, message: 'Please select at least one tag!' }]}
             initialValue={[]}
+            label='Tags'
           >
-            <label className='block mb-2 text-gray-700 font-medium'>Tags</label>
             <Select
               mode='tags'
               placeholder='Select tags'
@@ -331,26 +336,54 @@ const BlogDashboard = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name='pageTitle' rules={[{ required: true, message: 'Please input the blog title!' }]}>
+          <Form.Item
+            name='pageTitle'
+            rules={[
+              { required: true, message: 'Please input the blog title!' },
+              { min: 5, message: 'Title must be at least 5 characters long!' },
+              { max: 100, message: 'Title cannot exceed 100 characters!' }
+            ]}
+            label='Blog Title'
+          >
             <Input placeholder='Blog title' className='rounded-lg' />
           </Form.Item>
-          <Form.Item name='heading'>
+          <Form.Item 
+            name='heading' 
+            rules={[
+              { required: true, message: 'Please input the heading!' },
+              { min: 5, message: 'Heading must be at least 3 characters long!' },
+              { max: 100, message: 'Heading cannot exceed 50 characters!' }
+            ]} 
+            label='Heading'
+          >
             <Input placeholder='Heading' className='rounded-lg' />
           </Form.Item>
-          <Form.Item name='shortDescription'>
-            <Input.TextArea placeholder='Short description' rows={2} className='rounded-lg' />
+          <Form.Item
+            name='shortDescription'
+            rules={[
+              { required: true, message: 'Please input the short description!' },
+              { min: 10, message: 'Description must be at least 10 characters long!' },
+              { max: 100, message: 'Description cannot exceed 100 characters!' }
+            ]}
+            label='Short Description'
+          >
+            <Input.TextArea 
+              placeholder='Short description' 
+              rows={2} 
+              className='rounded-lg'
+              showCount
+              maxLength={100}
+            />
           </Form.Item>
-          <Form.Item name='content' rules={[{ required: true, message: 'Please input the blog content!' }]}>
+          <Form.Item
+            name='content'
+            rules={[{ required: true, message: 'Please input the blog content!' }]}
+            label='Content'
+          >
             <ReactQuill className='h-64 mb-12 rounded-lg' />
           </Form.Item>
-          <Form.Item 
-            name='isVisible' 
-            label='Visibility' 
-            valuePropName='checked' 
-            initialValue={true} 
-            className='mb-4'
-          >
-            <Switch 
+          <Form.Item name='isVisible' label='Visibility' valuePropName='checked' initialValue={true} className='mb-4'>
+            <Switch
               className='bg-gray-300'
               checkedChildren='Published'
               unCheckedChildren='Draft'
