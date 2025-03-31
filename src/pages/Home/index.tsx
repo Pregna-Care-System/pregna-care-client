@@ -257,7 +257,6 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const { hasAccess } = useFeatureAccess()
-  const userInfor = useSelector(selectUserInfo)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [visibleServices, setVisibleServices] = useState(3)
   const [servicesToDisplay, setServicesToDisplay] = useState(featureList.slice(0, visibleServices))
@@ -326,7 +325,7 @@ export default function Home() {
   }
 
   const handleFeatureClick = (feature) => {
-    if (userInfor?.role !== 'Member') {
+    if (member?.role !== 'Member') {
       setIsModalVisible(true)
       return
     }
@@ -384,7 +383,7 @@ export default function Home() {
   const handleSubmitFeedback = async () => {
     try {
       const values = await feedbackForm.validateFields()
-      await createFeedBack(userInfor.id, values.feedback, values.rating)
+      await createFeedBack(memberInfo.id, values.feedback, values.rating)
       localStorage.setItem('hasSubmittedFeedback', 'true')
       setIsFeedbackModalOpen(false)
       message.success('Feedback created successfully')
