@@ -38,7 +38,7 @@ export default function FeatureAdminPage() {
   useEffect(() => {
     setFilteredData(memoizedDataSource)
   }, [memoizedDataSource])
-  
+
   const columns = [
     {
       title: 'Feature Name',
@@ -71,13 +71,23 @@ export default function FeatureAdminPage() {
       name: 'featureName',
       label: 'Feature Name',
       type: 'text',
-      message: 'Please enter feature name'
+      message: 'Please enter feature name',
+      rules: [
+        { required: true, message: 'Please enter feature name' },
+        { min: 2, message: 'Feature name must be at least 2 characters' },
+        { max: 50, message: 'Feature name cannot exceed 50 characters' }
+      ]
     },
     {
       name: 'description',
       label: 'Description',
       type: 'text',
-      message: 'Please enter description'
+      message: 'Please enter description',
+      rules: [
+        { required: true, message: 'Please enter description' },
+        { min: 10, message: 'Description must be at least 10 characters' },
+        { max: 500, message: 'Description cannot exceed 500 characters' }
+      ]
     }
   ]
 
@@ -199,20 +209,57 @@ export default function FeatureAdminPage() {
         </div>
         <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
-      <CreateModal
-        isOpen={isOpen}
+      <Modal
         title={isUpdateMode ? 'Update feature' : 'Create feature'}
-        onClose={() => {
+        open={isOpen}
+        onCancel={() => {
           setIsOpen(false)
           form.resetFields()
           setIsUpdateMode(false)
         }}
-        formItem={featureFormItem}
-        handleSubmit={handleSubmit}
-        form={form}
-        loading={loading}
-        buttonName={isUpdateMode ? 'Update' : 'Create'}
-      />
+        footer={null}
+      >
+        <Form form={form} layout='vertical' onFinish={handleSubmit}>
+          <Form.Item
+            name='featureName'
+            label='Feature Name'
+            rules={[
+              { required: true, message: 'Please enter feature name' },
+              { min: 5, message: 'Feature name must be at least 5 characters' },
+              { max: 100, message: 'Feature name cannot exceed 100 characters' }
+            ]}
+          >
+            <Input placeholder='Enter feature name' />
+          </Form.Item>
+
+          <Form.Item
+            name='description'
+            label='Description'
+            rules={[
+              { required: true, message: 'Please enter description' },
+              { min: 10, message: 'Description must be at least 10 characters' },
+              { max: 500, message: 'Description cannot exceed 500 characters' }
+            ]}
+          >
+            <Input.TextArea rows={4} placeholder='Enter description' />
+          </Form.Item>
+
+          <div className='flex justify-end gap-2'>
+            <Button
+              onClick={() => {
+                setIsOpen(false)
+                form.resetFields()
+                setIsUpdateMode(false)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type='primary' htmlType='submit' loading={loading}>
+              {isUpdateMode ? 'Update' : 'Create'}
+            </Button>
+          </div>
+        </Form>
+      </Modal>
     </>
   )
 }

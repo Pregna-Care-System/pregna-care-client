@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaHistory, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 
 const LayoutWrapper = styled.div`
   min-height: 100vh;
@@ -209,8 +209,8 @@ export default function MemberLayout({ children }) {
                 <Link to={ROUTES.MEMBER.DASHBOARD}>
                   <FaTachometerAlt /> Member Dashboard
                 </Link>
-                <Link to={ROUTES.PROFILE}>
-                  <FaCog /> Settings
+                <Link to={ROUTES.MEMBER.HISTORY_TRANSACTION}>
+                  <FaHistory /> History Transaction
                 </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

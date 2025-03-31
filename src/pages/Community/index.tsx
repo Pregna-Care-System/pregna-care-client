@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Tabs, message, Spin, Tooltip, Pagination } from 'antd'
+import { Tabs, message, Spin, Tooltip, Pagination, Modal, Button } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
 import styled from 'styled-components'
 import PostCreationModal from '@/components/PostCreationModal'
 import PostCard from './components/PostCard'
 import { PlusIcon } from 'lucide-react'
+import { style } from '@/theme'
+import { useNavigate } from 'react-router-dom'
+import ROUTES from '@/utils/config/routes'
 
 interface BlogPost {
   id: string
@@ -131,7 +134,98 @@ const StyledTabs = styled(Tabs)`
     border-radius: 3px 3px 0 0;
   }
 `
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -218,7 +312,8 @@ const CommunityPage = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
-
+  const [isModalCheckRole, setIsModalCheckRole] = useState(false)
+  const navigate = useNavigate() 
   // Pagination states
   const [currentDiscussionsPage, setCurrentDiscussionsPage] = useState(1)
   const [currentMyPostsPage, setCurrentMyPostsPage] = useState(1)
@@ -427,7 +522,13 @@ const CommunityPage = () => {
       }
     })
   }
-
+  const handleNavClick = () => {
+    if (currentUser?.role !== 'Member') {
+      setIsModalCheckRole(true)
+    } else {
+      setIsModalVisible(true)
+    }
+  }
   const renderEmptyState = (type: 'discussions' | 'my-posts') => {
     return (
       <EmptyStateContainer>
@@ -482,7 +583,7 @@ const CommunityPage = () => {
           <Title>Community Feed</Title>
           {currentUser && (
             <Tooltip title='Create a new post'>
-              <CreateButton onClick={showModal}>
+              <CreateButton onClick={handleNavClick}>
                 <PlusIcon size={18} />
                 Create Post
               </CreateButton>
@@ -602,6 +703,36 @@ const CommunityPage = () => {
             : undefined
         }
       />
+      <StyledModal
+          title='Become a PregnaCare Member'
+          open={isModalCheckRole}
+          onCancel={() => setIsModalCheckRole(false)}
+          footer={[
+            <Button key='cancel' onClick={() => setIsModalCheckRole(false)}>
+              Later
+            </Button>,
+            <Button
+              key='submit'
+              type='primary'
+              onClick={() => {
+                setIsModalCheckRole(false)
+                navigate(ROUTES.MEMBESHIP_PLANS)
+              }}
+            >
+              View Membership Plans
+            </Button>
+          ]}
+        >
+          <div className='membership-content'>
+            <img
+              src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+              alt='Membership'
+              className='membership-image'
+            />
+
+            <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+          </div>
+        </StyledModal>
     </PageContainer>
   )
 }

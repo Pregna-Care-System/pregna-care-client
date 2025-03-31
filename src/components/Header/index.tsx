@@ -410,7 +410,7 @@ export default function Header() {
                 <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.DASHBOARD)}>
                   <FaTachometerAlt /> Member Dashboard
                 </button>
-                <button className='dropdown_item' onClick={() => navigate(ROUTES.MEMBER.HISTORY_TRANSACTION)}>
+                <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.HISTORY_TRANSACTION)}>
                   <FaHistory /> History Transaction
                 </button>
                 <div className='dropdown_item logout' onClick={handleLogout}>

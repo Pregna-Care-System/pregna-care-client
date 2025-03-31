@@ -14,17 +14,17 @@ export default function MemberShipPlanAdminPage() {
   const [isHovered, setIsHovered] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [form] = Form.useForm()
-  const [featureList, setFeatureList] = useState([])
+  const [featureList, setFeatureList] = useState<MODEL.Feature[]>([])
   const [plans, setPlans] = useState<MODEL.PlanResponse[]>([])
   const [isUpdateMode, setIsUpdateMode] = useState(false)
-  const [mostPlan, setMostPlan] = useState(null)
+  const [mostPlan, setMostPlan] = useState<string | null>(null)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
-  const [imageUrl, setImageUrl] = useState([])
-  const plansResponse = useSelector(selectMembershipPlans)
+  const [imageUrl, setImageUrl] = useState<string>('')
+  const plansResponse = useSelector(selectMembershipPlans) || []
   const mostPlanResponse = useSelector(selectMostUsedPlan)
-  const featuresResponse = useSelector(selectFeatureInfoInfo)
+  const featuresResponse = useSelector(selectFeatureInfoInfo) || []
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredData, setFilteredData] = useState([])
+  const [filteredData, setFilteredData] = useState<MODEL.PlanResponse[]>([])
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -34,19 +34,21 @@ export default function MemberShipPlanAdminPage() {
   }, [dispatch])
 
   useEffect(() => {
-    if (plansResponse !== null && plansResponse.length > 0) {
+    if (Array.isArray(plansResponse) && plansResponse.length > 0) {
       setPlans(plansResponse)
     }
-    if (featuresResponse !== null && featuresResponse.length > 0) {
+    if (Array.isArray(featuresResponse) && featuresResponse.length > 0) {
       setFeatureList(featuresResponse)
     }
-    if (mostPlanResponse !== null) {
+    if (mostPlanResponse) {
       setMostPlan(mostPlanResponse)
     }
   }, [plansResponse, featuresResponse, mostPlanResponse])
 
   useEffect(() => {
-    setFilteredData(plansResponse)
+    if (Array.isArray(plansResponse)) {
+      setFilteredData(plansResponse)
+    }
   }, [plansResponse])
 
   const columns = [
@@ -54,7 +56,9 @@ export default function MemberShipPlanAdminPage() {
       title: 'Image',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      render: (imageUrl) => <img src={imageUrl} alt='Plan Image' className='w-14 h-14 object-cover rounded-full' />
+      render: (imageUrl: string) => (
+        <img src={imageUrl} alt='Plan Image' className='w-14 h-14 object-cover rounded-full' />
+      )
     },
     {
       title: 'Plan Name',
@@ -65,21 +69,23 @@ export default function MemberShipPlanAdminPage() {
       title: 'Feature',
       dataIndex: 'features',
       key: 'features',
-      render: (_, record) => (
+      render: (_: any, record: MODEL.PlanResponse) => (
         <ul className='list-disc pl-4'>
-          {record.features?.map((feature, index) => <li key={index}> {feature.featureName} </li>)}
+          {record.features?.map((feature, index) => <li key={index}>{feature.featureName}</li>)}
         </ul>
       )
     },
     {
       title: 'Price',
       dataIndex: 'price',
-      key: 'price'
+      key: 'price',
+      render: (price: number) => `${price.toLocaleString()} VND`
     },
     {
       title: 'Duration',
       dataIndex: 'duration',
-      key: 'duration'
+      key: 'duration',
+      render: (duration: number) => `${duration} days`
     },
     {
       title: 'Description',
@@ -90,17 +96,17 @@ export default function MemberShipPlanAdminPage() {
       title: 'Create Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text) => new Date(text).toLocaleString()
+      render: (text: string) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => (
+      render: (_: any, record: MODEL.PlanResponse) => (
         <Space size='middle'>
           <Button type='primary' onClick={() => handleUpdate(record.membershipPlanId)}>
             <TbEdit />
           </Button>
-          <Button danger variant='outlined' onClick={() => handleDelete(record.membershipPlanId)}>
+          <Button danger onClick={() => handleDelete(record.membershipPlanId)}>
             <FiTrash2 />
           </Button>
         </Space>
@@ -111,6 +117,8 @@ export default function MemberShipPlanAdminPage() {
   const handleModalClick = () => {
     setIsUpdateMode(false)
     setIsModalOpen(true)
+    form.resetFields()
+    setImageUrl('')
   }
 
   const handleCancel = () => {
@@ -118,6 +126,7 @@ export default function MemberShipPlanAdminPage() {
     form.resetFields()
     setIsUpdateMode(false)
     setSelectedPlanId(null)
+    setImageUrl('')
   }
 
   const onCreatePlan = async (values: MODEL.PlanValues) => {
@@ -129,25 +138,13 @@ export default function MemberShipPlanAdminPage() {
           price: values.price,
           duration: values.duration,
           description: values.description,
-          imageUrl: values.imageUrl,
+          imageUrl: imageUrl,
           featuredIds: values.features.map((id) => String(id))
         }
       })
-      const newPlan = {
-        planName: values.planName,
-        price: values.price,
-        duration: values.duration,
-        description: values.description,
-        imageUrl: values.imageUrl,
-        features: values.features.map((id) => {
-          const feature = featureList.find((f) => f.id === id)
-          return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
-        }),
-        createdAt: new Date().toLocaleString()
-      }
-      setPlans((prevPlans) => [newPlan, ...prevPlans])
       setIsModalOpen(false)
       form.resetFields()
+      setImageUrl('')
     } catch (error) {
       message.error('Failed to create plan')
     }
@@ -164,30 +161,14 @@ export default function MemberShipPlanAdminPage() {
           price: values.price,
           duration: values.duration,
           description: values.description,
-          imageUrl: values.imageUrl,
+          imageUrl: imageUrl,
           featuredIds: values.features.map((id) => String(id))
         }
       })
-      const updatedPlans = plans.map((plan) =>
-        plan.membershipPlanId === selectedPlanId
-          ? {
-              ...plan,
-              planName: values.planName,
-              price: values.price,
-              duration: values.duration,
-              description: values.description,
-              imageUrl: values.imageUrl,
-              features: values.features.map((id) => {
-                const feature = featureList.find((f) => f.id === id)
-                return feature ? { featureName: feature.featureName } : { featureName: 'Unknown' }
-              })
-            }
-          : plan
-      )
-      setPlans(updatedPlans)
       setIsModalOpen(false)
       form.resetFields()
       setSelectedPlanId(null)
+      setImageUrl('')
     } catch (error) {
       message.error('Failed to update plan')
     }
@@ -206,15 +187,14 @@ export default function MemberShipPlanAdminPage() {
   const handleDelete = async (planId: string) => {
     Modal.confirm({
       title: 'Are you sure?',
-      content: 'This plan will be deleted forever',
+      content: 'This plan will be deleted permanently',
+      okText: 'Delete',
       cancelText: 'Cancel',
       onOk: async () => {
         try {
           dispatch({
             type: 'DELETE_MEMBERSHIP_PLANS',
-            payload: {
-              planId
-            }
+            payload: { planId }
           })
         } catch (error) {
           message.error('Failed to delete plan')
@@ -224,74 +204,73 @@ export default function MemberShipPlanAdminPage() {
   }
 
   const handleUpdate = async (planId: string) => {
-    console.log('planId:', planId)
-    if (!planId) {
-      message.error('Plan ID is not defined')
-      return
-    }
     try {
       const planResponse = await getPlanById(planId)
-      form.setFieldsValue({
-        planName: planResponse.planName,
-        price: planResponse.price,
-        duration: planResponse.duration,
-        description: planResponse.description,
-        imageUrl: planResponse.imageUrl,
-        features: planResponse.features.map((feature) => feature.featureName)
-      })
-
-      setIsModalOpen(true)
-      setIsUpdateMode(true)
-      setSelectedPlanId(planId)
+      if (planResponse) {
+        form.setFieldsValue({
+          planName: planResponse.planName,
+          price: planResponse.price,
+          duration: planResponse.duration,
+          description: planResponse.description,
+          imageUrl: planResponse.imageUrl,
+          features: planResponse.features?.map((feature) => feature.featureName)
+        })
+        setImageUrl(planResponse.imageUrl)
+        setIsModalOpen(true)
+        setIsUpdateMode(true)
+        setSelectedPlanId(planId)
+      }
     } catch (error) {
       console.error('Error while fetching plan:', error)
       message.error('Failed to fetch plan details for update')
     }
   }
 
-  const handleUpload = async (file) => {
+  const handleUpload = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('upload_preset', 'PregnaCare')
     formData.append('cloud_name', 'dgzn2ix8w')
+
     try {
       const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      console.log('Upload response:', response.data)
       setImageUrl(response.data.secure_url)
-
-      form.setFieldsValue({ imageUrl: response.data.secure_url })
       message.success('Image uploaded successfully')
     } catch (error) {
       message.error('Failed to upload image')
-      console.error('Upload error details', error?.response.data || error.message)
+      console.error('Upload error:', error)
     }
   }
 
-  const handleSearch = () => {
-    const filtered = plansResponse.filter(
-      (item: any) => item.planName.toLowerCase().includes(searchQuery.toLowerCase()) // search by 'plan name'
-    )
-    setFilteredData(filtered)
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value.toLowerCase()
+    setSearchQuery(query)
+
+    if (query === '') {
+      setFilteredData(plansResponse)
+    } else {
+      const filtered = plansResponse.filter((item) => item.planName?.toLowerCase().includes(query))
+      setFilteredData(filtered)
+    }
   }
 
   return (
-    <>
+    <div className='p-6'>
       <div className='flex items-center justify-between mb-5'>
-        <h1 className='text-3xl font-bold text-gray-800 mb-5'>Membership Plans</h1>
-        <div className='flex space-x-4'>
-          <button
-            className={`flex items-center h-1/3 bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleModalClick}
-          >
-            <MdOutlineCreateNewFolder className='w-5 h-5 text-[#EE7A7A] mr-2' />
-            <span className='text-[#EE7A7A] font-semibold text-sm'>Create</span>
-          </button>
-        </div>
+        <h1 className='text-3xl font-bold text-gray-800'>Membership Plans</h1>
+        <button
+          className={`flex items-center bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={handleModalClick}
+        >
+          <MdOutlineCreateNewFolder className='w-5 h-5 text-[#EE7A7A] mr-2' />
+          <span className='text-[#EE7A7A] font-semibold text-sm'>Create</span>
+        </button>
       </div>
+
       <div className='grid grid-cols-2 gap-4 mb-6'>
         <Card className='shadow-lg'>
           <Statistic
@@ -316,22 +295,26 @@ export default function MemberShipPlanAdminPage() {
           />
         </Card>
       </div>
-      <div className='bg-white p-10 rounded-xl shadow-md'>
-        <div className='flex justify-end mb-5 '>
+
+      <div className='bg-white p-6 rounded-xl shadow-md'>
+        <div className='flex justify-end mb-5'>
           <Input
-            className='w-1/4 mr-4'
+            className='w-1/4'
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-            }}
+            onChange={handleSearch}
             allowClear
-            placeholder='Search'
+            placeholder='Search by plan name'
+            suffix={<FaSearch className='text-gray-400' />}
           />
-          <button className='text-gray-500 rounded-lg mr-5' onClick={handleSearch}>
-            <FaSearch />
-          </button>
         </div>
-        <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 8 }} />
+
+        <Table
+          dataSource={filteredData}
+          columns={columns}
+          rowKey='membershipPlanId'
+          pagination={{ pageSize: 8 }}
+          loading={!plansResponse}
+        />
       </div>
 
       <Modal
@@ -340,35 +323,74 @@ export default function MemberShipPlanAdminPage() {
         onCancel={handleCancel}
         onOk={handleModalSubmit}
         width={800}
+        destroyOnClose
       >
-        <Form form={form} layout='horizontal'>
+        <Form form={form} layout='horizontal' preserve={false}>
           <Row gutter={24}>
             <Col span={14}>
               <Form.Item
                 label='Plan Name'
                 name='planName'
-                rules={[{ required: true, message: 'Please input the plan name' }]}
+                rules={[
+                  { required: true, message: 'Please input the plan name!' },
+                  { min: 5, message: 'Plan name must be at least 5 characters' },
+                  { max: 100, message: 'Plan name must not exceed 100 characters' }
+                ]}
               >
                 <Input placeholder='Enter plan name' />
               </Form.Item>
 
-              <Form.Item label='Price' name='price' rules={[{ required: true, message: 'Please input the price!' }]}>
-                <Input placeholder='Enter price (e.g., $10.00)' />
-              </Form.Item>
               <Form.Item
-                label='Duration'
-                name='duration'
-                rules={[{ required: true, message: 'Please input the duration!' }]}
+                label='Price (VND)'
+                name='price'
+                rules={[
+                  { required: true, message: 'Please input the price!' },
+                  {
+                    validator: (_, value) => {
+                      if (value && value < 100000) {
+                        return Promise.reject('Price must be at least 100,000 VND')
+                      }
+                      return Promise.resolve()
+                    }
+                  }
+                ]}
               >
-                <Input placeholder='Enter duration' />
+                <Input type='number' placeholder='Enter price (e.g., 100000)' />
               </Form.Item>
+
+              <Form.Item
+                label='Duration (days)'
+                name='duration'
+                rules={[
+                  { required: true, message: 'Please input the duration!' },
+                  {
+                    validator: (_, value) => {
+                      if (value < 3) {
+                        return Promise.reject('Duration must be at least 3 days')
+                      }
+                      if (value > 365) {
+                        return Promise.reject('Duration must not exceed 365 days')
+                      }
+                      return Promise.resolve()
+                    }
+                  }
+                ]}
+              >
+                <Input type='number' placeholder='Enter duration (days)' />
+              </Form.Item>
+
               <Form.Item
                 label='Description'
                 name='description'
-                rules={[{ required: true, message: 'Please input the description!' }]}
+                rules={[
+                  { required: true, message: 'Please input the description!' },
+                  { min: 10, message: 'Description must be at least 10 characters' },
+                  { max: 500, message: 'Description must not exceed 500 characters' }
+                ]}
               >
-                <Input placeholder='Enter description' />
+                <Input.TextArea rows={4} placeholder='Enter description' />
               </Form.Item>
+
               <Form.Item
                 label='Features'
                 name='features'
@@ -377,69 +399,45 @@ export default function MemberShipPlanAdminPage() {
                 <Select
                   mode='multiple'
                   placeholder='Select features'
-                  options={featureList.map((feature) => ({ label: feature.featureName, value: feature.id }))}
+                  options={featureList.map((feature) => ({
+                    label: feature.featureName,
+                    value: feature.id
+                  }))}
                 />
               </Form.Item>
             </Col>
             <Col span={10}>
-              <Form.Item
-                label='Image Upload'
-                name='imageUrl'
-                valuePropName='file'
-                getValueFromEvent={(event) => event?.file}
-                rules={[
-                  {
-                    validator(_, file) {
-                      return new Promise((resolve, reject) => {
-                        if (file && file.size > 900000) {
-                          reject('File size exceeded')
-                        } else {
-                          resolve('Success')
-                        }
-                      })
+              <Form.Item label='Plan Image' name='imageUrl'>
+                <Upload
+                  maxCount={1}
+                  beforeUpload={(file) => {
+                    const isImage = file.type.startsWith('image/')
+                    if (!isImage) {
+                      message.error('You can only upload image files!')
+                      return false
                     }
-                  }
-                ]}
-              >
-                <div>
-                  <Upload
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      return new Promise((resolve, reject) => {
-                        if (file.size > 900000) {
-                          reject('File size exceeded')
-                          message.error('File size exceeded')
-                        } else {
-                          resolve('Success')
-                        }
-                      })
-                    }}
-                    customRequest={({ file, onSuccess, onError }) => {
-                      handleUpload(file)
-                        .then(() => onSuccess('ok'))
-                        .catch(onError)
-                    }}
-                    showUploadList={false}
-                  >
-                    <Button>Upload image</Button>
-                  </Upload>
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt='plan Image'
-                      className='w-40 h-40 object-cover mt-10 border border-gray-300 rounded-lg'
-                    />
-                  ) : (
-                    <div className='w-40 h-40 mt-10 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 rounded-lg'>
-                      No Image
-                    </div>
-                  )}
-                </div>
+                    const isLt2M = file.size / 1024 / 1024 < 2
+                    if (!isLt2M) {
+                      message.error('Image must smaller than 2MB!')
+                      return false
+                    }
+                    handleUpload(file)
+                    return false
+                  }}
+                  showUploadList={false}
+                >
+                  <Button>Click to Upload</Button>
+                </Upload>
+                {imageUrl && (
+                  <div className='mt-4'>
+                    <img src={imageUrl} alt='Plan preview' className='w-full h-40 object-contain border rounded' />
+                  </div>
+                )}
               </Form.Item>
             </Col>
           </Row>
         </Form>
       </Modal>
-    </>
+    </div>
   )
 }

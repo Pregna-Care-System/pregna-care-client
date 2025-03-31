@@ -2,6 +2,8 @@
 import React from 'react'
 //Utils
 import ROUTES from '@utils/config/routes'
+//Types
+import { AdminRoute, MemberRoute, PublicRoute } from '@/types/IRoutes'
 //Guard
 //Layout
 import AdminLayout from '@/layouts/AdminLayout'
@@ -53,7 +55,7 @@ const Dashboard = React.lazy(() => import('@/pages/Member/Dashboard'))
 const FetalGrowthChart = React.lazy(() => import('@/pages/Member/FetalGrowthChart'))
 const FetalGrowthChartDetail = React.lazy(() => import('@/pages/Member/FetalGrowthChartDetail'))
 
-const publicRoutes = [
+const publicRoutes: PublicRoute[] = [
   { path: ROUTES.LOGIN, component: LoginPage, layout: NoHeaderLayout },
   { path: ROUTES.GUEST_HOME, component: HomePage },
   { path: ROUTES.BLOG, component: BlogPage },
@@ -76,12 +78,12 @@ const publicRoutes = [
   { path: ROUTES.SERVICES, component: MommyServicesPage }
 ]
 
-const privateRoutes = [
+const privateRoutes: PublicRoute[] = [
   { path: ROUTES.PROFILE, component: ProfilePage },
   { path: ROUTES.NOTIFICATION, component: NotificationPage }
 ]
 
-const adminRoutes = [
+const adminRoutes: AdminRoute[] = [
   { path: ROUTES.ADMIN.DASHBOARD, component: AdminDashboard, layout: AdminLayout },
   { path: ROUTES.ADMIN.TRANSACTION, component: TransactionPage, layout: AdminLayout },
   { path: ROUTES.ADMIN.MEMBER, component: MemberPage, layout: AdminLayout },
@@ -95,13 +97,40 @@ const adminRoutes = [
   { path: ROUTES.ADMIN.BLOG, component: BlogAdmin, layout: AdminLayout }
 ]
 
-const memberRoutes = [
-  { path: ROUTES.MEMBER.DASHBOARD, component: Dashboard, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART, component: FetalGrowthChart, layout: MemberLayout },
-  { path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, component: FetalGrowthChartDetail, layout: MemberLayout },
-  { path: ROUTES.MEMBER.SCHEDULE, component: Schedule },
-  { path: ROUTES.MEMBER.YOUR_BLOG, component: BlogDashboard },
-  { path: ROUTES.MEMBER.HISTORY_TRANSACTION, component: HistoryTransaction }
+const memberRoutes: MemberRoute[] = [
+  { 
+    path: ROUTES.MEMBER.DASHBOARD, 
+    component: Dashboard, 
+    layout: MemberLayout,
+    featureName: 'dashboard'
+  },
+  { 
+    path: ROUTES.MEMBER.FETALGROWTHCHART, 
+    component: FetalGrowthChart, 
+    layout: MemberLayout,
+    featureName: 'fetal_growth_chart'
+  },
+  { 
+    path: ROUTES.MEMBER.FETALGROWTHCHART_DETAIL, 
+    component: FetalGrowthChartDetail, 
+    layout: MemberLayout,
+    featureName: 'fetal_growth_chart'
+  },
+  { 
+    path: ROUTES.MEMBER.SCHEDULE, 
+    component: Schedule,
+    featureName: 'schedule'
+  },
+  { 
+    path: ROUTES.MEMBER.YOUR_BLOG, 
+    component: BlogDashboard,
+    featureName: 'blog'
+  },
+  { 
+    path: ROUTES.MEMBER.HISTORY_TRANSACTION, 
+    component: HistoryTransaction,
+    featureName: 'transaction_history'
+  }
 ]
 
 export { adminRoutes, memberRoutes, privateRoutes, publicRoutes }

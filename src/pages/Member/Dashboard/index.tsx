@@ -359,7 +359,7 @@ export default function ProfilePage() {
                 <div className='text-center mb-6'>
                   <Avatar
                     size={120}
-                    src={motherInfoData.imageUrl}
+                    src={userInfo?.picture}
                     icon={<FaUser />}
                     style={{
                       marginBottom: '16px',

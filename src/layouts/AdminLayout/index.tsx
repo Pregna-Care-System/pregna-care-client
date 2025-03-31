@@ -5,7 +5,7 @@ import { selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { Avatar } from 'antd'
 import { useState } from 'react'
-import { FaCog, FaSignOutAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaHistory, FaSignOutAlt, FaUser } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -203,12 +203,6 @@ export default function AdminLayout({ children }) {
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
-                <Link to={ROUTES.PROFILE}>
-                  <FaUser /> My Profile
-                </Link>
-                <Link to={ROUTES.PROFILE}>
-                  <FaCog /> Settings
-                </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout
                 </div>
@@ -216,7 +210,6 @@ export default function AdminLayout({ children }) {
             )}
           </div>
           <div className='content'>{children}</div>
-          <ChatBot />
         </div>
       </div>
     </LayoutWrapper>

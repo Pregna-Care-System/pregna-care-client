@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Form, Input, Select, Table } from 'antd'
+import { Form, Input, Select, Table, Modal, Button } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectGrowthMetrics } from '@/store/modules/global/selector'
-import { CreateModal } from '@/components/Modal'
 import { FaSearch } from 'react-icons/fa'
 
 export default function GrowthMetrics() {
@@ -157,15 +156,130 @@ export default function GrowthMetrics() {
         </div>
         <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
-      <CreateModal
-        isOpen={isOpen}
+      <Modal
         title='Create Growth Metrics'
-        formItem={growthMetricsFormItem}
-        onClose={() => setIsOpen(false)}
-        handleSubmit={handleCreate}
-        form={form}
-        loading={loading}
-      />
+        open={isOpen}
+        onCancel={() => {
+          setIsOpen(false)
+          form.resetFields()
+        }}
+        footer={null}
+      >
+        <Form form={form} layout='vertical' onFinish={handleCreate}>
+          <Form.Item
+            name='name'
+            label='Name'
+            rules={[
+              { required: true, message: 'Please enter name' },
+              { min: 5, message: 'Name must be at least 5 characters' },
+              { max: 255, message: 'Name cannot exceed 255 characters' }
+            ]}
+          >
+            <Input placeholder='Enter metric name' />
+          </Form.Item>
+
+          <Form.Item
+            name='unit'
+            label='Unit'
+            rules={[
+              { required: true, message: 'Please enter unit' },
+              { min: 1, message: 'Unit must be at least 1' },
+              { max: 50, message: 'Unit cannot exceed 50 characters' },
+              { pattern: /^[a-zA-Z]+$/, message: 'Unit should only contain letters' }
+            ]}
+          >
+            <Input placeholder='Enter unit (e.g., mm, g, bpm)' />
+          </Form.Item>
+
+          <Form.Item
+            name='description'
+            label='Description'
+            rules={[
+              { required: true, message: 'Please enter description' },
+              { min: 10, message: 'Description must be at least 10 characters' },
+              { max: 500, message: 'Description cannot exceed 500 characters' }
+            ]}
+          >
+            <Input.TextArea rows={4} placeholder='Enter description' />
+          </Form.Item>
+
+          <Form.Item
+            name='minValue'
+            label='Min Value'
+            rules={[
+              { required: true, message: 'Please enter minimum value' },
+              {
+                validator: (_, value) => {
+                  if (value < 0) {
+                    return Promise.reject('Minimum value cannot be negative')
+                  }
+                  return Promise.resolve()
+                }
+              }
+            ]}
+          >
+            <Input type='number' placeholder='Enter minimum value' />
+          </Form.Item>
+
+          <Form.Item
+            name='maxValue'
+            label='Max Value'
+            rules={[
+              { required: true, message: 'Please enter maximum value' },
+              {
+                validator: (_, value) => {
+                  if (value < 0) {
+                    return Promise.reject('Maximum value cannot be negative')
+                  }
+                  return Promise.resolve()
+                }
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('minValue') <= value) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Maximum value must be greater than minimum value'))
+                }
+              })
+            ]}
+          >
+            <Input type='number' placeholder='Enter maximum value' />
+          </Form.Item>
+
+          <Form.Item
+            name='week'
+            label='Week'
+            rules={[
+              { required: true, message: 'Please enter week number' },
+              {
+                validator: (_, value) => {
+                  if (value < 1 || value > 40) {
+                    return Promise.reject('Week must be between 1 and 40')
+                  }
+                  return Promise.resolve()
+                }
+              }
+            ]}
+          >
+            <Input type='number' placeholder='Enter week number (1-40)' />
+          </Form.Item>
+
+          <div className='flex justify-end gap-2'>
+            <Button
+              onClick={() => {
+                setIsOpen(false)
+                form.resetFields()
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type='primary' htmlType='submit' loading={loading}>
+              Create
+            </Button>
+          </div>
+        </Form>
+      </Modal>
     </>
   )
 }

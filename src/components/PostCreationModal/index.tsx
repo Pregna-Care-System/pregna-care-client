@@ -218,7 +218,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       <div className='py-3'>
         <div className='flex items-center mb-4'>
           <img
-            src={currentUser?.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
+            src={currentUser?.picture || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
             alt={currentUser?.name || 'User'}
             className='w-10 h-10 rounded-full mr-3'
           />

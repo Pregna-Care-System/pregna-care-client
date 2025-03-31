@@ -39,7 +39,7 @@ const BabyShopApp = () => {
             Discover our carefully curated collection of premium baby and maternal care products.
           </p>
           <button className='bg-gradient-to-r from-[#A0D8EF] to-[#FFB6C1] text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300'>
-            Shop Now
+            Shop Now in Concung
           </button>
         </div>
         <div className='md:w-1/2'>
@@ -95,7 +95,7 @@ const BabyShopApp = () => {
                 rel='noopener noreferrer'
                 className='text-[#ff6b81] border rounded-2xl p-2 mt-4 hover:text-black'
               >
-                View Details
+                View in Concung
               </a>
             </div>
           ))}

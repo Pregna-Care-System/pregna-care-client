@@ -203,8 +203,9 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
       action.payload.featuredIds
     )
     if (response.data) {
-      message.success('Create plan created successfully')
+      message.success('Plan created successfully')
       yield put(setMembershipPlans(response.data))
+      yield put({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
     }
   } catch (error: any) {
     message.error('An unexpected error occurred try again later!')
@@ -227,6 +228,8 @@ export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any
     if (response.data.success) {
       message.success('Plan updated successfully')
       yield put(setMembershipPlans(response.data.response))
+      yield put({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
+
     } else {
       message.error('Failed to update the plan')
     }

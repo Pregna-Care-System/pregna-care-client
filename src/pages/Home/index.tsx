@@ -378,25 +378,27 @@ export default function Home() {
     </div>
   ))
   //--Feedback
+  const [contactForm] = useForm()
+  const [feedbackForm] = useForm()
+
   const handleSubmitFeedback = async () => {
     try {
-      await createFeedBack(userInfor.id, feedback, rating)
+      const values = await feedbackForm.validateFields()
+      await createFeedBack(userInfor.id, values.feedback, values.rating)
       localStorage.setItem('hasSubmittedFeedback', 'true')
       setIsFeedbackModalOpen(false)
-      message.success('Feedback create successfully')
+      message.success('Feedback created successfully')
       getListFeedback()
     } catch (error) {
       console.error('Failed to submit feedback:', error)
     }
   }
   //Contact
-  const [form] = useForm()
-
   const handleCreate = async (values) => {
     try {
       await createContact(values.fullName, values.email, values.message)
       message.success('Your message has been sent successfully!')
-      form.resetFields()
+      contactForm.resetFields()
     } catch (error) {
       message.error('Failed to send your message. Please try again later.')
       console.error('Error creating contact:', error)
@@ -551,15 +553,30 @@ export default function Home() {
           </Button>
         ]}
       >
-        <p>Let share your experience after one day use our website!</p>
-        <Rate onChange={setRating} value={rating} />
-        <Input.TextArea
-          rows={4}
-          placeholder='Enter feedback...'
-          onChange={(e) => setFeedback(e.target.value)}
-          value={feedback}
-          style={{ marginTop: 10 }}
-        />
+        <Form form={feedbackForm} layout="vertical">
+          <p>Let share your experience after one day use our website!</p>
+          <Form.Item
+            name="rating"
+            rules={[{ required: true, message: 'Please rate your experience!' }]}
+          >
+            <Rate onChange={setRating} value={rating} />
+          </Form.Item>
+          <Form.Item
+            name="feedback"
+            rules={[
+              { required: true, message: 'Please enter your feedback!' },
+              { min: 10, message: 'Feedback must be at least 10 characters!' },
+              { max: 500, message: 'Feedback cannot exceed 500 characters!' }
+            ]}
+          >
+            <TextArea
+              rows={4}
+              placeholder='Enter feedback...'
+              onChange={(e) => setFeedback(e.target.value)}
+              value={feedback}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
 
       {/* --Contact */}
@@ -574,7 +591,7 @@ export default function Home() {
           <p className='m-0 font-light'>Please feel free to contact us.</p>
         </div>
         <div>
-          <Form form={form} onFinish={handleCreate} action='' className='flex flex-col gap-4' layout='vertical'>
+          <Form form={contactForm} onFinish={handleCreate} action='' className='flex flex-col gap-4' layout='vertical'>
             <Form.Item
               name='fullName'
               label='Name'

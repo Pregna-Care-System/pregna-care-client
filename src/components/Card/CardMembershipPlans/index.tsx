@@ -29,6 +29,7 @@ const GlobalStyle = createGlobalStyle`
 
 const StyledCard = styled.div<{ isSelected: boolean }>`
   height: 450px;
+  width: 300px;
   border-radius: 16px;
   box-shadow: ${({ isSelected }) =>
     isSelected
@@ -175,7 +176,7 @@ export default function PlanCard({ plan, isSelected, onSelect, currentPlanName, 
           <div className='flex items-center gap-2'>
            
             <PlanName>{plan.planName}</PlanName>
-            {plan.planName === currentPlanName && <StyledTag color='success'>Your current Plan</StyledTag>}
+            {plan.planName === currentPlanName && <StyledTag color='success'>Your Plan Now</StyledTag>}
             {isRecommended && (
               <Tag color='red' className='absolute top-2 right-2 rounded-xl'>
                 Recommend

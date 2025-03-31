@@ -272,7 +272,15 @@ const SchedulePage = () => {
                   : `Add Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`}
             </h1>
             <div>
-              <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
+              <Form.Item 
+                label='Title' 
+                name='title' 
+                rules={[
+                  { required: true, message: 'Please enter event title!' },
+                  { min: 5, message: 'Title must be at least 5 characters' },
+                  { max: 100, message: 'Title cannot exceed 100 characters!' }
+                ]}
+              >
                 <input
                   type='text'
                   placeholder='Event Title'
@@ -404,7 +412,15 @@ const SchedulePage = () => {
             </div>
 
             <div>
-              <Form.Item label='Description' name='description'>
+              <Form.Item 
+                label='Description' 
+                name='description'
+                rules={[
+                  { required: true, message: 'Please enter description!' },
+                  { min: 10, message: 'Description must be at least 10 characters' },
+                  { max: 500, message: 'Description cannot exceed 500 characters!' }
+                ]}
+              >
                 <textarea
                   placeholder='Reminder description'
                   className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
