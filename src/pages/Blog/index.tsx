@@ -4,7 +4,7 @@ import { Input, Tag, Avatar, Empty, Button, Modal } from 'antd'
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectMemberInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { style } from '@/theme'
 
@@ -466,7 +466,7 @@ const BlogList = () => {
   const tagResponse = useSelector(selectTagInfo) as Tag[]
   const [isModalVisible, setIsModalVisible] = useState(false)
   const navigate = useNavigate()
-  const userInfor = useSelector(selectUserInfo)
+  const memberInfor = useSelector(selectMemberInfo)
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'blog' } })
@@ -495,7 +495,7 @@ const BlogList = () => {
     return 'Untitled Blog'
   }
   const handleNavClick = () => {
-    if (userInfor?.role !== 'Member') {
+    if (memberInfor?.role !== 'Member') {
       setIsModalVisible(true)
     } else {
       navigate(ROUTES.MEMBER.YOUR_BLOG)

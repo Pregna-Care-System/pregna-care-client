@@ -30,7 +30,6 @@ export const createBlog = async (
   sharedChartData?: string
 ) => {
   try {
-    console.log('IS VISIBLE', isVisible)
     const apiCallerId = 'createBlog'
     await request.post<MODEL.IResponseBase>('/Blog', {
       apiCallerId,

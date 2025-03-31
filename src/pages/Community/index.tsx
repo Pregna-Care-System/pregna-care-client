@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Tabs, message, Spin, Tooltip, Pagination, Modal, Button } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectUserInfo, selectTagInfo, selectMemberInfo } from '@/store/modules/global/selector'
 import styled from 'styled-components'
 import PostCreationModal from '@/components/PostCreationModal'
 import PostCard from './components/PostCard'
@@ -305,6 +305,7 @@ const CommunityPage = () => {
   const dispatch = useDispatch()
   const blogPosts = useSelector(selectBlogInfo) || []
   const currentUser = useSelector(selectUserInfo)
+  const memberInfor = useSelector(selectMemberInfo)
   const tags = useSelector(selectTagInfo) || []
 
   const [loading, setLoading] = useState(true)
@@ -523,7 +524,7 @@ const CommunityPage = () => {
     })
   }
   const handleNavClick = () => {
-    if (currentUser?.role !== 'Member') {
+    if (memberInfor?.role !== 'Member') {
       setIsModalCheckRole(true)
     } else {
       setIsModalVisible(true)

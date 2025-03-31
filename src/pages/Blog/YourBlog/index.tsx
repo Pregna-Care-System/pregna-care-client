@@ -352,7 +352,7 @@ const BlogDashboard = () => {
             rules={[
               { required: true, message: 'Please input the heading!' },
               { min: 5, message: 'Heading must be at least 3 characters long!' },
-              { max: 100, message: 'Heading cannot exceed 50 characters!' }
+              { max: 100, message: 'Heading cannot exceed 100 characters!' }
             ]} 
             label='Heading'
           >

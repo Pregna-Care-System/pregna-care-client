@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import ROUTES from '@/utils/config/routes'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
 import { style } from '@/theme'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 
@@ -332,7 +332,7 @@ const MommyServicesPage = () => {
   const [featureList, setFeatureList] = useState<Feature[]>([])
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const userInfor = useSelector(selectUserInfo)
+  const memberInfor = useSelector(selectMemberInfo)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const { hasAccess } = useFeatureAccess()
@@ -363,7 +363,7 @@ const MommyServicesPage = () => {
   }
 
   const handleFeatureClick = (feature) => {
-    if (userInfor?.role !== 'Member') {
+    if (memberInfor?.role !== 'Member') {
       setIsModalVisible(true)
       return
     }

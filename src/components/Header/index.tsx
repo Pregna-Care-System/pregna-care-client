@@ -310,14 +310,14 @@ export default function Header() {
     dispatch(resetState())
   }
   const handleNavClick = (path: string) => {
-    if (userInfor?.role !== 'Member') {
+    if (memberInfo?.role !== 'Member') {
       setIsModalVisible(true)
     } else {
       navigate(path)
     }
   }
 
-  const userImage = userInfor?.picture || null
+  const userImage = memberInfo?.imageUrl || null
 
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
