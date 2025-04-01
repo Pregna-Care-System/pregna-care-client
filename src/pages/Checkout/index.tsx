@@ -36,7 +36,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async () => {
     try {
-      if (user && searchParams.size === 0) {
+      if (user) {
         dispatch({
           type: 'PAYMENT_VNPAY',
           payload: { userId: user.id, membershipPlanId: planId, userEmail: user.email }

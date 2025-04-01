@@ -125,7 +125,7 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
   } catch (error: any) {
     if (error.redirect) {
       message.warning(error.message)
-    } 
+    }
   }
 }
 
@@ -159,7 +159,7 @@ export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, 
     const res = yield call(paymentVNPAY, userId, membershipPlanId, userEmail)
     if (res.success) {
       localStorage.setItem('membershipPlanId', membershipPlanId)
-      window.location.href = res.url
+      window.location.href = res.response.paymentUrl
     }
   } catch (error: any) {}
 }
@@ -418,8 +418,7 @@ export function* getAllMemberAdmin(filterType?: string, name?: string): Generato
       message.info('No members found!')
       yield put(setMemberInfo([])) // Cập nhật store với mảng rỗng nếu không có dữ liệu
     }
-  } catch (error: any) {
-  }
+  } catch (error: any) {}
 }
 
 //----------Member information-----------
@@ -464,7 +463,7 @@ export function* getAllReminderSaga(): Generator<any, void, any> {
     if (response.response) {
       yield put(setReminderInfo(response.response))
     }
-  } catch (error: any) {  
+  } catch (error: any) {
     console.error('Fetch error:', error)
   }
 }
@@ -561,8 +560,7 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
   try {
     const response = yield call(fetchStatistics)
     yield put(setStatistics(response))
-  } catch (error: any) {
-  }
+  } catch (error: any) {}
 }
 
 //----------Mother information-----------
