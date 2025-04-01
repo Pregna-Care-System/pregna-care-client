@@ -144,6 +144,11 @@ export function* updateUserInformation(action: PayloadAction<any>): Generator<an
     )
     if (response.success) {
       message.success('Account updated successfully')
+      // Update the Redux store with new user information
+      yield put(setCurrentLoginUser(response.response))
+      yield put(setUserInfo(response.response))
+      yield put(setMemberInfo(response.response))
+      yield put({ type: 'GET_MEMBER_WITH_PLAN_DETAIL', payload: { userId: action.payload.userId } })
     } else {
       message.error('Failed to update the account')
     }
@@ -505,7 +510,7 @@ export function* createReminderSaga(action: PayloadAction<any>): Generator<any, 
       action.payload.status
     )
     message.success('Create reminder successfully')
-    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION_BY_USER_iD', payload: action.payload.userId })
   } catch (error: any) {
     console.error('Fetch error:', error)
   }

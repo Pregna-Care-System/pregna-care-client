@@ -28,7 +28,7 @@ const BlogDashboard = () => {
     if (tagResponse.length > 0 && tagResponse !== null) {
       setTags(tagResponse)
     }
-    if (blogResponse.length > 0 && blogResponse !== null) {
+    if (blogResponse) {
       setBlogs(blogResponse)
     }
   }, [tagResponse, blogResponse])

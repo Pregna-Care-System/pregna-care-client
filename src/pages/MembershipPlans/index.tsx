@@ -98,8 +98,8 @@ export default function MemberShipPlanPage() {
       }
       await upgradeFreePlan(userId)
       message.success('Successfully upgraded to Free Plan!')
-      dispatch({ type: 'GET_MEMBER_WITH_PLAN_DETAIL', payload: userId })
       setIsModalOpen(false)
+      window.location.reload()
     } catch (error) {
       message.error('Failed to upgrade plan. Please try again.')
     }

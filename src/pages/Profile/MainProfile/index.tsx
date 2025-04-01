@@ -161,7 +161,6 @@ export default function MainProfile() {
       setUserImage(response.data.secure_url)
 
       form.setFieldsValue({ imageUrl: response.data.secure_url })
-      message.success('Image uploaded successfully')
     } catch (error) {
       message.error('Failed to upload image')
       console.error('Upload error details', error?.response.data || error.message)

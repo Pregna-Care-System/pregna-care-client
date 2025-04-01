@@ -5,11 +5,12 @@ import { adminRoutes, memberRoutes, privateRoutes, publicRoutes } from './routes
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
 import { useSelector } from 'react-redux'
-import { selectIsAuthenticated, selectUserInfo } from './store/modules/global/selector'
+import { selectIsAuthenticated, selectMemberInfo, selectUserInfo } from './store/modules/global/selector'
 
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const user = useSelector(selectUserInfo)
+  const member = useSelector(selectMemberInfo)
 
   const publicRouterObjects: RouteObject[] = publicRoutes.map(({ path, component: Component, layout }) => {
     const Layout = layout === null ? Fragment : layout || MainLayout
@@ -67,7 +68,7 @@ function App() {
     return {
       path: path,
       element:
-        isAuthenticated && user.role === 'Member' ? (
+        isAuthenticated && member?.role === 'Member' ? (
           <Suspense fallback={<Loading />}>
             <Layout>
               <Component />
