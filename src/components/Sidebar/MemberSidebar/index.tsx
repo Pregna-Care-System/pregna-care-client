@@ -1,9 +1,9 @@
 import ROUTES from '@/utils/config/routes'
 import { LucideBaby } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { FaCalendarAlt, FaPenNib } from 'react-icons/fa'
+import { FaCalendarAlt, FaPenNib, FaSignOutAlt } from 'react-icons/fa'
 import { GoPerson } from 'react-icons/go'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 import { Modal } from 'antd'
@@ -354,6 +354,18 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
             ))}
           </ul>
         </nav>
+
+        <Link
+          to={ROUTES.HOME}
+          className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'
+        >
+          <button className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'>
+            <span className='nav-icon'>
+              <FaSignOutAlt size={20} />
+            </span>
+            <span className='nav-text ml-3'>Back landing page</span>
+          </button>
+        </Link>
 
         <div className='footer text-center'>
           <p>PregnaCare © 2025</p>
