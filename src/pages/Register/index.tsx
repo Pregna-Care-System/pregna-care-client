@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import signup from '@/assets/register.jpg'
 import { registerAccount } from '@/services/userService'
+import { MODEL } from '@/types/IModel'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -47,7 +48,15 @@ export default function Register() {
             rules={[
               {
                 required: true,
-                message: 'Please enter Fullname'
+                message: 'Please enter your full name'
+              },
+              {
+                min: 2,
+                message: 'Full name must be at least 2 characters'
+              },
+              {
+                pattern: /^[a-zA-Z\s]*$/,
+                message: 'Full name can only contain letters and spaces'
               }
             ]}
             label='Fullname'
@@ -60,8 +69,11 @@ export default function Register() {
             rules={[
               {
                 required: true,
+                message: 'Please enter your email'
+              },
+              {
                 type: 'email',
-                message: 'Please enter valid email'
+                message: 'Please enter a valid email address'
               }
             ]}
             label='Email Address'
@@ -74,7 +86,15 @@ export default function Register() {
             rules={[
               {
                 required: true,
-                message: 'Please enter valid password'
+                message: 'Please enter your password'
+              },
+              {
+                min: 6,
+                message: 'Password must be at least 6 characters'
+              },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+                message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
               }
             ]}
             label='Password'
@@ -87,20 +107,20 @@ export default function Register() {
             rules={[
               {
                 required: true,
-                message: 'Please enter your confirm password'
+                message: 'Please confirm your password'
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') == value) {
+                  if (!value || getFieldValue('password') === value) {
                     return Promise.resolve()
                   }
-                  return Promise.reject(new Error('The two password do not match'))
+                  return Promise.reject(new Error('The two passwords do not match'))
                 }
               })
             ]}
-            label='ConfirmPassword'
+            label='Confirm Password'
             name={'confirmPassword'}
-            dependencies={['myPassword']}
+            dependencies={['password']}
             className='mb-6'
           >
             <Input.Password prefix={<LockOutlined />} placeholder='Enter your confirm password' allowClear />

@@ -271,18 +271,6 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
           </ul>
         </nav>
 
-        <Link
-          to={ROUTES.HOME}
-          className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'
-        >
-          <button className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'>
-            <span className='nav-icon'>
-              <FaSignOutAlt size={20} />
-            </span>
-            <span className='nav-text ml-3'>Back landing page</span>
-          </button>
-        </Link>
-
         <div className='footer text-center'>
           <p>PregnaCare © 2025</p>
         </div>

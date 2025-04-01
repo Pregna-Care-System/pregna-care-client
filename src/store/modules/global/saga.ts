@@ -94,6 +94,9 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       }
     }
   } catch (error: any) {
+    if(error){
+      message.error(error.message)
+    }
     if (error.redirect) {
       message.warning(error.message)
     }
