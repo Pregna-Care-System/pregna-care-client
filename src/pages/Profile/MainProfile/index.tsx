@@ -158,7 +158,6 @@ export default function MainProfile() {
       const response = await request.post('https://api.cloudinary.com/v1_1/dgzn2ix8w/image/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      console.log('Upload response:', response.data)
       setUserImage(response.data.secure_url)
 
       form.setFieldsValue({ imageUrl: response.data.secure_url })

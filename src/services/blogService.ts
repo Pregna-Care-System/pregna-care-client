@@ -30,7 +30,6 @@ export const createBlog = async (
   sharedChartData?: string
 ) => {
   try {
-    console.log('IS VISIBLE', isVisible)
     const apiCallerId = 'createBlog'
     await request.post<MODEL.IResponseBase>('/Blog', {
       apiCallerId,
@@ -47,7 +46,7 @@ export const createBlog = async (
       sharedChartData
     })
   } catch (error) {
-    console.log('Create failed', error)
+    console.error('Error creating blog:', error)
     throw error
   }
 }

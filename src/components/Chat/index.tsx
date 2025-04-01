@@ -31,8 +31,6 @@ export default function ChatBot() {
 
       if (!response.ok) throw new Error(data.error?.message || 'Something went wrong')
 
-      console.log('Data', data)
-
       // Get bot response safely
       const apiResponseText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'No response'
 

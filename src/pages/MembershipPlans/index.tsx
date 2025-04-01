@@ -2,10 +2,16 @@ import { useEffect, useState } from 'react'
 import { Button, Form, Input, message, Modal } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@/store/modules/global/selector'
+import {
+  selectIsAuthenticated,
+  selectMemberInfo,
+  selectMembershipPlans,
+  selectUserInfo
+} from '@/store/modules/global/selector'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import { hasFreePlan, upgradeFreePlan } from '@/services/planService'
 import { MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
+import ROUTES from '@/utils/config/routes'
 
 export default function MemberShipPlanPage() {
   const plans = useSelector(selectMembershipPlans)
@@ -21,6 +27,8 @@ export default function MemberShipPlanPage() {
   const currentPlanName = member?.planName || ''
   const [hasFreePlanState, setHasFreePlanState] = useState(false)
   const recommendPlanId = plans.find((plan) => plan.planName === 'StandardPlan')?.membershipPlanId || null
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+
   useEffect(() => {
     dispatch({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
   }, [dispatch])
@@ -48,6 +56,16 @@ export default function MemberShipPlanPage() {
     }
     checkFreePlan()
   }, [userId])
+
+  const handleLoginStatus = () => {
+    if (isAuthenticated) {
+      handleUpgrade()
+    } else {
+      message.warning('Please log in to upgrade your plan.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
+
   const handleUpgrade = async () => {
     if (!selectedPlan) {
       message.error('Please select a plan before upgrading')
@@ -111,7 +129,7 @@ export default function MemberShipPlanPage() {
           <Button
             type='primary'
             size='large'
-            onClick={handleUpgrade}
+            onClick={handleLoginStatus}
             danger
             disabled={selectedPlan && selectedPlan.price < (member?.planPrice || 0)}
           >

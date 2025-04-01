@@ -14,7 +14,6 @@ export const createContact = async (fullName: string, email: string, message: st
       message
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }
@@ -23,7 +22,6 @@ export const deleteContact = async (email: string) => {
   try {
     await request.delete<MODEL.IResponseBase>(`/Contact?email=${email}`)
   } catch (error) {
-    console.log('Delete failed', error)
     throw error
   }
 }

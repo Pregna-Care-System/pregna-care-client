@@ -78,7 +78,6 @@ const FAQModal: React.FC<{
       onSuccess()
     } catch (error: unknown) {
       console.error('Failed to save FAQ:', error)
-      message.error('Operation failed')
     }
   }
 
@@ -248,10 +247,8 @@ const FAQAdmin = () => {
     try {
       setLoading(true)
       const categoriesResponse = await getAllFAQCategories()
-      console.log('Categories:', categoriesResponse)
       setCategories(Array.isArray(categoriesResponse.data.response) ? categoriesResponse.data.response : [])
     } catch (error) {
-      message.error('Failed to fetch data')
     } finally {
       setLoading(false)
     }

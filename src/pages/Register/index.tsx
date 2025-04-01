@@ -13,12 +13,13 @@ export default function Register() {
         message.success('Registration successful')
         navigate('/confirm-email')
       } else {
-        console.log(response.detailErrorList[0].message)
         message.error(response.detailErrorList[0].message || 'Registration failed')
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      message.error(error.message || 'An unexpected error occurred')
+      if (error.response) {
+        message.error(error.response.data.message || 'Registration failed')
+      }
     }
   }
   return (

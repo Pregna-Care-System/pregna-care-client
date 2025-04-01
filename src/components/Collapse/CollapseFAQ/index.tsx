@@ -14,9 +14,7 @@ const CollapseFAQ: React.FC = () => {
       try {
         const categoriesResponse = await getAllFAQCategories()
         setCategories(Array.isArray(categoriesResponse.data.response) ? categoriesResponse.data.response : [])
-      } catch (error) {
-        message.error('Failed to fetch data')
-      }
+      } catch (error) {}
     }
     fetchData()
   }, [])

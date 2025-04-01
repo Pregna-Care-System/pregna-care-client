@@ -413,7 +413,7 @@ export default function Home() {
           backgroundImage:
             'url(https://res.cloudinary.com/drcj6f81i/image/upload/v1736741890/PregnaCare/orwee2xgtheisvm300ht.png)'
         }}
-        className='w-full'
+        className='w-full mt-24'
       >
         <Content className=''>
           <h1 className='font-bold text-5xl m-0'>Crafted for optimal pregnancy tracking.</h1>
@@ -553,16 +553,13 @@ export default function Home() {
           </Button>
         ]}
       >
-        <Form form={feedbackForm} layout="vertical">
+        <Form form={feedbackForm} layout='vertical'>
           <p>Let share your experience after one day use our website!</p>
-          <Form.Item
-            name="rating"
-            rules={[{ required: true, message: 'Please rate your experience!' }]}
-          >
+          <Form.Item name='rating' rules={[{ required: true, message: 'Please rate your experience!' }]}>
             <Rate onChange={setRating} value={rating} />
           </Form.Item>
           <Form.Item
-            name="feedback"
+            name='feedback'
             rules={[
               { required: true, message: 'Please enter your feedback!' },
               { min: 10, message: 'Feedback must be at least 10 characters!' },

@@ -16,7 +16,6 @@ export default function BlogAdmin() {
   const getListBlog = async () => {
     try {
       const res = await getAllBlogAdmin('blog')
-      console.log('RES', res)
       if (res.success) {
         setBlogList(res.response || [])
       }

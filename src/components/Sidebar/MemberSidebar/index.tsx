@@ -280,7 +280,6 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
   }
 
   const handleMenuItemClick = (title: string, path: string, featureName: string) => {
-    console.log('featureName', featureName)
     if (hasAccess(undefined, featureName)) {
       setActiveMenu(title)
       navigate(path)

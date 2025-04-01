@@ -99,7 +99,6 @@ export const updateAccount = async (
       dateOfBirth,
       imageUrl
     })
-    console.log('RES', res)
     if (res.success) {
       return res
     } else {
@@ -138,9 +137,10 @@ export const forgotPassword = async (email: string) => {
   }
 }
 
-export const paymentVNPAY = async (userId: string, membershipPlanId: string) => {
+export const paymentVNPAY = async (userId: string, membershipPlanId: string, userEmail: string) => {
   const apiCallerId = 'Payment'
-  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}`, {
+  return await request.post<MODEL.IResponseBase>(`/${apiCallerId}/Initiate`, {
+    userEmail: userEmail,
     userId: userId,
     membershipPlanId: membershipPlanId,
     apiCallerId

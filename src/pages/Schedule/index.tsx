@@ -232,7 +232,6 @@ const SchedulePage = () => {
         dispatch({ type: 'DELETE_REMINDER', payload: id })
       },
       onCancel: () => {
-        console.log('Deletion cancelled')
       }
     })
   }

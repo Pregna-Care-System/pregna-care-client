@@ -5,7 +5,6 @@ export default function ChatForm({ chatHistory, setChatHistory, generateChatResp
   const [form] = Form.useForm()
 
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values.message)
     if (!values.message?.trim()) return
 
     setChatHistory((history) => [...history, { role: 'user', text: values.message }])

@@ -105,12 +105,12 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
 
       return [...prevArray, ...urls]
     })
-    message.success(`${urls.length} ảnh đã được tải lên thành công`)
+    message.success(`${urls.length} photo uploaded successfully`)
   }
 
   const handleUploadError = (error: Error) => {
     console.error('Upload error:', error)
-    message.error('Tải ảnh lên thất bại. Vui lòng thử lại.')
+    message.error('Image upload failed. Please try again.')
   }
 
   const removeImage = (index: number) => {
@@ -140,7 +140,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     const textContent = postContent.replace(/<[^>]*>/g, '').trim()
 
     if (!textContent && uploadedImages.length === 0 && !chartData) {
-      message.error('Vui lòng nhập nội dung bài viết hoặc tải lên ít nhất một ảnh')
+      message.error('Please enter article content or upload at least one image')
       return
     }
 
@@ -192,7 +192,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       }
     } catch (error) {
       console.error('Error creating post:', error)
-      message.error('Đã xảy ra lỗi khi đăng bài viết')
     } finally {
     }
   }
@@ -296,15 +295,9 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
                   }
                 },
                 events: {
-                  initialized: function () {
-                    console.log('Froala Editor initialized successfully')
-                  },
-                  focus: function () {
-                    console.log('Froala Editor is focused')
-                  },
-                  blur: function () {
-                    console.log('Froala Editor lost focus')
-                  }
+                  initialized: function () {},
+                  focus: function () {},
+                  blur: function () {}
                 }
               }}
             />

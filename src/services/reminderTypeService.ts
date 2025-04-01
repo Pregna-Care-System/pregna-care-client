@@ -43,7 +43,6 @@ export const createReminderType = async (typeName: string, description: string) 
       description
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }

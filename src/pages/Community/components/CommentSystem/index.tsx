@@ -433,7 +433,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       }
     } catch (error) {
       console.error('Error updating comment:', error)
-      message.error('An error occurred while updating the comment')
     } finally {
       setSubmitting(false)
     }
@@ -478,7 +477,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       }
     } catch (error) {
       console.error('Error deleting comment:', error)
-      message.error('An error occurred while deleting the comment')
     } finally {
       setSubmitting(false)
       setDropdownVisibleFor(null)
