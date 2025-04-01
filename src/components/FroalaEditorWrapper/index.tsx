@@ -43,7 +43,6 @@ const FroalaEditorWrapper = forwardRef(({ model, onModelChange, config }, ref) =
       config={{
         placeholderText: 'Write something...',
         heightMin: 200,
-        language: 'vi',
         attribution: false,
         ...config
       }}

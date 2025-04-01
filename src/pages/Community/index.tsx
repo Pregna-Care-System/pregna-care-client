@@ -314,7 +314,7 @@ const CommunityPage = () => {
   const [submitting, setSubmitting] = useState(false)
   const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
   const [isModalCheckRole, setIsModalCheckRole] = useState(false)
-  const navigate = useNavigate() 
+  const navigate = useNavigate()
   // Pagination states
   const [currentDiscussionsPage, setCurrentDiscussionsPage] = useState(1)
   const [currentMyPostsPage, setCurrentMyPostsPage] = useState(1)
@@ -368,10 +368,6 @@ const CommunityPage = () => {
         : 0,
       behavior: 'smooth'
     })
-  }
-
-  const showModal = () => {
-    setIsModalVisible(true)
   }
 
   const handleCancel = () => {
@@ -630,44 +626,46 @@ const CommunityPage = () => {
             )}
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab='My Posts' key='2'>
-            {loading ? (
-              <LoadingContainer>
-                <Spin size='large' />
-              </LoadingContainer>
-            ) : (
-              <>
-                <PostGrid>
-                  {currentMyPosts.length > 0
-                    ? currentMyPosts.map((post: BlogPost) => (
-                        <PostCard
-                          key={post.id}
-                          post={post}
-                          currentUser={currentUser}
-                          onEdit={(post) => {
-                            setCurrentEditPost(post)
-                            setIsEditModalVisible(true)
-                          }}
-                          onDelete={handleDeletePost}
-                        />
-                      ))
-                    : renderEmptyState('my-posts')}
-                </PostGrid>
+          {currentUser && (
+            <Tabs.TabPane tab='My Posts' key='2'>
+              {loading ? (
+                <LoadingContainer>
+                  <Spin size='large' />
+                </LoadingContainer>
+              ) : (
+                <>
+                  <PostGrid>
+                    {currentMyPosts.length > 0
+                      ? currentMyPosts.map((post: BlogPost) => (
+                          <PostCard
+                            key={post.id}
+                            post={post}
+                            currentUser={currentUser}
+                            onEdit={(post) => {
+                              setCurrentEditPost(post)
+                              setIsEditModalVisible(true)
+                            }}
+                            onDelete={handleDeletePost}
+                          />
+                        ))
+                      : renderEmptyState('my-posts')}
+                  </PostGrid>
 
-                {myPosts.length > postsPerPage && (
-                  <PaginationContainer>
-                    <Pagination
-                      current={currentMyPostsPage}
-                      onChange={handleMyPostsPageChange}
-                      total={myPosts.length}
-                      pageSize={postsPerPage}
-                      showSizeChanger={false}
-                    />
-                  </PaginationContainer>
-                )}
-              </>
-            )}
-          </Tabs.TabPane>
+                  {myPosts.length > postsPerPage && (
+                    <PaginationContainer>
+                      <Pagination
+                        current={currentMyPostsPage}
+                        onChange={handleMyPostsPageChange}
+                        total={myPosts.length}
+                        pageSize={postsPerPage}
+                        showSizeChanger={false}
+                      />
+                    </PaginationContainer>
+                  )}
+                </>
+              )}
+            </Tabs.TabPane>
+          )}
         </StyledTabs>
       </ContentContainer>
 
@@ -703,35 +701,35 @@ const CommunityPage = () => {
         }
       />
       <StyledModal
-          title='Become a PregnaCare Member'
-          open={isModalCheckRole}
-          onCancel={() => setIsModalCheckRole(false)}
-          footer={[
-            <Button key='cancel' onClick={() => setIsModalCheckRole(false)}>
-              Later
-            </Button>,
-            <Button
-              key='submit'
-              type='primary'
-              onClick={() => {
-                setIsModalCheckRole(false)
-                navigate(ROUTES.MEMBESHIP_PLANS)
-              }}
-            >
-              View Membership Plans
-            </Button>
-          ]}
-        >
-          <div className='membership-content'>
-            <img
-              src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
-              alt='Membership'
-              className='membership-image'
-            />
+        title='Become a PregnaCare Member'
+        open={isModalCheckRole}
+        onCancel={() => setIsModalCheckRole(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsModalCheckRole(false)}>
+            Later
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            onClick={() => {
+              setIsModalCheckRole(false)
+              navigate(ROUTES.MEMBESHIP_PLANS)
+            }}
+          >
+            View Membership Plans
+          </Button>
+        ]}
+      >
+        <div className='membership-content'>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+            alt='Membership'
+            className='membership-image'
+          />
 
-            <div className='membership-subtitle'>Join our community to experience exclusive features</div>
-          </div>
-        </StyledModal>
+          <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+        </div>
+      </StyledModal>
     </PageContainer>
   )
 }

@@ -36,7 +36,6 @@ export default function EnhancedFetalChart({
   const [processedData, setProcessedData] = useState<ProcessedDataItem[]>([])
   const chartRef = useRef<HTMLDivElement>(null)
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
-  const [chartImageUrl, setChartImageUrl] = useState('')
   const [processedChartData, setProcessedChartData] = useState<any>(null)
 
   useEffect(() => {

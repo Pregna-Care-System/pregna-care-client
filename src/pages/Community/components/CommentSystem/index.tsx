@@ -2,8 +2,10 @@ import type React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Modal, Popconfirm, message } from 'antd'
-import { MdMoreVert, MdClose } from 'react-icons/md'
+import { MdClose } from 'react-icons/md'
 import { getAllCommentByBlogId, createComment, updateComment, deleteComment } from '@/services/blogService'
+import { Link } from 'react-router-dom'
+import ROUTES from '@/utils/config/routes'
 
 interface User {
   id: string
@@ -40,7 +42,8 @@ const CommentContainer = styled.div`
 `
 
 const CommentList = styled.div`
-  max-height: ${(props) => (props.theme.modalMode ? '60vh' : 'auto')};
+  max-height: ${(props) => (props.theme.modalMode ? '66vh' : 'auto')};
+  min-height: 66vh;
   overflow-y: ${(props) => (props.theme.modalMode ? 'auto' : 'visible')};
   padding: 16px 0;
 `
@@ -714,23 +717,34 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                 )}
               </CommentList>
 
-              <CommentInput>
-                <Input
-                  ref={commentInputRef}
-                  type='text'
-                  placeholder='Add a comment...'
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !submitting && commentText.trim()) {
-                      handleCommentSubmit()
-                    }
-                  }}
-                />
-                <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
-                  Post
-                </SubmitButton>
-              </CommentInput>
+              {currentUser ? (
+                <CommentInput>
+                  <Input
+                    ref={commentInputRef}
+                    type='text'
+                    placeholder='Add a comment...'
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !submitting && commentText.trim()) {
+                        handleCommentSubmit()
+                      }
+                    }}
+                  />
+                  <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
+                    Post
+                  </SubmitButton>
+                </CommentInput>
+              ) : (
+                <CommentInput style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <p style={{ fontSize: '14px', color: '#6b7280' }}>
+                    <Link to={ROUTES.LOGIN} style={{ color: '#3b82f6', fontWeight: '600' }}>
+                      Login
+                    </Link>{' '}
+                    now to comment
+                  </p>
+                </CommentInput>
+              )}
             </div>
           </Modal>
         </>
@@ -783,26 +797,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
               </>
             )}
           </CommentList>
-
-          {currentUser && (
-            <CommentInput>
-              <Input
-                ref={commentInputRef}
-                type='text'
-                placeholder='Add a comment...'
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !submitting && commentText.trim()) {
-                    handleCommentSubmit()
-                  }
-                }}
-              />
-              <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
-                Post
-              </SubmitButton>
-            </CommentInput>
-          )}
         </>
       )}
     </CommentContainer>

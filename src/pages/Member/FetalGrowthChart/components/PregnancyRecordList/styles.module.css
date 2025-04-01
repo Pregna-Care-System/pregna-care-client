@@ -8,27 +8,34 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start to align at the top */
   margin-bottom: 32px;
   gap: 24px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Changed from wrap to nowrap to keep items on the same row */
+}
+
+.babyCardsContainer {
+  flex: 1;
+  overflow-x: auto; /* Add horizontal scrolling */
+  width: 300px;
+  padding: 10px 5px; /* Add some padding for the scrollbar */
 }
 
 .babyCards {
   display: flex;
   gap: 16px;
-  flex-wrap: wrap;
-  flex: 1;
+  min-width: min-content; /* Ensure cards don't shrink too much */
+  flex-wrap: nowrap; /* Prevent wrapping to keep all cards in a row */
 }
 
 .recordCard {
-  flex: 1;
-  min-width: 300px;
-  max-width: 400px;
+  flex: 0 0 auto; /* Don't grow or shrink, maintain size */
+  width: 400px; /* Fixed width instead of min/max width */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   background: #fff;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .activeCard {
@@ -73,7 +80,6 @@
   font-size: 14px;
   font-weight: 500;
   margin: 0 0 0 6px;
-
 }
 
 .dueDate {
@@ -105,7 +111,9 @@
   padding: 24px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex: 0 0 auto; /* Don't grow or shrink, maintain size */
+  width: 260px; /* Fixed width */
 }
 
 .progressInfo {
@@ -151,8 +159,8 @@
 }
 
 .weekCard.process {
-  background: linear-gradient(to bottom right, #FFB6C1, #fff);
-  border: 1px solid #FFB6C1;
+  background: linear-gradient(to bottom right, #ffb6c1, #fff);
+  border: 1px solid #ffb6c1;
 }
 
 .weekCard.waiting {
@@ -332,17 +340,12 @@
 
   .header {
     flex-direction: column;
+    align-items: center;
   }
 
-  .recordCard {
+  .babyCardsContainer {
+    max-width: 100%;
     width: 100%;
-    max-width: none;
-  }
-
-  .weekGrid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    padding: 8px;
   }
 
   .progressSection {
@@ -350,60 +353,86 @@
     flex-direction: row;
     justify-content: center;
   }
+
+  .weekGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 8px;
+  }
 }
 
 /* Add these new button styles */
 .addButton {
-  background-color: #FF6B81 !important;
-  border-color: #FF6B81 !important;
+  background-color: #ff6b81 !important;
+  border-color: #ff6b81 !important;
   color: white !important;
   border-radius: 6px;
   transition: all 0.3s;
 }
 
 .addButton:hover {
-  background-color: #FF8296 !important;
-  border-color: #FF8296 !important;
+  background-color: #ff8296 !important;
+  border-color: #ff8296 !important;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
 }
 
 .editButton {
-  background-color: #FF6B81 !important;
-  border-color: #FF6B81 !important;
+  background-color: #ff6b81 !important;
+  border-color: #ff6b81 !important;
   color: white !important;
   border-radius: 6px;
   transition: all 0.3s;
 }
 
 .editButton:hover {
-  background-color: #FF8296 !important;
-  border-color: #FF8296 !important;
+  background-color: #ff8296 !important;
+  border-color: #ff8296 !important;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
 }
 
 .detailsButton {
   background-color: white;
-  border-color: #FF6B81;
-  color: #FF6B81;
+  border-color: #ff6b81;
+  color: #ff6b81;
   border-radius: 6px;
   transition: all 0.3s;
 }
 
 .detailsButtonActive {
-  background-color: #FF6B81 !important;
-  border-color: #FF6B81 !important;
+  background-color: #ff6b81 !important;
+  border-color: #ff6b81 !important;
   color: white !important;
   border-radius: 6px;
   transition: all 0.3s;
 }
 
-.detailsButton:hover, .detailsButtonActive:hover {
-  background-color: #FFF1F3;
-  border-color: #FF6B81;
-  color: #FF6B81;
+.detailsButton:hover,
+.detailsButtonActive:hover {
+  background-color: #fff1f3;
+  border-color: #ff6b81;
+  color: #ff6b81;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(255, 107, 129, 0.2);
+}
+
+/* Add custom scrollbar for baby cards container */
+.babyCardsContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+.babyCardsContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.babyCardsContainer::-webkit-scrollbar-thumb {
+  background: #ff6b81;
+  border-radius: 10px;
+}
+
+.babyCardsContainer::-webkit-scrollbar-thumb:hover {
+  background: #ff5268;
 }
 
