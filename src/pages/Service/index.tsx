@@ -1,13 +1,13 @@
 import { getAllFeature } from '@/services/featureService'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button, Modal, Skeleton } from 'antd'
+import { Button, message, Modal, Skeleton } from 'antd'
 import { FaBaby } from 'react-icons/fa'
 import styled from 'styled-components'
 import ROUTES from '@/utils/config/routes'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@/store/modules/global/selector'
 import { style } from '@/theme'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 
@@ -336,6 +336,7 @@ const MommyServicesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const { hasAccess } = useFeatureAccess()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
   const navigate = useNavigate()
 
   const getListFeature = async () => {
@@ -361,8 +362,20 @@ const MommyServicesPage = () => {
     const Icon = icons[index % icons.length]
     return <Icon />
   }
-
-  const handleFeatureClick = (feature) => {
+  const handleLoginStatus = (feature: Feature) => {
+    if (isAuthenticated) {
+      handleFeatureClick(feature)
+    } else {
+      message.warning('Please log in to use this feature.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
+  const handleFeatureClick = (feature: Feature) => {
+    if (!isAuthenticated) {
+      handleLoginStatus(feature)
+      return
+    }
+    
     if (memberInfor?.role !== 'Member') {
       setIsModalVisible(true)
       return

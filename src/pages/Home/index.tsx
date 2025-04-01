@@ -10,7 +10,7 @@ import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
-import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/modules/global/selector'
+import { selectIsAuthenticated, selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
@@ -267,7 +267,16 @@ export default function Home() {
   const [rating, setRating] = useState(0)
   const [feedback, setFeedback] = useState('')
   const navigate = useNavigate()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
 
+  const handleLoginStatus = (feature: Feature) => {
+    if (isAuthenticated) {
+      handleFeatureClick(feature)
+    } else {
+      message.warning('Please log in to use this feature.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
   const getListFeature = async () => {
     try {
       const res = await getAllFeature()
@@ -325,6 +334,10 @@ export default function Home() {
   }
 
   const handleFeatureClick = (feature) => {
+    if (!isAuthenticated) {
+      handleLoginStatus(feature)
+      return
+    }
     if (member?.role !== 'Member') {
       setIsModalVisible(true)
       return

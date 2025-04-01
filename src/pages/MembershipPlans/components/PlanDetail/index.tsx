@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Form, Input, message, Modal } from 'antd'
 import { CheckCircleOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
 import { getPlanByName, hasFreePlan, upgradeFreePlan } from '@/services/planService'
-import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { selectIsAuthenticated, selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
 import { useSelector } from 'react-redux'
 import { FiArrowDownLeft, FiArrowLeft } from 'react-icons/fi'
+import ROUTES from '@/utils/config/routes'
 
 export default function PlanDetail() {
   const { planName } = useParams()
@@ -18,6 +19,8 @@ export default function PlanDetail() {
   const currentPlanName = member?.planName || ''
   const [form] = Form.useForm()
   const [hasFreePlanState, setHasFreePlanState] = useState(false)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+
   useEffect(() => {
     const fetchPlans = async () => {
       if (!planName) return
@@ -44,7 +47,14 @@ export default function PlanDetail() {
   if (!planName) {
     return <div className='flex items-center justify-center min-h-screen text-gray-600'>Plan not found</div>
   }
-
+  const handleLoginStatus = () => {
+    if (isAuthenticated) {
+      handleUpgrade()
+    } else {
+      message.warning('Please log in to upgrade your plan.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
   const handleUpgrade = () => {
     if (planDetail.planName === currentPlanName) {
       message.warning('You are using this plan')
@@ -139,7 +149,7 @@ export default function PlanDetail() {
                     paddingRight: '2rem',
                     color: planDetail && planDetail.price < (member?.planPrice || 0) ? '#6b7280' : 'white'
                   }}
-                  onClick={handleUpgrade}
+                  onClick={handleLoginStatus}
                   danger={!(planDetail && planDetail.price < (member?.planPrice || 0))}
                   disabled={planDetail && planDetail.price < (member?.planPrice || 0)}
                 >

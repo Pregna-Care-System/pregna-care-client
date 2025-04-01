@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Input, Tag, Avatar, Empty, Button, Modal } from 'antd'
+import { Input, Tag, Avatar, Empty, Button, Modal, message } from 'antd'
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectMemberInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectIsAuthenticated, selectMemberInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { style } from '@/theme'
 
@@ -467,6 +467,16 @@ const BlogList = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const navigate = useNavigate()
   const memberInfor = useSelector(selectMemberInfo)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+
+  const handleLoginStatus = () => {
+    if (isAuthenticated) {
+      handleNavClick()
+    } else {
+      message.warning('Please log in to view your blog.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'blog' } })
@@ -545,7 +555,7 @@ const BlogList = () => {
             <BlogActionSection>
               <h2>Your Blog Space</h2>
               <p>View and manage your blog posts, create new content, and connect with your readers.</p>
-              <button onClick={handleNavClick} className='blog-button'>
+              <button onClick={handleLoginStatus} className='blog-button'>
                 <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
                   <path d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15' />
                 </svg>
