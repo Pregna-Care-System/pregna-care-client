@@ -151,10 +151,10 @@ const FetalGrowthScreen: React.FC<FetalGrowthScreenProps> = ({ selectedPregnancy
                         <span>Gestational Age</span>
                       </div>
                       <Title level={5} className='stat-value'>
-                        Week {selectedPregnancy.gestationalAgeResponse.weeks} of 40
+                        Week {selectedPregnancy.gestationalAgeResponse.maxEditableWeek} of 40
                       </Title>
                     </div>
-                    <GestationalAgeChart currentWeek={selectedPregnancy.gestationalAgeResponse.weeks} />
+                    <GestationalAgeChart currentWeek={selectedPregnancy.gestationalAgeResponse.maxEditableWeek} />
                   </div>
                 </Card>
               </Col>
