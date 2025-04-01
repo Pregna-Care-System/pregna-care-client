@@ -41,12 +41,18 @@ export default function BlogAdmin() {
     {
       title: 'PageTitle',
       dataIndex: 'pageTitle',
-      key: 'rating'
+      key: 'rating',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Heading',
       dataIndex: 'heading',
-      key: 'heading'
+      key: 'heading',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Content',
@@ -59,7 +65,10 @@ export default function BlogAdmin() {
     {
       title: 'ShortDescription',
       dataIndex: 'shortDescription',
-      key: 'shortDescription'
+      key: 'shortDescription',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Status',

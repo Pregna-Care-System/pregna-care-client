@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Input, message, Modal, Table } from 'antd'
+import { Button, Input, message, Modal, Table, Typography } from 'antd'
 import { FiTrash2 } from 'react-icons/fi'
 import { deleteFeedBack, getAllFeedBack } from '@/services/feedbackService'
 import { FaSearch } from 'react-icons/fa'
+import Paragraph from 'antd/es/skeleton/Paragraph'
 
 export default function FeedBack() {
   const [loading, setLoading] = useState(false)
@@ -11,6 +12,7 @@ export default function FeedBack() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredData, setFilteredData] = useState([])
 
+  const { Paragraph } = Typography
   // Fetch Feedback List
   const getListFeedback = async () => {
     try {
@@ -40,7 +42,10 @@ export default function FeedBack() {
     {
       title: 'Content',
       dataIndex: 'content',
-      key: 'content'
+      key: 'content',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Rating',
