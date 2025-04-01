@@ -2,7 +2,6 @@ import type React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Modal, Popconfirm, message } from 'antd'
-import { FaEdit, FaTrash } from 'react-icons/fa'
 import { MdMoreVert, MdClose } from 'react-icons/md'
 import { getAllCommentByBlogId, createComment, updateComment, deleteComment } from '@/services/blogService'
 
@@ -308,7 +307,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editText, setEditText] = useState<string>('')
   const [submitting, setSubmitting] = useState<boolean>(false)
-  const [dropdownVisibleFor, setDropdownVisibleFor] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
   const [popconfirmVisible, setPopconfirmVisible] = useState<string | null>(null)
 
@@ -446,7 +444,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     }
     setIsEditing(commentId)
     setEditText(currentText)
-    setDropdownVisibleFor(null)
   }
 
   //Confirm delete comment
@@ -479,7 +476,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       console.error('Error deleting comment:', error)
     } finally {
       setSubmitting(false)
-      setDropdownVisibleFor(null)
     }
   }
 
@@ -560,24 +556,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       setIsModalVisible(isVisible)
     }
   }, [isVisible, modalMode])
-
-  // Effect to handle clicks outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownVisibleFor !== null) {
-        setDropdownVisibleFor(null)
-      }
-    }
-
-    // Only add the listener if a dropdown is visible
-    if (dropdownVisibleFor !== null) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [dropdownVisibleFor])
 
   // Render a comment item
   const renderCommentItem = (comment: Comment, isReply = false) => {
@@ -669,16 +647,12 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
         // Modal mode
         <>
           <Modal
-            visible={isModalVisible}
-            onCancel={() => {
-              setIsModalVisible(false)
-              if (onClose) onClose()
-            }}
+            open={isModalVisible}
+            onCancel={onClose}
             footer={null}
             width={800}
             centered
             closable={false}
-            bodyStyle={{ padding: 0 }}
             className='instagram-modal'
           >
             <div style={{ display: 'flex', flexDirection: 'column', height: '80vh' }}>
@@ -688,7 +662,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                     <p>Comments</p>
                   </div>
                 </ModalTitle>
-                <CloseButton onClick={() => setIsModalVisible(false)}>
+                <CloseButton onClick={onClose}>
                   <MdClose size={24} />
                 </CloseButton>
               </ModalHeader>
@@ -747,7 +721,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                   placeholder='Add a comment...'
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter' && !submitting && commentText.trim()) {
                       handleCommentSubmit()
                     }
@@ -818,7 +792,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                 placeholder='Add a comment...'
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && !submitting && commentText.trim()) {
                     handleCommentSubmit()
                   }

@@ -94,7 +94,7 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
       }
     }
   } catch (error: any) {
-    if(error){
+    if (error) {
       message.error(error.message)
     }
     if (error.redirect) {
@@ -748,12 +748,11 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
       action.payload.content,
       action.payload.shortDescription,
       action.payload.featuredImageUrl,
-      action.payload.isVisible,
+      action.payload.isVisible || true,
       action.payload.type || 'blog',
       action.payload.status || '',
       action.payload.sharedChartData || null
     )
-    message.success('Create blog successfully')
     // const token = localStorage.getItem('accessToken')
     // const user = token ? jwtDecode(token) : null
 
