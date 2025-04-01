@@ -1,9 +1,9 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
-import { FaMicroblog, FaTools } from 'react-icons/fa'
+import { FaMicroblog, FaSignOutAlt, FaTools } from 'react-icons/fa'
 import { FiAlertCircle, FiDollarSign, FiHelpCircle, FiHome, FiPackage, FiType, FiUsers } from 'react-icons/fi'
 import { MdEmail } from 'react-icons/md'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 const SidebarWrapper = styled.div`
@@ -270,6 +270,18 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
             ))}
           </ul>
         </nav>
+
+        <Link
+          to={ROUTES.HOME}
+          className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'
+        >
+          <button className='nav-item w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-in-out'>
+            <span className='nav-icon'>
+              <FaSignOutAlt size={20} />
+            </span>
+            <span className='nav-text ml-3'>Back landing page</span>
+          </button>
+        </Link>
 
         <div className='footer text-center'>
           <p>PregnaCare © 2025</p>

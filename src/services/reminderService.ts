@@ -89,7 +89,6 @@ export const createReminder = async (
       status
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }

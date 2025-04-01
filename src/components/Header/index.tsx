@@ -3,7 +3,7 @@ import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
 import { UserOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Avatar, Button, Modal, Tooltip } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
@@ -330,27 +330,27 @@ export default function Header() {
         <span className='text-red-500 text-xl font-bold'>PregnaCare</span>
       </div>
       <div className='col-span-8 flex justify-center items-center gap-8 font-bold'>
-        <button className='header_item' onClick={() => navigate(ROUTES.GUEST_HOME)}>
+        <NavLink to={ROUTES.GUEST_HOME} className='header_item'>
           Home
-        </button>
-        <button onClick={() => navigate(ROUTES.SERVICES)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.SERVICES} className='header_item'>
           Services
-        </button>
-        <button onClick={() => navigate(ROUTES.BLOG)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.BLOG} className='header_item'>
           Blog
-        </button>
-        <button onClick={() => navigate(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.MEMBESHIP_PLANS} className='header_item'>
           Pricing
-        </button>
-        <button onClick={() => navigate(ROUTES.COMMUNITY)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.COMMUNITY} className='header_item'>
           Community
-        </button>
-        <button onClick={() => navigate(ROUTES.CONTACT)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.CONTACT} className='header_item'>
           Contact Us
-        </button>
-        <button onClick={() => navigate(ROUTES.FAQ)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.FAQ} className='header_item'>
           FAQ
-        </button>
+        </NavLink>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
         {!userInfor || !isAuthenticated ? (

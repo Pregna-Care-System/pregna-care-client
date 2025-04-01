@@ -46,7 +46,7 @@ export const createBlog = async (
       sharedChartData
     })
   } catch (error) {
-    console.log('Create failed', error)
+    console.error('Error creating blog:', error)
     throw error
   }
 }

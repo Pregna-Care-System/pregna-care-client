@@ -47,15 +47,6 @@ export const updatePlan = async (
 ) => {
   try {
     const apiCallerId = 'updatePlan'
-    console.log('Send request', {
-      planId,
-      planName,
-      price,
-      duration,
-      description,
-      imageUrl,
-      featuredIds
-    })
     const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
       apiCallerId,
       planName,
@@ -65,7 +56,6 @@ export const updatePlan = async (
       imageUrl,
       featuredId: featuredIds
     })
-    console.log('API Response', res.data)
     if (res.data.success) {
       return res
     }
@@ -96,12 +86,10 @@ export const createPlan = async (
       imageUrl,
       featuredId: featuredIds
     })
-    console.log('API Response', res.data)
     if (res.data.success) {
       return res
     }
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }

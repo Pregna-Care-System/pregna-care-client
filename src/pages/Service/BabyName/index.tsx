@@ -59,7 +59,6 @@ const BabyNameApp = () => {
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, requestOptions)
       const data = await response.json()
-      console.log(data)
 
       if (data.candidates && data.candidates.length > 0) {
         const responseText = data.candidates[0].content.parts[0].text

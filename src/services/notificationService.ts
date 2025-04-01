@@ -28,7 +28,6 @@ export const updateNotification = async (id: string) => {
   }
 }
 export const updateAllIsRead = async (ids: string[]) => {
-  console.log('IDS', ids)
   await request.put<MODEL.IResponseBase>('/Notification/all', ids)
   return true
 }

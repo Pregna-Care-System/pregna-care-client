@@ -64,7 +64,15 @@ import {
   updateAllIsRead,
   updateNotification
 } from '@/services/notificationService'
-import { createBlog, deleteBlog, getAllBlog, getAllBlogByUserId, getAllTag, getBlogById, updateBlog } from '@/services/blogService'
+import {
+  createBlog,
+  deleteBlog,
+  getAllBlog,
+  getAllBlogByUserId,
+  getAllTag,
+  getBlogById,
+  updateBlog
+} from '@/services/blogService'
 
 //#region User
 export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Generator<any, void, any> {
@@ -88,8 +96,6 @@ export function* userLogin(action: PayloadAction<REDUX.LoginActionPayload>): Gen
   } catch (error: any) {
     if (error.redirect) {
       message.warning(error.message)
-    } else {
-      message.error(error.message || 'An unexpected error occurred')
     }
   }
 }
@@ -119,8 +125,6 @@ export function* userLoginGG(action: PayloadAction<REDUX.LoginActionPayload>): G
   } catch (error: any) {
     if (error.redirect) {
       message.warning(error.message)
-    } else {
-      message.error(error.message || 'An unexpected error occurred')
     }
   }
 }
@@ -144,24 +148,20 @@ export function* updateUserInformation(action: PayloadAction<any>): Generator<an
       message.error('Failed to update the account')
     }
   } catch (error) {
-    message.error('An unexpected error occurred while updating the account.')
     console.error('Error in updateAccount saga:', error)
   }
 }
 
 //----------Payment-----------
 export function* paymentVNPAYMethod(action: PayloadAction<any>): Generator<any, void, any> {
-  const { userId, membershipPlanId } = action.payload
+  const { userId, membershipPlanId, userEmail } = action.payload
   try {
-    const res = yield call(paymentVNPAY, userId, membershipPlanId)
+    const res = yield call(paymentVNPAY, userId, membershipPlanId, userEmail)
     if (res.success) {
       localStorage.setItem('membershipPlanId', membershipPlanId)
-      window.location.href = res.url
+      window.location.href = res.response.paymentUrl
     }
-  } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
-    console.error('Fetch error:', error)
-  }
+  } catch (error: any) {}
 }
 
 export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<any, void, any> {
@@ -171,7 +171,6 @@ export function* addUserMembershipPlan(action: PayloadAction<any>): Generator<an
       message.success('Membership plan created successfully')
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -186,7 +185,6 @@ export function* getAllMembershipPlans(): Generator<any, void, any> {
       yield put(setMembershipPlans(response.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -208,7 +206,6 @@ export function* createMembershipPlan(action: PayloadAction<any>): Generator<any
       yield put({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -229,12 +226,10 @@ export function* updateMembershipPlan(action: PayloadAction<any>): Generator<any
       message.success('Plan updated successfully')
       yield put(setMembershipPlans(response.data.response))
       yield put({ type: 'GET_ALL_MEMBERSHIP_PLANS' })
-
     } else {
       message.error('Failed to update the plan')
     }
   } catch (error) {
-    message.error('An unexpected error occurred while updating the plan.')
     console.error('Error in updateMembershipPlan saga:', error)
   }
 }
@@ -249,7 +244,6 @@ export function* deleteMembershipPlan(action: PayloadAction<any>): Generator<any
       message.error('Failed to delete the plan')
     }
   } catch (error) {
-    message.error('An unexpected error occurred while deleting the plan.')
     console.error('Error in deleteMembershipPlan saga:', error)
   }
 }
@@ -262,7 +256,6 @@ export function* getFeatures(): Generator<any, void, any> {
       yield put(setFeatures(response.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -287,7 +280,6 @@ export function* createBabyInfoSaga(action: PayloadAction<any>): Generator<any, 
       }
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -303,7 +295,6 @@ export function* updateBabyInfoSaga(action: PayloadAction<any>): Generator<any, 
       }
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -337,7 +328,6 @@ export function* createFetalGrowthRecord(action: PayloadAction<any>): Generator<
       }
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
 
     // Execute callback with success=false if it exists
@@ -360,7 +350,6 @@ export function* updateFetalGrowthRecord(action: PayloadAction<any>): Generator<
       }
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred while updating record')
     console.error('Error in updateFetalGrowthRecord saga:', error)
 
     // If there's a callback, call it with success=false
@@ -392,7 +381,6 @@ export function* addFieldGrowthMetric(action: PayloadAction<any>): Generator<any
       yield getAllGrowthMetrics()
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -404,7 +392,6 @@ export function* getDataGrowthMetric(): Generator<any, void, any> {
       yield put(setDataGrowthMetric(res.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -416,7 +403,6 @@ export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Gene
       yield put(setGrowthMetricsOfWeek(res.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -425,7 +411,6 @@ export function* getAllGrowthMetricsOfWeekSaga(action: PayloadAction<any>): Gene
 export function* getAllMemberAdmin(filterType?: string, name?: string): Generator<any, void, any> {
   try {
     const response = yield call(getAllMember, filterType, name)
-    console.log('Response', response.data.response)
 
     if (response.data.response && response.data.response.length > 0) {
       yield put(setMemberInfo(response.data.response))
@@ -433,17 +418,13 @@ export function* getAllMemberAdmin(filterType?: string, name?: string): Generato
       message.info('No members found!')
       yield put(setMemberInfo([])) // Cập nhật store với mảng rỗng nếu không có dữ liệu
     }
-  } catch (error: any) {
-    message.error('An unexpected error occurred, try again later!')
-    console.error('Fetch error:', error)
-  }
+  } catch (error: any) {}
 }
 
 //----------Member information-----------
 export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getMemberInforWithPlanDetail, action.payload.userId)
-    console.log('Response', response.response)
 
     if (response.response) {
       yield put(setMemberInfo(response.response))
@@ -455,12 +436,10 @@ export function* getMemberWithPlanDetail(action: PayloadAction<any>): Generator<
 export function* getAllUserTransactionAdmin(): Generator<any, void, any> {
   try {
     const response = yield call(getAllUserMembershipPlan)
-    console.log('Response', response.data.response)
     if (response.data.response) {
       yield put(setTransactionInfo(response.data.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -473,7 +452,6 @@ export function* getMostUsedPlanSaga(): Generator<any, void, any> {
       yield put(setMostUsedPlan(response.data))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -482,12 +460,10 @@ export function* getMostUsedPlanSaga(): Generator<any, void, any> {
 export function* getAllReminderSaga(): Generator<any, void, any> {
   try {
     const response = yield call(getAllReminder)
-    console.log('Response for call api', response)
     if (response.response) {
       yield put(setReminderInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -495,12 +471,10 @@ export function* getAllReminderSaga(): Generator<any, void, any> {
 export function* getAllReminderByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getAllReminderByUserId, action.payload)
-    console.log('Response for call api', response)
     if (response.response) {
       yield put(setReminderInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -508,12 +482,10 @@ export function* getAllReminderByUserIdSaga(action: PayloadAction<any>): Generat
 export function* getAllReminderActiveSaga(): Generator<any, void, any> {
   try {
     const response = yield call(getAllReminderActive)
-    console.log('Response for call api', response)
     if (response.response) {
       yield put(setReminderActiveInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -535,7 +507,6 @@ export function* createReminderSaga(action: PayloadAction<any>): Generator<any, 
     message.success('Create reminder successfully')
     yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -557,21 +528,18 @@ export function* updateReminderSaga(action: PayloadAction<any>): Generator<any, 
     message.success('Reminder updated successfully')
     yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
   } catch (error) {
-    message.error('An unexpected error occurred while updating the reminder.')
     console.error('Error in updateReminder saga:', error)
   }
 }
 
 //-------------------Delete Reminder-------------------
 export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, void, any> {
-  console.log('DELETE_REMINDER action payload:', action.payload)
   try {
     yield call(deleteReminder, action.payload)
 
     message.success('Reminder deleted successfully')
     yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
   } catch (error) {
-    message.error('An unexpected error occurred while deleting the reminder.')
     console.error('Error in deleteReminder saga:', error)
   }
 }
@@ -584,7 +552,6 @@ export function* getAllReminderTypeSaga(): Generator<any, void, any> {
       yield put(setReminderTypeInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -593,9 +560,7 @@ export function* getStatisticsSaga(): Generator<any, void, any> {
   try {
     const response = yield call(fetchStatistics)
     yield put(setStatistics(response))
-  } catch (error: any) {
-    message.error('Failed to fetch statistics. Please try again!')
-  }
+  } catch (error: any) {}
 }
 
 //----------Mother information-----------
@@ -607,7 +572,6 @@ export function* getMotherInfoSaga(action: PayloadAction<any>): Generator<any, v
     }
   } catch (error: any) {
     if (error.response.status === 500) {
-      message.error('An unexpected error occurred try again later!')
     }
   }
 }
@@ -646,14 +610,11 @@ export function* updateMotherInfoSaga(action: PayloadAction<any>): Generator<any
 //----------Notification information-----------
 export function* getAllNotificationByUserIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('ACTION PAYLOAD', action.payload.userId)
     const response = yield call(getAllNotificationByUserId, action.payload.userId)
-    console.log('Response for call api notification', response)
     if (response.response) {
       yield put(setNotifications(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -674,7 +635,6 @@ export function* updateNotificationSaga(action: PayloadAction<any>): Generator<a
       yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
     }
   } catch (error) {
-    message.error('An unexpected error occurred while updating the notification.')
     console.error('Error in updateNotification saga:', error)
   }
 }
@@ -696,7 +656,6 @@ export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any,
       yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
     }
   } catch (error) {
-    message.error('An unexpected error occurred while updating the notification.')
     console.error('Error in updateNotification saga:', error)
   }
 }
@@ -704,7 +663,6 @@ export function* updateAllIsReadSaga(action: PayloadAction<any>): Generator<any,
 //-------------------Delete Notification-------------------
 export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('DELETE ID NOTIFICATION', action.payload.id)
     yield call(deleteNotification, action.payload.id)
     message.success('Notification deleted successfully')
     const token = localStorage.getItem('accessToken')
@@ -719,7 +677,6 @@ export function* deleteNotificationSaga(action: PayloadAction<any>): Generator<a
       yield put({ type: 'GET_ALL_NOTIFICATION_BY_USERID', payload: { userId: user.id } })
     }
   } catch (error) {
-    message.error('An unexpected error occurred while deleting the notification.')
     console.error('Error in deleteNotification saga:', error)
   }
 }
@@ -732,7 +689,6 @@ export function* getAllTagsSaga(): Generator<any, void, any> {
       yield put(setTagsInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -745,20 +701,17 @@ export function* getAllBlogByUserIdSaga(action: PayloadAction<any>): Generator<a
       yield put(setBlogInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
 //----------Blog detail information-----------
 export function* getDetailByBlogIdSaga(action: PayloadAction<any>): Generator<any, void, any> {
   try {
-    console.log('ID', action.payload)
     const response = yield call(getBlogById, action.payload)
     if (response.response) {
       yield put(setBlogInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -771,7 +724,6 @@ export function* getAllBlogSaga(action: PayloadAction<any>): Generator<any, void
       yield put(setBlogInfo(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -808,7 +760,6 @@ export function* createBlogSaga(action: PayloadAction<any>): Generator<any, void
     //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     // }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -840,7 +791,6 @@ export function* createUserBlogSaga(action: PayloadAction<any>): Generator<any, 
       yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred try again later!')
     console.error('Fetch error:', error)
   }
 }
@@ -863,7 +813,6 @@ export function* deleteBlogSaga(action: PayloadAction<any>): Generator<any, void
     //   yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     // }
   } catch (error) {
-    message.error('An unexpected error occurred while deleting the blog.')
     console.error('Error in deleteBlog saga:', error)
   }
 }
@@ -883,7 +832,6 @@ export function* deleteUserBlogSaga(action: PayloadAction<any>): Generator<any, 
       yield put({ type: 'GET_ALL_BLOGS_BY_USERID', payload: { id: user.id } })
     }
   } catch (error) {
-    message.error('An unexpected error occurred while deleting the blog.')
     console.error('Error in deleteBlog saga:', error)
   }
 }
@@ -924,7 +872,6 @@ export function* updateBlogSaga(action: PayloadAction<any>): Generator<any, void
     // }
   } catch (error) {
     // Error handling
-    message.error('An unexpected error occurred while updating the blog.')
     console.error('Error in updateBlog saga:', error)
 
     // Execute the callback with success=false if it exists
@@ -966,7 +913,6 @@ export function* updateUserBlogSaga(action: PayloadAction<any>): Generator<any, 
     }
   } catch (error) {
     // Error handling
-    message.error('An unexpected error occurred while updating the blog.')
     console.error('Error in updateBlog saga:', error)
 
     // Execute the callback with success=false if it exists
@@ -978,13 +924,11 @@ export function* updateUserBlogSaga(action: PayloadAction<any>): Generator<any, 
 export function* getCurrentLoginUser(action: PayloadAction<any>): Generator<any, void, any> {
   try {
     const response = yield call(getMemberInforWithPlanDetail, action.payload)
-    console.log('Response', response.response)
 
     if (response.response) {
       yield put(setCurrentLoginUser(response.response))
     }
   } catch (error: any) {
-    message.error('An unexpected error occurred, try again later!')
     console.error('Fetch error:', error)
   }
 }

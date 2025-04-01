@@ -437,7 +437,6 @@ const CommunityPage = () => {
       })
     } catch (error) {
       console.error('Error creating post:', error)
-      message.error('An error occurred while creating the post')
       setSubmitting(false)
       return false
     }
@@ -494,7 +493,6 @@ const CommunityPage = () => {
       })
     } catch (error) {
       console.error('Error updating post:', error)
-      message.error('An error occurred while updating the post')
       setSubmitting(false)
       return false
     }

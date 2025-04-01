@@ -329,7 +329,6 @@ const ReactionSystem: React.FC<ReactionSystemProps> = ({
       }
     } catch (error) {
       console.error('Error handling reaction:', error)
-      message.error('An error occurred')
     }
   }
 

@@ -12,7 +12,6 @@ export const createFeedBack = async (userId: string, content: string, rating: nu
       rating
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }
