@@ -401,7 +401,7 @@ export default function Home() {
   const handleSubmitFeedback = async () => {
     try {
       const values = await feedbackForm.validateFields()
-      await createFeedBack(memberInfo.id, values.feedback, values.rating)
+      await createFeedBack(member.id, values.feedback, values.rating)
       localStorage.setItem('hasSubmittedFeedback', 'true')
       setIsFeedbackModalOpen(false)
       message.success('Feedback created successfully')
