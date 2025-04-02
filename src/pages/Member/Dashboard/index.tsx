@@ -678,7 +678,7 @@ export default function ProfilePage() {
                 { required: true, message: 'Baby name is required' },
                 { min: 2, message: 'Name must be at least 2 characters' },
                 { max: 30, message: 'Name should not exceed 30 characters' },
-                { pattern: /^[a-zA-Z]+$/, message: 'Name can only contain letters and spaces' }
+                { pattern: /^[a-zA-Z\s]+$/, message: 'Name can only contain letters and spaces' }
               ]}
             >
               <Input placeholder="Enter baby's name" />

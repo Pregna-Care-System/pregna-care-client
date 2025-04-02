@@ -602,8 +602,8 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                     )}
                     {!isEditing && isCommentAuthor && (
                       <Popconfirm
-                        title='Delete the task'
-                        description='Are you sure to delete this task?'
+                        title='Delete the comment'
+                        description='Are you sure to delete this comment?'
                         onConfirm={() => handleDeleteComment(comment.id)}
                         onCancel={() => setPopconfirmVisible(null)}
                         open={popconfirmVisible === comment.id}

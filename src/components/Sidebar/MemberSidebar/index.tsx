@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 import { Modal } from 'antd'
+import { LineChartOutlined } from '@ant-design/icons'
 
 const SidebarWrapper = styled.div`
   height: 100%;
@@ -255,6 +256,12 @@ export default function MemberSidebar({ isOpen, onToggle }: MemberSidebarProps) 
         title: 'Fetal Growth',
         icon: <LucideBaby size={20} />,
         path: ROUTES.MEMBER.FETALGROWTHCHART,
+        featureName: 'Tracking Pregnancy'
+      },
+      {
+        title: 'Growth Metrics Chart',
+        icon: <LineChartOutlined style={{ fontSize: '20px' }} />,
+        path: ROUTES.MEMBER.STANDARD_GROWTH_CHARTS,
         featureName: 'Tracking Pregnancy'
       }
     ],
