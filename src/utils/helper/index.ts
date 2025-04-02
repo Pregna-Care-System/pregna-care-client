@@ -124,13 +124,13 @@ export const getStatusText = (status: string): string => {
  */
 export const formatPercentage = (value) => {
   // Convert to number if it's a string
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  
+  const numValue = typeof value === 'string' ? parseFloat(value) : value
+
   // Check if the value is a valid number
   if (isNaN(numValue)) {
-    return 'Invalid input';
+    return 'Invalid input'
   }
-  
+
   // Format to 2 decimal places and add % symbol
-  return numValue.toFixed(2) + '%';
+  return numValue.toFixed(2) + '%'
 }

@@ -1,5 +1,7 @@
+'use client'
+
 import type React from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Avatar, Button, Card, Form, Pagination, Progress, Spin, Tag, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { CalendarOutlined, EditOutlined, EyeOutlined, HeartOutlined } from '@ant-design/icons'
@@ -32,6 +34,10 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [form] = Form.useForm()
+  const babyCardsContainerRef = useRef<HTMLDivElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   // Add a new state for tracking submission loading
   const [submitting, setSubmitting] = useState(false)
@@ -47,6 +53,42 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
       dispatch({ type: 'GET_FETAL_GROWTH_RECORDS', payload: { pregnancyRecordId: activeCard } })
     }
   }, [activeCard])
+
+  // Handle mouse wheel horizontal scrolling
+  const handleWheel = (e: React.WheelEvent) => {
+    if (babyCardsContainerRef.current && e.deltaY !== 0) {
+      // Prevent the default vertical scroll
+      e.preventDefault()
+
+      // Scroll horizontally instead
+      babyCardsContainerRef.current.scrollLeft += e.deltaY
+    }
+  }
+
+  // Handle mouse down for drag scrolling
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (babyCardsContainerRef.current) {
+      setIsDragging(true)
+      setStartX(e.pageX - babyCardsContainerRef.current.offsetLeft)
+      setScrollLeft(babyCardsContainerRef.current.scrollLeft)
+    }
+  }
+
+  // Handle mouse move for drag scrolling
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return
+
+    if (babyCardsContainerRef.current) {
+      const x = e.pageX - babyCardsContainerRef.current.offsetLeft
+      const walk = (x - startX) * 2 // Scroll speed multiplier
+      babyCardsContainerRef.current.scrollLeft = scrollLeft - walk
+    }
+  }
+
+  // Handle mouse up and mouse leave for drag scrolling
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false)
+  }
 
   const handleSubmit = (values: any) => {
     setSubmitting(true)
@@ -65,7 +107,8 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
           const recordId = form.getFieldValue(`${key}_id`)
           const existingRecord = weekData.find((r: any) => r.name === key)
 
-          if (existingRecord && recordId) {
+          // Only update if record exists AND the value has changed
+          if (existingRecord && recordId && existingRecord.value !== value) {
             // Update existing record
             return dispatch({
               type: 'UPDATE_FETAL_GROWTH_RECORD',
@@ -80,8 +123,8 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
                 note: ''
               }
             })
-          } else {
-            // Create new record
+          } else if (!existingRecord) {
+            // Create new record only if it doesn't exist
             return dispatch({
               type: 'CREATE_FETAL_GROWTH_RECORD',
               payload: {
@@ -96,11 +139,24 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
                 userId: user.id
               }
             })
+          } else {
+            // No change needed, return resolved promise to keep the Promise.all working
+            return Promise.resolve()
           }
         })
 
+      // Filter out undefined promises (where no update was needed)
+      const filteredPromises = updatePromises.filter(Boolean)
+
+      // If there are no changes, just close the modal
+      if (filteredPromises.length === 0) {
+        setSubmitting(false)
+        setIsModalOpen(false)
+        return
+      }
+
       // Execute all operations and handle the results
-      Promise.all(updatePromises)
+      Promise.all(filteredPromises)
         .then(() => {
           setSubmitting(false)
           setIsModalOpen(false)
@@ -222,7 +278,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }
 
   const WeekGrid: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    const currentWeek = record.gestationalAgeResponse?.weeks || 0
+    const currentWeek = record.gestationalAgeResponse?.maxEditableWeek || 0
     const totalWeeks = record.totalWeeks || 40
 
     // Calculate pagination
@@ -328,59 +384,72 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.babyCards}>
-          {records.map((record) => (
-            <Card
-              key={record.id}
-              className={`${styles.recordCard} ${activeCard === record.id ? styles.activeCard : ''}`}
-              onClick={() => {
-                setActiveCard(record.id)
-                setCurrentPage(1) // Reset pagination when switching babies
-              }}
-            >
-              <div className={styles.cardContent}>
-                <Avatar
-                  size={90}
-                  src='https://res.cloudinary.com/drcj6f81i/image/upload/v1740588447/PregnaCare/ypdcsuzin5hbi37lquec.jpg'
-                  className={styles.avatar}
-                />
-                <div className={styles.babyInfo}>
-                  <h3 className={styles.babyName}>
-                    <HeartOutlined /> {record.babyName} - {record.babyGender}
-                  </h3>
-                  <p className={styles.gestationalInfo}>Week {record.gestationalAgeResponse?.weeks}</p>
-                  <p className={styles.dueDate}>
-                    <CalendarOutlined /> {dayjs(record.gestationalAgeResponse?.estimatedDueDate).format('DD-MM-YYYY')}
-                  </p>
-                  <div className='flex items-center justify-end mt-2'>
-                    <Button
-                      type='primary'
-                      className={styles.viewButton}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigate(ROUTES.MEMBER.FETALGROWTHCHART_DETAIL.replace(':pregnancyRecordId', record.id))
-                      }}
-                    >
-                      View Chart
-                    </Button>
+        <div
+          className={styles.babyCardsContainer}
+          ref={babyCardsContainerRef}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+        >
+          <div className={styles.babyCards}>
+            {records.map((record) => (
+              <Card
+                key={record.id}
+                className={`${styles.recordCard} ${activeCard === record.id ? styles.activeCard : ''}`}
+                onClick={() => {
+                  setActiveCard(record.id)
+                  setCurrentPage(1) // Reset pagination when switching babies
+                }}
+              >
+                <div className={styles.cardContent}>
+                  <Avatar
+                    size={90}
+                    src='https://res.cloudinary.com/drcj6f81i/image/upload/v1740588447/PregnaCare/ypdcsuzin5hbi37lquec.jpg'
+                    className={styles.avatar}
+                  />
+                  <div className={styles.babyInfo}>
+                    <h3 className={styles.babyName}>
+                      <HeartOutlined /> {record.babyName} - {record.babyGender}
+                    </h3>
+                    <p className={styles.gestationalInfo}>Week {record.gestationalAgeResponse?.maxEditableWeek}</p>
+                    <p className={styles.dueDate}>
+                      <CalendarOutlined /> {dayjs(record.gestationalAgeResponse?.estimatedDueDate).format('DD-MM-YYYY')}
+                    </p>
+                    <div className='flex items-center justify-end mt-2'>
+                      <Button
+                        type='primary'
+                        className={styles.viewButton}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(ROUTES.MEMBER.FETALGROWTHCHART_DETAIL.replace(':pregnancyRecordId', record.id))
+                        }}
+                      >
+                        View Chart
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
         </div>
+
         {activeRecord && (
           <div className={styles.progressSection}>
             <Progress
               type='circle'
-              percent={Math.round((activeRecord.gestationalAgeResponse?.weeks / activeRecord.totalWeeks) * 100)}
+              percent={Math.round(
+                (activeRecord.gestationalAgeResponse?.maxEditableWeek / activeRecord.totalWeeks) * 100
+              )}
               size={80}
               strokeColor='#ff6b81'
             />
             <div className={styles.progressInfo}>
               <h3>Progress</h3>
               <p>
-                Week {activeRecord.gestationalAgeResponse?.weeks} of {activeRecord.totalWeeks}
+                Week {activeRecord.gestationalAgeResponse?.maxEditableWeek} of {activeRecord.totalWeeks}
               </p>
             </div>
           </div>
@@ -417,7 +486,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
           }
           weekNumber={selectedWeek}
           onEdit={handleEditFromDetail}
-          status={getWeekStatus(activeRecord?.gestationalAgeResponse?.weeks || 0, selectedWeek)}
+          status={getWeekStatus(activeRecord?.gestationalAgeResponse?.maxEditableWeek || 0, selectedWeek)}
         />
       )}
     </div>

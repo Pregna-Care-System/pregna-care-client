@@ -329,22 +329,30 @@ export default function ProfilePage() {
             Add New
           </Button>
         </div>
-        {pregnancyRecords.map((record) => (
-          <Card
-            key={record.id}
-            className={`pregnancy-card ${selectedPregnancy?.id === record.id ? 'active' : ''}`}
-            onClick={() => setSelectedPregnancy(record)}
-            size='small'
-          >
-            <div className='flex justify-between items-center'>
-              <div>
-                <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
-                <div className='text-sm text-gray-500'>{dayjs(record.pregnancyStartDate).format('MMM D, YYYY')}</div>
-              </div>
-              <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>{record.babyGender?.toUpperCase()}</Tag>
-            </div>
-          </Card>
-        ))}
+        <div className='mb-4 overflow-auto'>
+          <div className='flex space-x-3 py-2'>
+            {pregnancyRecords.map((record) => (
+              <Card
+                key={record.id}
+                className={`pregnancy-card ${selectedPregnancy?.id === record.id ? 'active' : ''} flex-shrink-0 w-64`}
+                onClick={() => setSelectedPregnancy(record)}
+                size='small'
+              >
+                <div className='flex justify-between items-center'>
+                  <div>
+                    <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
+                    <div className='text-sm text-gray-500'>
+                      {dayjs(record.pregnancyStartDate).format('MMM D, YYYY')}
+                    </div>
+                  </div>
+                  <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>
+                    {record.babyGender?.toUpperCase()}
+                  </Tag>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -355,7 +363,7 @@ export default function ProfilePage() {
         <div className='px-8 py-6'>
           <Row gutter={[24, 24]}>
             <Col xs={24} lg={8}>
-              <Card className='profile-card' bordered={false}>
+              <Card className='profile-card' bordered={false} style={{ height: '100%' }}>
                 <div className='text-center mb-6'>
                   <Avatar
                     size={120}
@@ -430,6 +438,7 @@ export default function ProfilePage() {
                         Health Status
                       </span>
                     }
+                    className='capitalize'
                   >
                     {motherInfoData.healthStatus?.replace('_', ' ') || 'Not set'}
                   </Descriptions.Item>
@@ -444,15 +453,13 @@ export default function ProfilePage() {
                     {motherInfoData.notes || 'No notes'}
                   </Descriptions.Item>
                 </Descriptions>
-
-                <Divider style={{ borderColor: '#ffccd5' }} />
-
-                {renderPregnancyList()}
               </Card>
             </Col>
 
             <Col xs={24} lg={16}>
               <Card className='tab-card' bordered={false}>
+                {renderPregnancyList()}
+                <Divider style={{ borderColor: '#ffccd5' }} />
                 <Tabs defaultActiveKey='1'>
                   <TabPane
                     tab={
@@ -559,42 +566,6 @@ export default function ProfilePage() {
                       </div>
                     )}
                   </TabPane>
-
-                  {/* <TabPane
-                    tab={
-                      <span className='flex items-center'>
-                        <FaNotesMedical className='mr-2' />
-                        Medical History
-                      </span>
-                    }
-                    key='2'
-                  >
-                    <div className='text-center py-10'>
-                      <FaNotesMedical className='text-5xl text-[#ff6b81] mb-4' />
-                      <Title level={4} className='text-[#ff6b81]'>
-                        Medical History
-                      </Title>
-                      <Text type='secondary'>Medical history records will be displayed here</Text>
-                    </div>
-                  </TabPane>
-
-                  <TabPane
-                    tab={
-                      <span className='flex items-center'>
-                        <FaCalendarAlt className='mr-2' />
-                        Appointments
-                      </span>
-                    }
-                    key='3'
-                  >
-                    <div className='text-center py-10'>
-                      <FaCalendarAlt className='text-5xl text-[#ff6b81] mb-4' />
-                      <Title level={4} className='text-[#ff6b81]'>
-                        Upcoming Appointments
-                      </Title>
-                      <Text type='secondary'>Your scheduled appointments will be displayed here</Text>
-                    </div>
-                  </TabPane> */}
                 </Tabs>
               </Card>
             </Col>
@@ -614,7 +585,6 @@ export default function ProfilePage() {
           onCancel={closeMotherModal}
           footer={null}
           style={{ top: 20 }}
-          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
         >
           <Form
             form={motherForm}
@@ -653,8 +623,12 @@ export default function ProfilePage() {
                 ]}
               />
             </Form.Item>
-            <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
-              <Input.TextArea rows={4} />
+            <Form.Item
+              name='notes'
+              label='Notes'
+              rules={[{ required: false }, { max: 100, message: 'Notes should not exceed 100 characters' }]}
+            >
+              <Input.TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
             <Form.Item>
               <Button
@@ -706,14 +680,25 @@ export default function ProfilePage() {
               label='Pregnancy Start Date'
               rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
             >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+              <DatePicker
+                picker='date'
+                format={'DD/MM/YYYY'}
+                style={{ width: '100%' }}
+                onChange={(date) => {
+                  if (date) {
+                    // Pregnancy typically lasts around 40 weeks (280 days)
+                    const dueDate = dayjs(date).add(280, 'days')
+                    babyForm.setFieldValue('expectedDueDate', dueDate)
+                  }
+                }}
+              />
             </Form.Item>
             <Form.Item
               name='expectedDueDate'
               label='Expected Due Date'
               rules={[{ required: true, message: 'Please enter your expected due date' }]}
             >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} disabled={true} />
             </Form.Item>
             <Form.Item
               name='babyGender'
