@@ -534,7 +534,14 @@ export function* updateReminderSaga(action: PayloadAction<any>): Generator<any, 
       action.payload.status
     )
     message.success('Reminder updated successfully')
-    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION_BY_USER_iD', payload: user?.id })
   } catch (error) {
     console.error('Error in updateReminder saga:', error)
   }
@@ -546,7 +553,14 @@ export function* deleteReminderSaga(action: PayloadAction<any>): Generator<any, 
     yield call(deleteReminder, action.payload)
 
     message.success('Reminder deleted successfully')
-    yield put({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    const token = localStorage.getItem('accessToken')
+    let user = null
+    try {
+      user = token ? jwtDecode(token) : null
+    } catch (error) {
+      console.error('Invalid token:', error)
+    }
+    yield put({ type: 'GET_ALL_REMINDER_INFORMATION_BY_USER_iD', payload: user?.id })
   } catch (error) {
     console.error('Error in deleteReminder saga:', error)
   }

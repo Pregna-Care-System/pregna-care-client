@@ -602,10 +602,7 @@ const BlogList = () => {
                           ))}
                       </div>
                       <div className='stats'>
-                        <div className='stat-item'>
-                          <EyeOutlined />
-                          <span> {blog.viewCount} views</span>
-                        </div>
+                        
                         <div className='read-more'>
                           Read blog
                           <svg

@@ -232,8 +232,7 @@ const SchedulePage = () => {
       onOk: () => {
         dispatch({ type: 'DELETE_REMINDER', payload: id })
       },
-      onCancel: () => {
-      }
+      onCancel: () => {}
     })
   }
   const EventModal = () => {
@@ -272,9 +271,9 @@ const SchedulePage = () => {
                   : `Add Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`}
             </h1>
             <div>
-              <Form.Item 
-                label='Title' 
-                name='title' 
+              <Form.Item
+                label='Title'
+                name='title'
                 rules={[
                   { required: true, message: 'Please enter event title!' },
                   { min: 5, message: 'Title must be at least 5 characters' },
@@ -412,15 +411,7 @@ const SchedulePage = () => {
             </div>
 
             <div>
-              <Form.Item 
-                label='Description' 
-                name='description'
-                rules={[
-                  { required: true, message: 'Please enter description!' },
-                  { min: 10, message: 'Description must be at least 10 characters' },
-                  { max: 500, message: 'Description cannot exceed 500 characters!' }
-                ]}
-              >
+              <Form.Item label='Description' name='description'>
                 <textarea
                   placeholder='Reminder description'
                   className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
@@ -485,7 +476,6 @@ const SchedulePage = () => {
                 <div
                   key={`${event.id}-${i}`}
                   className={`border border-solid rounded-xl p-2 shadow-md cursor-pointer ${colorClass}`}
-                  onClick={() => handleEditEvent(event)}
                 >
                   <div className='flex justify-between items-center'>
                     <div>
@@ -493,6 +483,22 @@ const SchedulePage = () => {
                       <p className='text-sm text-muted-foreground'>{event.description}</p>
                     </div>
                     {event.status === 'Done' && <span className='text-green-500 font-bold'>🟢</span>}
+                    <Dropdown
+                      overlay={
+                        <Menu>
+                          <Menu.Item key='view' onClick={() => handleEditEvent(event)}>
+                            View Details
+                          </Menu.Item>
+                          <Menu.Item key='delete' danger onClick={() => handleDeleteEvent(event.id)}>
+                            Delete
+                          </Menu.Item>
+                        </Menu>
+                      }
+                      trigger={['click']}
+                      placement='bottomRight'
+                    >
+                      <Button type='text' icon={<EllipsisOutlined />} className='ml-2' />
+                    </Dropdown>
                   </div>
                   <div className='text-sm text-muted-foreground mt-2'>
                     <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')}{' '}

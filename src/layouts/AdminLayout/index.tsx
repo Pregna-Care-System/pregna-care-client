@@ -1,4 +1,3 @@
-import ChatBot from '@/components/Chat'
 import UserAvatar from '@/components/common/UserAvatar'
 import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { logout } from '@/services/userService'
@@ -149,7 +148,7 @@ const LayoutWrapper = styled.div`
 `
 
 export default function AdminLayout({ children }) {
-  const user = useSelector(selectMemberInfo)
+  const user = useSelector(selectUserInfo)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
@@ -187,7 +186,7 @@ export default function AdminLayout({ children }) {
         <div className='main-content'>
           <div className='header'>
             <h4 className='welcome-text'>
-              Hello, <strong>{user.fullName}</strong>
+              Hello, <strong>{user.name}</strong>
             </h4>
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
               <UserAvatar src={user.imageUrl} name={user.fullName} size={40} />
