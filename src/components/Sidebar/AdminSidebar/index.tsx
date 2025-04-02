@@ -197,7 +197,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
   }, [location.pathname, getCurrentMenuFromPath])
 
   const handleLogoClick = () => {
-    navigate('/')
+    navigate('#')
   }
 
   const handleMenuItemClick = (title: string, path: string) => {
