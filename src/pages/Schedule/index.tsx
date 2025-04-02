@@ -51,7 +51,7 @@ const SchedulePage = () => {
     const typeColors = {
       'Prenatal Checkup Reminder': 'bg-blue-100 border-blue-500 text-blue-800',
       'Medical Test Reminder': 'bg-green-100 border-green-500 text-green-800',
-      'Doctor appointment reminder': 'bg-red-100 border-red-500 text-red-800',
+      'Doctor Appointment Reminder': 'bg-red-100 border-red-500 text-red-800',
       'Supplement Intake Reminder': 'bg-orange-100 border-yellow-500 text-yellow-800',
       default: 'bg-gray-100 border-gray-500 text-gray-800'
     }
@@ -158,7 +158,8 @@ const SchedulePage = () => {
       setCurrentEvent(null)
       form.resetFields()
       form.setFieldsValue({
-        reminderDate: dayjs(date)
+        reminderDate: dayjs(date),
+        status: 'Active'
       })
       setIsCreateButtonMode(false)
       setShowEventModal(true)
@@ -330,6 +331,9 @@ const SchedulePage = () => {
                         if (dayjs(value).isAfter(dayjs(getFieldValue('endTime')))) {
                           return Promise.reject('Start time cannot be after end time!')
                         }
+                        if (dayjs(value).isSame(dayjs(getFieldValue('endTime')))) {
+                          return Promise.reject('Start time cannot be the same as end time!')
+                        }
                         return Promise.resolve()
                       }
                     })
@@ -372,6 +376,9 @@ const SchedulePage = () => {
                         if (value.isBefore(getFieldValue('startTime'))) {
                           return Promise.reject('End time cannot be before start time!')
                         }
+                        if (value.isSame(getFieldValue('startTime'))) {
+                          return Promise.reject('End time cannot be the same as start time!')
+                        }
                         return Promise.resolve()
                       }
                     })
@@ -401,14 +408,16 @@ const SchedulePage = () => {
                 </Form.Item>
               </div>
             </div>
-            <div>
-              <Form.Item name='status' label='Status' rules={[{ required: true, message: 'Please select status!' }]}>
-                <Select>
-                  <Select.Option value='Active'>🔵 Active</Select.Option>
-                  <Select.Option value='Done'>🟢 Done</Select.Option>
-                </Select>
-              </Form.Item>
-            </div>
+            {currentEvent && (
+              <div>
+                <Form.Item name='status' label='Status' rules={[{ required: true, message: 'Please select status!' }]}>
+                  <Select>
+                    <Select.Option value='Active'>🔵 Active</Select.Option>
+                    <Select.Option value='Done'>🟢 Done</Select.Option>
+                  </Select>
+                </Form.Item>
+              </div>
+            )}
 
             <div>
               <Form.Item label='Description' name='description'>
@@ -580,7 +589,7 @@ const SchedulePage = () => {
 
             {(() => {
               const upcomingEvents = dataSource.filter((event) =>
-                dayjs(event.reminderDate).isSameOrAfter(dayjs(), 'day')
+                dayjs(event.reminderDate).isSameOrAfter(dayjs(), 'day') && event.status !== 'Done'
               )
 
               return upcomingEvents.length > 0 ? (
