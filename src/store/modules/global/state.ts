@@ -111,43 +111,7 @@ export const initialState = {
       date: '2025-01-26'
     }
   ],
-  memberInfo: [
-    {
-      fullName: 'Tina Pham',
-      email: 'tina@gmail.com',
-      phone: '0812654342',
-      address: 'KTX Khu B',
-      status: true
-    },
-    {
-      fullName: 'Tina Pham',
-      email: 'tina@gmail.com',
-      phone: '0812654342',
-      address: 'KTX Khu B',
-      status: false
-    },
-    {
-      fullName: 'Tina Pham',
-      email: 'tina@gmail.com',
-      phone: '0812654342',
-      address: 'KTX Khu B',
-      status: true
-    },
-    {
-      fullName: 'Tina Pham',
-      email: 'tina@gmail.com',
-      phone: '0812654342',
-      address: 'KTX Khu B',
-      status: true
-    },
-    {
-      fullName: 'Tina Pham',
-      email: 'tina@gmail.com',
-      phone: '0812654342',
-      address: 'KTX Khu B',
-      status: true
-    }
-  ],
+  memberInfo: [],
   membershipPlansAdminInfo: [
     {
       packageName: 'Free trial',

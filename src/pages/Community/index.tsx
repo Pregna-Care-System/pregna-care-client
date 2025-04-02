@@ -674,7 +674,7 @@ const CommunityPage = () => {
         isVisible={isModalVisible}
         onCancel={handleCancel}
         onSubmit={handleCreatePost}
-        currentUser={currentUser}
+        currentUser={memberInfor}
         tags={tags}
         submitting={submitting}
       />
@@ -684,7 +684,7 @@ const CommunityPage = () => {
         isVisible={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         onSubmit={handleEditPost}
-        currentUser={currentUser}
+        currentUser={memberInfor}
         tags={tags}
         submitting={submitting}
         title='Edit Post'
