@@ -20,9 +20,15 @@ import {
 } from 'antd'
 import { FaBaby, FaCalendarAlt, FaEdit, FaFileAlt, FaHeartbeat, FaNotesMedical, FaPlus, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
+import {
+  selectMemberInfo,
+  selectMotherInfo,
+  selectPregnancyRecord,
+  selectUserInfo
+} from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
 import styled from 'styled-components'
+import UserAvatar from '@/components/common/UserAvatar'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -102,7 +108,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false)
 
   const motherInfo = useSelector(selectMotherInfo)
-  const userInfo = useSelector(selectUserInfo)
+  const userInfo = useSelector(selectMemberInfo)
   const pregnancyRecords = useSelector(selectPregnancyRecord) || []
   const [motherInfoData, setMotherInfoData] = useState(motherInfo?.[0] || {})
 
@@ -305,6 +311,10 @@ export default function ProfilePage() {
     return days > 0 ? `${days} days` : 'Past due date'
   }
 
+  const formatDate = (date) => {
+    return date ? dayjs(date).format('DD-MM-YYYY') : 'Not set'
+  }
+
   const renderPregnancyList = () => {
     if (!pregnancyRecords.length) {
       return (
@@ -342,7 +352,7 @@ export default function ProfilePage() {
                   <div>
                     <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
                     <div className='text-sm text-gray-500'>
-                      {dayjs(record.pregnancyStartDate).format('MMM D, YYYY')}
+                      Start: {dayjs(record.pregnancyStartDate).format('DD-MM-YYYY')}
                     </div>
                   </div>
                   <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>
@@ -365,17 +375,11 @@ export default function ProfilePage() {
             <Col xs={24} lg={8}>
               <Card className='profile-card' bordered={false} style={{ height: '100%' }}>
                 <div className='text-center mb-6'>
-                  <Avatar
-                    size={120}
-                    src={userInfo?.picture}
-                    icon={<FaUser />}
-                    style={{
-                      marginBottom: '16px',
-                      border: '4px solid #ff6b81'
-                    }}
-                  />
+                  <div className='flex justify-center mb-4'>
+                    <UserAvatar src={userInfo.imageUrl} name={userInfo.fullName} size={120} />
+                  </div>
                   <Title level={3} style={{ color: '#333', marginBottom: '8px' }} className='capitalize'>
-                    {userInfo.name || 'Your Name'}
+                    {userInfo.fullName || 'Your Name'}
                   </Title>
                   {motherInfoData.healthStatus && (
                     <Tag
@@ -419,7 +423,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {userInfo.dateOfBirth || 'Not set'}
+                    {formatDate(userInfo.dateOfBirth)}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -522,10 +526,10 @@ export default function ProfilePage() {
                                 <Card className='info-card' title='Pregnancy Timeline'>
                                   <Descriptions column={1}>
                                     <Descriptions.Item label='Start Date'>
-                                      {selectedPregnancy.pregnancyStartDate || 'Not set'}
+                                      {formatDate(selectedPregnancy.pregnancyStartDate)}
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Due Date'>
-                                      {selectedPregnancy.expectedDueDate || 'Not set'}
+                                      {formatDate(selectedPregnancy.expectedDueDate)}
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Current Week'>
                                       {calculateWeeksOfPregnancy(selectedPregnancy.pregnancyStartDate)}
@@ -696,7 +700,7 @@ export default function ProfilePage() {
             >
               <DatePicker
                 picker='date'
-                format={'DD/MM/YYYY'}
+                format={'DD-MM-YYYY'}
                 style={{ width: '100%' }}
                 onChange={(date) => {
                   if (date) {
@@ -716,7 +720,7 @@ export default function ProfilePage() {
               label='Expected Due Date'
               rules={[{ required: true, message: 'Please enter your expected due date' }]}
             >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} disabled={true} />
+              <DatePicker picker='date' format={'DD-MM-YYYY'} style={{ width: '100%' }} disabled={true} />
             </Form.Item>
             <Form.Item
               name='babyGender'

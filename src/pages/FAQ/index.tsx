@@ -3,6 +3,12 @@ import { message } from 'antd'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
+const Wrapper = styled.div`
+  margin-top: 50px;
+  padding: 24px 0;
+  background: linear-gradient(to bottom, #f0f8ff, #f6e3e1);
+`
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 50px auto;
@@ -206,27 +212,29 @@ export default function FAQPage() {
   }
 
   return (
-    <Container>
-      <Header>
-        <h1>Frequently Asked Questions</h1>
-        <p>Find answers to common questions about pregnancy tracking and our features.</p>
-      </Header>
-      {loading ? (
-        <p>Loading FAQs...</p>
-      ) : (
-        categories.map((category) => (
-          <Section key={category.id}>
-            <h2>
-              <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
-                <circle cx='12' cy='12' r='10' />
-                <path d='M12 16v-4M12 8h.01' />
-              </svg>
-              {category.name}
-            </h2>
-            {renderAccordion(category.items)}
-          </Section>
-        ))
-      )}
-    </Container>
+    <Wrapper>
+      <Container>
+        <Header>
+          <h1>Frequently Asked Questions</h1>
+          <p>Find answers to common questions about pregnancy tracking and our features.</p>
+        </Header>
+        {loading ? (
+          <p>Loading FAQs...</p>
+        ) : (
+          categories.map((category) => (
+            <Section key={category.id}>
+              <h2>
+                <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                  <circle cx='12' cy='12' r='10' />
+                  <path d='M12 16v-4M12 8h.01' />
+                </svg>
+                {category.name}
+              </h2>
+              {renderAccordion(category.items)}
+            </Section>
+          ))
+        )}
+      </Container>
+    </Wrapper>
   )
 }

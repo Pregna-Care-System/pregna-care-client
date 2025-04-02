@@ -5,6 +5,7 @@ import CloudinaryUpload from '@/components/CloudinaryUpload'
 import FroalaEditorWrapper from '@/components/FroalaEditorWrapper'
 import 'froala-editor/css/froala_style.min.css'
 import 'froala-editor/css/froala_editor.pkgd.min.css'
+import UserAvatar from '../common/UserAvatar'
 
 interface Tag {
   id: string
@@ -216,13 +217,9 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     >
       <div className='py-3'>
         <div className='flex items-center mb-4'>
-          <img
-            src={currentUser?.picture || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-            alt={currentUser?.name || 'User'}
-            className='w-10 h-10 rounded-full mr-3'
-          />
+          <UserAvatar src={currentUser.imageUrl} name={currentUser.fullName} size={48} />
           <div>
-            <p className='font-medium'>{currentUser?.name || 'User'}</p>
+            <p className='font-medium'>{currentUser?.fullName || 'User'}</p>
           </div>
         </div>
 

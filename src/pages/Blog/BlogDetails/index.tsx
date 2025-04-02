@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getBlogById } from '@/services/blogService'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface Blog {
   id: string
@@ -45,8 +46,8 @@ export default function BlogDetailsPage() {
 
   if (loading || !blogData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-xl text-gray-600'>Loading...</div>
       </div>
     )
   }
@@ -55,11 +56,7 @@ export default function BlogDetailsPage() {
     <div className='bg-gray-50 min-h-screen text-gray-800 mt-20'>
       <main className='container mx-auto py-8 px-4'>
         <div className='flex items-center gap-4 mb-4'>
-          <img 
-            src={blogData.avatarUrl} 
-            alt={blogData.fullName}
-            className='w-12 h-12 rounded-full object-cover border-2 border-[#ff6b81]'
-          />
+          <UserAvatar src={blogData.avatarUrl} name={blogData.fullName} size={48} />
           <div>
             <h2 className='text-3xl font-bold text-[#ff6b81]'>{blogData.pageTitle}</h2>
             <p className='text-gray-600'>{blogData.timeAgo}</p>
@@ -81,9 +78,7 @@ export default function BlogDetailsPage() {
               <div className='bg-[#ff6b81] text-white rounded-t-lg p-1 flex items-center justify-center'>
                 <h5 className='text-1xl font-semibold'>Introduction</h5>
               </div>
-              <p className='mt-4 text-base font-light border-l-4 border-[#ff6b81] pl-4'>
-                {blogData.shortDescription}
-              </p>
+              <p className='mt-4 text-base font-light border-l-4 border-[#ff6b81] pl-4'>{blogData.shortDescription}</p>
             </section>
           </div>
         </div>
@@ -97,8 +92,8 @@ export default function BlogDetailsPage() {
         </div>
 
         <div className='flex justify-start mt-8'>
-          <button 
-            onClick={goBack} 
+          <button
+            onClick={goBack}
             className='px-4 py-2 bg-[#ff6b81] text-white rounded-md hover:bg-[#ff6b81]/90 transition-colors duration-200'
           >
             Go Back

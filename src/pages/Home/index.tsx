@@ -10,7 +10,12 @@ import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
-import { selectIsAuthenticated, selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/modules/global/selector'
+import {
+  selectIsAuthenticated,
+  selectMemberInfo,
+  selectMembershipPlans,
+  selectUserInfo
+} from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
@@ -510,21 +515,23 @@ export default function Home() {
         </div>
       </StyledNotificationModal>
       {/* --Pricing */}
-      <div className='container mx-auto p-8'>
-        <div className='flex flex-col items-center mb-8'>
-          <h2 className='text-5xl font-bold'>
-            Our <span className='text-red-500'>Pricing</span> Package
-          </h2>
-        </div>
-        <div className='container mx-auto'>
-          <div className='grid grid-cols-12'>
-            <div className='col-span-10 col-start-2'>
-              <CarouselMembershipPlans
-                membershipPlans={membershipPlans}
-                selectedPlan={selectedPlan}
-                onSelectPlan={setSelectedPlan}
-                currentPlanName={currentPlanName}
-              />
+      <div style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }} className='p-16 rounded-xl'>
+        <div className='container mx-auto p-8'>
+          <div className='flex flex-col items-center mb-8'>
+            <h2 className='text-5xl font-bold'>
+              Our <span className='text-red-500'>Pricing</span> Package
+            </h2>
+          </div>
+          <div className='container mx-auto'>
+            <div className='grid grid-cols-12'>
+              <div className='col-span-10 col-start-2'>
+                <CarouselMembershipPlans
+                  membershipPlans={membershipPlans}
+                  selectedPlan={selectedPlan}
+                  onSelectPlan={setSelectedPlan}
+                  currentPlanName={currentPlanName}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -543,7 +550,7 @@ export default function Home() {
       </div>
 
       {/* Testimonials */}
-      <div className='bg-red-50 p-8 rounded-xl'>
+      <div className='bg-red-100 p-8 rounded-xl'>
         <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
           <div className='bg-red-500 w-16 h-1'></div>
           Testimonials
@@ -642,16 +649,18 @@ export default function Home() {
       </div>
 
       {/* --Start free trial */}
-      <div className='container mx-auto p-20 flex flex-col items-center'>
-        <h1 className='text-5xl font-semibold'>Be part of the future of</h1>
-        <h1 className='text-5xl font-semibold'>PregnaCare</h1>
-        <img
-          src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736864690/PregnaCare/iwmdaoarqzdv9fxyxmik.png'
-          alt=''
-        />
-        <Link to={ROUTES.REGISTER} className='bg-red-500 px-4 py-2 rounded-lg text-white font-bold mt-4'>
-          Start free trial
-        </Link>
+      <div style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }} className='p-16 rounded-t-xl'>
+        <div className='container mx-auto p-20 flex flex-col items-center'>
+          <h1 className='text-5xl font-semibold'>Be part of the future of</h1>
+          <h1 className='text-5xl font-semibold'>PregnaCare</h1>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736864690/PregnaCare/iwmdaoarqzdv9fxyxmik.png'
+            alt=''
+          />
+          <Link to={ROUTES.REGISTER} className='bg-red-500 px-4 py-2 rounded-lg text-white font-bold mt-4'>
+            Start free trial
+          </Link>
+        </div>
       </div>
       <ScrollToTopButton isVisible={isScrollButtonVisible} onClick={scrollToTop}>
         ↑
