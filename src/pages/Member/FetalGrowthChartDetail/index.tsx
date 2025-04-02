@@ -35,6 +35,7 @@ const FetalGrowthChartDetail: React.FC = () => {
 
   useEffect(() => {
     getPregrancyInfo()
+    dispatch({ type: 'GET_ALL_TAGS' })
   }, [param.pregnancyRecordId])
 
   return (

@@ -377,13 +377,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
               >
                 <FaImage />
               </button>
-              <button
-                className='text-blue-500 hover:bg-gray-100 p-2 rounded-full'
-                onClick={triggerImageUpload}
-                title='Insert images into content'
-              >
-                <FaImage />
-              </button>
             </div>
           </div>
         </div>
@@ -402,7 +395,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
               !chartData) ||
             submitting
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-pink-600 text-white hover:bg-pink-700'
+              : 'bg-red-600 text-white hover:bg-red-700'
           }`}
         >
           {submitting ? 'Posting...' : 'Post'}
