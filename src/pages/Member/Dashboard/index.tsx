@@ -232,7 +232,7 @@ export default function ProfilePage() {
       dispatch({
         type: 'UPDATE_PREGNANCY_RECORD',
         payload: {
-          babyName: payload.babyName,
+          babyName: payload.babyName.trim(),
           babyGender: payload.babyGender,
           pregnancyStartDate: payload.pregnancyStartDate,
           expectedDueDate: payload.expectedDueDate,
@@ -657,7 +657,6 @@ export default function ProfilePage() {
           onCancel={closeBabyModal}
           footer={null}
           style={{ top: 20 }}
-          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
         >
           <Form
             form={babyForm}
@@ -671,14 +670,29 @@ export default function ProfilePage() {
             <Form.Item
               name='babyName'
               label='Baby Name'
-              rules={[{ required: true, message: 'Please enter your baby name' }]}
+              rules={[
+                { required: true, message: 'Baby name is required' },
+                { min: 2, message: 'Name must be at least 2 characters' },
+                { max: 30, message: 'Name should not exceed 30 characters' },
+                { pattern: /^[a-zA-Z]+$/, message: 'Name can only contain letters and spaces' }
+              ]}
             >
-              <Input />
+              <Input placeholder="Enter baby's name" />
             </Form.Item>
             <Form.Item
               name='pregnancyStartDate'
               label='Pregnancy Start Date'
-              rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
+              rules={[
+                { required: true, message: 'Start date is required' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || (value.isAfter(dayjs().subtract(9, 'month')) && value.isBefore(dayjs()))) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject('Date must be within the last 9 months and not in the future')
+                  }
+                })
+              ]}
             >
               <DatePicker
                 picker='date'
@@ -690,6 +704,10 @@ export default function ProfilePage() {
                     const dueDate = dayjs(date).add(280, 'days')
                     babyForm.setFieldValue('expectedDueDate', dueDate)
                   }
+                }}
+                disabledDate={(current) => {
+                  // Cannot select dates before 9 months ago or after today
+                  return current && (current > dayjs().endOf('day') || current < dayjs().subtract(9, 'months'))
                 }}
               />
             </Form.Item>
