@@ -9,6 +9,7 @@ import ROUTES from '@/utils/config/routes'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import ContentFormatter from '../ContentFormatter'
 import EnhancedFetalChart from '@/pages/Member/FetalGrowthChartDetail/Components/Charts/EnhancedFetalChart'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface Tag {
   id: string
@@ -376,10 +377,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId, currentUser, onBack, cl
         <Card>
           {/* Post header */}
           <PostHeader>
-            <Avatar
-              src={postDetail.userAvatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-              alt='User avatar'
-            />
+            <UserAvatar src={postDetail.avatarUrl} name={postDetail.fullName} size={48} />
             <UserInfo>
               <UserMeta>
                 <UserName>{postDetail.fullName || 'Community Member'}</UserName>

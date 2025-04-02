@@ -11,6 +11,7 @@ import { FaCheck, FaHistory, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@store/modules/global/selector'
 import { resetState } from '@store/modules/global/slice'
+import UserAvatar from '../common/UserAvatar'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -317,8 +318,6 @@ export default function Header() {
     }
   }
 
-  const userImage = memberInfo?.imageUrl || null
-
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
       <div className='col-span-2 flex gap-2 items-center cursor-pointer' onClick={() => navigate(ROUTES.GUEST_HOME)}>
@@ -386,21 +385,7 @@ export default function Header() {
 
             <NotificationButton />
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
-              {userImage ? (
-                <Avatar
-                  size={45}
-                  src={
-                    userImage ||
-                    'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
-                  }
-                  style={{
-                    border: '2px solid #ff6b81',
-                    cursor: 'pointer'
-                  }}
-                />
-              ) : (
-                <UserOutlined className='text-xl cursor-pointer' />
-              )}
+              <UserAvatar src={memberInfo.imageUrl} name={memberInfo.fullName} size={40} />
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>

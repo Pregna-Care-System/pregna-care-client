@@ -10,6 +10,7 @@ import CommentSystem from '../CommentSystem'
 import ContentFormatter from '../ContentFormatter'
 import ROUTES from '@/utils/config/routes'
 import { MoreHorizontal, MessageCircle, Edit, Trash2, BarChartIcon as ChartBar } from 'lucide-react'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface Tag {
   id: string
@@ -325,15 +326,7 @@ const PostCard = ({ post, currentUser, onEdit, onDelete, className }: PostCardPr
       <CardHeader>
         <UserInfo>
           <UserProfile>
-            <Avatar
-              src={post.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-              alt={`${post.fullName}'s avatar`}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.onerror = null
-                target.src = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-              }}
-            />
+            <UserAvatar src={post.avatarUrl} name={post.fullName} size={48} />
             <UserDetails>
               <UserName>
                 {post.fullName || 'Community Member'}

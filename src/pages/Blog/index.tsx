@@ -4,9 +4,16 @@ import { Input, Tag, Avatar, Empty, Button, Modal, message } from 'antd'
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectIsAuthenticated, selectMemberInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
+import {
+  selectBlogInfo,
+  selectIsAuthenticated,
+  selectMemberInfo,
+  selectTagInfo,
+  selectUserInfo
+} from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { style } from '@/theme'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface Tag {
   id: string
@@ -413,6 +420,7 @@ const BlogCard = styled.div`
 
     .stats {
       display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 16px;
       color: #57606f;
@@ -427,9 +435,8 @@ const BlogCard = styled.div`
       color: #ff6b81;
       font-weight: 600;
       font-size: 14px;
-      padding: 8px 0;
+      padding: 10px 0;
       transition: all 0.2s ease;
-      margin-top: 16px;
 
       &:hover {
         gap: 12px;
@@ -579,12 +586,7 @@ const BlogList = () => {
                     <div className='content'>
                       <h2 className='title'>{getPageTitle(blog)}</h2>
                       <div className='author'>
-                        <Avatar
-                          size={32}
-                          style={{ border: 'solid 1px #ff6b81' }}
-                          src={blog.avatarUrl}
-                          alt={blog.fullName}
-                        />
+                        <UserAvatar size={40} src={blog.avatarUrl} name={blog.fullName} />
                         <div>
                           <div style={{ fontWeight: 500, fontSize: '14px', color: '#2f3542' }}>{blog.fullName}</div>
                           <div style={{ fontSize: '12px', color: '#57606f' }}>{blog.timeAgo}</div>
@@ -602,21 +604,21 @@ const BlogList = () => {
                       <div className='stats'>
                         <div className='stat-item'>
                           <EyeOutlined />
-                          <span>{blog.viewCount} views</span>
+                          <span> {blog.viewCount} views</span>
                         </div>
-                      </div>
-                      <div className='read-more'>
-                        Read blog
-                        <svg
-                          width='16'
-                          height='16'
-                          viewBox='0 0 24 24'
-                          fill='none'
-                          stroke='currentColor'
-                          strokeWidth='2'
-                        >
-                          <path d='M5 12h14M12 5l7 7-7 7' />
-                        </svg>
+                        <div className='read-more'>
+                          Read blog
+                          <svg
+                            width='16'
+                            height='16'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='2'
+                          >
+                            <path d='M5 12h14M12 5l7 7-7 7' />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </Link>

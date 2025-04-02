@@ -29,7 +29,7 @@ const HistoryTransaction = () => {
   useEffect(() => {
     setSearchQuery(searchInput.trim())
   }, [searchInput])
-  
+
   useEffect(() => {
     if (currentUser?.id) {
       fetchTransactions()
@@ -95,7 +95,7 @@ const HistoryTransaction = () => {
   ]
 
   return (
-    <div className='p-6'>
+    <div className='p-28' style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }}>
       <Title level={2}>Membership Plan History</Title>
 
       <Card className='mb-6'>

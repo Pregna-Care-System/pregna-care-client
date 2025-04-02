@@ -6,6 +6,7 @@ import { MdClose } from 'react-icons/md'
 import { getAllCommentByBlogId, createComment, updateComment, deleteComment } from '@/services/blogService'
 import { Link } from 'react-router-dom'
 import ROUTES from '@/utils/config/routes'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface User {
   id: string
@@ -63,6 +64,7 @@ const Avatar = styled.img`
 
 const CommentContent = styled.div`
   flex: 1;
+  margin-left: 12px;
 `
 
 const CommentHeader = styled.div`
@@ -567,10 +569,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
 
     return (
       <CommentItem key={comment.id} style={{ marginLeft: isReply ? '44px' : '0' }}>
-        <Avatar
-          src={comment.user.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-          alt={comment.user.fullName}
-        />
+        <UserAvatar src={comment.user.avatarUrl} name={comment.user.fullName} size={40} />
         <CommentContent>
           {isEditing === comment.id ? (
             // Edit mode

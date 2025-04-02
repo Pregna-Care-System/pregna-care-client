@@ -1,6 +1,6 @@
+import UserAvatar from '@/components/common/UserAvatar'
 import { selectCurrentLoginUser } from '@/store/modules/global/selector'
 import request from '@/utils/axiosClient'
-import { UserOutlined } from '@ant-design/icons'
 import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Upload } from 'antd'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
@@ -177,11 +177,7 @@ export default function MainProfile() {
           <div className='w-full h-60' style={{ background: 'linear-gradient(to right, #e26b80, #dd87f1)' }}></div>
           <div className='flex'>
             <div className='avatar_profile' onClick={showModal}>
-              {userImage ? (
-                <img src={userImage} alt='User Avatar' />
-              ) : (
-                <UserOutlined className='text-5xl cursor-pointer' />
-              )}
+              <UserAvatar src={userImage} name={fullName} size={130} />
             </div>
             <div className='profile_info'>
               <h2>{fullName}</h2>
@@ -242,16 +238,7 @@ export default function MainProfile() {
       </div>
       <Modal title='Edit Avatar' open={isModalOpen} onCancel={handleCancel} footer={null}>
         <div className='flex flex-col justify-center items-center w-full'>
-          {userImage ? (
-            <img
-              className='w-60 h-60 border border-solid object-cover'
-              src={userImage}
-              alt='User Avatar'
-              style={{ borderRadius: '50%' }}
-            />
-          ) : (
-            <UserOutlined className='text-5xl border border-solid rounded-full' />
-          )}
+          <UserAvatar src={userImage} name={fullName} size={130} />
         </div>
         <div className='mt-10 flex'>
           <div>

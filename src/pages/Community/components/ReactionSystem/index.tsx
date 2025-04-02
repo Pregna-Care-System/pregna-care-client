@@ -4,6 +4,7 @@ import { Tooltip, message, Modal, Tabs } from 'antd'
 import { AiOutlineLike, AiFillLike } from 'react-icons/ai'
 import { FaRegLaughBeam, FaRegSadTear, FaRegAngry, FaHeart, FaRegSurprise } from 'react-icons/fa'
 import { createPostReaction, deleteReaction, getAllReactionByBlogId } from '@/services/blogService'
+import UserAvatar from '@/components/common/UserAvatar'
 
 const { TabPane } = Tabs
 
@@ -547,13 +548,12 @@ const ReactionSystem: React.FC<ReactionSystemProps> = ({
 
       {/* Reactions modal */}
       <Modal
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
         title='Reactions'
         width={400}
         centered
-        bodyStyle={{ maxHeight: '60vh', overflow: 'auto' }}
       >
         {loading ? (
           <div className='flex justify-center items-center h-32'>
@@ -575,14 +575,10 @@ const ReactionSystem: React.FC<ReactionSystemProps> = ({
 
                     return (
                       <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
-                        <img
-                          src={
-                            reaction.userAvatarUrl ||
-                            reaction.userAvatar ||
-                            'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-                          }
-                          alt={reaction.fullName || reaction.userName || 'User'}
-                          className='w-10 h-10 rounded-full mr-3 object-cover'
+                        <UserAvatar
+                          src={reaction.userAvatarUrl || reaction.userAvatar}
+                          name={reaction.fullName || reaction.userName}
+                          size={40}
                         />
                         <div className='flex-1'>
                           <p className='font-medium'>{reaction.fullName || reaction.userName || 'User'}</p>
@@ -620,14 +616,10 @@ const ReactionSystem: React.FC<ReactionSystemProps> = ({
                   >
                     {reactionGroup.map((reaction) => (
                       <div key={reaction.id} className='flex items-center py-2 border-b border-gray-100'>
-                        <img
-                          src={
-                            reaction.userAvatarUrl ||
-                            reaction.userAvatar ||
-                            'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-                          }
-                          alt={reaction.fullName || reaction.userName || 'User'}
-                          className='w-10 h-10 rounded-full mr-3 object-cover'
+                        <UserAvatar
+                          src={reaction.userAvatarUrl || reaction.userAvatar}
+                          name={reaction.fullName || reaction.userName}
+                          size={40}
                         />
                         <div className='flex-1'>
                           <p className='font-medium'>{reaction.fullName || reaction.userName || 'User'}</p>

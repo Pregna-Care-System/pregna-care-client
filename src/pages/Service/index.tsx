@@ -13,7 +13,7 @@ import useFeatureAccess from '@/hooks/useFeatureAccess'
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffffff, #f3e8ff);
+  background: linear-gradient(to bottom, #f0f8ff, #f6e3e1);
   transition: colors 0.3s ease;
 `
 
@@ -375,7 +375,7 @@ const MommyServicesPage = () => {
       handleLoginStatus(feature)
       return
     }
-    
+
     if (memberInfor?.role !== 'Member') {
       setIsModalVisible(true)
       return
