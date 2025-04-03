@@ -278,7 +278,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
   }
 
   const WeekGrid: React.FC<{ record: PregnancyRecord }> = ({ record }) => {
-    const currentWeek = record.gestationalAgeResponse?.maxEditableWeek || 0
+    const currentWeek = record.gestationalAgeResponse?.weeks || 0
     const totalWeeks = record.totalWeeks || 40
 
     // Calculate pagination
@@ -413,7 +413,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
                     <h3 className={styles.babyName}>
                       <HeartOutlined /> {record.babyName} - {record.babyGender}
                     </h3>
-                    <p className={styles.gestationalInfo}>Week {record.gestationalAgeResponse?.maxEditableWeek}</p>
+                    <p className={styles.gestationalInfo}>Week {record.gestationalAgeResponse?.weeks}</p>
                     <p className={styles.dueDate}>
                       <CalendarOutlined /> {dayjs(record.gestationalAgeResponse?.estimatedDueDate).format('DD-MM-YYYY')}
                     </p>
@@ -440,16 +440,14 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
           <div className={styles.progressSection}>
             <Progress
               type='circle'
-              percent={Math.round(
-                (activeRecord.gestationalAgeResponse?.maxEditableWeek / activeRecord.totalWeeks) * 100
-              )}
+              percent={Math.round((activeRecord.gestationalAgeResponse?.weeks / activeRecord.totalWeeks) * 100)}
               size={80}
               strokeColor='#ff6b81'
             />
             <div className={styles.progressInfo}>
               <h3>Progress</h3>
               <p>
-                Week {activeRecord.gestationalAgeResponse?.maxEditableWeek} of {activeRecord.totalWeeks}
+                Week {activeRecord.gestationalAgeResponse?.weeks} of {activeRecord.totalWeeks}
               </p>
             </div>
           </div>
@@ -486,7 +484,7 @@ const PregnancyRecordList: React.FC<{ records: PregnancyRecord[] }> = ({ records
           }
           weekNumber={selectedWeek}
           onEdit={handleEditFromDetail}
-          status={getWeekStatus(activeRecord?.gestationalAgeResponse?.maxEditableWeek || 0, selectedWeek)}
+          status={getWeekStatus(activeRecord?.gestationalAgeResponse?.weeks || 0, selectedWeek)}
         />
       )}
     </div>

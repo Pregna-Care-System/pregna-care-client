@@ -11,6 +11,7 @@ import {
   Empty,
   Form,
   Input,
+  message,
   Modal,
   Row,
   Select,
@@ -18,7 +19,17 @@ import {
   Tag,
   Typography
 } from 'antd'
-import { FaBaby, FaCalendarAlt, FaEdit, FaFileAlt, FaHeartbeat, FaNotesMedical, FaPlus, FaUser } from 'react-icons/fa'
+import {
+  FaBaby,
+  FaCalendarAlt,
+  FaEdit,
+  FaFileAlt,
+  FaHeartbeat,
+  FaNotesMedical,
+  FaPlus,
+  FaTrash,
+  FaUser
+} from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectMemberInfo,
@@ -29,6 +40,7 @@ import {
 import dayjs from 'dayjs'
 import styled from 'styled-components'
 import UserAvatar from '@/components/common/UserAvatar'
+import { deletePregnancyRecord } from '@/services/pregnancyRecordService'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -178,6 +190,19 @@ export default function ProfilePage() {
   const handleEditBabyProfile = () => {
     setEditMode(true)
     setIsBabyModalOpen(true)
+  }
+
+  const handleDeleteBabyProfile = async () => {
+    if (selectedPregnancy) {
+      try {
+        const res = await deletePregnancyRecord(selectedPregnancy.id)
+        if (res.success) {
+          message.success('Baby profile deleted successfully')
+          dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+          setSelectedPregnancy(null)
+        }
+      } catch (error) {}
+    }
   }
 
   const handleSubmitMotherInfo = (values) => {
@@ -485,17 +510,29 @@ export default function ProfilePage() {
                                   <FaBaby className='mr-2' />
                                   {selectedPregnancy.babyName || 'Unnamed Baby'}
                                 </span>
-                                <Button
-                                  type='primary'
-                                  icon={<FaEdit className='mr-1' />}
-                                  onClick={() => {
-                                    setEditMode(true)
-                                    handleEditBabyProfile()
-                                  }}
-                                  className='rounded-md'
-                                >
-                                  Edit Details
-                                </Button>
+                                <div>
+                                  <Button
+                                    type='primary'
+                                    icon={<FaTrash className='mr-1' />}
+                                    onClick={() => {
+                                      handleDeleteBabyProfile()
+                                    }}
+                                    className='rounded-md mr-1'
+                                  >
+                                    Delete baby
+                                  </Button>
+                                  <Button
+                                    type='primary'
+                                    icon={<FaEdit className='mr-1' />}
+                                    onClick={() => {
+                                      setEditMode(true)
+                                      handleEditBabyProfile()
+                                    }}
+                                    className='rounded-md'
+                                  >
+                                    Edit Details
+                                  </Button>
+                                </div>
                               </div>
                             }
                             bordered={false}
@@ -532,7 +569,7 @@ export default function ProfilePage() {
                                       {formatDate(selectedPregnancy.expectedDueDate)}
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Current Week'>
-                                      {calculateWeeksOfPregnancy(selectedPregnancy.pregnancyStartDate)}
+                                      {selectedPregnancy.gestationalAgeResponse.weeks} weeks
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Days Until Due'>
                                       {calculateDaysUntilDueDate(selectedPregnancy.expectedDueDate)}
