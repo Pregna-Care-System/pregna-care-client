@@ -10,7 +10,12 @@ import CollapseFAQ from '@components/Collapse/CollapseFAQ'
 import CarouselMembershipPlans from '@/components/Carousel/CarouselMembershipPlans'
 import useFeatureAccess from '@/hooks/useFeatureAccess'
 //--Redux
-import { selectMemberInfo, selectMembershipPlans, selectUserInfo } from '@store/modules/global/selector'
+import {
+  selectIsAuthenticated,
+  selectMemberInfo,
+  selectMembershipPlans,
+  selectUserInfo
+} from '@store/modules/global/selector'
 //--Utils
 import ROUTES from '@/utils/config/routes'
 import { getAllFeature } from '@/services/featureService'
@@ -257,7 +262,6 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const { hasAccess } = useFeatureAccess()
-  const userInfor = useSelector(selectUserInfo)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [visibleServices, setVisibleServices] = useState(3)
   const [servicesToDisplay, setServicesToDisplay] = useState(featureList.slice(0, visibleServices))
@@ -268,7 +272,16 @@ export default function Home() {
   const [rating, setRating] = useState(0)
   const [feedback, setFeedback] = useState('')
   const navigate = useNavigate()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
 
+  const handleLoginStatus = (feature: Feature) => {
+    if (isAuthenticated) {
+      handleFeatureClick(feature)
+    } else {
+      message.warning('Please log in to use this feature.')
+      navigate(ROUTES.LOGIN)
+    }
+  }
   const getListFeature = async () => {
     try {
       const res = await getAllFeature()
@@ -300,23 +313,20 @@ export default function Home() {
     getListFeedback()
   }, [])
 
+  // check 1 day
+  const isOneDayPassed = (planCreated: string | Date) => {
+    const createdDate = new Date(planCreated)
+    const now = new Date()
+    const oneDayMs = 24 * 60 * 60 * 1000
+    return now.getTime() - createdDate.getTime() >= oneDayMs
+  }
+
+  // open modal feedback
   useEffect(() => {
-    const hasSubmittedFeedback = localStorage.getItem('hasSubmittedFeedback')
-    if (hasSubmittedFeedback) return
-
-    if (member?.createdAt) {
-      const createdDate = dayjs(member.createdAt)
-      const currentDate = dayjs()
-      const diffInDays = currentDate.diff(createdDate, 'day')
-
-      if (diffInDays >= 1) {
-        setTimeout(() => setIsFeedbackModalOpen(true), 500)
-      } else {
-        const timeLeft = createdDate.add(1, 'day').diff(currentDate)
-        setTimeout(() => setIsFeedbackModalOpen(true), timeLeft)
-      }
+    if (member && !member.isFeedback && isOneDayPassed(member.planCreated)) {
+      setIsFeedbackModalOpen(true)
     }
-  }, [member?.createdAt])
+  }, [member])
 
   useEffect(() => {
     setServicesToDisplay(featureList.slice(0, visibleServices))
@@ -329,7 +339,11 @@ export default function Home() {
   }
 
   const handleFeatureClick = (feature) => {
-    if (userInfor?.role !== 'Member') {
+    if (!isAuthenticated) {
+      handleLoginStatus(feature)
+      return
+    }
+    if (member?.role !== 'Member') {
       setIsModalVisible(true)
       return
     }
@@ -381,25 +395,27 @@ export default function Home() {
     </div>
   ))
   //--Feedback
+  const [contactForm] = useForm()
+  const [feedbackForm] = useForm()
+
   const handleSubmitFeedback = async () => {
     try {
-      await createFeedBack(userInfor.id, feedback, rating)
+      const values = await feedbackForm.validateFields()
+      await createFeedBack(member.id, values.feedback, values.rating)
       localStorage.setItem('hasSubmittedFeedback', 'true')
       setIsFeedbackModalOpen(false)
-      message.success('Feedback create successfully')
+      message.success('Feedback created successfully')
       getListFeedback()
     } catch (error) {
       console.error('Failed to submit feedback:', error)
     }
   }
   //Contact
-  const [form] = useForm()
-
   const handleCreate = async (values) => {
     try {
       await createContact(values.fullName, values.email, values.message)
       message.success('Your message has been sent successfully!')
-      form.resetFields()
+      contactForm.resetFields()
     } catch (error) {
       message.error('Failed to send your message. Please try again later.')
       console.error('Error creating contact:', error)
@@ -414,7 +430,7 @@ export default function Home() {
           backgroundImage:
             'url(https://res.cloudinary.com/drcj6f81i/image/upload/v1736741890/PregnaCare/orwee2xgtheisvm300ht.png)'
         }}
-        className='w-full'
+        className='w-full mt-24'
       >
         <Content className=''>
           <h1 className='font-bold text-5xl m-0'>Crafted for optimal pregnancy tracking.</h1>
@@ -499,21 +515,23 @@ export default function Home() {
         </div>
       </StyledNotificationModal>
       {/* --Pricing */}
-      <div className='container mx-auto p-8'>
-        <div className='flex flex-col items-center mb-8'>
-          <h2 className='text-5xl font-bold'>
-            Our <span className='text-red-500'>Pricing</span> Package
-          </h2>
-        </div>
-        <div className='container mx-auto'>
-          <div className='grid grid-cols-12'>
-            <div className='col-span-10 col-start-2'>
-              <CarouselMembershipPlans
-                membershipPlans={membershipPlans}
-                selectedPlan={selectedPlan}
-                onSelectPlan={setSelectedPlan}
-                currentPlanName={currentPlanName}
-              />
+      <div style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }} className='p-16 rounded-xl'>
+        <div className='container mx-auto p-8'>
+          <div className='flex flex-col items-center mb-8'>
+            <h2 className='text-5xl font-bold'>
+              Our <span className='text-red-500'>Pricing</span> Package
+            </h2>
+          </div>
+          <div className='container mx-auto'>
+            <div className='grid grid-cols-12'>
+              <div className='col-span-10 col-start-2'>
+                <CarouselMembershipPlans
+                  membershipPlans={membershipPlans}
+                  selectedPlan={selectedPlan}
+                  onSelectPlan={setSelectedPlan}
+                  currentPlanName={currentPlanName}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -532,7 +550,7 @@ export default function Home() {
       </div>
 
       {/* Testimonials */}
-      <div className='bg-red-50 p-8 rounded-xl'>
+      <div className='bg-red-100 p-8 rounded-xl'>
         <h1 className='font-bold text-5xl my-8 flex items-center justify-center gap-4'>
           <div className='bg-red-500 w-16 h-1'></div>
           Testimonials
@@ -541,7 +559,7 @@ export default function Home() {
         <CarouselTestimonials testimonials={feedbackList} />
       </div>
 
-      {/* <Modal
+      <Modal
         title='Share your experience'
         open={isFeedbackModalOpen}
         onCancel={() => setIsFeedbackModalOpen(false)}
@@ -554,16 +572,28 @@ export default function Home() {
           </Button>
         ]}
       >
-        <p>Let share your experience after one day use our website!</p>
-        <Rate onChange={setRating} value={rating} />
-        <Input.TextArea
-          rows={4}
-          placeholder='Enter feedback...'
-          onChange={(e) => setFeedback(e.target.value)}
-          value={feedback}
-          style={{ marginTop: 10 }}
-        />
-      </Modal> */}
+        <Form form={feedbackForm} layout='vertical'>
+          <p>Let share your experience after one day use our website!</p>
+          <Form.Item name='rating' rules={[{ required: true, message: 'Please rate your experience!' }]}>
+            <Rate onChange={setRating} value={rating} />
+          </Form.Item>
+          <Form.Item
+            name='feedback'
+            rules={[
+              { required: true, message: 'Please enter your feedback!' },
+              { min: 10, message: 'Feedback must be at least 10 characters!' },
+              { max: 500, message: 'Feedback cannot exceed 500 characters!' }
+            ]}
+          >
+            <TextArea
+              rows={4}
+              placeholder='Enter feedback...'
+              onChange={(e) => setFeedback(e.target.value)}
+              value={feedback}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
 
       {/* --Contact */}
       <div className='container mx-auto p-8 grid grid-cols-2 gap-4'>
@@ -577,7 +607,7 @@ export default function Home() {
           <p className='m-0 font-light'>Please feel free to contact us.</p>
         </div>
         <div>
-          <Form form={form} onFinish={handleCreate} action='' className='flex flex-col gap-4' layout='vertical'>
+          <Form form={contactForm} onFinish={handleCreate} action='' className='flex flex-col gap-4' layout='vertical'>
             <Form.Item
               name='fullName'
               label='Name'
@@ -619,16 +649,18 @@ export default function Home() {
       </div>
 
       {/* --Start free trial */}
-      <div className='container mx-auto p-20 flex flex-col items-center'>
-        <h1 className='text-5xl font-semibold'>Be part of the future of</h1>
-        <h1 className='text-5xl font-semibold'>PregnaCare</h1>
-        <img
-          src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736864690/PregnaCare/iwmdaoarqzdv9fxyxmik.png'
-          alt=''
-        />
-        <Link to={ROUTES.REGISTER} className='bg-red-500 px-4 py-2 rounded-lg text-white font-bold mt-4'>
-          Start free trial
-        </Link>
+      <div style={{ background: 'linear-gradient(to bottom, #f0f8ff, #f6e3e1)' }} className='p-16 rounded-t-xl'>
+        <div className='container mx-auto p-20 flex flex-col items-center'>
+          <h1 className='text-5xl font-semibold'>Be part of the future of</h1>
+          <h1 className='text-5xl font-semibold'>PregnaCare</h1>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736864690/PregnaCare/iwmdaoarqzdv9fxyxmik.png'
+            alt=''
+          />
+          <Link to={ROUTES.REGISTER} className='bg-red-500 px-4 py-2 rounded-lg text-white font-bold mt-4'>
+            Start free trial
+          </Link>
+        </div>
       </div>
       <ScrollToTopButton isVisible={isScrollButtonVisible} onClick={scrollToTop}>
         ↑

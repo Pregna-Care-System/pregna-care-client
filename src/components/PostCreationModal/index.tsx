@@ -5,6 +5,7 @@ import CloudinaryUpload from '@/components/CloudinaryUpload'
 import FroalaEditorWrapper from '@/components/FroalaEditorWrapper'
 import 'froala-editor/css/froala_style.min.css'
 import 'froala-editor/css/froala_editor.pkgd.min.css'
+import UserAvatar from '../common/UserAvatar'
 
 interface Tag {
   id: string
@@ -105,12 +106,12 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
 
       return [...prevArray, ...urls]
     })
-    message.success(`${urls.length} ảnh đã được tải lên thành công`)
+    message.success(`${urls.length} photo uploaded successfully`)
   }
 
   const handleUploadError = (error: Error) => {
     console.error('Upload error:', error)
-    message.error('Tải ảnh lên thất bại. Vui lòng thử lại.')
+    message.error('Image upload failed. Please try again.')
   }
 
   const removeImage = (index: number) => {
@@ -140,7 +141,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     const textContent = postContent.replace(/<[^>]*>/g, '').trim()
 
     if (!textContent && uploadedImages.length === 0 && !chartData) {
-      message.error('Vui lòng nhập nội dung bài viết hoặc tải lên ít nhất một ảnh')
+      message.error('Please enter article content or upload at least one image')
       return
     }
 
@@ -192,7 +193,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       }
     } catch (error) {
       console.error('Error creating post:', error)
-      message.error('Đã xảy ra lỗi khi đăng bài viết')
     } finally {
     }
   }
@@ -217,13 +217,9 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
     >
       <div className='py-3'>
         <div className='flex items-center mb-4'>
-          <img
-            src={currentUser?.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-            alt={currentUser?.name || 'User'}
-            className='w-10 h-10 rounded-full mr-3'
-          />
+          <UserAvatar src={currentUser.imageUrl} name={currentUser.fullName} size={48} />
           <div>
-            <p className='font-medium'>{currentUser?.name || 'User'}</p>
+            <p className='font-medium'>{currentUser?.fullName || 'User'}</p>
           </div>
         </div>
 
@@ -296,15 +292,9 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
                   }
                 },
                 events: {
-                  initialized: function () {
-                    console.log('Froala Editor initialized successfully')
-                  },
-                  focus: function () {
-                    console.log('Froala Editor is focused')
-                  },
-                  blur: function () {
-                    console.log('Froala Editor lost focus')
-                  }
+                  initialized: function () {},
+                  focus: function () {},
+                  blur: function () {}
                 }
               }}
             />
@@ -384,13 +374,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
               >
                 <FaImage />
               </button>
-              <button
-                className='text-blue-500 hover:bg-gray-100 p-2 rounded-full'
-                onClick={triggerImageUpload}
-                title='Insert images into content'
-              >
-                <FaImage />
-              </button>
             </div>
           </div>
         </div>
@@ -409,7 +392,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
               !chartData) ||
             submitting
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-pink-600 text-white hover:bg-pink-700'
+              : 'bg-red-600 text-white hover:bg-red-700'
           }`}
         >
           {submitting ? 'Posting...' : 'Post'}

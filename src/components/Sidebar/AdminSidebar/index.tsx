@@ -1,9 +1,9 @@
 import ROUTES from '@/utils/config/routes'
 import { useEffect, useMemo, useState } from 'react'
-import { FaMicroblog, FaTools } from 'react-icons/fa'
+import { FaMicroblog, FaSignOutAlt, FaTools } from 'react-icons/fa'
 import { FiAlertCircle, FiDollarSign, FiHelpCircle, FiHome, FiPackage, FiType, FiUsers } from 'react-icons/fi'
 import { MdEmail } from 'react-icons/md'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 const SidebarWrapper = styled.div`
@@ -197,7 +197,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
   }, [location.pathname, getCurrentMenuFromPath])
 
   const handleLogoClick = () => {
-    navigate('/')
+    navigate('#')
   }
 
   const handleMenuItemClick = (title: string, path: string) => {
@@ -252,7 +252,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
           </div>
         </div>
 
-        <nav className='flex-1 overflow-y-auto py-4 overflow-y-auto scrollbar-custom'>
+        <nav className='flex-1 py-4 overflow-y-auto scrollbar-custom'>
           <ul className='space-y-1 px-3'>
             {menuItems.map((item, index) => (
               <li key={index}>

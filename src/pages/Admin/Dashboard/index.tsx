@@ -48,7 +48,6 @@ const AdminDashboard = () => {
       window.URL.revokeObjectURL(url)
     } catch (error) {
       if (error.response) {
-        message.error('Failed to fetch report.')
       } else {
         console.error(error)
       }
@@ -82,8 +81,6 @@ const AdminDashboard = () => {
         : []
 
       setTotalRevenue(statsArray)
-
-      console.log(statsArray)
     }
 
     fetchData()
@@ -258,7 +255,9 @@ const AdminDashboard = () => {
                     ) : (
                       <FiArrowDown className='w-4 h-4 text-red-500 mr-1' />
                     )}
-                    <span className='text-gray-500 text-sm font-medium'>{formatPercentage(stat.percentageChange)} %</span>
+                    <span className='text-gray-500 text-sm font-medium'>
+                      {formatPercentage(stat?.percentageChange)}
+                    </span>
                     <span className='text-gray-500 text-xs ml-1'>{stat.description}</span>
                   </div>
                 </div>

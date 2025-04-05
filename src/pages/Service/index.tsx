@@ -1,15 +1,19 @@
 import { getAllFeature } from '@/services/featureService'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Skeleton } from 'antd'
+import { Button, message, Modal, Skeleton } from 'antd'
 import { FaBaby } from 'react-icons/fa'
 import styled from 'styled-components'
 import ROUTES from '@/utils/config/routes'
 import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@/store/modules/global/selector'
+import { style } from '@/theme'
+import useFeatureAccess from '@/hooks/useFeatureAccess'
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffffff, #f3e8ff);
+  background: linear-gradient(to bottom, #f0f8ff, #f6e3e1);
   transition: colors 0.3s ease;
 `
 
@@ -25,7 +29,7 @@ const HeaderSection = styled(motion.header)`
   border-radius: 24px;
   overflow: hidden;
   margin-bottom: 3rem;
-  background: linear-gradient(to right, #b57bec, #ed84b9);
+  background: linear-gradient(to right, #ff6b81, #ff8e9e);
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -59,7 +63,98 @@ const HeaderSubtitle = styled(motion.p)`
   font-size: clamp(1rem, 3vw, 1.25rem);
   opacity: 0.9;
 `
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -104,7 +199,7 @@ const CardContent = styled.div`
 const ServiceIcon = styled.div`
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: #a855f7;
+  color: #ff6b81;
 `
 
 const ServiceTitle = styled.h3`
@@ -122,7 +217,103 @@ const ServiceDescription = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
 `
+const StyledNotificationModal = styled(Modal)`
+  .ant-modal-content {
+    justify-content: center;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: 10px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: white !important;
+    padding-bottom: 10px;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+
+    p {
+      font-size: 16px;
+      color: #4c1d95;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+
+    .notification-icon {
+      width: 80%;
+      height: 120px;
+      margin: 0 auto 20px;
+      border-radius: 8px;
+    }
+  }
+
+  .ant-modal-close {
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 10px 24px 24px;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    margin-top: 10px;
+
+    .ant-btn {
+      height: 40px;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .ant-btn-default {
+      border-color: #8b5cf6;
+      color: #8b5cf6;
+      background: white;
+
+      &:hover {
+        color: #7c3aed;
+        border-color: #7c3aed;
+        background: #f5f3ff;
+        box-shadow: 0 2px 4px rgba(139, 92, 246, 0.1);
+      }
+    }
+
+    .ant-btn-primary {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      color: white;
+
+      &:hover {
+        background: #7c3aed;
+        border-color: #7c3aed;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+      }
+    }
+  }
+
+  &.ant-modal {
+    .ant-modal-content {
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+    }
+  }
+`
 interface Feature {
   id: string
   featureName: string
@@ -139,7 +330,13 @@ const featureRoutes: { [key: string]: string } = {
 }
 const MommyServicesPage = () => {
   const [featureList, setFeatureList] = useState<Feature[]>([])
+  const [isModalVisible, setIsModalVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const memberInfor = useSelector(selectMemberInfo)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalContent, setModalContent] = useState('')
+  const { hasAccess } = useFeatureAccess()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
   const navigate = useNavigate()
 
   const getListFeature = async () => {
@@ -165,12 +362,33 @@ const MommyServicesPage = () => {
     const Icon = icons[index % icons.length]
     return <Icon />
   }
-  const handleFeatureClick = (feature: Feature) => {
-    const route =
-      featureRoutes[feature.featureName] || `/service/${feature.featureName.toLowerCase().replace(/\s+/g, '-')}`
-    navigate(route)
+  const handleLoginStatus = (feature: Feature) => {
+    if (isAuthenticated) {
+      handleFeatureClick(feature)
+    } else {
+      message.warning('Please log in to use this feature.')
+      navigate(ROUTES.LOGIN)
+    }
   }
+  const handleFeatureClick = (feature: Feature) => {
+    if (!isAuthenticated) {
+      handleLoginStatus(feature)
+      return
+    }
 
+    if (memberInfor?.role !== 'Member') {
+      setIsModalVisible(true)
+      return
+    }
+    if (!hasAccess(feature.id, feature.featureName)) {
+      setModalContent(`You need to upgrade membership plan to use the  "${feature.featureName}".`)
+      setIsModalOpen(true)
+    } else {
+      const route =
+        featureRoutes[feature.featureName] || `/service/${feature.featureName.toLowerCase().replace(/\s+/g, '-')}`
+      navigate(route)
+    }
+  }
   return (
     <PageContainer>
       <ContentContainer>
@@ -220,6 +438,56 @@ const MommyServicesPage = () => {
               ))}
         </ServicesGrid>
       </ContentContainer>
+      <StyledModal
+        title='Become a PregnaCare Member'
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsModalVisible(false)}>
+            Later
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            onClick={() => {
+              setIsModalVisible(false)
+              navigate(ROUTES.MEMBESHIP_PLANS)
+            }}
+          >
+            View Membership Plans
+          </Button>
+        ]}
+      >
+        <div className='membership-content'>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+            alt='Membership'
+            className='membership-image'
+          />
+
+          <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+        </div>
+      </StyledModal>
+      <StyledNotificationModal
+        title='Upgrade Notification'
+        open={isModalOpen}
+        onOk={() => {
+          setIsModalOpen(false)
+          navigate(ROUTES.MEMBESHIP_PLANS)
+        }}
+        onCancel={() => setIsModalOpen(false)}
+        okText='Upgrade now'
+        cancelText='Cancel'
+      >
+        <div>
+          <img
+            src='https://res.cloudinary.com/dgzn2ix8w/image/upload/v1741944505/pregnaCare/bj5e3vtzer8wk3zpkkvx.jpg'
+            alt='Upgrade Notification'
+            className='notification-icon'
+          />
+          <p>{modalContent}</p>
+        </div>
+      </StyledNotificationModal>
     </PageContainer>
   )
 }

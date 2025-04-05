@@ -22,19 +22,19 @@ export default function PaymentStatus() {
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
       // Simulate success or failure (80% success rate)
-      const isSuccess = searchParams.get('vnp_ResponseCode') === '00' ? true : false
+      const isSuccess = searchParams.get('responseCode') === '00' ? true : false
       setPaymentStatus(isSuccess ? 'success' : 'failure')
-      if (isSuccess) {
-        dispatch({
-          type: 'USER_MEMBERSHIP_PLAN',
-          payload: {
-            userId: user.id,
-            membershipPlanId: localStorage.getItem('membershipPlanId'),
-            startDate: new Date().toISOString(),
-            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
-          }
-        })
-      }
+      // if (isSuccess) {
+      //   dispatch({
+      //     type: 'USER_MEMBERSHIP_PLAN',
+      //     payload: {
+      //       userId: user.id,
+      //       membershipPlanId: localStorage.getItem('membershipPlanId'),
+      //       startDate: new Date().toISOString(),
+      //       endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
+      //     }
+      //   })
+      // }
       localStorage.removeItem('membershipPlanId')
     }
 

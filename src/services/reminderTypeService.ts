@@ -1,3 +1,4 @@
+import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllReminderType = async () => {
@@ -43,7 +44,6 @@ export const createReminderType = async (typeName: string, description: string) 
       description
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }

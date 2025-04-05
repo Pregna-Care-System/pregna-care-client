@@ -1,3 +1,4 @@
+import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllPlan = async () => {
@@ -47,15 +48,6 @@ export const updatePlan = async (
 ) => {
   try {
     const apiCallerId = 'updatePlan'
-    console.log('Send request', {
-      planId,
-      planName,
-      price,
-      duration,
-      description,
-      imageUrl,
-      featuredIds
-    })
     const res = await request.put<MODEL.PlanResponse>(`/MembershipPlan/Update?id=${planId}`, {
       apiCallerId,
       planName,
@@ -65,7 +57,6 @@ export const updatePlan = async (
       imageUrl,
       featuredId: featuredIds
     })
-    console.log('API Response', res.data)
     if (res.data.success) {
       return res
     }
@@ -96,12 +87,10 @@ export const createPlan = async (
       imageUrl,
       featuredId: featuredIds
     })
-    console.log('API Response', res.data)
     if (res.data.success) {
       return res
     }
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }
@@ -120,4 +109,14 @@ export const upgradeFreePlan = async (userId: string) => {
 export const hasFreePlan = async (userId: string) => {
   const res = await request.get<MODEL.PlanResponse>(`/MembershipPlan/Has-free-plan/${userId}`)
   return res
+}
+export const getUserTransaction = async (userId: string) => {
+  try {
+    const res = await request.get<MODEL.IResponseBase>(`/UserMembershipPlan/${userId}`)
+    if (res.data.success) {
+      return res.data.response
+    }
+  } catch (error: unknown) {
+    console.error('Get user membership plan failed', error)
+  }
 }

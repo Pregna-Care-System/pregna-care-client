@@ -5,15 +5,42 @@ import { adminRoutes, memberRoutes, privateRoutes, publicRoutes } from './routes
 import ROUTES from './utils/config/routes'
 import Loading from '@components/Loading'
 import { useSelector } from 'react-redux'
-import { selectIsAuthenticated, selectUserInfo } from './store/modules/global/selector'
+import { selectIsAuthenticated, selectMemberInfo, selectUserInfo } from './store/modules/global/selector'
+import ScrollToTop from '@components/ScrollToTop'
 
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const user = useSelector(selectUserInfo)
+  const member = useSelector(selectMemberInfo)
 
   const publicRouterObjects: RouteObject[] = publicRoutes.map(({ path, component: Component, layout }) => {
     const Layout = layout === null ? Fragment : layout || MainLayout
 
+    // Add special handling for login and register routes
+    if (path === ROUTES.LOGIN || path === ROUTES.REGISTER) {
+      return {
+        path: path,
+        element: isAuthenticated ? (
+          // If user is already logged in, redirect based on role
+          user.role === 'Admin' ? (
+            <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />
+          ) : member?.role === 'Member' ? (
+            <Navigate to={ROUTES.MEMBER.DASHBOARD} replace />
+          ) : (
+            <Navigate to={ROUTES.HOME} replace />
+          )
+        ) : (
+          // If not authenticated, show the login/register page
+          <Suspense fallback={<Loading />}>
+            <Layout>
+              <Component />
+            </Layout>
+          </Suspense>
+        )
+      }
+    }
+
+    // For other public routes, handle normally
     return {
       path: path,
       element: (
@@ -67,7 +94,7 @@ function App() {
     return {
       path: path,
       element:
-        isAuthenticated && user.role === 'Member' ? (
+        isAuthenticated && member?.role === 'Member' ? (
           <Suspense fallback={<Loading />}>
             <Layout>
               <Component />
@@ -94,7 +121,12 @@ function App() {
   // Tạo router
   const router = createBrowserRouter([
     {
-      element: <Outlet />,
+      element: (
+        <>
+          <ScrollToTop />
+          <Outlet />
+        </>
+      ),
       children: appRouter
     }
   ])

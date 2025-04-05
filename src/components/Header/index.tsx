@@ -3,14 +3,15 @@ import { style } from '@/theme'
 import ROUTES from '@/utils/config/routes'
 import { UserOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Avatar, Button, Modal, Tooltip } from 'antd'
 import NotificationButton from '@/pages/Notification/NotificationButton'
-import { FaCheck, FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCheck, FaHistory, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMemberInfo, selectUserInfo, selectIsAuthenticated } from '@store/modules/global/selector'
 import { resetState } from '@store/modules/global/slice'
+import UserAvatar from '../common/UserAvatar'
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -310,14 +311,12 @@ export default function Header() {
     dispatch(resetState())
   }
   const handleNavClick = (path: string) => {
-    if (userInfor?.role !== 'Member') {
+    if (memberInfo?.role !== 'Member') {
       setIsModalVisible(true)
     } else {
       navigate(path)
     }
   }
-
-  const userImage = userInfor?.picture || null
 
   return (
     <Wrapper className='grid grid-cols-12 w-full p-4 bg-white fixed z-10'>
@@ -330,27 +329,27 @@ export default function Header() {
         <span className='text-red-500 text-xl font-bold'>PregnaCare</span>
       </div>
       <div className='col-span-8 flex justify-center items-center gap-8 font-bold'>
-        <button className='header_item' onClick={() => navigate(ROUTES.GUEST_HOME)}>
+        <NavLink to={ROUTES.GUEST_HOME} className='header_item'>
           Home
-        </button>
-        <button onClick={() => handleNavClick(ROUTES.SERVICES)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.SERVICES} className='header_item'>
           Services
-        </button>
-        <button onClick={() => handleNavClick(ROUTES.BLOG)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.BLOG} className='header_item'>
           Blog
-        </button>
-        <button onClick={() => navigate(ROUTES.MEMBESHIP_PLANS)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.MEMBESHIP_PLANS} className='header_item'>
           Pricing
-        </button>
-        <button onClick={() => handleNavClick(ROUTES.COMMUNITY)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.COMMUNITY} className='header_item'>
           Community
-        </button>
-        <button onClick={() => navigate(ROUTES.CONTACT)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.CONTACT} className='header_item'>
           Contact Us
-        </button>
-        <button onClick={() => navigate(ROUTES.FAQ)} className='header_item'>
+        </NavLink>
+        <NavLink to={ROUTES.FAQ} className='header_item'>
           FAQ
-        </button>
+        </NavLink>
       </div>
       <div className='col-span-2 ms-10 flex justify-center gap-4 text-xs items-center'>
         {!userInfor || !isAuthenticated ? (
@@ -386,21 +385,7 @@ export default function Header() {
 
             <NotificationButton />
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
-              {userImage ? (
-                <Avatar
-                  size={45}
-                  src={
-                    userImage ||
-                    'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
-                  }
-                  style={{
-                    border: '2px solid #ff6b81',
-                    cursor: 'pointer'
-                  }}
-                />
-              ) : (
-                <UserOutlined className='text-xl cursor-pointer' />
-              )}
+              <UserAvatar src={memberInfo.imageUrl} name={memberInfo.fullName} size={40} />
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
@@ -410,8 +395,8 @@ export default function Header() {
                 <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.DASHBOARD)}>
                   <FaTachometerAlt /> Member Dashboard
                 </button>
-                <button className='dropdown_item' onClick={() => navigate(ROUTES.PROFILE)}>
-                  <FaCog /> Settings
+                <button className='dropdown_item' onClick={() => handleNavClick(ROUTES.MEMBER.HISTORY_TRANSACTION)}>
+                  <FaHistory /> History Transaction
                 </button>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

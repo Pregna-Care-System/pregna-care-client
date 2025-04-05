@@ -29,6 +29,7 @@ const GlobalStyle = createGlobalStyle`
 
 const StyledCard = styled.div<{ isSelected: boolean }>`
   height: 450px;
+  width: 300px;
   border-radius: 16px;
   box-shadow: ${({ isSelected }) =>
     isSelected
@@ -149,16 +150,17 @@ interface PlanCardProps {
   plan: {
     planName: string
     price: number
+    duration: number
     imageUrl: string
     features: Feature[]
-    recommended: boolean
+    isRecommended: boolean
   }
   isSelected: boolean
   onSelect: () => void
   currentPlanName: string
 }
 
-export default function PlanCard({ plan, isSelected, onSelect, currentPlanName }: PlanCardProps) {
+export default function PlanCard({ plan, isSelected, onSelect, currentPlanName, isRecommended }: PlanCardProps) {
   const navigate = useNavigate()
 
   const handleMoreClick = (e: React.MouseEvent, planName: string) => {
@@ -172,15 +174,20 @@ export default function PlanCard({ plan, isSelected, onSelect, currentPlanName }
       <StyledCard isSelected={isSelected} onClick={onSelect}>
         <CardHeader>
           <div className='flex items-center gap-2'>
+           
             <PlanName>{plan.planName}</PlanName>
-            {plan.planName === currentPlanName && <StyledTag color='success'>Your current Plan</StyledTag>}
+            {plan.planName === currentPlanName && <StyledTag color='success'>Your Plan Now</StyledTag>}
+            {isRecommended && (
+              <Tag color='red' className='absolute top-2 right-2 rounded-xl'>
+                Recommend
+              </Tag>
+            )}
           </div>
-          {plan.recommended && <StyledTag color='error'>Recommended</StyledTag>}
         </CardHeader>
 
         <PriceSection>
           <Price>
-            {plan.price.toLocaleString('vi-VN')}₫<span>/month</span>
+            {plan.price.toLocaleString('vi-VN')} VND<span>/{plan.duration} days</span>
           </Price>
         </PriceSection>
 

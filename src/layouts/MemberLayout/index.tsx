@@ -1,6 +1,6 @@
 import ChatBot from '@/components/Chat'
 import { logout } from '@/services/userService'
-import { selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import MemberSidebar from '@components/Sidebar/MemberSidebar'
 import { Avatar } from 'antd'
@@ -8,7 +8,8 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { FaCog, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaHistory, FaSignOutAlt, FaTachometerAlt, FaUser } from 'react-icons/fa'
+import UserAvatar from '@/components/common/UserAvatar'
 
 const LayoutWrapper = styled.div`
   min-height: 100vh;
@@ -148,7 +149,7 @@ const LayoutWrapper = styled.div`
 `
 
 export default function MemberLayout({ children }) {
-  const user = useSelector(selectUserInfo)
+  const user = useSelector(selectMemberInfo)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
@@ -186,20 +187,10 @@ export default function MemberLayout({ children }) {
         <div className='main-content'>
           <div className='header'>
             <h4 className='welcome-text'>
-              Hello, <strong>{user.name}</strong>
+              Hello, <strong className='capitalize'>{user.fullName}</strong>
             </h4>
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
-              <Avatar
-                size={45}
-                src={
-                  user.image ||
-                  'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
-                }
-                style={{
-                  border: '2px solid #ff6b81',
-                  cursor: 'pointer'
-                }}
-              />
+              <UserAvatar src={user.imageUrl} name={user.fullName} size={40} />
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
@@ -209,8 +200,8 @@ export default function MemberLayout({ children }) {
                 <Link to={ROUTES.MEMBER.DASHBOARD}>
                   <FaTachometerAlt /> Member Dashboard
                 </Link>
-                <Link to={ROUTES.PROFILE}>
-                  <FaCog /> Settings
+                <Link to={ROUTES.MEMBER.HISTORY_TRANSACTION}>
+                  <FaHistory /> History Transaction
                 </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout

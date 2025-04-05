@@ -4,7 +4,7 @@ import Chart from 'react-apexcharts'
 import { ShareAltOutlined } from '@ant-design/icons'
 import ChartShareModal from '@/components/ChartShareModal'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectTagInfo, selectUserInfo } from '@/store/modules/global/selector'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -30,13 +30,12 @@ export default function EnhancedFetalChart({
   sharing: boolean
 }) {
   const dispatch = useDispatch()
-  const currentUser = useSelector(selectUserInfo)
+  const currentUser = useSelector(selectMemberInfo)
   const tags = useSelector(selectTagInfo) || []
   const [loading, setLoading] = useState(false)
   const [processedData, setProcessedData] = useState<ProcessedDataItem[]>([])
   const chartRef = useRef<HTMLDivElement>(null)
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
-  const [chartImageUrl, setChartImageUrl] = useState('')
   const [processedChartData, setProcessedChartData] = useState<any>(null)
 
   useEffect(() => {

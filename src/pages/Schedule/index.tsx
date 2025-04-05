@@ -15,11 +15,13 @@ import {
 } from 'date-fns'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectReminderInfo, selectReminderTypeInfo } from '@/store/modules/global/selector'
-import { Button, DatePicker, Form, Modal, Select, TimePicker } from 'antd'
-import { ClockCircleOutlined, DeleteOutlined, PlusCircleFilled } from '@ant-design/icons'
+import { selectReminderInfo, selectReminderTypeInfo, selectUserInfo } from '@/store/modules/global/selector'
+import { Button, Checkbox, DatePicker, Dropdown, Form, Menu, Modal, Select, TimePicker } from 'antd'
+import { ClockCircleOutlined, DeleteOutlined, EllipsisOutlined, PlusCircleFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { jwtDecode } from 'jwt-decode'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+
+dayjs.extend(isSameOrAfter)
 
 const VIEW_TYPES = {
   MONTH: 'month',
@@ -38,11 +40,23 @@ const SchedulePage = () => {
   const dispatch = useDispatch()
   const [currentEvent, setCurrentEvent] = useState(null)
   const [form] = Form.useForm()
-  const token = localStorage.getItem('accessToken')
-  const user = jwtDecode(token || '')
+  const user = useSelector(selectUserInfo)
   const [showMoreEventsModal, setShowMoreEventsModal] = useState(false)
   const [moreEventsDate, setMoreEventsDate] = useState(null)
   const [isCreateButtonMode, setIsCreateButtonMode] = useState(false)
+  const [selectedTypeEvents, setSelectedTypeEvents] = useState([])
+  const [selectedTypeName, setSelectedTypeName] = useState()
+
+  const getEventColor = (typeName) => {
+    const typeColors = {
+      'Prenatal Checkup Reminder': 'bg-blue-100 border-blue-500 text-blue-800',
+      'Medical Test Reminder': 'bg-green-100 border-green-500 text-green-800',
+      'Doctor Appointment Reminder': 'bg-red-100 border-red-500 text-red-800',
+      'Supplement Intake Reminder': 'bg-orange-100 border-yellow-500 text-yellow-800',
+      default: 'bg-gray-100 border-gray-500 text-gray-800'
+    }
+    return typeColors[typeName] || typeColors['default']
+  }
 
   const getDaysInMonth = (date) => {
     const start = startOfWeek(startOfMonth(date))
@@ -71,9 +85,15 @@ const SchedulePage = () => {
       setSelectedDate(date)
     }
   }
-
+  const range = (start, end) => {
+    const result = []
+    for (let i = start; i < end; i++) {
+      result.push(i)
+    }
+    return result
+  }
   useEffect(() => {
-    dispatch({ type: 'GET_ALL_REMINDER_INFORMATION' })
+    dispatch({ type: 'GET_ALL_REMINDER_INFORMATION_BY_USER_iD', payload: user.id })
     dispatch({ type: 'GET_ALL_REMINDER_TYPE_INFORMATION' })
   }, [dispatch])
 
@@ -111,6 +131,7 @@ const SchedulePage = () => {
     setSelectedDate(date)
     const eventOnDate = events.find((event) => isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), date))
 
+    // if have reminder -> permit edit
     if (eventOnDate) {
       setCurrentEvent(eventOnDate)
       form.setFieldsValue({
@@ -122,21 +143,31 @@ const SchedulePage = () => {
         description: eventOnDate.description,
         status: eventOnDate.status
       })
-    } else {
-      setCurrentEvent(null)
-      form.resetFields()
-
-      form.setFieldsValue({
-        reminderDate: dayjs(date)
+      setIsCreateButtonMode(false)
+      setShowEventModal(true)
+    }
+    // if the past =>  Cannot create new
+    else if (dayjs(date).isBefore(dayjs(), 'day')) {
+      Modal.warning({
+        title: 'Cannot Select Past Date',
+        content: 'You cannot select past dates.'
       })
     }
-    setIsCreateButtonMode(false)
-    setShowEventModal(true)
+    // if future => create new
+    else {
+      setCurrentEvent(null)
+      form.resetFields()
+      form.setFieldsValue({
+        reminderDate: dayjs(date),
+        status: 'Active'
+      })
+      setIsCreateButtonMode(false)
+      setShowEventModal(true)
+    }
   }
 
   const handleAddEvent = () => {
     form.validateFields().then((values) => {
-      console.log('SELECT DATE', values)
       const { reminderType, title, startTime, endTime, description, reminderDate, status } = values
       const newEventItem = {
         userId: user.id,
@@ -172,6 +203,7 @@ const SchedulePage = () => {
   }
   const handleEditEvent = (event) => {
     setCurrentEvent(event)
+    setSelectedDate(dayjs(event.reminderDate).toDate())
     form.setFieldsValue({
       title: event.title,
       reminderType: event.reminderTypeId,
@@ -184,8 +216,14 @@ const SchedulePage = () => {
     setShowMoreEventsModal(false)
     setShowEventModal(true)
   }
+  const handleTypeClick = (type) => {
+    const typeEvents = events.filter((event) => event.reminderTypeId === type.id) || []
+    setMoreEventsDate(null)
+    setSelectedTypeEvents(typeEvents)
+    setSelectedTypeName(type.typeName)
+    setShowMoreEventsModal(true)
+  }
   const handleDeleteEvent = (id) => {
-    console.log('ID', id)
     Modal.confirm({
       title: 'Are you sure you want to delete this reminder?',
       content: 'Once deleted, this action cannot be undone.',
@@ -195,116 +233,225 @@ const SchedulePage = () => {
       onOk: () => {
         dispatch({ type: 'DELETE_REMINDER', payload: id })
       },
-      onCancel: () => {
-        console.log('Deletion cancelled')
-      }
+      onCancel: () => {}
     })
   }
-  const EventModal = () => (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md'>
-        <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
-          <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
-            {isCreateButtonMode
-              ? 'Create Event'
-              : currentEvent
-                ? `Edit Event for ${format(selectedDate, 'MMMM d, yyyy')}`
-                : `Add Event for ${format(selectedDate, 'MMMM d, yyyy')}`}
-          </h1>
-          <div>
-            <Form.Item label='Title' name='title' rules={[{ required: true, message: 'Please enter event title!' }]}>
-              <input
-                type='text'
-                placeholder='Event Title'
-                className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
-              />
-            </Form.Item>
-          </div>
+  const EventModal = () => {
+    // Validate date not in past
+    const validateDate = (_, value) => {
+      if (value && value.isBefore(dayjs(), 'day')) {
+        return Promise.reject('Date cannot be in the past!')
+      }
+      return Promise.resolve()
+    }
 
-          <div>
-            <Form.Item
-              name='reminderType'
-              label='Event type'
-              rules={[{ required: true, message: 'Please select one event type!' }]}
-            >
-              <Select
-                placeholder='Select event type'
-                options={typeList.map((type) => ({ label: type.typeName, value: type.id }))}
-              />
-            </Form.Item>
-          </div>
+    // Validate time not in past (for the selected date)
+    const validateTime = (fieldName) => (_, value) => {
+      if (!value) return Promise.resolve()
 
-          {isCreateButtonMode && (
-            <Form.Item
-              label='Event Date'
-              name='reminderDate'
-              rules={[{ required: true, message: 'Please select event date!' }]}
-            >
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-          )}
+      const selectedDate = form.getFieldValue('reminderDate')
+      const currentDateTime = dayjs()
 
-          <div className='grid grid-cols-2 gap-4'>
+      // If date is today, check time
+      if (selectedDate && selectedDate.isSame(currentDate, 'day')) {
+        if (value.isBefore(currentDateTime, 'minute')) {
+          return Promise.reject(`${fieldName} cannot be in the past!`)
+        }
+      }
+      return Promise.resolve()
+    }
+    return (
+      <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+        <div className='bg-white dark:bg-dark-card rounded-lg p-6 w-full max-w-md'>
+          <Form form={form} onFinish={handleAddEvent} layout='horizontal' className='space-y-4'>
+            <h1 className='text-2xl font-semibold mb-4 text-[#ff6b81]'>
+              {isCreateButtonMode
+                ? 'Create Reminder'
+                : currentEvent
+                  ? `Edit Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`
+                  : `Add Reminder for ${format(selectedDate, 'MMMM d, yyyy')}`}
+            </h1>
             <div>
               <Form.Item
-                label='Start Time'
-                name='startTime'
-                rules={[{ required: true, message: 'Please select start time!' }]}
+                label='Title'
+                name='title'
+                rules={[
+                  { required: true, message: 'Please enter event title!' },
+                  { min: 5, message: 'Title must be at least 5 characters' },
+                  { max: 100, message: 'Title cannot exceed 100 characters!' }
+                ]}
               >
-                <TimePicker format={'HH:mm:ss'} placeholder='Start Time' style={{ width: '100%' }} />
+                <input
+                  type='text'
+                  placeholder='Event Title'
+                  className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
+                />
               </Form.Item>
             </div>
+
             <div>
               <Form.Item
-                label='End Time'
-                name='endTime'
-                rules={[{ required: true, message: 'Please select end time!' }]}
+                name='reminderType'
+                label='Reminder type'
+                rules={[{ required: true, message: 'Please select one event type!' }]}
               >
-                <TimePicker placeholder='End Time' style={{ width: '100%' }} />
+                <Select
+                  placeholder='Select event type'
+                  options={typeList.map((type) => ({ label: type.typeName, value: type.id }))}
+                />
               </Form.Item>
             </div>
-          </div>
-          <div>
-            <Form.Item name='status' label='Status'>
-              <Select>
-                <Select.Option value='Active'>🔵 Active</Select.Option>
-                <Select.Option value='Done'>🟢 Done</Select.Option>
-              </Select>
-            </Form.Item>
-          </div>
 
-          <div>
-            <Form.Item label='Description' name='description'>
-              <textarea
-                placeholder='Event description'
-                className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
-              />
-            </Form.Item>
-          </div>
-          {!isCreateButtonMode && (
-            <Form.Item name='reminderDate' hidden>
-              <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
-            </Form.Item>
-          )}
-          <div className='flex justify-end gap-2'>
-            <button
-              type='button'
-              onClick={() => setShowEventModal(false)}
-              className='px-4 py-2 rounded-md bg-secondary dark:bg-dark-secondary text-secondary-foreground dark:text-dark-secondary-foreground'
-            >
-              Cancel
-            </button>
-            <button
-              type='submit'
-              className='bg-black text-[#ff6b81] px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
-            >
-              {currentEvent ? 'Update Event' : 'Add Event'}
-            </button>
-          </div>
-        </Form>
+            {isCreateButtonMode && (
+              <Form.Item
+                label='Event Date'
+                name='reminderDate'
+                rules={[{ required: true, message: 'Please select event date!' }, { validator: validateDate }]}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  disabledDate={(current) => current && current < dayjs().startOf('day')}
+                />
+              </Form.Item>
+            )}
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Form.Item
+                  label='Start Time'
+                  name='startTime'
+                  rules={[
+                    { required: true, message: 'Please select start time!' },
+                    { validator: validateTime('Start time') },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!getFieldValue('endTime') || !value) {
+                          return Promise.resolve()
+                        }
+                        if (dayjs(value).isAfter(dayjs(getFieldValue('endTime')))) {
+                          return Promise.reject('Start time cannot be after end time!')
+                        }
+                        if (dayjs(value).isSame(dayjs(getFieldValue('endTime')))) {
+                          return Promise.reject('Start time cannot be the same as end time!')
+                        }
+                        return Promise.resolve()
+                      }
+                    })
+                  ]}
+                >
+                  <TimePicker
+                    format={'HH:mm:ss'}
+                    placeholder='Start Time'
+                    style={{ width: '100%' }}
+                    disabledTime={(current) => {
+                      if (form.getFieldValue('reminderDate')?.isSame(dayjs(), 'day')) {
+                        return {
+                          disabledHours: () => range(0, dayjs().hour()),
+                          disabledMinutes: (selectedHour) => {
+                            if (selectedHour === dayjs().hour()) {
+                              return range(0, dayjs().minute())
+                            }
+                            return []
+                          }
+                        }
+                      }
+                      return {}
+                    }}
+                  />
+                </Form.Item>
+              </div>
+              <div>
+                <Form.Item
+                  label='End Time'
+                  name='endTime'
+                  dependencies={['startTime']}
+                  rules={[
+                    { required: true, message: 'Please select end time!' },
+                    { validator: validateTime('End time') },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || !getFieldValue('startTime')) {
+                          return Promise.resolve()
+                        }
+                        if (value.isBefore(getFieldValue('startTime'))) {
+                          return Promise.reject('End time cannot be before start time!')
+                        }
+                        if (value.isSame(getFieldValue('startTime'))) {
+                          return Promise.reject('End time cannot be the same as start time!')
+                        }
+                        return Promise.resolve()
+                      }
+                    })
+                  ]}
+                >
+                  <TimePicker
+                    placeholder='End Time'
+                    style={{ width: '100%' }}
+                    disabledTime={(current) => {
+                      const startTime = form.getFieldValue('startTime')
+                      if (!startTime) return {}
+
+                      if (form.getFieldValue('reminderDate')?.isSame(dayjs(), 'day')) {
+                        return {
+                          disabledHours: () => range(0, startTime.hour()),
+                          disabledMinutes: (selectedHour) => {
+                            if (selectedHour === startTime.hour()) {
+                              return range(0, startTime.minute())
+                            }
+                            return []
+                          }
+                        }
+                      }
+                      return {}
+                    }}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            {currentEvent && (
+              <div>
+                <Form.Item name='status' label='Status' rules={[{ required: true, message: 'Please select status!' }]}>
+                  <Select>
+                    <Select.Option value='Active'>🔵 Active</Select.Option>
+                    <Select.Option value='Done'>🟢 Done</Select.Option>
+                  </Select>
+                </Form.Item>
+              </div>
+            )}
+
+            <div>
+              <Form.Item label='Description' name='description'>
+                <textarea
+                  placeholder='Reminder description'
+                  className='w-full p-2 border rounded-md bg-background dark:bg-dark-background'
+                />
+              </Form.Item>
+            </div>
+            {!isCreateButtonMode && (
+              <Form.Item name='reminderDate' hidden>
+                <input value={dayjs(selectedDate).format('YYYY-MM-DD')} readOnly />
+              </Form.Item>
+            )}
+            <div className='flex justify-end gap-2'>
+              <button
+                type='button'
+                onClick={() => setShowEventModal(false)}
+                className='px-4 py-2 rounded-md bg-secondary dark:bg-dark-secondary text-secondary-foreground dark:text-dark-secondary-foreground'
+              >
+                Cancel
+              </button>
+              <button
+                type='submit'
+                className='bg-black text-[#ff6b81] px-4 py-2 rounded-md bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground'
+              >
+                {currentEvent ? 'Update Event' : 'Add Event'}
+              </button>
+            </div>
+          </Form>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const handleShowMoreEvents = (date) => {
     setMoreEventsDate(date)
@@ -312,47 +459,74 @@ const SchedulePage = () => {
   }
 
   const MoreEventsModal = () => {
-    const dayEvents = events.filter((event) =>
-      isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), moreEventsDate)
-    )
+    const displayEvents = moreEventsDate
+      ? events.filter((event) => isSameDay(dayjs(event.reminderDate).format('YYYY-MM-DD'), moreEventsDate)) || []
+      : selectedTypeEvents || []
+
+    const modalTitle = moreEventsDate
+      ? `Events on ${format(moreEventsDate, 'MMMM d, yyyy')}`
+      : `${selectedTypeName || 'Selected'} Reminders`
 
     return (
       <Modal
         visible={showMoreEventsModal}
         onCancel={() => setShowMoreEventsModal(false)}
         footer={null}
-        title={<span className='text-[#ff6b81] text-lg'>{`Events on ${format(moreEventsDate, 'MMMM d, yyyy')}`}</span>}
+        title={<span className='text-[#ff6b81] text-lg'>{modalTitle}</span>}
         className='custom-modal'
       >
         <div className='space-y-4'>
-          {dayEvents.map((event, i) => (
-            <div
-              key={i}
-              className='border border-solid border-red-200 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded-xl p-2 shadow-md cursor-pointer hover:bg-red-50 dark:hover:bg-dark-primary-light transition-all'
-              onClick={() => handleEditEvent(event)}
-            >
-              <div className='flex justify-between items-center'>
-                <div>
-                  <h3 className='text-lg font-semibold'>{event.title}</h3>
-                  <p className='text-sm text-muted-foreground'>{event.description}</p>
+          {displayEvents.length > 0 ? (
+            displayEvents.map((event, i) => {
+              const eventType = typeList.find((t) => t.id === event.reminderTypeId)
+              const colorClass = eventType ? getEventColor(eventType.typeName) : getEventColor('default')
+
+              return (
+                <div
+                  key={`${event.id}-${i}`}
+                  className={`border border-solid rounded-xl p-2 shadow-md cursor-pointer ${colorClass}`}
+                >
+                  <div className='flex justify-between items-center'>
+                    <div>
+                      <h3 className='text-lg font-semibold'>{event.title}</h3>
+                      <p className='text-sm text-muted-foreground'>{event.description}</p>
+                    </div>
+                    {event.status === 'Done' && <span className='text-green-500 font-bold'>🟢</span>}
+                    <Dropdown
+                      overlay={
+                        <Menu>
+                          <Menu.Item key='view' onClick={() => handleEditEvent(event)}>
+                            View Details
+                          </Menu.Item>
+                          <Menu.Item key='delete' danger onClick={() => handleDeleteEvent(event.id)}>
+                            Delete
+                          </Menu.Item>
+                        </Menu>
+                      }
+                      trigger={['click']}
+                      placement='bottomRight'
+                    >
+                      <Button type='text' icon={<EllipsisOutlined />} className='ml-2' />
+                    </Dropdown>
+                  </div>
+                  <div className='text-sm text-muted-foreground mt-2'>
+                    <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')}{' '}
+                    {event.startTime} - {event.endTime}
+                  </div>
                 </div>
-                {event.status === 'DONE' && <span className='text-green-500 font-bold'>🟢</span>}
-              </div>
-              <div className='text-sm text-muted-foreground mt-2'>
-                <ClockCircleOutlined /> {format(dayjs(event.reminderDate).toDate(), 'MMMM d, yyyy')} {event.startTime} -{' '}
-                {event.endTime}
-              </div>
-            </div>
-          ))}
+              )
+            })
+          ) : (
+            <p>No events found.</p>
+          )}
         </div>
       </Modal>
     )
   }
-
   return (
     <div className='py-32' style={{ background: 'linear-gradient(to bottom,#f0f8ff, #f6e3e1 )' }}>
       <div className='flex justify-around'>
-        <div>
+        <div className='h-full'>
           <div className='max-w-md mx-auto bg-card p-4 rounded-lg shadow-lg'>
             <div className='flex items-center justify-between mb-4'>
               <h2 className='text-xl font-semibold text-foreground'>{format(currentDate, 'MMMM yyyy')}</h2>
@@ -395,12 +569,12 @@ const SchedulePage = () => {
                     onClick={() => handleDateClickSmall(day)}
                     onKeyDown={(e) => handleKeyDown(e, day)}
                     className={`
-                p-2 text-center text-sm rounded-full transition-all
-                hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
-                ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
-                ${isTodayDate ? 'bg-blue-500 text-white' : ''}
-                ${isSelected ? 'bg-primary text-primary-foreground' : ''}
-              `}
+                  p-2 text-center text-sm rounded-full transition-all
+                  hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring
+                  ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
+                  ${isTodayDate ? 'bg-blue-500 text-white' : ''}
+                  ${isSelected ? 'bg-primary text-primary-foreground' : ''}
+                `}
                     tabIndex={0}
                     aria-label={format(day, 'PPPP')}
                   >
@@ -410,45 +584,86 @@ const SchedulePage = () => {
               })}
             </div>
           </div>
+          <div className='max-h-[180px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 transition'>
+            <h1 className='text-[#ff6b81] font-semibold text-lg'>Upcoming Reminders</h1>
 
-          <h1 style={{ fontSize: '25px', marginTop: '30px' }}>Upcoming Events</h1>
-          <div className='max-h-[550px] overflow-y-auto scrollbar-custom border border-solid rounded-2xl shadow-md p-5 w-full mt-4 bg-white'>
-            {dataSource.length > 0 ? (
-              dataSource.map((event) => {
-                const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
+            {(() => {
+              const upcomingEvents = dataSource.filter((event) =>
+                dayjs(event.reminderDate).isSameOrAfter(dayjs(), 'day') && event.status !== 'Done'
+              )
+
+              return upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event) => {
+                  const formattedDate = new Date(event.reminderDate).toLocaleDateString('en-CA')
+                  return (
+                    <div
+                      className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
+                        event.status === 'Done' ? 'border-green-300' : 'border-red-200'
+                      } bg-white`}
+                      key={event.id}
+                    >
+                      <div className='flex justify-between'>
+                        <strong>{event.title}</strong>
+                        <Dropdown
+                          overlay={
+                            <Menu>
+                              <Menu.Item key='view' onClick={() => handleEditEvent(event)}>
+                                View Details
+                              </Menu.Item>
+                              <Menu.Item key='delete' danger onClick={() => handleDeleteEvent(event.id)}>
+                                Delete
+                              </Menu.Item>
+                            </Menu>
+                          }
+                          trigger={['click']}
+                          placement='bottomRight'
+                        >
+                          <Button type='text' icon={<EllipsisOutlined />} className='ml-2' />
+                        </Dropdown>
+                      </div>
+                      <div style={{ fontSize: '14px', color: 'gray' }}>
+                        <ClockCircleOutlined /> {formattedDate} {event.startTime}
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <p>No upcoming reminders.</p>
+              )
+            })()}
+          </div>
+          <div className=' max-h-[250px] transition mt-5 p-4 rounded-lg shadow-md overflow-y-auto scrollbar-custom'>
+            <h1 className='text-[#ff6b81] text-lg font-semibold mb-3'>Reminder Types</h1>
+            <div className='space-y-2'>
+              {typeList.map((type) => {
+                const isSelected = selectedTypeEvents.includes(type.id)
+                const colorClass = getEventColor(type.typeName)
                 return (
                   <div
-                    className={`border border-solid rounded-2xl shadow-md p-5 w-full mb-4 mt-4 ${
-                      event.status === 'DONE' ? 'border-green-300' : 'border-red-200'
-                    } bg-white`}
-                    key={event.id}
+                    key={type.id}
+                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all
+                      ${colorClass} border ${isSelected ? 'ring-2 ring-[#ff6b81]' : 'hover:shadow-md'}`}
+                    onClick={() => handleTypeClick(type)}
                   >
-                    <div className='flex justify-between'>
-                      <strong>{event.title}</strong>
-                      {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
-                    </div>
-                    <div style={{ fontSize: '14px', color: 'gray' }}>
-                      <ClockCircleOutlined /> {formattedDate} {event.startTime}
-                    </div>
-
-                    <Button style={{ marginRight: '10px' }} onClick={() => handleEditEvent(event)}>
-                      View Details
-                    </Button>
-                    <Button
-                      className='border-red-200 text-red-500'
-                      type='danger'
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleDeleteEvent(event.id)}
-                    ></Button>
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation()
+                        handleTypeToggle(type.id)
+                      }}
+                      className='mr-3'
+                    />
+                    <span className='font-medium'>{type.typeName}</span>
+                    <span className='ml-auto text-sm text-gray-500'>
+                      ({events.filter((e) => e.reminderTypeId === type.id).length})
+                    </span>
                   </div>
                 )
-              })
-            ) : (
-              <p>No upcoming events.</p>
-            )}
+              })}
+            </div>
           </div>
         </div>
-        <div className='w-2/3 h-2/3 p-2 bg-gray-50'>
+        <div className='w-2/3 h-full p-2 bg-gray-50'>
           <div className='flex items-center justify-between mb-4'>
             <div className='flex gap-2'>
               <button
@@ -529,15 +744,17 @@ const SchedulePage = () => {
                     <span className='text-sm'>{format(date, 'd')}</span>
                     {dayEvents.length > 0 && (
                       <div className='mt-1 space-y-1 overflow-hidden'>
-                        {dayEvents.slice(0, maxEventsToShow).map((event, i) => (
-                          <div
-                            key={i}
-                            className='border border-solid border-gray-300 bg-red-200 shadow-2xl text-xs p-1 bg-primary dark:bg-dark-primary text-primary-foreground dark:text-dark-primary-foreground rounded truncate'
-                          >
-                            {event.title}
-                            {event.status === 'DONE' && <span style={{ color: 'green', fontWeight: 'bold' }}>🟢</span>}
-                          </div>
-                        ))}
+                        {dayEvents.slice(0, maxEventsToShow).map((event, i) => {
+                          const eventType = typeList.find((t) => t.id === event.reminderTypeId)
+                          const colorClass = eventType ? getEventColor(eventType.typeName) : getEventColor('default')
+
+                          return (
+                            <div key={i} className={`border text-xs p-1 rounded truncate ${colorClass}`}>
+                              {event.title}
+                              {event.status === 'Done' && <span className='text-green-500 font-bold'> 🟢</span>}
+                            </div>
+                          )
+                        })}
                         {dayEvents.length > maxEventsToShow && (
                           <button
                             onClick={(e) => {

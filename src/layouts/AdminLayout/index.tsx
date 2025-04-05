@@ -1,11 +1,11 @@
-import ChatBot from '@/components/Chat'
+import UserAvatar from '@/components/common/UserAvatar'
 import AdminSidebar from '@/components/Sidebar/AdminSidebar'
 import { logout } from '@/services/userService'
-import { selectUserInfo } from '@/store/modules/global/selector'
+import { selectMemberInfo, selectUserInfo } from '@/store/modules/global/selector'
 import ROUTES from '@/utils/config/routes'
 import { Avatar } from 'antd'
 import { useState } from 'react'
-import { FaCog, FaSignOutAlt, FaUser } from 'react-icons/fa'
+import { FaCog, FaHistory, FaSignOutAlt, FaUser } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -189,26 +189,10 @@ export default function AdminLayout({ children }) {
               Hello, <strong>{user.name}</strong>
             </h4>
             <div className='avatar-wrapper' onClick={toggleDropDown} onMouseEnter={handleMouseEnter}>
-              <Avatar
-                size={45}
-                src={
-                  user.image ||
-                  'https://res.cloudinary.com/drcj6f81i/image/upload/v1736877741/PregnaCare/cu1iprwqkhzbjb4ysoqk.png'
-                }
-                style={{
-                  border: '2px solid #ff6b81',
-                  cursor: 'pointer'
-                }}
-              />
+              <UserAvatar src={user.imageUrl} name={user.fullName} size={40} />
             </div>
             {isDropDownOpen && (
               <div className='dropdown' onMouseLeave={handleMouseLeave}>
-                <Link to={ROUTES.PROFILE}>
-                  <FaUser /> My Profile
-                </Link>
-                <Link to={ROUTES.PROFILE}>
-                  <FaCog /> Settings
-                </Link>
                 <div className='dropdown_item logout' onClick={handleLogout}>
                   <FaSignOutAlt /> Logout
                 </div>
@@ -216,7 +200,6 @@ export default function AdminLayout({ children }) {
             )}
           </div>
           <div className='content'>{children}</div>
-          <ChatBot />
         </div>
       </div>
     </LayoutWrapper>

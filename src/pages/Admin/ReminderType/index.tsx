@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Form, message, Modal, Table } from 'antd'
+import { Button, Form, message, Modal, Table, Input } from 'antd'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
-import { CreateModal } from '@/components/Modal'
 import { TbEdit } from 'react-icons/tb'
 import { FiTrash2 } from 'react-icons/fi'
 import {
@@ -50,8 +49,11 @@ export default function ReminderTypeAdminPage() {
   }
 
   const handleSubmit = async (values: any) => {
-    setLoading(true)
     try {
+      // Validate form before submitting
+      await form.validateFields()
+      
+      setLoading(true)
       if (selectedType) {
         await updateReminderType(selectedType, values.typeName, values.description)
         message.success('Updated successfully')
@@ -61,7 +63,12 @@ export default function ReminderTypeAdminPage() {
       }
       fetchReminderTypes()
     } catch (error) {
-      message.error('Operation failed')
+      // Form validation error
+      if (error?.errorFields) {
+        message.error('Please check your input')
+      } else {
+        message.error('Operation failed')
+      }
     } finally {
       setIsOpen(false)
       setLoading(false)
@@ -132,19 +139,49 @@ export default function ReminderTypeAdminPage() {
       <div className='bg-white p-5 rounded-xl shadow-md'>
         <Table dataSource={useMemo(() => typeList, [typeList])} columns={columns} pagination={{ pageSize: 5 }} loading={loading} />
       </div>
-      <CreateModal
-        isOpen={isOpen}
-        title={selectedType ? 'Update Feature' : 'Create Feature'}
-        onClose={() => setIsOpen(false)}
-        formItem={[
-          { name: 'typeName', label: 'Reminder Type Name', type: 'text', message: 'Please enter reminder type name' },
-          { name: 'description', label: 'Description', type: 'text', message: 'Please enter description' }
-        ]}
-        handleSubmit={handleSubmit}
-        form={form}
-        loading={loading}
-        buttonName={selectedType ? 'Update' : 'Create'}
-      />
+      <Modal
+        title={selectedType ? 'Update Reminder Type' : 'Create Reminder Type'}
+        open={isOpen}
+        onCancel={() => setIsOpen(false)}
+        footer={null}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            name="typeName"
+            label="Reminder Type Name"
+            rules={[
+              { required: true, message: 'Please enter reminder type name' },
+              { min: 5, message: 'Type name must be at least 5 characters' },
+              { max: 100, message: 'Type name cannot exceed 100 characters' }
+            ]}
+          >
+            <Input placeholder="Enter reminder type name" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { required: true, message: 'Please enter description' },
+              { min: 5, message: 'Description must be at least 5 characters' },
+              { max: 200, message: 'Description cannot exceed 200 characters' }
+            ]}
+          >
+            <Input placeholder="Enter description" />
+          </Form.Item>
+          <Form.Item className="mb-0">
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                {selectedType ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   )
 }

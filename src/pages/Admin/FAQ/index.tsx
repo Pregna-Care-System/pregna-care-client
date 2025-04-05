@@ -25,7 +25,13 @@ interface FAQ {
   faqCategoryId: string
   question: string
   answer: string
-  displayOrder: string
+  displayOrder: number
+}
+
+interface FAQFormValues {
+  question: string;
+  answer: string;
+  displayOrder: number;
 }
 
 const FAQModal: React.FC<{
@@ -35,29 +41,43 @@ const FAQModal: React.FC<{
   categoryId: string
   initialData?: FAQ
 }> = ({ visible, onClose, onSuccess, categoryId, initialData }) => {
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<FAQFormValues>()
 
   useEffect(() => {
     if (visible) {
       form.resetFields()
       if (initialData) {
-        form.setFieldsValue(initialData)
+        form.setFieldsValue({
+          ...initialData,
+          displayOrder: Number(initialData.displayOrder)
+        })
       }
     }
   }, [visible, initialData, form])
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: FAQFormValues) => {
     try {
       if (initialData) {
-        await updateFAQ(initialData.id, categoryId, values.question, values.answer, values.displayOrder)
+        await updateFAQ(
+          initialData.id, 
+          categoryId, 
+          values.question, 
+          values.answer, 
+          String(values.displayOrder)
+        )
         message.success('FAQ updated successfully')
       } else {
-        await createFAQ(categoryId, values.question, values.answer, values.displayOrder)
+        await createFAQ(
+          categoryId, 
+          values.question, 
+          values.answer, 
+          String(values.displayOrder)
+        )
         message.success('FAQ created successfully')
       }
       onSuccess()
-    } catch (error) {
-      message.error('Operation failed')
+    } catch (error: unknown) {
+      console.error('Failed to save FAQ:', error)
     }
   }
 
@@ -76,34 +96,50 @@ const FAQModal: React.FC<{
         <Form.Item
           name='question'
           label={<span className='font-medium text-gray-700'>Question</span>}
-          rules={[{ required: true, message: 'Please enter the question' }]}
+          rules={[
+            { required: true, message: 'Please enter the question' },
+            { max: 500, message: 'Question cannot exceed 500 characters' },
+            { min: 10, message: 'Question must be at least 10 characters long' }
+          ]}
         >
           <Input.TextArea
             rows={3}
             placeholder='Enter your question here'
             className='rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500'
+            showCount
+            maxLength={500}
           />
         </Form.Item>
         <Form.Item
           name='answer'
           label={<span className='font-medium text-gray-700'>Answer</span>}
-          rules={[{ required: true, message: 'Please enter the answer' }]}
+          rules={[
+            { required: true, message: 'Please enter the answer' },
+            { max: 2000, message: 'Answer cannot exceed 2000 characters' },
+            { min: 20, message: 'Answer must be at least 20 characters long' }
+          ]}
         >
           <Input.TextArea
             rows={4}
             placeholder='Enter your answer here'
             className='rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500'
+            showCount
+            maxLength={2000}
           />
         </Form.Item>
         <Form.Item
           name='displayOrder'
           label={<span className='font-medium text-gray-700'>Display Order</span>}
-          rules={[{ required: true, message: 'Please enter display order' }]}
+          rules={[
+            { required: true, message: 'Please enter display order' },
+            { type: 'number', message: 'Display order must be a number' },
+            { type: 'number', min: 1, message: 'Display order must be greater than 0' }
+          ]}
         >
-          <Input
-            type='number'
+          <InputNumber
+            min={1}
+            className='w-full rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500'
             placeholder='Enter display order'
-            className='rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500'
           />
         </Form.Item>
       </Form>
@@ -158,7 +194,10 @@ const CategoryModal: React.FC<{
         <Form.Item
           name='name'
           label={<span className='font-medium text-gray-700'>Name</span>}
-          rules={[{ required: true, message: 'Please enter category name' }]}
+          rules={[{ required: true, message: 'Please enter category name'} , 
+            { max: 100, message: 'Category name cannot exceed 100 characters' },
+            { min: 10, message: 'Category name must be at least 10 characters long' }
+          ]}
         >
           <Input
             placeholder='Enter category name'
@@ -168,7 +207,10 @@ const CategoryModal: React.FC<{
         <Form.Item
           name='description'
           label={<span className='font-medium text-gray-700'>Description</span>}
-          rules={[{ required: true, message: 'Please enter category description' }]}
+          rules={[{ required: true, message: 'Please enter category description' },
+            { max: 500, message: 'Description cannot exceed 500 characters' },
+            { min: 10, message: 'Description must be at least 10 characters long' }
+          ]}
         >
           <Input.TextArea
             rows={4}
@@ -205,10 +247,8 @@ const FAQAdmin = () => {
     try {
       setLoading(true)
       const categoriesResponse = await getAllFAQCategories()
-      console.log('Categories:', categoriesResponse)
       setCategories(Array.isArray(categoriesResponse.data.response) ? categoriesResponse.data.response : [])
     } catch (error) {
-      message.error('Failed to fetch data')
     } finally {
       setLoading(false)
     }

@@ -54,3 +54,8 @@ export const fetalGrowthStats = async (pregnancyRecordId: string) => {
   const res = await request.get(`PregnancyRecord/${pregnancyRecordId}/FetalGrowthStats`)
   return res.data
 }
+
+export const deletePregnancyRecord = async (pregnancyRecordId: string) => {
+  const res = await request.delete(`/PregnancyRecord/${pregnancyRecordId}`)
+  return res.data
+}

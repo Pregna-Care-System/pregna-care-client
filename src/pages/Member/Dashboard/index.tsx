@@ -11,6 +11,7 @@ import {
   Empty,
   Form,
   Input,
+  message,
   Modal,
   Row,
   Select,
@@ -18,11 +19,28 @@ import {
   Tag,
   Typography
 } from 'antd'
-import { FaBaby, FaCalendarAlt, FaEdit, FaFileAlt, FaHeartbeat, FaNotesMedical, FaPlus, FaUser } from 'react-icons/fa'
+import {
+  FaBaby,
+  FaCalendarAlt,
+  FaEdit,
+  FaFileAlt,
+  FaHeartbeat,
+  FaNotesMedical,
+  FaPlus,
+  FaTrash,
+  FaUser
+} from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectMotherInfo, selectPregnancyRecord, selectUserInfo } from '@/store/modules/global/selector'
+import {
+  selectMemberInfo,
+  selectMotherInfo,
+  selectPregnancyRecord,
+  selectUserInfo
+} from '@/store/modules/global/selector'
 import dayjs from 'dayjs'
 import styled from 'styled-components'
+import UserAvatar from '@/components/common/UserAvatar'
+import { deletePregnancyRecord } from '@/services/pregnancyRecordService'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -102,7 +120,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false)
 
   const motherInfo = useSelector(selectMotherInfo)
-  const userInfo = useSelector(selectUserInfo)
+  const userInfo = useSelector(selectMemberInfo)
   const pregnancyRecords = useSelector(selectPregnancyRecord) || []
   const [motherInfoData, setMotherInfoData] = useState(motherInfo?.[0] || {})
 
@@ -133,8 +151,6 @@ export default function ProfilePage() {
   useEffect(() => {
     if (motherInfoData && editMode) {
       motherForm.setFieldsValue({
-        motherName: motherInfoData.motherName,
-        motherDateOfBirth: motherInfoData.dateOfBirth ? dayjs(motherInfoData.dateOfBirth) : null,
         bloodType: motherInfoData.bloodType,
         healhStatus: motherInfoData.healthStatus,
         notes: motherInfoData.notes,
@@ -176,35 +192,54 @@ export default function ProfilePage() {
     setIsBabyModalOpen(true)
   }
 
+  const handleDeleteBabyProfile = async () => {
+    if (selectedPregnancy) {
+      try {
+        const res = await deletePregnancyRecord(selectedPregnancy.id)
+        if (res.success) {
+          message.success('Baby profile deleted successfully')
+          dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+          setSelectedPregnancy(null)
+        }
+      } catch (error) {}
+    }
+  }
+
   const handleSubmitMotherInfo = (values) => {
     setLoading(true)
 
     const payload = {
       userId: userInfo.id,
-      motherName: values.motherName,
       bloodType: values.bloodType,
       healhStatus: values.healhStatus,
       notes: values.notes,
-      imageUrl: values.imageUrl,
-      motherDateOfBirth: values.motherDateOfBirth.format('YYYY-MM-DD')
+      imageUrl: values.imageUrl
     }
 
     if (editMode && motherInfoData.id) {
       dispatch({
         type: 'UPDATE_MOTHER_INFO',
         payload: {
-          motherName: payload.motherName,
           bloodType: payload.bloodType,
           healhStatus: payload.healhStatus,
           notes: payload.notes,
-          motherDateOfBirth: payload.motherDateOfBirth,
           motherInfoId: motherInfoData.id
+        },
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
+          }
         }
       })
     } else {
       dispatch({
         type: 'CREATE_MOTHER_INFO',
-        payload
+        payload,
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_MOTHER_INFO', payload: { userId: userInfo.id } })
+          }
+        }
       })
     }
 
@@ -228,18 +263,28 @@ export default function ProfilePage() {
       dispatch({
         type: 'UPDATE_PREGNANCY_RECORD',
         payload: {
-          babyName: payload.babyName,
+          babyName: payload.babyName.trim(),
           babyGender: payload.babyGender,
           pregnancyStartDate: payload.pregnancyStartDate,
           expectedDueDate: payload.expectedDueDate,
           pregnancyRecordId: selectedPregnancy.id
+        },
+        callback: (success: boolean) => {
+          if (success) {
+            dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+          }
         }
       })
     } else {
       if (motherInfoData.id) {
         dispatch({
           type: 'CREATE_PREGNANCY_RECORD',
-          payload
+          payload,
+          callback: (success: boolean) => {
+            if (success) {
+              dispatch({ type: 'GET_ALL_PREGNANCY_RECORD', payload: { userId: motherInfoData.id } })
+            }
+          }
         })
       } else {
         alert('Please create mother information first')
@@ -291,6 +336,10 @@ export default function ProfilePage() {
     return days > 0 ? `${days} days` : 'Past due date'
   }
 
+  const formatDate = (date) => {
+    return date ? dayjs(date).format('DD-MM-YYYY') : 'Not set'
+  }
+
   const renderPregnancyList = () => {
     if (!pregnancyRecords.length) {
       return (
@@ -315,22 +364,30 @@ export default function ProfilePage() {
             Add New
           </Button>
         </div>
-        {pregnancyRecords.map((record) => (
-          <Card
-            key={record.id}
-            className={`pregnancy-card ${selectedPregnancy?.id === record.id ? 'active' : ''}`}
-            onClick={() => setSelectedPregnancy(record)}
-            size='small'
-          >
-            <div className='flex justify-between items-center'>
-              <div>
-                <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
-                <div className='text-sm text-gray-500'>{dayjs(record.pregnancyStartDate).format('MMM D, YYYY')}</div>
-              </div>
-              <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>{record.babyGender?.toUpperCase()}</Tag>
-            </div>
-          </Card>
-        ))}
+        <div className='mb-4 overflow-auto'>
+          <div className='flex space-x-3 py-2'>
+            {pregnancyRecords.map((record) => (
+              <Card
+                key={record.id}
+                className={`pregnancy-card ${selectedPregnancy?.id === record.id ? 'active' : ''} flex-shrink-0 w-64`}
+                onClick={() => setSelectedPregnancy(record)}
+                size='small'
+              >
+                <div className='flex justify-between items-center'>
+                  <div>
+                    <Text strong>{record.babyName || 'Unnamed Baby'}</Text>
+                    <div className='text-sm text-gray-500'>
+                      Start: {dayjs(record.pregnancyStartDate).format('DD-MM-YYYY')}
+                    </div>
+                  </div>
+                  <Tag color={record.babyGender === 'male' ? '#91caff' : '#ffadd2'}>
+                    {record.babyGender?.toUpperCase()}
+                  </Tag>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -341,19 +398,13 @@ export default function ProfilePage() {
         <div className='px-8 py-6'>
           <Row gutter={[24, 24]}>
             <Col xs={24} lg={8}>
-              <Card className='profile-card' bordered={false}>
+              <Card className='profile-card' bordered={false} style={{ height: '100%' }}>
                 <div className='text-center mb-6'>
-                  <Avatar
-                    size={120}
-                    src={motherInfoData.imageUrl}
-                    icon={<FaUser />}
-                    style={{
-                      marginBottom: '16px',
-                      border: '4px solid #ff6b81'
-                    }}
-                  />
-                  <Title level={3} style={{ color: '#333', marginBottom: '8px' }}>
-                    {motherInfoData.motherName || 'Your Name'}
+                  <div className='flex justify-center mb-4'>
+                    <UserAvatar src={userInfo.imageUrl} name={userInfo.fullName} size={120} />
+                  </div>
+                  <Title level={3} style={{ color: '#333', marginBottom: '8px' }} className='capitalize'>
+                    {userInfo.fullName || 'Your Name'}
                   </Title>
                   {motherInfoData.healthStatus && (
                     <Tag
@@ -397,7 +448,7 @@ export default function ProfilePage() {
                       </span>
                     }
                   >
-                    {motherInfoData.dateOfBirth || 'Not set'}
+                    {formatDate(userInfo.dateOfBirth)}
                   </Descriptions.Item>
                   <Descriptions.Item
                     label={
@@ -416,6 +467,7 @@ export default function ProfilePage() {
                         Health Status
                       </span>
                     }
+                    className='capitalize'
                   >
                     {motherInfoData.healthStatus?.replace('_', ' ') || 'Not set'}
                   </Descriptions.Item>
@@ -430,15 +482,13 @@ export default function ProfilePage() {
                     {motherInfoData.notes || 'No notes'}
                   </Descriptions.Item>
                 </Descriptions>
-
-                <Divider style={{ borderColor: '#ffccd5' }} />
-
-                {renderPregnancyList()}
               </Card>
             </Col>
 
             <Col xs={24} lg={16}>
               <Card className='tab-card' bordered={false}>
+                {renderPregnancyList()}
+                <Divider style={{ borderColor: '#ffccd5' }} />
                 <Tabs defaultActiveKey='1'>
                   <TabPane
                     tab={
@@ -460,17 +510,29 @@ export default function ProfilePage() {
                                   <FaBaby className='mr-2' />
                                   {selectedPregnancy.babyName || 'Unnamed Baby'}
                                 </span>
-                                <Button
-                                  type='primary'
-                                  icon={<FaEdit className='mr-1' />}
-                                  onClick={() => {
-                                    setEditMode(true)
-                                    handleEditBabyProfile()
-                                  }}
-                                  className='rounded-md'
-                                >
-                                  Edit Details
-                                </Button>
+                                <div>
+                                  <Button
+                                    type='primary'
+                                    icon={<FaTrash className='mr-1' />}
+                                    onClick={() => {
+                                      handleDeleteBabyProfile()
+                                    }}
+                                    className='rounded-md mr-1'
+                                  >
+                                    Delete baby
+                                  </Button>
+                                  <Button
+                                    type='primary'
+                                    icon={<FaEdit className='mr-1' />}
+                                    onClick={() => {
+                                      setEditMode(true)
+                                      handleEditBabyProfile()
+                                    }}
+                                    className='rounded-md'
+                                  >
+                                    Edit Details
+                                  </Button>
+                                </div>
                               </div>
                             }
                             bordered={false}
@@ -501,13 +563,13 @@ export default function ProfilePage() {
                                 <Card className='info-card' title='Pregnancy Timeline'>
                                   <Descriptions column={1}>
                                     <Descriptions.Item label='Start Date'>
-                                      {selectedPregnancy.pregnancyStartDate || 'Not set'}
+                                      {formatDate(selectedPregnancy.pregnancyStartDate)}
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Due Date'>
-                                      {selectedPregnancy.expectedDueDate || 'Not set'}
+                                      {formatDate(selectedPregnancy.expectedDueDate)}
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Current Week'>
-                                      {calculateWeeksOfPregnancy(selectedPregnancy.pregnancyStartDate)}
+                                      {selectedPregnancy.gestationalAgeResponse.weeks} weeks
                                     </Descriptions.Item>
                                     <Descriptions.Item label='Days Until Due'>
                                       {calculateDaysUntilDueDate(selectedPregnancy.expectedDueDate)}
@@ -545,42 +607,6 @@ export default function ProfilePage() {
                       </div>
                     )}
                   </TabPane>
-
-                  <TabPane
-                    tab={
-                      <span className='flex items-center'>
-                        <FaNotesMedical className='mr-2' />
-                        Medical History
-                      </span>
-                    }
-                    key='2'
-                  >
-                    <div className='text-center py-10'>
-                      <FaNotesMedical className='text-5xl text-[#ff6b81] mb-4' />
-                      <Title level={4} className='text-[#ff6b81]'>
-                        Medical History
-                      </Title>
-                      <Text type='secondary'>Medical history records will be displayed here</Text>
-                    </div>
-                  </TabPane>
-
-                  <TabPane
-                    tab={
-                      <span className='flex items-center'>
-                        <FaCalendarAlt className='mr-2' />
-                        Appointments
-                      </span>
-                    }
-                    key='3'
-                  >
-                    <div className='text-center py-10'>
-                      <FaCalendarAlt className='text-5xl text-[#ff6b81] mb-4' />
-                      <Title level={4} className='text-[#ff6b81]'>
-                        Upcoming Appointments
-                      </Title>
-                      <Text type='secondary'>Your scheduled appointments will be displayed here</Text>
-                    </div>
-                  </TabPane>
                 </Tabs>
               </Card>
             </Col>
@@ -600,33 +626,17 @@ export default function ProfilePage() {
           onCancel={closeMotherModal}
           footer={null}
           style={{ top: 20 }}
-          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
         >
           <Form
             form={motherForm}
             onFinish={handleSubmitMotherInfo}
             layout='vertical'
             initialValues={{
-              motherName: '',
               bloodType: '',
               healhStatus: '',
               notes: ''
             }}
           >
-            <Form.Item
-              name='motherName'
-              label='Mother Name'
-              rules={[{ required: true, message: 'Please enter your mother name' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name='motherDateOfBirth'
-              label='Date Of Birth'
-              rules={[{ required: true, message: 'Please enter your date of birth' }]}
-            >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
-            </Form.Item>
             <Form.Item
               name='bloodType'
               label='Blood Type'
@@ -654,8 +664,12 @@ export default function ProfilePage() {
                 ]}
               />
             </Form.Item>
-            <Form.Item name='notes' label='Notes' rules={[{ required: false }]}>
-              <Input.TextArea rows={4} />
+            <Form.Item
+              name='notes'
+              label='Notes'
+              rules={[{ required: false }, { max: 100, message: 'Notes should not exceed 100 characters' }]}
+            >
+              <Input.TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
             <Form.Item>
               <Button
@@ -684,7 +698,6 @@ export default function ProfilePage() {
           onCancel={closeBabyModal}
           footer={null}
           style={{ top: 20 }}
-          bodyStyle={{ padding: '24px', background: '#fff9fa' }}
         >
           <Form
             form={babyForm}
@@ -698,23 +711,53 @@ export default function ProfilePage() {
             <Form.Item
               name='babyName'
               label='Baby Name'
-              rules={[{ required: true, message: 'Please enter your baby name' }]}
+              rules={[
+                { required: true, message: 'Baby name is required' },
+                { min: 2, message: 'Name must be at least 2 characters' },
+                { max: 30, message: 'Name should not exceed 30 characters' },
+                { pattern: /^[a-zA-Z\s]+$/, message: 'Name can only contain letters and spaces' }
+              ]}
             >
-              <Input />
+              <Input placeholder="Enter baby's name" />
             </Form.Item>
             <Form.Item
               name='pregnancyStartDate'
               label='Pregnancy Start Date'
-              rules={[{ required: true, message: 'Please enter your pregnancy start date' }]}
+              rules={[
+                { required: true, message: 'Start date is required' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || (value.isAfter(dayjs().subtract(9, 'month')) && value.isBefore(dayjs()))) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject('Date must be within the last 9 months and not in the future')
+                  }
+                })
+              ]}
             >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+              <DatePicker
+                picker='date'
+                format={'DD-MM-YYYY'}
+                style={{ width: '100%' }}
+                onChange={(date) => {
+                  if (date) {
+                    // Pregnancy typically lasts around 40 weeks (280 days)
+                    const dueDate = dayjs(date).add(280, 'days')
+                    babyForm.setFieldValue('expectedDueDate', dueDate)
+                  }
+                }}
+                disabledDate={(current) => {
+                  // Cannot select dates before 9 months ago or after today
+                  return current && (current > dayjs().endOf('day') || current < dayjs().subtract(9, 'months'))
+                }}
+              />
             </Form.Item>
             <Form.Item
               name='expectedDueDate'
               label='Expected Due Date'
               rules={[{ required: true, message: 'Please enter your expected due date' }]}
             >
-              <DatePicker picker='date' format={'DD/MM/YYYY'} style={{ width: '100%' }} />
+              <DatePicker picker='date' format={'DD-MM-YYYY'} style={{ width: '100%' }} disabled={true} />
             </Form.Item>
             <Form.Item
               name='babyGender'

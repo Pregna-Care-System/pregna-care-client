@@ -46,7 +46,6 @@ const MyComponent = () => {
 
   const handleUploadComplete = (urls) => {
     setUploadedImages(urls)
-    console.log('Uploaded images:', urls)
   }
 
   const handleUploadError = (error) => {
@@ -99,7 +98,6 @@ const CreatePostForm = () => {
 
   const onFinish = (values) => {
     // Submit form with image URLs
-    console.log('Form values with images:', values)
     // API call to create post with images
   }
 

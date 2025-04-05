@@ -1,10 +1,12 @@
 import type React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
-import { Modal, message } from 'antd'
-import { FaEdit, FaTrash } from 'react-icons/fa'
-import { MdMoreVert, MdClose } from 'react-icons/md'
+import { Modal, Popconfirm, message } from 'antd'
+import { MdClose } from 'react-icons/md'
 import { getAllCommentByBlogId, createComment, updateComment, deleteComment } from '@/services/blogService'
+import { Link } from 'react-router-dom'
+import ROUTES from '@/utils/config/routes'
+import UserAvatar from '@/components/common/UserAvatar'
 
 interface User {
   id: string
@@ -41,7 +43,8 @@ const CommentContainer = styled.div`
 `
 
 const CommentList = styled.div`
-  max-height: ${(props) => (props.theme.modalMode ? '60vh' : 'auto')};
+  max-height: ${(props) => (props.theme.modalMode ? '66vh' : 'auto')};
+  min-height: 66vh;
   overflow-y: ${(props) => (props.theme.modalMode ? 'auto' : 'visible')};
   padding: 16px 0;
 `
@@ -61,6 +64,7 @@ const Avatar = styled.img`
 
 const CommentContent = styled.div`
   flex: 1;
+  margin-left: 12px;
 `
 
 const CommentHeader = styled.div`
@@ -308,8 +312,8 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editText, setEditText] = useState<string>('')
   const [submitting, setSubmitting] = useState<boolean>(false)
-  const [dropdownVisibleFor, setDropdownVisibleFor] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+  const [popconfirmVisible, setPopconfirmVisible] = useState<string | null>(null)
 
   const commentInputRef = useRef<HTMLInputElement>(null)
   const replyInputRef = useRef<HTMLInputElement>(null)
@@ -432,7 +436,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       }
     } catch (error) {
       console.error('Error updating comment:', error)
-      message.error('An error occurred while updating the comment')
     } finally {
       setSubmitting(false)
     }
@@ -446,7 +449,15 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     }
     setIsEditing(commentId)
     setEditText(currentText)
-    setDropdownVisibleFor(null)
+  }
+
+  //Confirm delete comment
+  const confirmDeleteComment = (commentId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    setPopconfirmVisible(commentId)
   }
 
   // Handle comment deletion
@@ -468,10 +479,8 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
       }
     } catch (error) {
       console.error('Error deleting comment:', error)
-      message.error('An error occurred while deleting the comment')
     } finally {
       setSubmitting(false)
-      setDropdownVisibleFor(null)
     }
   }
 
@@ -541,15 +550,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     }, 50)
   }
 
-  // Show comment modal
-  const showCommentModal = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      setIsModalVisible(true)
-    }
-  }
-
   // Effect to fetch comments on mount
   useEffect(() => {
     fetchComments()
@@ -562,24 +562,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
     }
   }, [isVisible, modalMode])
 
-  // Effect to handle clicks outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownVisibleFor !== null) {
-        setDropdownVisibleFor(null)
-      }
-    }
-
-    // Only add the listener if a dropdown is visible
-    if (dropdownVisibleFor !== null) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [dropdownVisibleFor])
-
   // Render a comment item
   const renderCommentItem = (comment: Comment, isReply = false) => {
     // Check if current user is the comment author
@@ -587,10 +569,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
 
     return (
       <CommentItem key={comment.id} style={{ marginLeft: isReply ? '44px' : '0' }}>
-        <Avatar
-          src={comment.user.avatarUrl || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-          alt={comment.user.fullName}
-        />
+        <UserAvatar src={comment.user.avatarUrl} name={comment.user.fullName} size={40} />
         <CommentContent>
           {isEditing === comment.id ? (
             // Edit mode
@@ -622,7 +601,17 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                       <ActionButton onClick={() => startEditing(comment.id, comment.commentText)}>Edit</ActionButton>
                     )}
                     {!isEditing && isCommentAuthor && (
-                      <ActionButton onClick={() => handleDeleteComment(comment.id)}>Delete</ActionButton>
+                      <Popconfirm
+                        title='Delete the comment'
+                        description='Are you sure to delete this comment?'
+                        onConfirm={() => handleDeleteComment(comment.id)}
+                        onCancel={() => setPopconfirmVisible(null)}
+                        open={popconfirmVisible === comment.id}
+                        okText='Yes'
+                        cancelText='No'
+                      >
+                        <ActionButton onClick={() => confirmDeleteComment(comment.id)}>Delete</ActionButton>
+                      </Popconfirm>
                     )}
                   </CommentActions>
                 </div>
@@ -660,16 +649,12 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
         // Modal mode
         <>
           <Modal
-            visible={isModalVisible}
-            onCancel={() => {
-              setIsModalVisible(false)
-              if (onClose) onClose()
-            }}
+            open={isModalVisible}
+            onCancel={onClose}
             footer={null}
             width={800}
             centered
             closable={false}
-            bodyStyle={{ padding: 0 }}
             className='instagram-modal'
           >
             <div style={{ display: 'flex', flexDirection: 'column', height: '80vh' }}>
@@ -679,7 +664,7 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                     <p>Comments</p>
                   </div>
                 </ModalTitle>
-                <CloseButton onClick={() => setIsModalVisible(false)}>
+                <CloseButton onClick={onClose}>
                   <MdClose size={24} />
                 </CloseButton>
               </ModalHeader>
@@ -731,23 +716,34 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
                 )}
               </CommentList>
 
-              <CommentInput>
-                <Input
-                  ref={commentInputRef}
-                  type='text'
-                  placeholder='Add a comment...'
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !submitting && commentText.trim()) {
-                      handleCommentSubmit()
-                    }
-                  }}
-                />
-                <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
-                  Post
-                </SubmitButton>
-              </CommentInput>
+              {currentUser ? (
+                <CommentInput>
+                  <Input
+                    ref={commentInputRef}
+                    type='text'
+                    placeholder='Add a comment...'
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !submitting && commentText.trim()) {
+                        handleCommentSubmit()
+                      }
+                    }}
+                  />
+                  <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
+                    Post
+                  </SubmitButton>
+                </CommentInput>
+              ) : (
+                <CommentInput style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <p style={{ fontSize: '14px', color: '#6b7280' }}>
+                    <Link to={ROUTES.LOGIN} style={{ color: '#3b82f6', fontWeight: '600' }}>
+                      Login
+                    </Link>{' '}
+                    now to comment
+                  </p>
+                </CommentInput>
+              )}
             </div>
           </Modal>
         </>
@@ -800,26 +796,6 @@ const CommentSystem: React.FC<CommentSystemProps> = ({
               </>
             )}
           </CommentList>
-
-          {currentUser && (
-            <CommentInput>
-              <Input
-                ref={commentInputRef}
-                type='text'
-                placeholder='Add a comment...'
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !submitting && commentText.trim()) {
-                    handleCommentSubmit()
-                  }
-                }}
-              />
-              <SubmitButton onClick={handleCommentSubmit} disabled={!commentText.trim() || submitting}>
-                Post
-              </SubmitButton>
-            </CommentInput>
-          )}
         </>
       )}
     </CommentContainer>

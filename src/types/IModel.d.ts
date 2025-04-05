@@ -1,4 +1,4 @@
-declare namespace MODEL {
+export namespace MODEL {
   export interface IResponseBase<P = any> {
     response: P
     messageId: string
@@ -167,5 +167,20 @@ declare namespace MODEL {
 
   export interface NewMembersAPIResponse extends IResponseBase {
     response: NewMembersResponse
+  }
+
+  export interface MemberInfo {
+    fullName: string
+    email: string
+    phone: string
+    address: string
+    status: boolean
+    planName?: string
+    remainingDate?: number
+    imageUrl?: string
+  }
+
+  export interface MemberInfoResponse extends IResponseBase {
+    response: MemberInfo
   }
 }

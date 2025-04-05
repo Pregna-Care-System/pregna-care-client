@@ -7,7 +7,6 @@ export const getMemberStatistics = async () => {
     const response = await request.get<MODEL.IResponseBase>(`${BASE_URL}/MemberStatistics`)
     return response.data
   } catch (error) {
-    console.log('Error at API getMemberStatistics')
     throw error
   }
 }
@@ -17,7 +16,6 @@ export const getUserStatistics = async () => {
     const response = await request.get<MODEL.IResponseBase>(`${BASE_URL}/UserrStatistics`)
     return response.data
   } catch (error) {
-    console.log('Error at API getUserStatistics')
     throw error
   }
 }
@@ -27,7 +25,6 @@ export const getTransactionStatistics = async () => {
     const response = await request.get<MODEL.IResponseBase>(`${BASE_URL}/TransactionStatistics`)
     return response.data
   } catch (error) {
-    console.log('Error at API getTransactionStatistics')
     throw error
   }
 }
@@ -37,7 +34,6 @@ export const getRevenueStatistics = async () => {
     const response = await request.get<MODEL.IResponseBase>(`${BASE_URL}/RevenueStatistics`)
     return response.data
   } catch (error) {
-    console.log('Error at API getRevenueStatistics')
     throw error
   }
 }
@@ -68,7 +64,6 @@ export const fetchMembershipPlanStats = async () => {
     const response = await request.get<MODEL.IResponseBase>(`${BASE_URL}/MembershipStats`)
     return response.data
   } catch (error) {
-    console.log('Error at API get MembershipStats')
     throw error
   }
 }

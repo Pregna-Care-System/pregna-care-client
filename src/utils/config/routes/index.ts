@@ -13,6 +13,7 @@ const ROUTES = {
   FAQ: '/faq',
   BLOG: '/blog',
   BLOG_DETAILS: '/blog/:id',
+  GROWTH_METRICS_BLOG: '/blog/understanding-fetal-growth-standards',
   COMMUNITY: '/community',
   COMMUNITY_DETAILS: '/community/:id',
   SERVICES: '/services',
@@ -42,7 +43,9 @@ const ROUTES = {
     FETALGROWTHCHART: '/member/fetal-growth-chart',
     FETALGROWTHCHART_DETAIL: '/member/fetal-growth-chart/:pregnancyRecordId',
     SCHEDULE: '/schedule',
-    YOUR_BLOG: '/your-blog'
+    YOUR_BLOG: '/your-blog',
+    HISTORY_TRANSACTION: '/member/transaction-history',
+    STANDARD_GROWTH_CHARTS: '/member/growth-charts/standards'
   },
   NOT_FOUND: '*'
 }

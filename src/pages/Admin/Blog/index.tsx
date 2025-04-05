@@ -16,7 +16,6 @@ export default function BlogAdmin() {
   const getListBlog = async () => {
     try {
       const res = await getAllBlogAdmin('blog')
-      console.log('RES', res)
       if (res.success) {
         setBlogList(res.response || [])
       }
@@ -42,22 +41,34 @@ export default function BlogAdmin() {
     {
       title: 'PageTitle',
       dataIndex: 'pageTitle',
-      key: 'rating'
+      key: 'rating',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Heading',
       dataIndex: 'heading',
-      key: 'heading'
+      key: 'heading',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Content',
       dataIndex: 'content',
-      key: 'content'
+      key: 'content',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'ShortDescription',
       dataIndex: 'shortDescription',
-      key: 'shortDescription'
+      key: 'shortDescription',
+      render: (content: string) => (
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>{content}</Paragraph>
+      )
     },
     {
       title: 'Status',

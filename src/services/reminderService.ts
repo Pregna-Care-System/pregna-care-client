@@ -1,8 +1,18 @@
+import { MODEL } from '@/types/IModel'
 import request from '@/utils/axiosClient'
 
 export const getAllReminder = async () => {
   try {
     const response = await request.get<MODEL.IResponseBase>('/Reminder')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reminders:', error)
+    throw error
+  }
+}
+export const getAllReminderByUserId = async (userId: string) => {
+  try {
+    const response = await request.get<MODEL.IResponseBase>(`/User/${userId}/Reminder`)
     return response.data
   } catch (error) {
     console.error('Error fetching reminders:', error)
@@ -80,7 +90,6 @@ export const createReminder = async (
       status
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }

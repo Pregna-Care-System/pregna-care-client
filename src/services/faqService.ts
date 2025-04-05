@@ -21,7 +21,6 @@ export const createFAQ = async (faqCategoryId: string, question: string, answer:
       }
     })
   } catch (error) {
-    console.log('Create failed', error)
     throw error
   }
 }
@@ -45,7 +44,6 @@ export const updateFAQ = async (
       }
     })
   } catch (error) {
-    console.log('Update failed', error)
     throw error
   }
 }
@@ -54,7 +52,6 @@ export const deleteFAQ = async (faqId: string) => {
   try {
     await request.delete<MODEL.IResponseBase>(`/FAQ/${faqId}`)
   } catch (error) {
-    console.log('Delete failed', error)
     throw error
   }
 }
@@ -71,7 +68,6 @@ export const createFAQCategory = async (name: string, description: string, displ
       }
     })
   } catch (error) {
-    console.log('Create category failed', error)
     throw error
   }
 }
@@ -93,7 +89,6 @@ export const updateFAQCategory = async (
       }
     })
   } catch (error) {
-    console.log('Update category failed', error)
     throw error
   }
 }
@@ -102,7 +97,6 @@ export const deleteFAQCategory = async (faqCategoryId: string) => {
   try {
     await request.delete<MODEL.IResponseBase>(`/FAQCategory/${faqCategoryId}`)
   } catch (error) {
-    console.log('Delete category failed', error)
     throw error
   }
 }

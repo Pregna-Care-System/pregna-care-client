@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Tabs, message, Spin, Tooltip } from 'antd'
+import { Tabs, message, Spin, Tooltip, Pagination, Modal, Button } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectBlogInfo, selectUserInfo, selectTagInfo } from '@/store/modules/global/selector'
+import { selectBlogInfo, selectUserInfo, selectTagInfo, selectMemberInfo } from '@/store/modules/global/selector'
 import styled from 'styled-components'
 import PostCreationModal from '@/components/PostCreationModal'
 import PostCard from './components/PostCard'
 import { PlusIcon } from 'lucide-react'
+import { style } from '@/theme'
+import { useNavigate } from 'react-router-dom'
+import ROUTES from '@/utils/config/routes'
 
 interface BlogPost {
   id: string
@@ -103,7 +106,7 @@ const CreateButton = styled.button`
 const PostGrid = styled.div`
   display: grid;
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `
 
 const StyledTabs = styled(Tabs)`
@@ -131,7 +134,98 @@ const StyledTabs = styled(Tabs)`
     border-radius: 3px 3px 0 0;
   }
 `
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
+  .ant-modal-header {
+    text-align: center;
+    padding: 24px 24px 0;
+    border-bottom: none;
+  }
+
+  .ant-modal-title {
+    font-size: 24px !important;
+    font-weight: 600;
+    color: ${style.COLORS.RED.RED_5};
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .membership-content {
+    text-align: center;
+  }
+
+  .membership-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+  }
+
+  .membership-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .benefits-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 15px;
+
+      svg {
+        color: ${style.COLORS.RED.RED_5};
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    padding: 0 24px 24px;
+    text-align: center;
+
+    .ant-btn {
+      height: 40px;
+      padding: 0 24px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-default {
+      border-color: ${style.COLORS.RED.RED_5};
+      color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        color: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+
+    .ant-btn-primary {
+      background: ${style.COLORS.RED.RED_5};
+      border-color: ${style.COLORS.RED.RED_5};
+
+      &:hover {
+        background: ${style.COLORS.RED.RED_4};
+        border-color: ${style.COLORS.RED.RED_4};
+      }
+    }
+  }
+`
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -179,10 +273,39 @@ const EmptyStateIcon = styled.div`
   color: #ef4444;
 `
 
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+
+  .ant-pagination-item-active {
+    border-color: #ef4444;
+
+    a {
+      color: #ef4444;
+    }
+  }
+
+  .ant-pagination-item:hover {
+    border-color: #ef4444;
+
+    a {
+      color: #ef4444;
+    }
+  }
+
+  .ant-pagination-prev:hover .ant-pagination-item-link,
+  .ant-pagination-next:hover .ant-pagination-item-link {
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+`
+
 const CommunityPage = () => {
   const dispatch = useDispatch()
   const blogPosts = useSelector(selectBlogInfo) || []
   const currentUser = useSelector(selectUserInfo)
+  const memberInfor = useSelector(selectMemberInfo)
   const tags = useSelector(selectTagInfo) || []
 
   const [loading, setLoading] = useState(true)
@@ -190,6 +313,12 @@ const CommunityPage = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [currentEditPost, setCurrentEditPost] = useState<BlogPost | null>(null)
+  const [isModalCheckRole, setIsModalCheckRole] = useState(false)
+  const navigate = useNavigate()
+  // Pagination states
+  const [currentDiscussionsPage, setCurrentDiscussionsPage] = useState(1)
+  const [currentMyPostsPage, setCurrentMyPostsPage] = useState(1)
+  const postsPerPage = 5
 
   useEffect(() => {
     dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
@@ -209,8 +338,36 @@ const CommunityPage = () => {
   // Filter to get only the current user's posts
   const myPosts = blogPosts.filter((post: BlogPost) => post.userId === currentUser?.id)
 
-  const showModal = () => {
-    setIsModalVisible(true)
+  // Get current posts for pagination
+  const indexOfLastDiscussionPost = currentDiscussionsPage * postsPerPage
+  const indexOfFirstDiscussionPost = indexOfLastDiscussionPost - postsPerPage
+  const currentDiscussionPosts = discussionPosts.slice(indexOfFirstDiscussionPost, indexOfLastDiscussionPost)
+
+  const indexOfLastMyPost = currentMyPostsPage * postsPerPage
+  const indexOfFirstMyPost = indexOfLastMyPost - postsPerPage
+  const currentMyPosts = myPosts.slice(indexOfFirstMyPost, indexOfLastMyPost)
+
+  // Change page handlers
+  const handleDiscussionsPageChange = (page: number) => {
+    setCurrentDiscussionsPage(page)
+    // Scroll to top of the posts section
+    window.scrollTo({
+      top: document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top
+        ? window.scrollY + (document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top || 0) - 100
+        : 0,
+      behavior: 'smooth'
+    })
+  }
+
+  const handleMyPostsPageChange = (page: number) => {
+    setCurrentMyPostsPage(page)
+    // Scroll to top of the posts section
+    window.scrollTo({
+      top: document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top
+        ? window.scrollY + (document.querySelector('.ant-tabs-content')?.getBoundingClientRect().top || 0) - 100
+        : 0,
+      behavior: 'smooth'
+    })
   }
 
   const handleCancel = () => {
@@ -262,6 +419,9 @@ const CommunityPage = () => {
               // Refresh posts
               dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
               message.success('Post created successfully')
+              // Reset to first page after creating a new post
+              setCurrentDiscussionsPage(1)
+              setCurrentMyPostsPage(1)
               resolve(true)
             } else {
               message.error(msg || 'Failed to create post')
@@ -273,7 +433,6 @@ const CommunityPage = () => {
       })
     } catch (error) {
       console.error('Error creating post:', error)
-      message.error('An error occurred while creating the post')
       setSubmitting(false)
       return false
     }
@@ -330,7 +489,6 @@ const CommunityPage = () => {
       })
     } catch (error) {
       console.error('Error updating post:', error)
-      message.error('An error occurred while updating the post')
       setSubmitting(false)
       return false
     }
@@ -344,13 +502,28 @@ const CommunityPage = () => {
         if (success) {
           message.success('Post deleted successfully')
           dispatch({ type: 'GET_ALL_BLOGS', payload: { type: 'community' } })
+
+          // If we're on a page with only one post and we delete it, go back to the previous page
+          if (currentDiscussionPosts.length === 1 && currentDiscussionsPage > 1) {
+            setCurrentDiscussionsPage(currentDiscussionsPage - 1)
+          }
+
+          if (currentMyPosts.length === 1 && currentMyPostsPage > 1) {
+            setCurrentMyPostsPage(currentMyPostsPage - 1)
+          }
         } else {
           message.error(msg || 'Failed to delete post')
         }
       }
     })
   }
-
+  const handleNavClick = () => {
+    if (memberInfor?.role !== 'Member') {
+      setIsModalCheckRole(true)
+    } else {
+      setIsModalVisible(true)
+    }
+  }
   const renderEmptyState = (type: 'discussions' | 'my-posts') => {
     return (
       <EmptyStateContainer>
@@ -405,7 +578,7 @@ const CommunityPage = () => {
           <Title>Community Feed</Title>
           {currentUser && (
             <Tooltip title='Create a new post'>
-              <CreateButton onClick={showModal}>
+              <CreateButton onClick={handleNavClick}>
                 <PlusIcon size={18} />
                 Create Post
               </CreateButton>
@@ -420,49 +593,79 @@ const CommunityPage = () => {
                 <Spin size='large' />
               </LoadingContainer>
             ) : (
-              <PostGrid>
-                {discussionPosts.length > 0
-                  ? discussionPosts.map((post: BlogPost) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        currentUser={currentUser}
-                        onEdit={(post) => {
-                          setCurrentEditPost(post)
-                          setIsEditModalVisible(true)
-                        }}
-                        onDelete={handleDeletePost}
-                      />
-                    ))
-                  : renderEmptyState('discussions')}
-              </PostGrid>
+              <>
+                <PostGrid>
+                  {currentDiscussionPosts.length > 0
+                    ? currentDiscussionPosts.map((post: BlogPost) => (
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          currentUser={currentUser}
+                          onEdit={(post) => {
+                            setCurrentEditPost(post)
+                            setIsEditModalVisible(true)
+                          }}
+                          onDelete={handleDeletePost}
+                        />
+                      ))
+                    : renderEmptyState('discussions')}
+                </PostGrid>
+
+                {discussionPosts.length > postsPerPage && (
+                  <PaginationContainer>
+                    <Pagination
+                      current={currentDiscussionsPage}
+                      onChange={handleDiscussionsPageChange}
+                      total={discussionPosts.length}
+                      pageSize={postsPerPage}
+                      showSizeChanger={false}
+                    />
+                  </PaginationContainer>
+                )}
+              </>
             )}
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab='My Posts' key='2'>
-            {loading ? (
-              <LoadingContainer>
-                <Spin size='large' />
-              </LoadingContainer>
-            ) : (
-              <PostGrid>
-                {myPosts.length > 0
-                  ? myPosts.map((post: BlogPost) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        currentUser={currentUser}
-                        onEdit={(post) => {
-                          setCurrentEditPost(post)
-                          setIsEditModalVisible(true)
-                        }}
-                        onDelete={handleDeletePost}
+          {currentUser && (
+            <Tabs.TabPane tab='My Posts' key='2'>
+              {loading ? (
+                <LoadingContainer>
+                  <Spin size='large' />
+                </LoadingContainer>
+              ) : (
+                <>
+                  <PostGrid>
+                    {currentMyPosts.length > 0
+                      ? currentMyPosts.map((post: BlogPost) => (
+                          <PostCard
+                            key={post.id}
+                            post={post}
+                            currentUser={currentUser}
+                            onEdit={(post) => {
+                              setCurrentEditPost(post)
+                              setIsEditModalVisible(true)
+                            }}
+                            onDelete={handleDeletePost}
+                          />
+                        ))
+                      : renderEmptyState('my-posts')}
+                  </PostGrid>
+
+                  {myPosts.length > postsPerPage && (
+                    <PaginationContainer>
+                      <Pagination
+                        current={currentMyPostsPage}
+                        onChange={handleMyPostsPageChange}
+                        total={myPosts.length}
+                        pageSize={postsPerPage}
+                        showSizeChanger={false}
                       />
-                    ))
-                  : renderEmptyState('my-posts')}
-              </PostGrid>
-            )}
-          </Tabs.TabPane>
+                    </PaginationContainer>
+                  )}
+                </>
+              )}
+            </Tabs.TabPane>
+          )}
         </StyledTabs>
       </ContentContainer>
 
@@ -471,7 +674,7 @@ const CommunityPage = () => {
         isVisible={isModalVisible}
         onCancel={handleCancel}
         onSubmit={handleCreatePost}
-        currentUser={currentUser}
+        currentUser={memberInfor}
         tags={tags}
         submitting={submitting}
       />
@@ -481,7 +684,7 @@ const CommunityPage = () => {
         isVisible={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         onSubmit={handleEditPost}
-        currentUser={currentUser}
+        currentUser={memberInfor}
         tags={tags}
         submitting={submitting}
         title='Edit Post'
@@ -497,6 +700,36 @@ const CommunityPage = () => {
             : undefined
         }
       />
+      <StyledModal
+        title='Become a PregnaCare Member'
+        open={isModalCheckRole}
+        onCancel={() => setIsModalCheckRole(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setIsModalCheckRole(false)}>
+            Later
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            onClick={() => {
+              setIsModalCheckRole(false)
+              navigate(ROUTES.MEMBESHIP_PLANS)
+            }}
+          >
+            View Membership Plans
+          </Button>
+        ]}
+      >
+        <div className='membership-content'>
+          <img
+            src='https://res.cloudinary.com/drcj6f81i/image/upload/v1736744602/PregnaCare/mgxvbwz2fggrx7brtjgo.svg'
+            alt='Membership'
+            className='membership-image'
+          />
+
+          <div className='membership-subtitle'>Join our community to experience exclusive features</div>
+        </div>
+      </StyledModal>
     </PageContainer>
   )
 }
